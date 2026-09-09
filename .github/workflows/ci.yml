@@ -4,6 +4,18 @@ on:
   push:
     branches: ['**']
   pull_request:
+  # Ручной запуск: единственный способ пересобрать эталон вычисленных стилей.
+  # Эталон снимается с работающего сайта — нужны база, сервер и браузер, —
+  # поэтому на машине разработчика без БД его не пересобрать вовсе. Пока этого
+  # пути не было, у правки оформления админки оставался один исход: уронить
+  # визуальный тест и «починить» его, переписав эталон вручную, то есть
+  # заглушить единственного сторожа вида.
+  workflow_dispatch:
+    inputs:
+      update_visual_baseline:
+        description: 'Пересобрать эталон вычисленных стилей и закоммитить в эту ветку'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -151,6 +163,12 @@ jobs:
     name: Browser smoke (Chromium)
     runs-on: ubuntu-latest
 
+    # Запись нужна одному шагу — возврату пересобранного эталона в ветку.
+    # Остальным джобам её не даём: право на запись, выданное «на всякий
+    # случай», однажды используется не тем шагом.
+    permissions:
+      contents: write
+
     services:
       mysql:
         image: mysql:8.0
@@ -255,7 +273,31 @@ jobs:
         run: npm run test:browser
 
       - name: Run visual regression tests
+        if: ${{ inputs.update_visual_baseline != true }}
         run: npm run test:visual
+
+      # Пересборка идёт вместо проверки, а не после неё: проверка упала бы
+      # первой и до пересборки дело бы не дошло.
+      - name: Пересобрать эталон вычисленных стилей
+        if: ${{ inputs.update_visual_baseline == true }}
+        run: npm run test:visual -- --update-snapshots
+
+      # Эталон возвращается в ту же ветку отдельным коммитом — его читают в
+      # diff'е PR наравне с кодом. Изменение оформления обязано быть видно
+      # рецензенту: эталон здесь не «служебный файл», а запись о том, что вид
+      # поменялся намеренно.
+      - name: Закоммитить обновлённый эталон
+        if: ${{ inputs.update_visual_baseline == true }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add tests/browser/visual-baseline
+          if git diff --cached --quiet; then
+            echo 'Эталон не изменился — коммитить нечего.'
+            exit 0
+          fi
+          git commit -m 'Пересобрать эталон вычисленных стилей'
+          git push origin HEAD:${{ github.ref_name }}
 
       # Обход живого сайта ловит то, чего не видно в исходниках: пустой ключ
       # массива, приведение float к int, устаревший вызов внутри редкой ветки.
