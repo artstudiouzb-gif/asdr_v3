@@ -239,7 +239,9 @@ final class PerformanceController
         } elseif (\App\Core\Cloudflare::purgeEverything()) {
             Flash::success('Кэш Cloudflare очищен.');
         } else {
-            Flash::error('Не удалось очистить кэш Cloudflare — проверьте токен и Zone ID (подробности в логах).');
+            $reason = \App\Core\Cloudflare::lastError();
+            Flash::error('Не удалось очистить кэш Cloudflare'
+                . ($reason !== '' ? ' — ' . $reason : ' — проверьте токен и Zone ID (подробности в логах).'));
         }
         header('Location: /admin/performance');
         exit;
@@ -371,9 +373,14 @@ final class PerformanceController
         $opcacheOk = function_exists('opcache_reset') ? @opcache_reset() : null;
 
         $parts = ['Файловый кэш очищен'];
+        // Причину отказа называем здесь же: до журнала на shared-хостинге
+        // владелец не доходит, а «ошибка очистки» не подсказывает, что чинить.
+        $cfReason = \App\Core\Cloudflare::lastError();
         $parts[] = $cfOk === true
             ? 'Cloudflare очищен'
-            : ($cfOk === false ? 'Cloudflare: ошибка очистки' : 'Cloudflare не настроен');
+            : ($cfOk === false
+                ? 'Cloudflare: ' . ($cfReason !== '' ? $cfReason : 'ошибка очистки')
+                : 'Cloudflare не настроен');
         $parts[] = $opcacheOk === true
             ? 'OPcache сброшен'
             : ($opcacheOk === false ? 'OPcache: сброс недоступен' : 'OPcache отключен');
