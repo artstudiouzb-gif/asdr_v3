@@ -111,6 +111,7 @@ test('Каждое поле слайда влияет на вывод', function
     'cta_icon' => 'arrow-right', 'cta_new_tab' => true,
     'cta2_enabled' => true, 'cta2_text' => 'Вторая', 'cta2_url' => '/cta2', 'cta2_style' => 'primary',
     'cta2_icon' => 'arrow-right', 'cta2_new_tab' => true,
+    'cta_color' => '#abcdef', 'link_color' => '#fedcba',
     'art_image' => '/uploads/public/art.png', 'art_alt' => 'Описание знака', 'art_position' => 'right',
     'art_size' => 'custom', 'art_width' => 200,
     'duration' => 9, 'css_class' => 'my-slide',

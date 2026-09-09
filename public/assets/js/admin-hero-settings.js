@@ -83,6 +83,13 @@
                 ['cta', 'cta2'].forEach(function (prefix) {
                     show(['text', 'url', 'style', 'icon', 'new_tab'].map(function (key) { return prefix + '_' + key; }).join(','), value(prefix + '_enabled'));
                 });
+                // Цвет спрашиваем только у того вида, который его слушает:
+                // заливку красит вид «Основная», цвет ссылки — вид «Ссылка».
+                var ctaStyles = ['cta', 'cta2'].map(function (prefix) {
+                    return value(prefix + '_enabled') ? value(prefix + '_style') : '';
+                });
+                show('cta_color', ctaStyles.indexOf('primary') !== -1);
+                show('link_color', ctaStyles.indexOf('link') !== -1);
                 var overlay = value('overlay') || form.dataset.heroOverlayDefault;
                 show('overlay_color,overlay_opacity', overlay !== 'none');
                 show('overlay_direction', overlay === 'gradient');

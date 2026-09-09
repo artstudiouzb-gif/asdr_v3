@@ -462,6 +462,17 @@ final class HeroRenderer
         if ($d['image_fit'] === 'contain') {
             $vars['--hero-fit'] = 'contain';
         }
+        // Цвет кнопки и ссылки — свой у кадра. Надпись на заливке по-прежнему
+        // считается по контрасту, а не выбирается: --on-accent объявлен от
+        // акцента сайта, и без пересчёта на светлой кнопке остался бы белый
+        // текст — тот же случай, что и у цвета кнопки самой обложки.
+        if ($d['cta_color'] !== '') {
+            $vars['--hero-accent'] = (string) $d['cta_color'];
+            $vars['--on-accent'] = AccentContrast::onFill((string) $d['cta_color']);
+        }
+        if ($d['link_color'] !== '') {
+            $vars['--hero-link'] = (string) $d['link_color'];
+        }
         // Прозрачность фоновой надписи — своя у слайда, поэтому переменной в
         // scoped CSS: инлайн-стили в блоках запрещены.
         if (trim((string) $d['watermark']) !== '') {
