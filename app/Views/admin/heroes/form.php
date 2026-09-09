@@ -3,6 +3,7 @@
 use App\Core\AdminUi;
 use App\Core\Csrf;
 use App\Core\Hero\HeroPresets;
+use App\Core\Hero\HeroSettings;
 use App\Core\Hero\HeroSlideData;
 use App\Models\HeroSlide;
 use App\Models\Language;
@@ -355,18 +356,9 @@ $overlayDirections = [
                     где его не закрывает фотография или видео.
                 </span>
             </div>
-            <?= $select('scheme', 'Схема обложки', [
-                'light' => 'Светлая',
-                'dark' => 'Тёмная',
-                'navy' => 'Тёмно-синяя',
-                'custom' => 'Свои цвета',
-            ], (string) $settings['scheme']) ?>
-            <?= $select('content_scheme', 'Цвет текста', [
-                'auto' => 'Автоматически — по фону',
-                'light' => 'Светлый',
-                'dark' => 'Тёмный',
-            ], (string) $settings['content_scheme'],
-                'Автоматический режим учитывает фон. Выберите светлый или тёмный текст, если на фотографии он читается плохо.') ?>
+            <?= $select('scheme', 'Фон обложки', HeroSettings::SCHEME_LABELS, (string) $settings['scheme']) ?>
+            <?= $select('content_scheme', 'Цвет текста', HeroSettings::CONTENT_SCHEME_LABELS,
+                (string) $settings['content_scheme'], HeroSettings::CONTENT_SCHEME_HINT) ?>
             <div class="form-field">
                 <label for="scheme_bg">Цвет фона</label>
                 <input type="color" id="scheme_bg" name="scheme_bg" value="<?= htmlspecialchars((string) $settings['scheme_bg'], ENT_QUOTES) ?>">
@@ -377,7 +369,11 @@ $overlayDirections = [
             </div>
             <?= AdminUi::colorField('scheme_accent', (string) $settings['scheme_accent'], 'Цвет основной кнопки', '#173a63', 'Акцент из «Дизайна»') ?>
         <?php echo $group('Цветовая схема', 'фон обложки и цвет её текста',
-            ucfirst((string) $settings['scheme']) . ' · текст ' . (string) $settings['content_scheme'],
+            // Сводку сразу после загрузки перерисовывает admin-hero-settings.js
+            // подписями выбранных вариантов — здесь те же подписи, иначе
+            // свёрнутая группа успевала мигнуть служебными ключами («navy · auto»).
+            (HeroSettings::SCHEME_LABELS[$settings['scheme']] ?? '')
+                . ' · ' . (HeroSettings::CONTENT_SCHEME_LABELS[$settings['content_scheme']] ?? ''),
             (string) ob_get_clean()); ?>
 
         <?php
