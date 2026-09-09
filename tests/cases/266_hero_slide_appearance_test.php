@@ -24,7 +24,7 @@ test('У слайда осталось только то, что зависит 
     // цвет текста секции по-прежнему у обложки (список ниже).
     foreach ([
         'overlay', 'overlay_color', 'overlay_opacity', 'overlay_direction', 'content_scheme',
-        'cta_color', 'link_color',
+        'cta_color', 'link_color', 'cta_text_color',
     ] as $keep) {
         assert_true(in_array($keep, $fields, true), 'у слайда пропала настройка кадра: ' . $keep);
     }

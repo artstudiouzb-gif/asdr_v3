@@ -88,7 +88,7 @@
                 var ctaStyles = ['cta', 'cta2'].map(function (prefix) {
                     return value(prefix + '_enabled') ? value(prefix + '_style') : '';
                 });
-                show('cta_color', ctaStyles.indexOf('primary') !== -1);
+                show('cta_color,cta_text_color', ctaStyles.indexOf('primary') !== -1);
                 show('link_color', ctaStyles.indexOf('link') !== -1);
                 var overlay = value('overlay') || form.dataset.heroOverlayDefault;
                 show('overlay_color,overlay_opacity', overlay !== 'none');
