@@ -20,7 +20,7 @@
     "@tabler/icons-sprite": "3.46.0",
     "axe-core": "^4.13.0",
     "clean-css": "5.3.3",
-    "subset-font": "^2.5.0",
+    "subset-font": "^2.7.0",
     "terser": "5.51.2",
     "web-vitals": "^6.1.0"
   }
