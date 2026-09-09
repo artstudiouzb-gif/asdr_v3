@@ -31,10 +31,7 @@ $action = $isEdit ? '/admin/projects/' . (int) $project['id'] . '/edit' : '/admi
         <div class="entry-main">
             <!-- Блок 1: Основная информация -->
             <div class="form-card u-inline-8a43589152">
-                <div class="u-inline-1446175039">
-                    <span class="admin-section-icon"><?= \App\Core\AdminUi::icon('projects', 22) ?></span>
-                    <h3 class="u-inline-eb7fb8da4e">1. Основная информация о проекте</h3>
-                </div>
+                <?= \App\Core\AdminUi::cardHeader('1. Основная информация о проекте', 'projects') ?>
 
                 <div class="form-field u-inline-79a1c5a5db">
                     <label class="u-inline-e925a44577">Название проекта <span class="u-inline-9dd1207e58">*</span></label>
@@ -50,10 +47,7 @@ $action = $isEdit ? '/admin/projects/' . (int) $project['id'] . '/edit' : '/admi
 
             <!-- Блок 2: Обложка -->
             <div class="form-card u-inline-8a43589152">
-                <div class="u-inline-1446175039">
-                    <span class="admin-section-icon admin-section-icon--info"><?= \App\Core\AdminUi::icon('media', 22) ?></span>
-                    <h3 class="u-inline-eb7fb8da4e">2. Обложка проекта</h3>
-                </div>
+                <?= \App\Core\AdminUi::cardHeader('2. Обложка проекта', 'media', 'var(--admin-info)') ?>
 
                 <div class="form-grid u-inline-7dde5e56b3">
                     <?= \App\Core\AdminUi::imageField('cover_image_url', $project['cover_image'] ?? '', [
