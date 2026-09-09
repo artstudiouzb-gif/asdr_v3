@@ -13,6 +13,7 @@ use App\Models\Language;
 /** @var array $slide */
 /** @var array<string, mixed> $data */
 /** @var array<string, array<string, mixed>> $translations */
+/** @var array{fill:string, text:string, ratio:float}|null $ctaContrast */
 
 $heroId = (int) $hero['id'];
 $slideId = (int) $slide['id'];
@@ -289,6 +290,19 @@ $customDuration = (int) $data['duration'];
                 </div>
                 <div class="col-4">
                     <?= AdminUi::colorField('link_color', (string) $data['link_color'], 'Цвет ссылки', '#ffffff', 'Цвет текста слайда') ?>
+                </div>
+                <div class="col-4">
+                    <?= AdminUi::colorField('cta_text_color', (string) $data['cta_text_color'], 'Цвет текста кнопки', '#ffffff', 'Считать по контрасту заливки') ?>
+                    <?php // Выбранный цвет применяется как есть — подменять его молча нельзя,
+                          // настройка тогда не работает. Но плохую пару называем вслух:
+                          // норма для текста 4.5:1.
+                    if ($ctaContrast !== null && $ctaContrast['ratio'] < 4.5): ?>
+                        <span class="form-hint form-hint--warning">
+                            Надпись плохо читается на заливке: <?= number_format($ctaContrast['ratio'], 1, ',', '') ?>:1
+                            при норме 4.5:1. Возьмите светлее или темнее — либо снимите цвет,
+                            и он посчитается по заливке.
+                        </span>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Ссылка со всего слайда -->

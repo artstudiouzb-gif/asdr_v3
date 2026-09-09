@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers\Admin;
 
+use App\Core\AccentContrast;
 use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Flash;
@@ -217,13 +218,43 @@ final class HeroController
             return;
         }
 
+        $settings = Hero::settings($hero);
+
         View::render('admin/heroes/slide_form', [
             'hero' => $hero,
-            'settings' => Hero::settings($hero),
+            'settings' => $settings,
             'slide' => $slide,
             'data' => $slide['data'],
+            'ctaContrast' => self::ctaContrast($slide['data'], $settings),
             'translations' => HeroSlideTranslation::forSlide((int) $slide['id']),
         ]);
+    }
+
+    /**
+     * Контраст надписи к заливке кнопки — или `null`, когда сравнивать не с
+     * чем.
+     *
+     * Заливка известна, только пока она задана здесь же: свой цвет у слайда
+     * или цвет кнопки обложки. Дальше по цепочке стоит акцент из «Дизайна»,
+     * он приезжает в CSS переменной, и подставлять вместо него сегодняшнее
+     * значение значило бы предупреждать про пару, которой на сайте нет.
+     *
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $settings
+     * @return array{fill:string, text:string, ratio:float}|null
+     */
+    private static function ctaContrast(array $data, array $settings): ?array
+    {
+        $text = (string) ($data['cta_text_color'] ?? '');
+        $fill = (string) ($data['cta_color'] ?? '');
+        if ($fill === '') {
+            $fill = (string) ($settings['scheme_accent'] ?? '');
+        }
+        if ($text === '' || $fill === '') {
+            return null;
+        }
+
+        return ['fill' => $fill, 'text' => $text, 'ratio' => AccentContrast::ratio($text, $fill)];
     }
 
     /** @param array<string, string> $params */

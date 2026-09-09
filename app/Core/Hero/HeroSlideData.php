@@ -124,6 +124,11 @@ final class HeroSlideData
             // текста слайда.
             'cta_color' => '',
             'link_color' => '',
+            // Надпись на заливке: пусто — считается по контрасту самой
+            // заливки. Явный выбор её перебивает, как у «Акцентной цитаты»,
+            // но плохое сочетание форма называет вслух: подставлять вместо
+            // выбранного цвета другой значило бы, что настройка не работает.
+            'cta_text_color' => '',
 
             // --- Картинка поверх фона (эмблема, логотип программы) ---
             'art_image' => '',
@@ -237,6 +242,7 @@ final class HeroSlideData
             'cta2_new_tab' => !empty($input['cta2_new_tab']),
             'cta_color' => BlockDataInput::optionalColor($input, 'cta_color'),
             'link_color' => BlockDataInput::optionalColor($input, 'link_color'),
+            'cta_text_color' => BlockDataInput::optionalColor($input, 'cta_text_color'),
 
             'art_image' => BlockDataInput::safeMedia($input['art_image'] ?? ''),
             'art_alt' => BlockDataInput::trimmed($input, 'art_alt'),
@@ -353,6 +359,7 @@ final class HeroSlideData
         $d['overlay_color'] = $hex($d['overlay_color'] ?? '');
         $d['cta_color'] = $hex($d['cta_color'] ?? '');
         $d['link_color'] = $hex($d['link_color'] ?? '');
+        $d['cta_text_color'] = $hex($d['cta_text_color'] ?? '');
         $d['watermark_size'] = self::ranged($d['watermark_size'] ?? null, 2, 60, 22);
         $d['watermark_x'] = $enum($d['watermark_x'] ?? '', self::WATERMARK_X, 'center');
         $d['watermark_y'] = $enum($d['watermark_y'] ?? '', self::WATERMARK_Y, 'middle');

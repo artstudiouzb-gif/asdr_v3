@@ -62,11 +62,13 @@ test('slide asks for a colour only from the button style that uses it', async ({
     // ссылки — вид «Ссылка», у остальных видов оба поля ничего не меняют.
     await setup(page, 'slide', input('cta_enabled', 'checkbox') + select('cta_style', ['primary', 'link'])
         + input('cta2_enabled', 'checkbox') + select('cta2_style', ['ghost', 'link'])
-        + input('cta_color', 'color') + input('link_color', 'color'));
+        + input('cta_color', 'color') + input('link_color', 'color') + input('cta_text_color', 'color'));
     await expect(page.locator('[name=cta_color]')).toBeHidden();
+    await expect(page.locator('[name=cta_text_color]')).toBeHidden();
     await expect(page.locator('[name=link_color]')).toBeHidden();
     await page.check('[name=cta_enabled]');
     await expect(page.locator('[name=cta_color]')).toBeVisible();
+    await expect(page.locator('[name=cta_text_color]')).toBeVisible();
     await expect(page.locator('[name=link_color]')).toBeHidden();
     await page.selectOption('[name=cta_style]', 'link');
     await expect(page.locator('[name=cta_color]')).toBeHidden();
