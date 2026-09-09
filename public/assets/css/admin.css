@@ -3704,6 +3704,102 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 }
 
 /* --- Сетка дашборда и лог действий --- */
+/* ============================================================================
+   Дашборд: плитки счётчиков, строки статуса, списки виджетов, график
+   ----------------------------------------------------------------------------
+   Раньше раскладку этих виджетов держали два десятка классов с хешем в имени
+   (`u-inline-*`) — остаток вынесенных инлайн-стилей. Каждый описывал один
+   случай, читать их было нельзя, и оттого на одной странице соседствовали три
+   вида шапки виджета и четыре размера иконки. Здесь величины взяты из шкалы
+   панели: иконка 20px в плитке 36px у счётчика, 16px в строке списка, 22px в
+   шапке карточки (`AdminUi::cardHeader`), отступы 8/12/16/24.
+   ============================================================================ */
+
+/* Ритм страницы: один промежуток между виджетами вместо отступа, который
+   вешался на каждый элемент своим классом с хешем — один виджет его не
+   получал, и в середине страницы шов был вдвое уже соседних. Сброс перечисляет
+   классы поимённо: у `.dash-page > *` вес тот же, что у `.continue-card`, и
+   победитель зависел бы от порядка строк в файле. */
+.dash-page { display: flex; flex-direction: column; gap: 24px; }
+.dash-page > .admin-welcome,
+.dash-page > .stat-grid,
+.dash-page > .dashboard-grid,
+.dash-page > .form-card { margin-top: 0; margin-bottom: 0; }
+
+/* Тон плитки задаётся одной переменной: модификатор меняет и глиф, и подложку,
+   а не два цвета по отдельности — разъехаться им негде. */
+.stat-card__icon {
+    --stat-icon: var(--admin-accent);
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; margin-bottom: 2px;
+    /* Тот же радиус, что у самой карточки: 2px из --admin-radius-sm рядом с
+       3px карточки читаются как разные скругления на одном элементе. */
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--stat-icon) 12%, var(--admin-surface));
+    color: var(--stat-icon);
+}
+.stat-card__icon--success { --stat-icon: var(--admin-success); }
+.stat-card__icon--info { --stat-icon: var(--admin-info); }
+.stat-card__icon--violet { --stat-icon: var(--admin-violet); }
+.stat-card__icon--warning { --stat-icon: var(--admin-warning); }
+.stat-card__icon--neutral { --stat-icon: var(--admin-neutral); }
+.stat-card__icon--danger { --stat-icon: var(--admin-danger); }
+.stat-card__note { font-size: var(--admin-fs-sm); color: var(--admin-muted); }
+
+/* Строки «Статуса системы»: подпись над значением, а не в одну строку с ним —
+   значения разной длины («8.4.7», «Подключена», «0 в очереди») иначе рвут ряд. */
+.dash-status { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.dash-status__row {
+    display: flex; align-items: center; gap: 10px; min-width: 0;
+    padding: 10px 12px; border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-sm, 3px);
+}
+.dash-status__icon { flex: none; display: inline-flex; color: var(--admin-muted); }
+.dash-status__body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.dash-status__label { font-size: var(--admin-fs-sm); color: var(--admin-muted); }
+.dash-status__value { font-size: var(--admin-fs-base); font-weight: var(--admin-fw-medium); color: var(--admin-text); }
+
+/* Список внутри виджета: заявки, читаемые новости. Отрицательные поля дают
+   строке подсветку во всю ширину карточки, не сдвигая текст. */
+.dash-list { display: flex; flex-direction: column; margin-top: 12px; }
+.dash-list__item {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 12px; margin: 0 -12px;
+    border-radius: var(--admin-radius-sm, 3px);
+    color: var(--admin-text); text-decoration: none;
+}
+.dash-list__item + .dash-list__item { border-top: 1px solid var(--admin-border); }
+.dash-list__item:hover { background: var(--admin-accent-soft); text-decoration: none; }
+.dash-list__main { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.dash-list__rank {
+    flex: none; display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--admin-accent-soft); color: var(--admin-accent);
+    font-size: var(--admin-fs-xs); font-weight: var(--admin-fw-semibold);
+    font-variant-numeric: tabular-nums;
+}
+.dash-list__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dash-list__title { font-weight: var(--admin-fw-medium); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-list__meta { font-size: var(--admin-fs-sm); color: var(--admin-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-list__side { flex: none; display: flex; align-items: center; gap: 8px; }
+.dash-list__time { font-size: var(--admin-fs-sm); color: var(--admin-muted); font-variant-numeric: tabular-nums; }
+
+/* Поисковые запросы: пилюля с иконкой и счётчиком. */
+.dash-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.dash-tag {
+    display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px;
+    border: 1px solid var(--admin-border); border-radius: var(--admin-radius-sm, 3px);
+    font-size: var(--admin-fs-base);
+}
+.dash-tag__icon { display: inline-flex; color: var(--admin-muted); }
+
+/* График заявок. Высота считается из viewBox, а не задаётся коробке: при
+   фиксированной высоте подписи осей обрезались на узком экране. */
+.dash-chart { margin-top: 12px; }
+.dash-chart__svg { display: block; width: 100%; height: auto; }
+.dash-chart__value { font-size: var(--admin-fs-xs); font-weight: var(--admin-fw-semibold); fill: var(--admin-text); }
+.dash-chart__axis { font-size: var(--admin-fs-xs); fill: var(--admin-muted); }
+
 .dashboard-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; margin-top: 24px; }
 @media (max-width: 960px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
@@ -3739,6 +3835,13 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 .activity-item__badge--put, .activity-item__badge--patch { background: var(--admin-accent, #2271b1); }
 .activity-item__badge--delete { background: var(--admin-danger, #b32d2e); }
 .activity-item__badge--auth { background: #64748b; }
+/* Путь запроса: на тёмной теме панели общий стиль `code` давал светлую плашку
+   со светлым текстом — строка пропадала целиком. Цвет берём от текста темы. */
+.activity-item__desc code {
+    padding: 2px 6px; border-radius: 3px;
+    background: color-mix(in srgb, var(--admin-text) 8%, transparent);
+    color: var(--admin-text); font-size: var(--admin-fs-sm);
+}
 
 /* Бейджи статусов для списков и таблиц */
 .status-badge {
