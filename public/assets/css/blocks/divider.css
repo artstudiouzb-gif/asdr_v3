@@ -1,0 +1,30 @@
+/* «Разделитель»: линия, знак или пустое место между секциями.
+
+   Один элемент <hr> в четырёх видах. Собственная рамка браузера снимается:
+   она рисуется двумя тонами и на тёмной теме выглядит вдавленной. */
+.block-divider {
+    border: 0;
+    margin: 0;
+    height: 0;
+}
+.block-divider--line { border-top: 1px solid var(--gov-border); }
+/* Короткая линия — декоративная: её длина не зависит от ширины экрана, иначе
+   на телефоне она занимала бы всю строку и переставала читаться коротким. */
+.block-divider--short {
+    width: 96px;
+    margin-inline: auto;
+    border-top: 3px solid var(--gov-teal);
+    border-radius: 3px;
+}
+/* Знак — та же эмблема, что у заглушек и водяного знака карточек: своей
+   картинки разделителю не нужно. Сама маска приезжает из scoped CSS блока
+   абсолютным адресом (BlockBackground::emblemUrl): var(--gov-emblem) объявлена
+   относительным url и из другого файла разрешается не туда. */
+.block-divider--emblem {
+    height: 28px;
+    background: color-mix(in srgb, var(--gov-title) 30%, transparent);
+}
+.block-divider--space { height: var(--divider-space, 40px); }
+.block-divider--size-small { --divider-space: 20px; }
+.block-divider--size-medium { --divider-space: 40px; }
+.block-divider--size-large { --divider-space: 72px; }

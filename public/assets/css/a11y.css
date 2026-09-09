@@ -1,0 +1,830 @@
+/* Настройки отображения («для слабовидящих»).
+   Состояние — атрибуты на <html>: data-a11y-size (100…200), data-a11y-contrast
+   (mono|warm), data-a11y-font (readable|serif), data-a11y-spacing (wide|wider),
+   data-a11y-images="off", data-a11y-motion="off", data-a11y-links="underline",
+   data-a11y-reading="on". Значения по умолчанию в разметку не попадают, поэтому
+   обычная страница остаётся обычной: этот файл ничего не делает, пока посетитель
+   ничего не включил. */
+
+/* ===== Размер текста ===== */
+/* Размеры сайта заданы в rem, поэтому базовый кегль масштабирует всю типографику. */
+html[data-a11y-size="110"] { font-size: 110%; }
+html[data-a11y-size="120"] { font-size: 120%; }
+html[data-a11y-size="130"] { font-size: 130%; }
+html[data-a11y-size="140"] { font-size: 140%; }
+html[data-a11y-size="150"] { font-size: 150%; }
+html[data-a11y-size="160"] { font-size: 160%; }
+html[data-a11y-size="170"] { font-size: 170%; }
+html[data-a11y-size="180"] { font-size: 180%; }
+html[data-a11y-size="190"] { font-size: 190%; }
+html[data-a11y-size="200"] { font-size: 200%; }
+
+/* Крупный текст быстро упирается в фиксированные высоты — снимаем ограничения
+   у типовых «обрезающих» мест, иначе строки наезжают друг на друга. */
+html[data-a11y-size]:not([data-a11y-size="100"]) .site-header,
+html[data-a11y-size]:not([data-a11y-size="100"]) .site-header__row,
+html[data-a11y-size]:not([data-a11y-size="100"]) .site-menu__link,
+html[data-a11y-size]:not([data-a11y-size="100"]) .btn,
+html[data-a11y-size]:not([data-a11y-size="100"]) .block-hero__button {
+    height: auto;
+    min-height: 0;
+    line-height: 1.4;
+}
+html[data-a11y-size]:not([data-a11y-size="100"]) [class*="__title"],
+html[data-a11y-size]:not([data-a11y-size="100"]) [class*="__text"],
+html[data-a11y-size]:not([data-a11y-size="100"]) [class*="__excerpt"],
+html[data-a11y-size]:not([data-a11y-size="100"]) [class*="__lead"] {
+    /* Многострочные обрезки прячут текст ровно тогда, когда он стал крупнее. */
+    -webkit-line-clamp: unset;
+    max-height: none;
+    overflow: visible;
+}
+
+/* От 140% двухколоночные шапки материалов складываются в одну колонку:
+   иначе заголовок переносится по два-три слова в строке. */
+html[data-a11y-size="140"] .newsdetail-head,
+html[data-a11y-size="150"] .newsdetail-head,
+html[data-a11y-size="160"] .newsdetail-head,
+html[data-a11y-size="170"] .newsdetail-head,
+html[data-a11y-size="180"] .newsdetail-head,
+html[data-a11y-size="190"] .newsdetail-head,
+html[data-a11y-size="200"] .newsdetail-head,
+html[data-a11y-size="140"] .newsdetail-body,
+html[data-a11y-size="150"] .newsdetail-body,
+html[data-a11y-size="160"] .newsdetail-body,
+html[data-a11y-size="170"] .newsdetail-body,
+html[data-a11y-size="180"] .newsdetail-body,
+html[data-a11y-size="190"] .newsdetail-body,
+html[data-a11y-size="200"] .newsdetail-body,
+html[data-a11y-size="140"] .layout,
+html[data-a11y-size="150"] .layout,
+html[data-a11y-size="160"] .layout,
+html[data-a11y-size="170"] .layout,
+html[data-a11y-size="180"] .layout,
+html[data-a11y-size="190"] .layout,
+html[data-a11y-size="200"] .layout {
+    display: block;
+}
+
+/* ===== Интервалы (WCAG 1.4.12) ===== */
+html[data-a11y-spacing="wide"] { --a11y-line: 1.85; --a11y-letter: .02em; --a11y-word: .08em; --a11y-para: 1.3em; }
+html[data-a11y-spacing="wider"] { --a11y-line: 2.1; --a11y-letter: .06em; --a11y-word: .18em; --a11y-para: 1.8em; }
+html[data-a11y-spacing] body {
+    line-height: var(--a11y-line);
+    letter-spacing: var(--a11y-letter);
+    word-spacing: var(--a11y-word);
+}
+html[data-a11y-spacing] p,
+html[data-a11y-spacing] li {
+    margin-bottom: var(--a11y-para);
+}
+html[data-a11y-spacing] h1,
+html[data-a11y-spacing] h2,
+html[data-a11y-spacing] h3 {
+    line-height: 1.3;
+}
+
+/* ===== Шрифт ===== */
+/* Только системные семейства: сторонние файлы шрифтов грузить не нужно. */
+html[data-a11y-font="readable"] body,
+html[data-a11y-font="readable"] button,
+html[data-a11y-font="readable"] input,
+html[data-a11y-font="readable"] select,
+html[data-a11y-font="readable"] textarea {
+    font-family: Verdana, Tahoma, "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+}
+html[data-a11y-font="serif"] body,
+html[data-a11y-font="serif"] button,
+html[data-a11y-font="serif"] input,
+html[data-a11y-font="serif"] select,
+html[data-a11y-font="serif"] textarea {
+    font-family: Georgia, "Times New Roman", "Liberation Serif", serif;
+}
+html[data-a11y-font] body * {
+    font-family: inherit;
+}
+
+/* ===== Контраст ===== */
+/* Тёплый фон: те же переменные темы, поэтому карточки, тени и границы
+   остаются согласованными — меняется только подложка и насыщенность текста. */
+html[data-a11y-contrast="warm"] {
+    --bg-primary: #fbf3e4;
+    --bg-surface: #f5e9d2;
+    --text-main: #2b2113;
+    --text-muted: #4d3d24;
+    --border-color: #d9c7a4;
+}
+html[data-a11y-contrast="warm"] body {
+    background: var(--bg-primary);
+    color: var(--text-main);
+}
+
+/* Чёрно-белый: единственный режим, который намеренно ломает оформление —
+   он для тех, кому цветной сайт нечитаем. Отсюда высокая специфичность. */
+html[data-a11y-contrast="mono"] {
+    --a11y-bg: #ffffff;
+    --a11y-fg: #000000;
+    --a11y-accent: #00309e;
+    --bg-primary: #ffffff;
+    --bg-surface: #ffffff;
+    --text-main: #000000;
+    --text-muted: #000000;
+    --border-color: #000000;
+}
+html[data-a11y-contrast="mono"],
+html[data-a11y-contrast="mono"] body,
+html[data-a11y-contrast="mono"] body * {
+    background-image: none !important;
+    background-color: transparent !important;
+    color: var(--a11y-fg) !important;
+    border-color: var(--a11y-fg) !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+html[data-a11y-contrast="mono"] body,
+html[data-a11y-contrast="mono"] .site-header,
+html[data-a11y-contrast="mono"] .site-footer,
+html[data-a11y-contrast="mono"] .a11y-drawer {
+    background-color: var(--a11y-bg) !important;
+}
+html[data-a11y-contrast="mono"] a,
+html[data-a11y-contrast="mono"] a * {
+    color: var(--a11y-accent) !important;
+    text-decoration: underline !important;
+}
+html[data-a11y-contrast="mono"] button,
+html[data-a11y-contrast="mono"] .btn,
+html[data-a11y-contrast="mono"] input,
+html[data-a11y-contrast="mono"] select,
+html[data-a11y-contrast="mono"] textarea {
+    border: 2px solid var(--a11y-fg) !important;
+    border-radius: 6px !important;
+}
+html[data-a11y-contrast="mono"] [aria-pressed="true"] {
+    background-color: var(--a11y-fg) !important;
+    color: var(--a11y-bg) !important;
+}
+html[data-a11y-contrast="mono"] [aria-pressed="true"] * {
+    color: var(--a11y-bg) !important;
+}
+
+/* ===== Ссылки ===== */
+html[data-a11y-links="underline"] .site-content a,
+html[data-a11y-links="underline"] .site-footer a,
+html[data-a11y-links="underline"] .site-menu a {
+    text-decoration: underline;
+    text-underline-offset: .18em;
+}
+
+/* ===== Изображения ===== */
+html[data-a11y-images="off"] .site-content img,
+html[data-a11y-images="off"] .site-content picture,
+html[data-a11y-images="off"] .site-content video,
+html[data-a11y-images="off"] .repo-main img,
+html[data-a11y-images="off"] .repo-main picture,
+html[data-a11y-images="off"] .repo-main video {
+    display: none !important;
+}
+html[data-a11y-images="off"] .site-content *,
+html[data-a11y-images="off"] .repo-main * {
+    background-image: none !important;
+}
+
+/* ===== Анимации ===== */
+/* ===== Системная настройка «уменьшить движение» =====
+   Тумблер в панели ниже сбрасывает движение целиком, а системная настройка
+   до этого гасила только появление карточек ([data-reveal], .anim-card).
+   Посетитель, попросивший ОС убрать анимации, всё равно получал подъёмы
+   карточек, сдвиги кнопок и плавные подчёркивания.
+
+   Длительность 0.01ms, а не none: события transitionend/animationend
+   продолжают приходить, если на них когда-нибудь повесят обработчик.
+   Сейчас таких нет, но правило переживёт появление первого. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+html[data-a11y-motion="off"] *,
+html[data-a11y-motion="off"] *::before,
+html[data-a11y-motion="off"] *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+/* Переход между страницами (View Transitions) правило выше не гасит: его
+   псевдоэлементы живут в отдельном дереве у корня и под `*` не попадают.
+   Снимаем анимацию — переход отрабатывает мгновенно, страница просто
+   сменяется. Отключать сам `@view-transition` нечем: это правило страницы,
+   а не элемента, и на атрибут его не повесить. */
+@media (prefers-reduced-motion: reduce) {
+    html::view-transition-group(*),
+    html::view-transition-old(*),
+    html::view-transition-new(*) {
+        animation: none;
+    }
+}
+html[data-a11y-motion="off"]::view-transition-group(*),
+html[data-a11y-motion="off"]::view-transition-old(*),
+html[data-a11y-motion="off"]::view-transition-new(*) {
+    animation: none;
+}
+
+/* ===== Режим чтения ===== */
+/* Остаётся текст: одна колонка, узкая мера, без баннеров и декора. */
+html[data-a11y-reading="on"] .block-hero video,
+html[data-a11y-reading="on"] .block-hero__media,
+html[data-a11y-reading="on"] .site-social,
+html[data-a11y-reading="on"] .site-cta,
+html[data-a11y-reading="on"] .scroll-top,
+html[data-a11y-reading="on"] .block-slider,
+html[data-a11y-reading="on"] .layout__sidebar,
+html[data-a11y-reading="on"] .newsdetail-side {
+    display: none !important;
+}
+html[data-a11y-reading="on"] .layout,
+html[data-a11y-reading="on"] .site-content {
+    display: block !important;
+}
+html[data-a11y-reading="on"] .newsdetail:not(.newsdetail--premium) {
+    display: flex;
+    flex-direction: column;
+    max-width: 860px;
+    margin-inline: auto;
+}
+html[data-a11y-reading="on"] .newsdetail:not(.newsdetail--premium) > .newsdetail-head,
+html[data-a11y-reading="on"] .newsdetail:not(.newsdetail--premium) > .newsdetail-body {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+}
+html[data-a11y-reading="on"] .newsdetail-article {
+    width: 100%;
+    max-width: 100%;
+}
+html[data-a11y-reading="on"] .site-content p,
+html[data-a11y-reading="on"] .site-content li,
+html[data-a11y-reading="on"] .site-content h1,
+html[data-a11y-reading="on"] .site-content h2,
+html[data-a11y-reading="on"] .site-content h3 {
+    max-width: 68ch;
+}
+html[data-a11y-reading="on"] .cms-block {
+    padding-block: 18px !important;
+}
+
+/* ===== Кнопка в шапке ===== */
+.a11y-toggle {
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.a11y-toggle.is-active {
+    background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+/* ===== Выдвижная панель справа ===== */
+.a11y-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    background: rgba(15, 23, 42, .45);
+}
+.a11y-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 901;
+    width: min(420px, 100vw);
+    display: flex;
+    flex-direction: column;
+    /* Поверхность, а не фон страницы: на сером ground'е белые карточки
+       выбора читались как заплатки, и панель выглядела грязнее сайта. */
+    background: var(--bg-surface, #fff);
+    color: var(--text-main, #1a1a1a);
+    border-left: 1px solid var(--border-color, #e1e3e8);
+    box-shadow: -18px 0 48px rgba(15, 23, 42, .18);
+    font-size: 15px;
+    line-height: 1.45;
+}
+.a11y-drawer[hidden],
+.a11y-backdrop[hidden] {
+    display: none;
+}
+/* Панель выезжает справа, а не появляется рывком. Открытие анимируется
+   ключевыми кадрами, потому что элемент выходит из display:none и обычный
+   transition на нём не сработал бы. */
+@keyframes a11y-drawer-in {
+    from { transform: translateX(100%); }
+    to { transform: none; }
+}
+@keyframes a11y-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.a11y-drawer:not([hidden]) { animation: a11y-drawer-in .28s cubic-bezier(0.16, 1, 0.3, 1); }
+.a11y-backdrop:not([hidden]) { animation: a11y-backdrop-in .28s ease; }
+@media (prefers-reduced-motion: reduce) {
+    .a11y-drawer:not([hidden]),
+    .a11y-backdrop:not([hidden]) { animation: none; }
+}
+
+/* Системная настройка повышенного контраста работает и без открытия панели
+   доступности. Меняем только семантические токены, не ломая тему и бренд. */
+@media (prefers-contrast: more) {
+    :root {
+        --border-color: currentColor;
+        --gov-border: color-mix(in srgb, currentColor 58%, transparent);
+    }
+
+    :where(a, button, input, select, textarea):focus-visible {
+        outline-width: 3px;
+        outline-offset: 3px;
+    }
+}
+
+/* Windows High Contrast заменяет палитру системными цветами. Явные границы
+   сохраняют видимость элементов, которые в обычной теме отделяются тенью. */
+@media (forced-colors: active) {
+    :where(button, .btn, input, select, textarea, [role="button"]) {
+        border: 1px solid ButtonText;
+    }
+
+    :where(a, button, input, select, textarea):focus-visible {
+        outline: 3px solid Highlight;
+        outline-offset: 3px;
+    }
+}
+.a11y-drawer__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border-color, #e1e3e8);
+}
+.a11y-drawer__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: var(--step-0);
+    font-weight: 700;
+}
+.a11y-drawer__title-icon {
+    display: inline-flex;
+    align-items: center;
+    color: var(--gov-teal);
+}
+.a11y-drawer__close {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: var(--text-muted, #64748b);
+    padding: 0;
+    border-radius: 10px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.a11y-drawer__close:hover {
+    background: var(--bg-surface, #f4f5f7);
+    color: var(--text-main, #0f172a);
+}
+.a11y-drawer__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 22px 22px;
+}
+.a11y-group {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-color, #e1e3e8);
+}
+.a11y-group:last-child {
+    border-bottom: 0;
+}
+.a11y-group__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.a11y-group__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--step-0);
+    font-weight: 700;
+    color: var(--text-main, #0f172a);
+    margin: 0;
+}
+/* Иконка группы — указатель, а не акцент: пока каждая из пяти была
+   бирюзовой, цвет переставал что-либо выделять, и панель пестрила. Акцент в
+   панели значит ровно одно — «это выбрано». */
+.a11y-group__icon {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-muted, #64748b);
+}
+/* Сетки для карточек */
+.a11y-group__grid {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+}
+/* minmax(0, …) обязателен: у дорожки 1fr минимум — это min-content, а
+   «Максимальные» и «С засечками» шире колонки на узком экране, и панель
+   уезжала за правый край (замерено на 320px: последняя плитка обрезана). */
+.a11y-group__grid--schemes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.a11y-group__grid--fonts,
+.a11y-group__grid--spacing {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+/* Узкий экран: четыре схемы в ряд оставляют под подпись 60px, и слово
+   переносится по буквам. Два ряда по две плитки читаются. */
+@media (max-width: 480px) {
+    .a11y-group__grid--schemes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    /* «Максимальные» и «С засечками» в колонку шириной 74px не помещаются
+       никак: перенести одно слово нельзя, а разрывать его по буквам
+       («Максима/льные») — хуже, чем сменить раскладку. Поэтому на узком
+       экране шрифт и интервалы становятся строками во всю ширину: образец
+       слева, подпись рядом. */
+    .a11y-group__grid--fonts,
+    .a11y-group__grid--spacing {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .a11y-group__grid--fonts .a11y-choice,
+    .a11y-group__grid--spacing .a11y-choice {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 14px;
+        min-height: 52px;
+        padding: 8px 12px;
+        text-align: left;
+    }
+}
+
+/* Карточки выбора */
+.a11y-choice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 78px;
+    padding: 12px 6px;
+    /* Рамка прозрачная, а не отсутствующая: выбор добавляет цвет, а не
+       толщину, и плитки не съезжают на полтора пикселя при переключении.
+       Раньше рамку носили все тринадцать кнопок сразу — панель читалась
+       как решётка, в которой выбранное не выделялось. */
+    border: 1.5px solid transparent;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text-main, #1a1a1a);
+    font: inherit;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.a11y-choice--badge-only {
+    min-height: 54px;
+    padding: 6px;
+}
+.a11y-choice:hover {
+    background: color-mix(in srgb, var(--text-main, #0f172a) 5%, transparent);
+}
+/* Выбранное состояние — заливка и рамка акцента. Кольца-свечения нет: оно
+   добавляло третий признак того же самого и превращало плитку в кнопку
+   тревоги. */
+.a11y-choice[aria-pressed="true"] {
+    border-color: var(--gov-teal);
+    background: color-mix(in srgb, var(--gov-teal) 9%, var(--bg-surface, #fff));
+}
+.a11y-choice__visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.a11y-choice__label {
+    font-size: var(--step--1);
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--text-main, #0f172a);
+}
+
+/* Визуальные бейджи цветовых схем */
+.a11y-scheme-badge {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    font-size: var(--step-2);
+    font-weight: 800;
+    font-family: var(--font-heading, inherit);
+}
+.a11y-scheme-badge--normal {
+    background: #f1f5f9;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+}
+.a11y-scheme-badge--mono {
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+}
+.a11y-scheme-badge--warm {
+    background: #fbf3e4;
+    color: #4a341e;
+    border: 1px solid #d9c7a4;
+}
+.a11y-scheme-badge--dark {
+    background: #0f172a;
+    color: #38bdf8;
+    border: 1px solid #334155;
+}
+
+/* Бейджи шрифтов */
+.a11y-font-badge {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 36px;
+    /* Плашки под образцом нет: сравнивают начертание, а серый прямоугольник
+       вокруг него — лишний контур, которых в панели и так было тринадцать. */
+    font-size: var(--step-3);
+    font-weight: 700;
+}
+.a11y-font-badge--sans {
+    font-family: system-ui, -apple-system, sans-serif;
+}
+.a11y-font-badge--readable {
+    font-family: Verdana, Tahoma, sans-serif;
+}
+.a11y-font-badge--serif {
+    font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* Иконки интервалов */
+.a11y-spacing-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 28px;
+}
+.a11y-spacing-icon i {
+    display: block;
+    width: 22px;
+    height: 3px;
+    background: currentColor;
+    border-radius: 2px;
+    opacity: 0.85;
+}
+.a11y-spacing-icon--normal { gap: 3px; }
+.a11y-spacing-icon--wide { gap: 5.5px; }
+.a11y-spacing-icon--wider { gap: 8px; }
+
+/* Размер текста — главный элемент панели.
+
+   Он тут ради тех, кому мелкое неудобно, поэтому его собственные органы
+   управления крупные: круг 64px (цель нажатия с запасом к норме 44px), знак
+   в половину круга, значение читается через комнату. Подписи под кнопками
+   не украшение: знак «плюс» говорит «больше», но не говорит «больше чего»,
+   а диктор без них читает только символ. */
+/* Раскладка обязана держаться при собственных настройках панели: подписи под
+   кнопками растут вместе с текстом, и в жёсткой сетке из трёх колонок средняя
+   схлопывалась — при 200 % под значение оставалось 16px, то есть «150 %»
+   превращалось в столбик из символов (замерено в Chromium). Поэтому ряд
+   переносится, значению гарантирована ширина в его собственных знаках, а
+   подписи ограничены и переносятся сами. */
+.a11y-sizer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px 16px;
+    margin-top: 12px;
+}
+.a11y-sizer__step {
+    display: flex;
+    flex: 0 1 auto;
+    /* Не ужимаем подпись до переноса посреди слова: узбекское
+       «Kattalashtirish» в 40 % ширины рвалось на «Kattalashtiri/sh».
+       Пусть лучше ряд перенесётся целиком — слово останется словом. */
+    max-width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text-main, #0f172a);
+    font: inherit;
+    cursor: pointer;
+}
+.a11y-sizer__glyph {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border: 1.5px solid var(--border-color, #e1e3e8);
+    border-radius: 50%;
+    font-size: var(--step-4);
+    font-weight: 700;
+    line-height: 1;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.a11y-sizer__step:hover .a11y-sizer__glyph {
+    border-color: var(--gov-teal);
+    background: color-mix(in srgb, var(--gov-teal) 12%, transparent);
+    color: var(--gov-teal-text);
+}
+.a11y-sizer__caption {
+    font-size: var(--step--2);
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    color: var(--text-muted, #55607a);
+}
+/* Цифры не должны прыгать при 100 % → 110 %: у панели фиксированная ширина,
+   и дрожание значения под пальцем читается как сбой. */
+.a11y-sizer__value {
+    /* Ширина задана в знаках самого значения: «200%» — четыре знака, и запас
+       считается от его кегля, а не от кегля страницы. */
+    flex: 1 1 auto;
+    min-width: 4.5ch;
+    font-size: var(--step-6);
+    font-weight: 800;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-main, #0f172a);
+}
+/* Дорожка ползунка сама по себе тонкая, поэтому цель нажатия расширена
+   отступами — палец попадает в 44px, а не в 8px линии. */
+.a11y-sizer__range {
+    display: block;
+    width: 100%;
+    height: 8px;
+    margin: 18px 0 0;
+    padding: 18px 0;
+    box-sizing: content-box;
+    accent-color: var(--gov-teal);
+    cursor: pointer;
+}
+
+/* Список тумблеров (Чтение без помех) */
+.a11y-group__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+.a11y-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 12px;
+    /* Строка списка, а не карточка: состояние здесь уже показывает свитч
+       справа, и рамка вокруг каждой строки была третьим способом сказать
+       то же самое. */
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-main, #0f172a);
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.a11y-toggle-btn:hover {
+    background: color-mix(in srgb, var(--text-main, #0f172a) 5%, transparent);
+}
+.a11y-toggle-btn[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--gov-teal) 8%, transparent);
+}
+.a11y-toggle-btn__icon {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    /* Иконка без подложки: плашка под ней удваивала прямоугольник строки. */
+    color: var(--text-muted, #64748b);
+    flex-shrink: 0;
+}
+.a11y-toggle-btn__text {
+    flex: 1;
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: var(--text-main, #0f172a);
+}
+.a11y-toggle-btn[aria-pressed="true"] .a11y-toggle-btn__icon {
+    color: var(--gov-teal-text);
+}
+
+/* Свитч */
+.a11y-switch {
+    position: relative;
+    width: 48px;
+    height: 28px;
+    flex-shrink: 0;
+}
+.a11y-switch__track {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: #cbd5e1;
+    transition: background 0.2s ease;
+}
+.a11y-switch__thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: var(--shadow-1);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.a11y-toggle-btn[aria-pressed="true"] .a11y-switch__track {
+    background: var(--gov-teal);
+}
+.a11y-toggle-btn[aria-pressed="true"] .a11y-switch__thumb {
+    /* Ход = ширина дорожки − диаметр кружка − отступы с двух сторон
+       (48 − 22 − 3×2). Разъедется с размерами — кружок не дойдёт до края. */
+    transform: translateX(20px);
+}
+
+/* Кнопка сброса */
+.a11y-drawer__foot {
+    padding: 16px 20px 20px;
+    border-top: 1px solid var(--border-color, #e1e3e8);
+}
+.a11y-reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 52px;
+    border: 1px solid var(--border-color, #e1e3e8);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-main, #0f172a);
+    font: inherit;
+    font-weight: 600;
+    font-size: var(--step-0);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.a11y-reset__icon {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-muted, #64748b);
+}
+.a11y-reset:hover {
+    border-color: var(--gov-teal);
+    background: color-mix(in srgb, var(--gov-teal) 8%, transparent);
+    color: var(--gov-teal-text);
+}
+
+@media (max-width: 480px) {
+    .a11y-drawer {
+        width: 100vw;
+    }
+}
+
+/* Печать: панель и подложка — экранные элементы. */
+@media print {
+    .a11y-drawer,
+    .a11y-backdrop,
+    .a11y-toggle {
+        display: none !important;
+    }
+}

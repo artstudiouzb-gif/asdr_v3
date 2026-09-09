@@ -1,0 +1,78 @@
+/* «Таблица»: реквизиты, тарифы, график приёма, сравнение показателей.
+
+   Ширину столбцов задаёт содержимое (`auto`), а не равные доли: в таблице
+   «Показатель | 2024 | 2025» первый столбец длиннее остальных втрое, и равные
+   доли рвали бы его текст на четыре строки при пустых числовых столбцах. */
+
+.block-table__title { margin: 0 0 clamp(14px, 1.6vw, 22px); }
+
+/* Широкая таблица прокручивается внутри своей рамки. Прокрутка всей страницы
+   по горизонтали ломает шапку и якорную навигацию, поэтому область своя. */
+.block-table__scroll {
+    overflow-x: auto;
+    max-width: 100%;
+    border-radius: var(--radius, 14px);
+    border: 1px solid var(--gov-border);
+    background: var(--gov-surface);
+}
+.block-table__scroll:focus-visible {
+    outline: 3px solid var(--gov-teal);
+    outline-offset: 2px;
+}
+
+.block-table__grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+    color: var(--section-fg, var(--gov-ink));
+}
+.block-table__grid th,
+.block-table__grid td {
+    padding: 12px 16px;
+    text-align: left;
+    vertical-align: top;
+    text-wrap: pretty;
+}
+.block-table__grid--compact th,
+.block-table__grid--compact td { padding: 8px 12px; }
+
+/* Шапка отличается насыщенностью, а не заливкой в акцент: цветная полоса
+   поверх таблицы спорит с фоном секции, который редактор может поменять. */
+.block-table__grid thead th {
+    font-weight: 600;
+    color: var(--section-title-fg, var(--gov-title));
+    background: color-mix(in srgb, var(--gov-title) 5%, transparent);
+    border-bottom: 2px solid var(--gov-border);
+    white-space: nowrap;
+}
+.block-table__grid tbody th {
+    font-weight: 600;
+    color: var(--section-title-fg, var(--gov-title));
+}
+
+.block-table__grid--lines tbody tr + tr th,
+.block-table__grid--lines tbody tr + tr td { border-top: 1px solid var(--gov-border); }
+
+.block-table__grid--striped tbody tr:nth-child(even) th,
+.block-table__grid--striped tbody tr:nth-child(even) td {
+    background: color-mix(in srgb, var(--gov-title) 3%, transparent);
+}
+
+.block-table__grid--bordered th,
+.block-table__grid--bordered td { border: 1px solid var(--gov-border); }
+/* Внешняя рамка уже нарисована областью прокрутки: вторая по краю читается
+   как двойная линия. */
+.block-table__grid--bordered tr > *:first-child { border-left: 0; }
+.block-table__grid--bordered tr > *:last-child { border-right: 0; }
+.block-table__grid--bordered tr:first-child > * { border-top: 0; }
+.block-table__grid--bordered tr:last-child > * { border-bottom: 0; }
+
+.block-table__empty { color: var(--gov-muted); font-size: var(--step--1); }
+
+/* На телефоне столбцы не сжимаются до нечитаемого: пусть лучше таблица
+   прокручивается вбок внутри своей рамки. */
+@media (max-width: 720px) {
+    .block-table__grid { min-width: 520px; }
+    .block-table__grid th,
+    .block-table__grid td { padding: 10px 12px; }
+}

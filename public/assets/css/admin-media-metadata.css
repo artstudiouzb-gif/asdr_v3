@@ -1,0 +1,4 @@
+/* Legacy compatibility shim.
+   The news gallery no longer owns a separate media modal. All active media
+   picker styles live in the shared admin media picker layers. This file stays
+   intentionally empty so stale cached HTML can request it without a 404. */

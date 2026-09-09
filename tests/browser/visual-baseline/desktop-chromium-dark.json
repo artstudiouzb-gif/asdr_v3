@@ -1,0 +1,96 @@
+{
+  ".site-header": {
+    "backgroundColor": "rgb(41, 53, 77)",
+    "borderBottomColor": "rgba(255, 255, 255, 0.12)",
+    "boxShadow": "none",
+    "height": "65px"
+  },
+  ".site-header__logo": {
+    "color": "rgb(248, 250, 252)",
+    "fontSize": "20px",
+    "fontWeight": "700",
+    "gap": "12px"
+  },
+  ".section-head__title": {
+    "color": "rgb(255, 255, 255)",
+    "fontSize": "32px",
+    "fontWeight": "700",
+    "letterSpacing": "-0.96px",
+    "paddingLeft": "18px",
+    "marginBottom": "0px"
+  },
+  ".counter__value": {
+    "color": "rgb(255, 255, 255)",
+    "fontSize": "40px",
+    "fontWeight": "700",
+    "lineHeight": "40px"
+  },
+  ".counter__label": {
+    "color": "rgb(203, 213, 225)",
+    "fontSize": "15.2px",
+    "lineHeight": "20.52px"
+  },
+  ".feature-card": {
+    "backgroundColor": "rgb(41, 53, 77)",
+    "borderRadius": "14px",
+    "borderTopWidth": "1px",
+    "borderTopColor": "rgba(255, 255, 255, 0.12)",
+    "boxShadow": "rgba(16, 24, 40, 0.06) 0px 1px 3px 0px, rgba(16, 24, 40, 0.05) 0px 6px 18px 0px",
+    "padding": "24px"
+  },
+  ".act-card": {
+    "backgroundColor": "rgb(41, 53, 77)",
+    "borderRadius": "14px",
+    "padding": "24px",
+    "minHeight": "100%"
+  },
+  ".act-card__emblem": {
+    "display": "block",
+    "width": "96px",
+    "height": "96px",
+    "opacity": "0.16",
+    "insetBlockEnd": "-12px"
+  },
+  ".faq-item": {
+    "backgroundColor": "rgb(41, 53, 77)",
+    "borderRadius": "14px",
+    "borderTopColor": "rgba(255, 255, 255, 0.12)"
+  },
+  ".faq-item__q": {
+    "color": "rgb(255, 255, 255)",
+    "fontSize": "16px",
+    "fontWeight": "700",
+    "padding": "20px 24px"
+  },
+  ".stage": {
+    "gap": "9px",
+    "paddingTop": "22px",
+    "display": "flex"
+  },
+  ".contact-card": {
+    "backgroundColor": "rgb(41, 53, 77)",
+    "borderRadius": "14px",
+    "padding": "24px"
+  },
+  ".cms-block--cta": {
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "paddingTop": "0px",
+    "paddingBottom": "51.2px"
+  },
+  ".block-advantages__item": {
+    "backgroundColor": "rgb(41, 53, 77)",
+    "borderRadius": "14px",
+    "padding": "24px",
+    "borderTopColor": "rgba(255, 255, 255, 0.12)"
+  },
+  ".act-card__number": {
+    "color": "rgb(255, 255, 255)",
+    "fontSize": "18px",
+    "fontWeight": "700"
+  },
+  ".site-footer": {
+    "backgroundColor": "color(srgb 0.0541176 0.155137 0.252549)",
+    "color": "rgba(255, 255, 255, 0.85)",
+    "paddingTop": "51.2px"
+  }
+}

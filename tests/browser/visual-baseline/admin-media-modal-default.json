@@ -1,0 +1,72 @@
+{
+  ".media-modal": {
+    "backgroundColor": "color(srgb 1 1 1 / 0.639294)"
+  },
+  ".media-modal__dialog": {
+    "backgroundColor": "rgb(255, 255, 255)",
+    "borderColor": "rgb(220, 220, 222)",
+    "borderRadius": "3px",
+    "boxShadow": "rgba(2, 8, 23, 0.38) 0px 28px 70px 0px",
+    "gridTemplateColumns": "216px 1014px 0px"
+  },
+  ".media-modal__rail": {
+    "backgroundColor": "rgb(250, 251, 252)",
+    "borderRightColor": "rgb(220, 220, 222)",
+    "padding": "16px 12px"
+  },
+  ".media-modal__navitem": {
+    "color": "rgb(37, 99, 235)",
+    "fontSize": "13px",
+    "fontWeight": "500",
+    "padding": "7px 9px",
+    "borderRadius": "3px"
+  },
+  ".media-modal__toolbar": {
+    "backgroundColor": "rgb(255, 255, 255)",
+    "borderBottomColor": "rgb(220, 220, 222)",
+    "padding": "12px 14px",
+    "gap": "10px"
+  },
+  ".media-modal__search": {
+    "backgroundColor": "rgb(255, 255, 255)",
+    "color": "rgb(29, 35, 39)",
+    "borderColor": "rgb(37, 99, 235)",
+    "borderRadius": "3px",
+    "height": "36px"
+  },
+  ".media-modal__grid": {
+    "backgroundColor": "rgb(255, 255, 255)",
+    "gridTemplateColumns": "182.188px 182.203px 182.203px 182.203px 182.203px",
+    "gap": "14px",
+    "padding": "16px"
+  },
+  ".media-modal__dropcard": {
+    "backgroundColor": "color(srgb 0.145098 0.388235 0.921569 / 0.05)",
+    "borderColor": "color(srgb 0.539804 0.649216 0.893529)",
+    "borderRadius": "3px"
+  },
+  ".media-modal__item": {
+    "display": "flex",
+    "gap": "7px"
+  },
+  ".media-modal__thumb": {
+    "backgroundColor": "color(srgb 0.937961 0.939608 0.940706)",
+    "borderColor": "rgb(220, 220, 222)",
+    "borderRadius": "3px",
+    "aspectRatio": "16 / 10"
+  },
+  ".media-modal__caption-name": {
+    "color": "rgb(29, 35, 39)",
+    "fontSize": "12px",
+    "fontWeight": "500"
+  },
+  ".media-modal__caption-meta": {
+    "color": "rgb(100, 105, 112)",
+    "fontSize": "11px"
+  },
+  ".media-modal__footer": {
+    "backgroundColor": "rgb(250, 251, 252)",
+    "borderTopColor": "rgb(220, 220, 222)",
+    "padding": "12px 16px"
+  }
+}

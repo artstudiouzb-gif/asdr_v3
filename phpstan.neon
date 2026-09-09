@@ -1,0 +1,40 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    level: 7
+    # Диапазон версий PHP закреплён явно: иначе результат зависит от того,
+    # установлен ли vendor (CI берёт версию из composer.json, локальный прогон
+    # без vendor — из запущенного интерпретатора), и локальная проверка
+    # расходится с CI. Границы те же, что в матрице CI: 8.4 и 8.5.
+    phpVersion:
+        min: 80400
+        max: 80599
+    paths:
+        - app
+        - public/index.php
+    excludePaths:
+        - tests/*
+    # Production-код по-прежнему использует собственный автолоадер; Composer
+    # подключён только для воспроизводимых инструментов разработки.
+    scanDirectories:
+        - app
+    # Соединение с БД всегда открыто в режиме исключений
+    # (`PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION`, см. App\Core\Database).
+    # В нём `prepare()` и `query()` не возвращают `false` — при ошибке бросают
+    # PDOException. Штатные описания PHP объявляют `PDOStatement|false`, потому
+    # что режим задаётся во время выполнения, и анализатор считал ошибкой
+    # каждый `->fetchAll()` без проверки: 138 замечаний, ни одного настоящего.
+    #
+    # Это не глушение дефекта, а сообщение анализатору факта, который он не
+    # может вывести сам. Добавлять проверки на `false` было бы вредно: ветка
+    # недостижима, а читается как рабочая обработка ошибки. Переопределить
+    # описание файлом-заглушкой нельзя — для классов ядра PHPStan берёт свои.
+    ignoreErrors:
+        -
+            identifier: method.nonObject
+            message: '#^Cannot call method [a-zA-Z]+\(\) on PDOStatement\|false\.$#'
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false

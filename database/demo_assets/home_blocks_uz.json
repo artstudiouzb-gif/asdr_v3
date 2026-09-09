@@ -1,0 +1,208 @@
+[
+  {
+    "type": "hero",
+    "title": "",
+    "data": {
+      "title": "Strategik maqsaddan — o‘lchanadigan natijaga",
+      "eyebrow": "Maqsad. Harakat. Natija.",
+      "subtitle": "Agentlik strategik rejalashtirishning yagona tizimini shakllantiradi: tahlil va tashabbuslarni tayyorlashdan tortib muvofiqlashtirish, monitoring va erishilgan natijalarni baholashgacha.",
+      "image": "/uploads/public/demo-agency-hero.jpg",
+      "video_url": "",
+      "button_text": "Agentlik haqida",
+      "button_url": "/o-nas",
+      "button2_text": "O‘zbekiston — 2030",
+      "button2_url": "/strategiya-2030",
+      "video_button_text": "Matbuot markazi",
+      "video_button_url": "/press-centr",
+      "bg_type": "image",
+      "youtube_url": "",
+      "overlay_enabled": true,
+      "overlay_mode": "gradient",
+      "overlay_direction": "auto",
+      "overlay_color": "#0b1a30",
+      "overlay_opacity": 68,
+      "text_position": "left",
+      "panel_enabled": false,
+      "panel_color": "#0b1a30",
+      "panel_opacity": 35
+    }
+  },
+  {
+    "type": "counters",
+    "title": "",
+    "data": {
+      "title": "",
+      "items": [
+        {
+          "icon_svg": "building",
+          "value": "5",
+          "suffix": "",
+          "label": "Agentlik faoliyatining asosiy yo‘nalishi"
+        },
+        {
+          "icon_svg": "chart-line",
+          "value": "4",
+          "suffix": "",
+          "label": "Agentlik tarixidagi rivojlanish bosqichi"
+        },
+        {
+          "icon_svg": "clipboard-check",
+          "value": "5",
+          "suffix": "",
+          "label": "asosiy normativ-huquqiy hujjat"
+        },
+        {
+          "icon_svg": "users",
+          "value": "2",
+          "suffix": "",
+          "label": "amaldagi rahbariyat profili"
+        }
+      ]
+    }
+  },
+  {
+    "type": "cards_grid",
+    "title": "",
+    "data": {
+      "title": "Faoliyatning asosiy yo‘nalishlari",
+      "all_text": "Agentlik haqida batafsil",
+      "all_url": "/o-nas",
+      "columns": 5,
+      "items": [
+        {
+          "icon_svg": "target",
+          "title": "Strategik rejalashtirish",
+          "text": "Respublika, tarmoq va hududiy darajalarda strategik rejalashtirishning metodologik yondashuvlari va yagona tizimini shakllantirish.",
+          "url": "/o-nas"
+        },
+        {
+          "icon_svg": "chart-line",
+          "title": "Tahlil va yangi tashabbuslar",
+          "text": "Ijtimoiy-iqtisodiy jarayonlar va xalqaro tajribani tahlil qilish, tizimli islohotlar bo‘yicha takliflar tayyorlash.",
+          "url": "/analitika"
+        },
+        {
+          "icon_svg": "network",
+          "title": "Muvofiqlashtirish",
+          "text": "Vazirlik, idora va hududlardagi strategik rejalashtirishni umummilliy ustuvor yo‘nalishlar bilan uyg‘unlashtirish.",
+          "url": "/struktura"
+        },
+        {
+          "icon_svg": "clipboard-check",
+          "title": "Strategik hujjatlar sifati",
+          "text": "Maqsadlar, o‘lchanadigan ko‘rsatkichlar, chora-tadbirlar va kutilayotgan natijalarning asoslanganligini baholash.",
+          "url": "/o-nas"
+        },
+        {
+          "icon_svg": "chart-bar",
+          "title": "Monitoring va baholash",
+          "text": "Maqsadli ko‘rsatkichlarni kuzatish, natijalarni tahlil qilish va ijro mexanizmlarini takomillashtirish bo‘yicha takliflar tayyorlash.",
+          "url": "/strategiya-2030"
+        }
+      ]
+    }
+  },
+  {
+    "type": "cards_grid",
+    "title": "",
+    "data": {
+      "variant": "image",
+      "title": "Strategik tashabbuslar",
+      "all_text": "Barcha loyihalar",
+      "all_url": "/projects",
+      "source": "projects",
+      "limit": 6,
+      "items": [
+        {
+          "image": "/uploads/public/demo-strategy-meeting.jpg",
+          "title": "Ustuvor tarmoqlarga investitsiyalarni jalb qilish",
+          "url": "/projects/investicii-prioritetnye-otrasli"
+        },
+        {
+          "image": "/uploads/public/demo-urban-development.jpg",
+          "title": "Transport va logistika infratuzilmasini rivojlantirish",
+          "url": "/projects/transportnaya-infrastruktura"
+        },
+        {
+          "image": "/uploads/public/demo-agency-hero.jpg",
+          "title": "Raqamli transformatsiya va innovatsiyalarni rivojlantirish",
+          "url": "/projects/cifrovaya-transformaciya"
+        },
+        {
+          "image": "/uploads/public/demo-green-energy.jpg",
+          "title": "Qayta tiklanuvchi energiya manbalari ulushini oshirish",
+          "url": "/projects/zelenaya-energetika"
+        },
+        {
+          "image": "/uploads/public/demo-strategy-meeting.jpg",
+          "title": "Kichik va o‘rta biznesni qo‘llab-quvvatlash",
+          "url": "/ustoychivyy-ekonomicheskiy-rost"
+        },
+        {
+          "image": "/uploads/public/demo-urban-development.jpg",
+          "title": "Inson kapitali va ta’limni rivojlantirish",
+          "url": "/analitika"
+        }
+      ]
+    }
+  },
+  {
+    "type": "news_feature",
+    "title": "",
+    "data": {
+      "title": "Agentlik yangiliklari",
+      "all_text": "Barcha yangiliklar",
+      "all_url": "/news",
+      "limit": 6
+    }
+  },
+  {
+    "type": "media_gallery",
+    "title": "",
+    "data": {
+      "title": "Agentlik mediatekasi",
+      "all_text": "Barcha materiallar",
+      "all_url": "/albums",
+      "source": "media",
+      "limit": 8,
+      "items": [
+        {
+          "image": "/uploads/public/demo-strategy-meeting.jpg",
+          "title": "O‘zbekiston — 2030: asosiy maqsad va ustuvor yo‘nalishlar",
+          "meta": "02:35",
+          "text": "Videomaterial",
+          "kind": "video",
+          "url": "/press-centr"
+        },
+        {
+          "image": "/uploads/public/demo-green-energy.jpg",
+          "title": "Yashil iqtisodiyotga o‘tish",
+          "meta": "03:12",
+          "text": "Videomaterial",
+          "kind": "video",
+          "url": "/press-centr"
+        },
+        {
+          "image": "/uploads/public/demo-agency-hero.jpg",
+          "title": "Strategik rejalashtirish va raqamli vositalar",
+          "meta": "02:08",
+          "text": "Videomaterial",
+          "kind": "video",
+          "url": "/press-centr"
+        },
+        {
+          "image": "/uploads/public/demo-urban-development.jpg",
+          "title": "Hududiy rivojlanish va infratuzilma",
+          "meta": "",
+          "text": "Fotomaterial",
+          "kind": "photo",
+          "url": "/albums"
+        }
+      ],
+      "_bg": "light",
+      "_fullwidth": true,
+      "_pad_top": "large",
+      "_pad_bottom": "large"
+    }
+  }
+]

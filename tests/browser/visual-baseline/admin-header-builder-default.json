@@ -1,0 +1,35 @@
+{
+  ".hdr-tab-btn": {
+    "backgroundColor": "rgb(255, 255, 255)",
+    "color": "rgb(37, 99, 235)",
+    "borderColor": "rgb(220, 220, 222)",
+    "padding": "8px 16px"
+  },
+  ".hb-zone": {
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "borderColor": "rgb(29, 35, 39)",
+    "borderRadius": "0px",
+    "padding": "0px"
+  },
+  ".hb-zone__label": {
+    "color": "rgb(138, 148, 166)",
+    "fontSize": "11px",
+    "fontWeight": "600"
+  },
+  ".hb-el": {
+    "backgroundColor": "rgb(255, 255, 255)",
+    "borderColor": "rgb(220, 220, 222)",
+    "borderRadius": "3px",
+    "color": "rgb(29, 35, 39)"
+  },
+  ".hb-el__label": {
+    "color": "rgb(29, 35, 39)",
+    "fontSize": "13px"
+  },
+  ".hdr-chip": {
+    "backgroundColor": "rgb(255, 255, 255)",
+    "color": "rgb(29, 35, 39)",
+    "borderRadius": "3px",
+    "fontSize": "13px"
+  }
+}

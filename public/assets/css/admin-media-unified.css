@@ -1,0 +1,174 @@
+/* Единый вид карточки файла: страница /admin/files и окно выбора медиа.
+ * Контекст меняет число колонок, но не саму карточку — кадр 16:10, подпись
+ * под ним и одинаковая отметка выбранного.
+ */
+
+:root {
+    --admin-media-thumb-radius: 3px;
+    --admin-media-thumb-bg: color-mix(in srgb, var(--admin-text, #1e293b) 7%, var(--admin-surface, #fff));
+    --admin-media-thumb-border: 1px solid var(--admin-border, #dcdcde);
+    --admin-media-thumb-ring: 0 0 0 2px var(--admin-accent, #2271b1);
+}
+
+/* -------------------------------------------------------------------------
+ * Кадр карточки.
+ * ---------------------------------------------------------------------- */
+/* Пропорция принадлежит кадру, а не карточке: на странице /admin/files
+   подпись лежит внутри .media-card, и пока рамку 16:10 держала сама карточка,
+   подпись оставалась абсолютной поверх снимка — с прозрачным фоном тёмное имя
+   файла ложилось прямо на фотографию. */
+.media-grid .media-card {
+    position: relative;
+    min-width: 0;
+    display: block;
+    aspect-ratio: auto !important;
+    overflow: visible !important;
+    border: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+.media-modal__thumb {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    aspect-ratio: 16 / 10 !important;
+    border: var(--admin-media-thumb-border) !important;
+    border-radius: var(--admin-media-thumb-radius) !important;
+    background: var(--admin-media-thumb-bg) !important;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.media-grid .media-card__thumb,
+.media-grid .media-card__icon-wrap {
+    aspect-ratio: 16 / 10 !important;
+    height: auto !important;
+    overflow: hidden;
+    border: var(--admin-media-thumb-border) !important;
+    border-radius: var(--admin-media-thumb-radius) !important;
+    background: var(--admin-media-thumb-bg) !important;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.media-grid .media-card__thumb,
+.media-modal__thumb img {
+    width: 100% !important;
+    display: block;
+    object-fit: cover !important;
+}
+
+.media-modal__thumb img { height: 100% !important; }
+
+/* Подпись лежит под кадром в обоих контекстах: наложенная поверх снимка, она
+ * закрывала нижнюю треть кадра. У окна выбора в подписи две строки — имя и
+ * вес, — поэтому многоточие живёт на самой строке, а не на контейнере. */
+.media-modal__caption { display: grid; gap: 1px; }
+.media-grid .media-card__caption,
+.media-modal__caption {
+    position: static !important;
+    padding: 6px 2px 0;
+    color: var(--admin-text, #1e293b) !important;
+    background: none !important;
+    font-size: var(--admin-fs-sm);
+    font-weight: var(--admin-fw-medium);
+    line-height: 1.25;
+    text-align: left;
+}
+
+.media-grid .media-card__caption,
+.media-modal__caption-name,
+.media-modal__caption-meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Одна отметка выбранного в обоих контекстах. */
+/* Отметка выбранного тоже переехала на кадр — рамку рисует он. */
+.media-grid .media-card.is-selected .media-card__thumb,
+.media-grid .media-card.is-selected .media-card__icon-wrap,
+.media-modal__item.is-selected .media-modal__thumb {
+    border-color: var(--admin-accent, #2271b1) !important;
+    box-shadow: var(--admin-media-thumb-ring) !important;
+}
+
+.media-grid .media-card__check {
+    top: 6px !important;
+    right: auto !important;
+    left: 6px !important;
+    width: 18px !important;
+    height: 18px !important;
+    border: 1.5px solid #fff !important;
+    border-radius: 2px !important;
+    color: #fff !important;
+    background: var(--admin-accent, #2271b1) !important;
+}
+
+.media-modal__item[hidden] { display: none !important; }
+
+/* -------------------------------------------------------------------------
+ * Геометрия сетки окна: 15 карточек первой порции = пять колонок × три ряда.
+ * ---------------------------------------------------------------------- */
+.media-modal__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    grid-auto-flow: row;
+    grid-auto-rows: max-content;
+    scrollbar-gutter: stable;
+    overscroll-behavior: contain;
+}
+
+/* Кнопка «Показать ещё» стоит вне сетки, поэтому новые карточки добавляют
+   обычные ряды и не могут наехать на кадры. */
+.media-loadmore-bar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 50px;
+    padding: 8px 16px;
+    border-top: 1px solid var(--admin-border, #dce3ed);
+    background: var(--admin-surface, #fff);
+}
+
+.media-loadmore-bar[hidden] { display: none !important; }
+
+.media-loadmore-bar__status {
+    color: var(--admin-muted, #64748b);
+    font-size: var(--admin-fs-sm);
+    font-weight: var(--admin-fw-medium);
+}
+
+.media-loadmore-bar__button { flex: 0 0 auto; }
+
+/* Открытые детали забирают треть ширины — в тот же ряд помещается четыре
+   карточки, а не пять. */
+.media-modal__dialog:has(.media-modal__details:not([hidden])) .media-modal__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+@media (max-width: 1100px) {
+    .media-modal__grid,
+    .media-modal__dialog:has(.media-modal__details:not([hidden])) .media-modal__grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 720px) {
+    .media-modal__grid,
+    .media-modal__dialog:has(.media-modal__details:not([hidden])) .media-modal__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 680px) {
+    .media-loadmore-bar {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .media-loadmore-bar__button { width: 100%; }
+}

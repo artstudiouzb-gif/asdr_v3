@@ -1,0 +1,80 @@
+/* Compact public homepage. Explicit block spacing and CMS colour choices
+   remain authoritative; internal pages keep their existing composition. */
+@media screen {
+    .site-home .site-content { --space-premium: 32px; }
+    .site-home .section-head {
+        margin-bottom: 16px;
+        padding-bottom: 0;
+        border-bottom: 0;
+        gap: 12px 24px;
+        align-items: center;
+    }
+    .site-home .section-head__title {
+        font-size: var(--font-size-h2, clamp(1.35rem, 2vw, 1.75rem));
+        line-height: 1.2;
+        letter-spacing: -.025em;
+        padding-inline-start: 15px;
+    }
+    .site-home .section-head__all { font-size: .875rem; font-weight: 500; text-decoration: none; transition: color .2s ease; }
+    .site-home .section-head__all:hover { text-decoration: none; color: var(--gov-teal); }
+
+    .site-home .hero {
+        --hero-nav-pad: 24px;
+        --hero-nav-bottom: 24px;
+    }
+    .site-home .hero__inner {
+        padding-block-start: 36px;
+        padding-block-end: calc(28px + var(--hero-nav-space));
+    }
+    .site-home .hero__title {
+        font-size: clamp(1.9rem, 3.6vw, 3rem);
+        line-height: 1.1;
+        letter-spacing: -.035em;
+        text-wrap: balance;
+    }
+    .site-home .hero__subtitle { font-size: 1rem; line-height: 1.5; max-width: 58ch; }
+    .site-home .hero__eyebrow { font-size: .75rem; letter-spacing: .18em; }
+    .site-home .hero__cta { min-height: 44px; padding: 10px 20px; font-size: .875rem; box-shadow: none; }
+
+    .site-home .cards-grid,
+    .site-home .imgcards-grid { gap: 16px; }
+    .site-home .feature-card {
+        padding: 20px 18px;
+        gap: 12px;
+    }
+    .site-home .feature-card__top { margin-bottom: 0; }
+    .site-home .feature-card__title { font-size: 1rem; line-height: 1.35; }
+    .site-home .feature-card__text { font-size: .875rem; line-height: 1.5; }
+    .site-home .feature-card__title::after { content: none; }
+    .site-home .feature-card__icon { width: 36px; height: 36px; padding: 0; border-radius: 0; background: transparent; }
+    .site-home .feature-card__num { font-size: .875rem; }
+    .site-home .imgcard { min-height: 190px; }
+    .site-home .imgcard__body { padding: 18px; }
+    .site-home .imgcard__title { font-size: .9375rem; line-height: 1.4; }
+
+    .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card, .newsfeat-lead, .newsfeat-mini) {
+        text-decoration: none;
+        box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
+        transition: transform var(--feature-card-motion-duration, .4s) cubic-bezier(.16, 1, .3, 1),
+            box-shadow var(--feature-card-motion-duration, .4s) cubic-bezier(.16, 1, .3, 1),
+            border-color .3s ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+        .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card, .newsfeat-lead, .newsfeat-mini):hover {
+            text-decoration: none;
+            box-shadow: 0 16px 36px rgba(37, 99, 235, .12);
+            transform: translateY(var(--feature-card-hover-lift, -4px));
+            border-color: var(--gov-teal);
+        }
+        .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card, .newsfeat-mini, .newsfeat-text):hover :is(.news-column__title, .news-card__title, .newslist-lead__title, .relnews-card__title, .newsfeat-mini__title, .newsfeat-text__title) {
+            color: var(--gov-teal);
+            text-decoration: none;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .site-home .site-content { --space-premium: 24px; }
+        .site-home .hero__inner { padding-block-start: 28px; }
+        .site-home .hero__cta { padding-inline: 16px; }
+    }
+}

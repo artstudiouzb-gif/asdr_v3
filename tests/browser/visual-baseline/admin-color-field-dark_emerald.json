@@ -1,0 +1,28 @@
+{
+  ".colorfield": {
+    "minWidth": "168px"
+  },
+  ".colorfield > label": {
+    "color": "rgb(248, 250, 252)",
+    "fontSize": "13px",
+    "fontWeight": "500"
+  },
+  ".colorfield .clr-field": {
+    "display": "block",
+    "width": "880px"
+  },
+  ".colorfield .clr-field input": {
+    "backgroundColor": "rgb(15, 23, 42)",
+    "color": "rgb(148, 163, 184)",
+    "borderColor": "rgb(51, 65, 85)",
+    "borderRadius": "3px",
+    "paddingLeft": "44px",
+    "fontFamily": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+  },
+  ".colorfield__off": {
+    "color": "rgb(16, 185, 129)",
+    "fontSize": "12px",
+    "gap": "6px",
+    "marginTop": "6px"
+  }
+}

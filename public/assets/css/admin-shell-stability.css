@@ -1,0 +1,236 @@
+/*
+ * Admin shell visual stability fixes.
+ *
+ * Loaded after admin.css, admin-shell-v2.css and admin-notifications.css.
+ * The base theme selectors use html[data-admin-theme], which are more specific
+ * than :root. Repeat the shell variables at the same specificity so the v2
+ * dark-sidebar/light-workspace composition is actually applied.
+ */
+
+:root,
+html[data-admin-theme="default"] {
+    --admin-shell-bg: #f5f7fb;
+    --admin-topbar-bg: rgba(255, 255, 255, .97);
+    --admin-topbar-text: #172033;
+    --admin-topbar-muted: #64748b;
+    --admin-sidebar-bg: #13233f;
+    --admin-sidebar-text: #e8eef8;
+    --admin-sidebar-muted: #91a2ba;
+    --admin-sidebar-hover: rgba(255, 255, 255, .08);
+    --admin-sidebar-active-bg: color-mix(in srgb, var(--admin-accent) 24%, transparent);
+    --admin-sidebar-active-text: #ffffff;
+    --admin-sidebar-active-border: var(--admin-accent);
+    --admin-shell-border: #e3e8f0;
+}
+
+html[data-admin-theme="wp_classic"] {
+    --admin-shell-bg: #f4f6f8;
+    --admin-topbar-bg: rgba(255, 255, 255, .97);
+    --admin-topbar-text: #202930;
+    --admin-topbar-muted: #66727d;
+    --admin-sidebar-bg: #202930;
+    --admin-sidebar-text: #f0f0f1;
+    --admin-sidebar-muted: #aeb8c1;
+    --admin-sidebar-hover: rgba(255, 255, 255, .08);
+    --admin-sidebar-active-bg: rgba(34, 113, 177, .30);
+    --admin-sidebar-active-text: #ffffff;
+    --admin-sidebar-active-border: #72aee6;
+    --admin-shell-border: #dfe3e7;
+}
+
+html[data-admin-theme="navy_teal"] {
+    --admin-shell-bg: #f4f7fa;
+    --admin-topbar-bg: rgba(255, 255, 255, .97);
+    --admin-topbar-text: #172033;
+    --admin-topbar-muted: #64748b;
+    --admin-sidebar-bg: #13233f;
+    --admin-sidebar-text: #e8eef8;
+    --admin-sidebar-muted: #91a2ba;
+    --admin-sidebar-hover: rgba(255, 255, 255, .08);
+    --admin-sidebar-active-bg: rgba(13, 148, 136, .28);
+    --admin-sidebar-active-text: #ffffff;
+    --admin-sidebar-active-border: #2dd4bf;
+    --admin-shell-border: #dfe7ed;
+}
+
+html[data-admin-theme="royal_purple"] {
+    --admin-shell-bg: #f6f5fb;
+    --admin-topbar-bg: rgba(255, 255, 255, .97);
+    --admin-topbar-text: #211d4d;
+    --admin-topbar-muted: #6d6a86;
+    --admin-sidebar-bg: #211d4d;
+    --admin-sidebar-text: #f0edff;
+    --admin-sidebar-muted: #aaa4d2;
+    --admin-sidebar-hover: rgba(255, 255, 255, .08);
+    --admin-sidebar-active-bg: rgba(124, 58, 237, .30);
+    --admin-sidebar-active-text: #ffffff;
+    --admin-sidebar-active-border: #a78bfa;
+    --admin-shell-border: #e5e1f1;
+}
+
+html[data-admin-theme="dark_emerald"] {
+    --admin-shell-bg: #0f172a;
+    --admin-topbar-bg: rgba(15, 23, 42, .97);
+    --admin-topbar-text: #f8fafc;
+    --admin-topbar-muted: #94a3b8;
+    --admin-sidebar-bg: #07111f;
+    --admin-sidebar-text: #f8fafc;
+    --admin-sidebar-muted: #7f91a8;
+    --admin-sidebar-hover: rgba(255, 255, 255, .08);
+    --admin-sidebar-active-bg: rgba(16, 185, 129, .25);
+    --admin-sidebar-active-text: #ffffff;
+    --admin-sidebar-active-border: #34d399;
+    --admin-shell-border: #334155;
+}
+
+/* Keep the shell stable while the notification client enhances the topbar. */
+.admin-topbar > .admin-user {
+    flex: 0 0 auto;
+    margin-left: 54px;
+}
+
+.admin-topbar > .admin-notification-bell + .admin-user {
+    margin-left: 0;
+}
+
+.admin-notification-bell {
+    flex: 0 0 40px;
+    width: 40px;
+    min-width: 40px;
+}
+
+.admin-notification-bell__button {
+    width: 40px;
+    height: 40px;
+    color: var(--admin-topbar-text);
+    background: #ffffff;
+    border: 1px solid #dce3ed;
+    border-radius: 3px;
+}
+
+.admin-notification-bell__button:hover,
+.admin-notification-bell.is-open .admin-notification-bell__button {
+    color: var(--admin-accent-hover);
+    background: var(--admin-accent-soft);
+    border-color: color-mix(in srgb, var(--admin-accent) 40%, #dce3ed);
+}
+
+.admin-notification-bell__count {
+    border-color: var(--admin-topbar-bg);
+}
+
+html[data-admin-theme="dark_emerald"] .admin-notification-bell__button {
+    color: #f8fafc;
+    background: #172033;
+    border-color: #334155;
+}
+
+html[data-admin-theme="dark_emerald"] .admin-notification-bell__button:hover,
+html[data-admin-theme="dark_emerald"] .admin-notification-bell.is-open .admin-notification-bell__button {
+    color: #ffffff;
+    background: #22304a;
+    border-color: #475569;
+}
+
+.admin-topbar,
+.admin-tools,
+.admin-user,
+.admin-search {
+    min-width: 0;
+}
+
+.admin-tools,
+.admin-user,
+.admin-notification-bell {
+    flex-shrink: 0;
+}
+
+.admin-sidebar__nav {
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+.admin-sidebar__collapse {
+    position: relative;
+    z-index: 2;
+}
+
+/* Align the floating action bar with the actual padded content column. */
+.form-actions--sticky {
+    left: max(
+        calc(var(--admin-sidebar-w) + 38px),
+        calc(50vw - 820px + (var(--admin-sidebar-w) / 2) + 38px)
+    );
+    right: max(
+        38px,
+        calc(50vw - 820px - (var(--admin-sidebar-w) / 2) + 38px)
+    );
+    z-index: 105 !important;
+    padding: 11px 18px;
+    border-width: 1px;
+    border-top-width: 2px;
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0 -10px 30px -12px rgba(15, 23, 42, .30), 0 -2px 8px rgba(2, 132, 199, .10);
+}
+
+.form-actions--sticky .btn {
+    min-height: 40px;
+    padding: 9px 18px;
+}
+
+.form-actions--sticky .btn--primary {
+    padding: 9px 22px;
+}
+
+@media (max-width: 1280px) {
+    .admin-topbar > .admin-user {
+        margin-left: 54px;
+    }
+
+    .admin-topbar > .admin-notification-bell + .admin-user {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 960px) {
+    .form-actions--sticky {
+        left: 22px;
+        right: 22px;
+    }
+}
+
+@media (max-width: 720px) {
+    .admin-notification-bell {
+        flex-basis: 40px;
+    }
+}
+
+@media (max-width: 520px) {
+    .admin-topbar > .admin-user {
+        margin-left: 48px;
+    }
+
+    .admin-topbar > .admin-notification-bell + .admin-user {
+        margin-left: 0;
+    }
+
+    .form-actions--sticky {
+        right: 8px;
+        left: 8px;
+        gap: 8px;
+        padding: 8px;
+        border-radius: 3px 3px 0 0;
+    }
+
+    .form-actions--sticky .btn {
+        min-width: 0;
+        min-height: 40px;
+        padding: 8px 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-topbar > .admin-user {
+        transition: none;
+    }
+}

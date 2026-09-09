@@ -1,0 +1,638 @@
+/*
+ * Обложка (тип контента «Обложки»).
+ *
+ * Часть темы, вынесенная из общего бандла: страницам без обложки эти правила
+ * не нужны. Подключается по ключу `hero_slides` (AssetCollector), когда в
+ * разметке страницы появился корень обложки.
+ *
+ * Порядок слоёв держится z-index'ами внутри собственного контекста наложения
+ * (`isolation: isolate` на корне), а не порядком в потоке:
+ *
+ *     фон (0) → затемнение (1) → ссылка-подложка (2) → контент (3) → навигация (4)
+ *
+ * Фон вынут из потока и обрезан по корню, поэтому он не меняет ни высоту
+ * обложки, ни ширину страницы — горизонтальной прокрутки от него не бывает.
+ */
+
+.hero {
+    /* Размеры текста — только ступени общей шкалы (--step-*). */
+    --hero-title-s: clamp(var(--step-4), 3vw, var(--step-6));
+    --hero-title-m: clamp(var(--step-5), 3.6vw, var(--step-8));
+    --hero-title-l: clamp(var(--step-6), 4.4vw, var(--step-10));
+    --hero-title-xl: clamp(var(--step-7), 5.4vw, var(--step-12));
+    --hero-subtitle-s: var(--step--1);
+    --hero-subtitle-m: var(--step-1);
+    --hero-subtitle-l: var(--step-3);
+
+    --hero-title-size: var(--hero-title-l);
+    --hero-subtitle-size: var(--hero-subtitle-m);
+    --hero-min-h: clamp(420px, 46vw, 620px);
+    --hero-text-width: 620px;
+    --hero-bg: var(--gov-navy);
+    --hero-fg: #fff;
+    --hero-accent: var(--gov-teal);
+    --hero-overlay: transparent;
+    --hero-panel-bg: transparent;
+    --hero-duration: 700ms;
+    --hero-fit: cover;
+    /* Боковой отступ контента: тот же, что у контейнера страницы
+       (`.site-content`), — иначе у полноширинной обложки текст не совпадает по
+       вертикали с остальными блоками. */
+    --hero-gutter: 20px;
+    /* Место под полосу навигации. Ноль, пока слайд один: резервировать пустоту
+       под несуществующими стрелками незачем. */
+    --hero-nav-space: 0px;
+    /* Размер кнопки капсулы и всё, что к ней прибавляется по высоте
+       (внутренние поля капсулы, рамка, отступы полосы). Обе величины —
+       переменные, потому что от них считается место, зарезервированное под
+       навигацию: разъедутся — текст обложки ляжет под кнопки. */
+    --hero-nav-btn: 28px;
+    --hero-nav-pad: 42px;
+    /* Насколько поднята полоса навигации над низом обложки. Нужна, когда
+       следующий блок надвинут на обложку (см. правило со «Счётчиками»). */
+    --hero-nav-bottom: 0px;
+    --hero-progress: 0;
+    /* Прозрачность полосы времени: она служебная и не должна спорить с
+       заголовком, но и прятать её не надо — она часть капсулы управления. */
+    --hero-progress-shown: .55;
+    /* Движение: 1 — обычный режим, 0 — «меньше движения». Множитель, а не
+       отдельный набор правил: он гасит и длительность, и сдвиг разом. */
+    --hero-motion: 1;
+    --hero-shift: 0px;
+    --hero-dir: 1;
+    --hero-kenburns: none;
+    /* Отступ сверху у частей текстового блока. Настраивается в админке —
+       у обложки целиком и отдельно у слайда. Умолчания повторяют прежнюю
+       вёрстку: шаг 12px, у кнопок двойной. */
+    --hero-gap-title: 12px;
+    --hero-gap-subtitle: 12px;
+    --hero-gap-actions: 24px;
+    --hero-gap-art: 12px;
+
+    position: relative;
+    display: grid;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: var(--hero-min-h);
+    background: var(--hero-bg);
+    color: var(--hero-fg);
+}
+
+.hero--carousel { --hero-nav-space: calc(var(--hero-nav-btn) + var(--hero-nav-pad) + var(--hero-nav-bottom)); }
+.hero--nav-none.hero--no-arrows { --hero-nav-space: 0px; }
+.hero--w-standard { max-width: var(--container-max, 1440px); margin-inline: auto; }
+
+/*
+ * «Во всю ширину». Секция блока лежит внутри контейнера страницы
+ * (`.site-content` с max-width), поэтому обложка выходит из него сама — тем же
+ * приёмом, что и полноширинные блоки темы (`left: calc(50% - 50vw)`).
+ * Горизонтальной прокрутки это не даёт: на корне объявлен `overflow-x: clip`.
+ *
+ * Наружу выходит только фон: контент держит `max-width` у `.hero__inner`, а
+ * боковой отступ повторяет отступ контейнера страницы, поэтому заголовок
+ * стоит на одной вертикали с остальными блоками, а не съезжает.
+ */
+.hero--w-full {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+}
+.hero--w-full .hero__inner,
+.hero--w-full .hero__nav { padding-inline: var(--hero-gutter); }
+
+/* --- Слайды: все в одной ячейке сетки, высота — по самому высокому --- */
+.hero__slides {
+    display: grid;
+    grid-template-areas: "hero-stack";
+    min-height: inherit;
+}
+
+.hero__slide {
+    grid-area: hero-stack;
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-height: var(--hero-min-h);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(calc(var(--hero-shift) * var(--hero-dir) * var(--hero-motion)));
+    transition:
+        opacity calc(var(--hero-duration) * var(--hero-motion)) ease,
+        transform calc(var(--hero-duration) * var(--hero-motion)) ease,
+        visibility 0s linear calc(var(--hero-duration) * var(--hero-motion));
+}
+
+.hero__slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    transition-delay: 0s;
+    z-index: 1;
+}
+
+/* Уходящий слайд остаётся видимым на время перехода — иначе на его месте
+   мелькает фон секции — и уезжает в сторону, обратную приходящему. */
+.hero__slide.is-leaving {
+    visibility: visible;
+    transition-delay: 0s;
+    transform: translateX(calc(var(--hero-shift) * var(--hero-dir) * -1 * var(--hero-motion)));
+}
+
+/* Класс вертикального выравнивания стоит на самом слайде, а не на корне
+   обложки: селектор `.hero--y-top .hero__slide` искал его у предка и не
+   совпадал никогда — настройка «по вертикали» молча не работала.
+   Горизонтальная позиция это переживала, потому что там класс на слайде,
+   а выравнивается вложенный .hero__inner. */
+.hero__slide.hero--y-top { align-items: start; }
+.hero__slide.hero--y-center { align-items: center; }
+.hero__slide.hero--y-bottom { align-items: end; }
+
+/* --- Слой фона --- */
+.hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.hero__fallback,
+.hero__image,
+.hero__video,
+.hero__yt {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.hero__image,
+.hero__video {
+    object-fit: var(--hero-fit);
+}
+
+/* Видео и YouTube показываются только после того, как скрипт убедился, что
+   их действительно можно воспроизвести. До этого (и навсегда, если нельзя)
+   виден кадр-замена под ними. */
+.hero__video[hidden],
+.hero__yt[hidden] { display: none; }
+
+/* Плеер проявляется только после рукопожатия с YouTube: пока ролик не
+   отозвался, посетитель видит кадр-замену, а не чёрный прямоугольник. */
+.hero__yt { overflow: hidden; pointer-events: none; opacity: 0; transition: opacity .4s ease; }
+.hero__yt.is-ready { opacity: 1; }
+
+/* Ролик 16:9 растягивается до перекрытия обложки: iframe нельзя обрезать
+   через object-fit, поэтому масштабируем его сами. */
+.hero__yt iframe {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100vw;
+    height: 56.25vw;
+    min-height: 100%;
+    min-width: 177.78vh;
+    transform: translate(-50%, -50%);
+    border: 0;
+    pointer-events: none;
+}
+
+.hero__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--hero-overlay);
+    pointer-events: none;
+}
+
+.hero__cover {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+}
+
+/* --- Фоновая надпись ---
+   Крупное слово между фоном и текстом. Размер — доля ширины экрана, а не
+   ступень шрифта: шкала --step-* существует для читаемого текста, а это
+   декорация, которой положено расти вместе с экраном. Цвет наследуется от
+   текста обложки (--hero-fg), поэтому надпись остаётся видимой и на светлой
+   схеме, и на тёмной, а не только на синей. */
+.hero__watermark {
+    position: absolute;
+    z-index: 2;
+    max-width: 100%;
+    /* Цвет — текст обложки: надпись видна на любой схеме, и подбирать его
+       под каждую схему отдельно не нужно. */
+    color: var(--hero-fg, #fff);
+    font-family: var(--font-heading, var(--font-family));
+    opacity: var(--hero-watermark-opacity, 0.12);
+    font-size: var(--hero-watermark-size, 22vw);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    /* Привязка к краю: центр выравнивается сдвигом на половину надписи. */
+    transform: translate(var(--hero-watermark-ax, 0%), var(--hero-watermark-ay, 0%));
+    /* Слово шириной в экран лежит поверх фона: без этого оно перехватывало бы
+       клики по кнопкам и по ссылке слайда. */
+    pointer-events: none;
+    user-select: none;
+}
+
+.hero__watermark--x-left { left: 0; }
+.hero__watermark--x-center { left: 50%; --hero-watermark-ax: -50%; }
+.hero__watermark--x-right { right: 0; }
+
+.hero__watermark--y-top { top: 0; }
+.hero__watermark--y-middle { top: 50%; --hero-watermark-ay: -50%; }
+.hero__watermark--y-bottom { bottom: 0; }
+
+/* --- Контент --- */
+.hero__inner {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    width: 100%;
+    max-width: var(--container-max, 1440px);
+    margin-inline: auto;
+    padding: var(--space-xl) var(--space-m);
+    /* Навигация не должна перекрывать текст и кнопки: место под неё
+       зарезервировано отступом, а не надеждой на то, что текст короткий. */
+    padding-block-end: calc(var(--space-xl) + var(--hero-nav-space));
+}
+
+.hero--pos-left .hero__inner { justify-content: flex-start; text-align: start; }
+.hero--pos-center .hero__inner { justify-content: center; text-align: center; }
+.hero--pos-right .hero__inner { justify-content: flex-end; text-align: end; }
+
+/* Расстояния между частями задаются не общим gap, а отступом каждой части:
+   иначе «поднять кнопки» было бы нечем — gap один на весь столбец. */
+.hero__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* Отступ всего блока сверху. Промежутки gap-* работают между частями и у
+       первой части сняты, поэтому опустить колонку целиком можно только
+       отдельной настройкой — раньше её дописывали в «Свой CSS» страницы. */
+    padding-top: var(--hero-text-offset, 0px);
+    max-width: var(--hero-text-width);
+    min-width: 0;
+    color: var(--hero-fg);
+}
+
+/* Верхний отступ у первой части не нужен: он оторвал бы текст от границы
+   блока, а настройка задумана как расстояние МЕЖДУ частями. */
+.hero__text > :first-child { margin-top: 0; }
+.hero--pos-center .hero__text { align-items: center; }
+.hero--pos-right .hero__text { align-items: flex-end; }
+
+.hero__slide--panel .hero__text {
+    background: var(--hero-panel-bg);
+    padding: var(--space-m);
+    border-radius: var(--radius);
+}
+
+/* Цвет собственного текста обложки. Он объявлен на .hero__text и наследуется
+   всеми её частями — раньше «светлый текст» красил только заголовок, а
+   подзаголовок и подписи кнопок оставались тёмными на тёмном фоне. */
+.hero--content-light .hero__text { --hero-fg: #fff; }
+.hero--content-dark .hero__text { --hero-fg: #101a2b; }
+
+/*
+ * Вложенный компонент со своей поверхностью цвет обложки НЕ наследует: белая
+ * карточка внутри navy-обложки обязана остаться с тёмным текстом. Схема
+ * родителя задаётся переменной, а не каскадом color, поэтому достаточно
+ * переопределить её на самом компоненте.
+ */
+.hero__surface {
+    --hero-fg: #101a2b;
+    background: #fff;
+    color: var(--hero-fg);
+    padding: var(--space-s);
+    border-radius: var(--radius);
+}
+
+.hero__eyebrow {
+    font-size: var(--step--2);
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--hero-fg);
+    opacity: .85;
+}
+
+.hero__title {
+    margin: var(--hero-gap-title) 0 0;
+    font-size: var(--hero-title-size);
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    color: var(--hero-fg);
+}
+
+.hero__title-link { color: inherit; text-decoration: none; }
+.hero__title-link:hover { text-decoration: underline; }
+
+.hero__subtitle {
+    margin: var(--hero-gap-subtitle) 0 0;
+    font-size: var(--hero-subtitle-size);
+    line-height: 1.5;
+    color: var(--hero-fg);
+    opacity: .92;
+    text-wrap: pretty;
+}
+
+.hero__art { display: block; margin-top: var(--hero-gap-art); }
+.hero__art img { max-width: 100%; height: auto; object-fit: contain; }
+
+/* --- Кнопки --- */
+.hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--hero-gap-actions);
+}
+
+.hero__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: var(--radius-pill);
+    font-size: var(--step-0);
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid transparent;
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+/* Цвет текста на заливке акцентом считает тема (--on-accent): белый читается
+   не на всяком акценте, а акцент задаётся в админке и подбирать пару на глаз
+   нельзя. axe ловил ровно этот случай. */
+.hero__cta--primary { background: var(--hero-accent); color: var(--on-accent, #fff); }
+.hero__cta--primary:hover { background: color-mix(in srgb, var(--hero-accent) 84%, #000); color: var(--on-accent, #fff); }
+.hero__cta--secondary { background: var(--hero-fg); color: var(--hero-bg); }
+.hero__cta--secondary:hover { background: color-mix(in srgb, var(--hero-fg) 86%, transparent); }
+.hero__cta--ghost { border-color: color-mix(in srgb, var(--hero-fg) 55%, transparent); color: var(--hero-fg); }
+.hero__cta--ghost:hover { background: color-mix(in srgb, var(--hero-fg) 14%, transparent); }
+.hero__cta--link { padding-inline: 0; color: var(--hero-fg); text-decoration: underline; }
+.hero__cta-icon { display: inline-flex; flex: none; }
+
+/* --- Навигация --- */
+/* Внешний слой — только положение: ширина колонки сайта и отступ от низа.
+   Сам он ничего не рисует и растянут во всю ширину, иначе капсула не встала
+   бы по левому краю текста обложки. */
+.hero__nav {
+    position: absolute;
+    z-index: 4;
+    inset-inline: 0;
+    bottom: var(--hero-nav-bottom);
+    display: flex;
+    /* Капсула прижата к правому краю колонки: заголовок и кнопки обложки
+       стоят слева, и управление там же спорило бы с ними за один угол. */
+    justify-content: flex-end;
+    width: 100%;
+    max-width: var(--container-max, 1440px);
+    margin-inline: auto;
+    padding: var(--space-s) var(--space-m);
+    color: var(--hero-fg);
+}
+
+/* Капсула: все управляющие элементы одной группой, а не россыпью по всей
+   ширине обложки. Подложка полупрозрачная и сделана через color-mix, а не
+   backdrop-filter: размытие на большой поверхности пересчитывается каждый
+   кадр прокрутки и заметно дороже, а читаемость даёт та же заливка. */
+.hero__nav-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    max-width: 100%;
+    min-width: 0;
+    padding: 4px;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--hero-bg) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--hero-fg) 14%, transparent);
+}
+
+/* Кнопки внутри капсулы плоские: своя рамка у каждой превращала бы группу в
+   три отдельных элемента и спорила бы с общей подложкой. */
+.hero__arrow,
+.hero__playpause {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--hero-nav-btn);
+    height: var(--hero-nav-btn);
+    flex: none;
+    border-radius: var(--radius-pill);
+    border: 0;
+    background: transparent;
+    color: var(--hero-fg);
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+
+.hero__arrow:hover,
+.hero__playpause:hover { background: color-mix(in srgb, var(--hero-fg) 18%, transparent); }
+.hero__arrow[disabled] { opacity: .45; cursor: default; }
+.hero--no-arrows .hero__arrow { display: none; }
+
+/* Пальцем в 34 px попадать неудобно: на сенсорных экранах кнопки капсулы
+   вырастают до 44 px. Курсору такая площадь не нужна, а капсула от неё
+   заметно полнеет — поэтому по типу указателя, а не по ширине экрана. */
+@media (pointer: coarse) {
+    .hero { --hero-nav-btn: 44px; --hero-nav-pad: 46px; }
+}
+.hero__playpause .hero__playpause-icon--play { display: none; }
+.hero__playpause[aria-pressed="true"] .hero__playpause-icon--play { display: inline-flex; }
+.hero__playpause[aria-pressed="true"] .hero__playpause-icon--pause { display: none; }
+
+.hero__indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.hero__counter {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    font-size: var(--step--2);
+    /* Не жирный: счётчик — служебная подпись внутри капсулы, а не заголовок.
+       Моноширинные цифры оставлены, иначе капсула дёргается по ширине при
+       смене слайда. */
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: var(--hero-fg);
+    flex: none;
+    padding-inline: 4px;
+}
+
+.hero__counter-sep,
+.hero__counter-total { opacity: .6; }
+
+/* Полоса времени слайда — служебная деталь, а не содержание обложки: короткая
+   и приглушённая, чтобы непрерывное движение не перетягивало внимание с
+   заголовка. Прячется она теперь не по наведению, а собрана вместе с
+   остальным управлением в капсулу — группой они читаются как один элемент
+   интерфейса и в фотографию не лезут. */
+.hero__progress {
+    position: relative;
+    display: block;
+    flex: 0 0 auto;
+    width: 56px;
+    height: 2px;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--hero-fg) 18%, transparent);
+    overflow: hidden;
+    opacity: var(--hero-progress-shown);
+}
+
+.hero__progress-bar {
+    position: absolute;
+    inset: 0;
+    transform: scaleX(var(--hero-progress));
+    transform-origin: left center;
+    background: color-mix(in srgb, var(--hero-fg) 70%, transparent);
+    border-radius: var(--radius-pill);
+}
+
+.hero__dots { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+
+.hero__dot {
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--hero-fg) 40%, transparent);
+    cursor: pointer;
+    transition: background-color .2s ease, width .2s ease;
+}
+
+.hero__dot.is-active { width: 28px; background: var(--hero-fg); }
+
+.hero__thumbs { display: inline-flex; gap: 8px; overflow-x: auto; }
+
+.hero__thumb {
+    width: 64px;
+    height: 40px;
+    flex: none;
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 2px solid transparent;
+    background: color-mix(in srgb, var(--hero-fg) 18%, transparent);
+    cursor: pointer;
+}
+
+.hero__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero__thumb.is-active { border-color: var(--hero-fg); }
+
+.hero__thumb-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: var(--step--2);
+    font-weight: 700;
+    color: var(--hero-fg);
+}
+
+.hero__arrow:focus-visible,
+.hero__playpause:focus-visible,
+.hero__dot:focus-visible,
+.hero__thumb:focus-visible,
+.hero__cta:focus-visible,
+.hero__title-link:focus-visible,
+.hero:focus-visible {
+    outline: 3px solid var(--hero-fg);
+    outline-offset: 3px;
+}
+
+/*
+ * Переходы. Сдвиг и наличие анимации выражены переменными, а не отдельными
+ * правилами для каждого случая: так «меньше движения» гасится одним
+ * переключением --hero-motion, без !important и без гонки специфичностей со
+ * scoped-стилями блока.
+ */
+.hero--tr-slide { --hero-shift: 100%; }
+.hero--tr-fade-slide { --hero-shift: 40px; }
+.hero[data-hero-dir="prev"] { --hero-dir: -1; }
+
+.hero--tr-kenburns .hero__slide.is-active .hero__image,
+.hero--tr-kenburns .hero__slide.is-active .hero__video {
+    animation: var(--hero-kenburns) 18s ease-out both;
+}
+.hero--tr-kenburns { --hero-kenburns: hero-kenburns; }
+
+@keyframes hero-kenburns {
+    from { transform: scale(1); }
+    to { transform: scale(1.12); }
+}
+
+/*
+ * Соседний блок, надвинутый на низ обложки.
+ *
+ * Тема намеренно натягивает карточку «Счётчики» на обложку
+ * (`margin-top: clamp(-120px, -9vw, -80px)`) — у старой обложки под это был
+ * компенсирующий отступ. У новой его не было, и карточка накрывала полосу
+ * навигации: стрелки и счётчик просто пропадали с экрана.
+ *
+ * Поднимаем навигацию ровно на величину наезда плюс зазор и на столько же
+ * увеличиваем резерв под контентом, чтобы текст не наехал на саму полосу.
+ */
+.cms-block--hero:has(+ .cms-block--counters) .hero--carousel {
+    /* Величина наезда повторяет тему. Значение взято из правила, которое там
+       побеждает: наезд объявлен дважды, и позже идёт clamp(-100px,-7vw,-60px)
+       — оно же действует и на телефоне, где более ранняя попытка обнулить
+       margin-top проигрывает по порядку. */
+    --hero-overlap: clamp(60px, 7vw, 100px);
+    --hero-nav-bottom: calc(var(--hero-overlap) + 16px);
+}
+
+/* --- Мобильная раскладка --- */
+@media (max-width: 720px) {
+    .hero { --hero-nav-pad: 38px; }
+    .hero { --hero-text-width: 100%; }
+    .hero__inner { padding: var(--space-l) var(--space-s); padding-block-end: calc(var(--space-l) + var(--hero-nav-space)); }
+    .hero__nav { padding: var(--space-xs) var(--space-s); }
+    .hero__thumbs { display: none; }
+    .hero--no-arrows-mobile .hero__arrow { display: none; }
+    /* Кнопки на узком экране растягиваются на строку: обрезанная CTA хуже,
+       чем высокая колонка. */
+    .hero__actions { width: 100%; }
+    .hero__cta { flex: 1 1 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+}
+
+/*
+ * Меньше движения: анимации и переходы гасятся, слайд меняется мгновенно.
+ * Автопрокрутку и фоновое видео отключает скрипт — он спрашивает
+ * window.asdrReduceMotion(), который учитывает и системную настройку, и
+ * тумблер «остановка анимаций» из панели настроек отображения.
+ */
+@media (prefers-reduced-motion: reduce) {
+    .hero { --hero-motion: 0; --hero-kenburns: none; }
+}
+
+/* Тумблер «остановка анимаций» из панели настроек отображения — тот же
+   выключатель, только заданный посетителем вручную. */
+[data-a11y-motion="off"] .hero { --hero-motion: 0; --hero-kenburns: none; }
+
+/*
+ * Без JavaScript карусель не переключается — показываем слайды подряд, как
+ * это сделано у вкладок. Пустой обложки посетитель не увидит ни при каком
+ * состоянии скриптов.
+ */
+@media (scripting: none) {
+    .hero__slides { display: block; }
+    .hero__slide { opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
+    .hero__nav { display: none; }
+    .hero { --hero-nav-space: 0px; }
+}

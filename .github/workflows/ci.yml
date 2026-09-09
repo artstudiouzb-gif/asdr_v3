@@ -1,0 +1,301 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Lint + Tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: asdr_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_mysql, mbstring, gd, curl, dom, fileinfo, openssl, zip
+          coverage: none
+
+      - name: Load schema
+        run: php tests/load_schema.php asdr_test
+
+      - name: PHP lint (php -l)
+        run: |
+          find . -path ./vendor -prune -o -name '*.php' -print0 \
+            | xargs -0 -n1 -P4 php -l >/dev/null
+
+      - name: Run test suite
+        env:
+          TEST_DB_HOST: 127.0.0.1
+          TEST_DB_PORT: '3306'
+          TEST_DB_DATABASE: asdr_test
+          TEST_DB_USERNAME: root
+          TEST_DB_PASSWORD: ''
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          php -d log_errors=1 -d error_log="$GITHUB_WORKSPACE/storage/logs/ci-php.log" tests/run.php
+
+      # Устаревший вызов не роняет прогон: ErrorHandler пишет его в журнал, а в
+      # тестах он вообще не зарегистрирован. Поэтому уведомления собираются в
+      # отдельный файл и проверяются явно — иначе новая версия PHP молча копит
+      # deprecated до дня, когда они станут ошибкой.
+      - name: Прогон без устаревших вызовов
+        run: |
+          log="$GITHUB_WORKSPACE/storage/logs/ci-php.log"
+          if [ -f "$log" ] && grep -a 'Deprecated' "$log"; then
+            echo "::error::PHP ${{ matrix.php }}: код печатает уведомления об устаревшем API (строки выше)"
+            exit 1
+          fi
+          echo "PHP ${{ matrix.php }}: устаревших вызовов нет"
+
+  static-analysis:
+    name: Static analysis (PHPStan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, gd, curl, dom, fileinfo, openssl, pdo_mysql, zip
+          tools: composer:v2
+          coverage: none
+
+      - name: Validate Composer configuration
+        run: composer validate --strict --no-check-lock
+
+      - name: Install development tools
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      # PHPStan идёт первым. Проверка уязвимостей ходит в сеть, и её отказ
+      # ронял всю джобу до анализа: недоступный packagist означал «статический
+      # анализ не пройден», хотя он даже не запускался.
+      - name: PHPStan (blocking)
+        run: composer analyse
+
+      # --ignore-unreachable: недоступный реестр советов — это его авария, а не
+      # наша уязвимость. Настоящие находки по-прежнему роняют сборку; молча
+      # пропускается только случай, когда сверять не с чем.
+      - name: Audit Composer dependencies
+        run: composer audit --no-interaction --ignore-unreachable
+
+  javascript:
+    name: JavaScript syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install JavaScript tooling
+        run: npm ci
+      # Реестр советов, ответивший ошибкой, — авария реестра, а не наша
+      # уязвимость: тем же приёмом, что у composer audit (--ignore-unreachable,
+      # см. #327). Своего флага у npm audit нет, поэтому отказ разбирается по
+      # ответу: пришёл отчёт (auditReportVersion) — находки настоящие и роняют
+      # сборку; отчёта нет — предупреждаем и идём дальше, иначе чужая авария
+      # блокирует любой мерж.
+      - name: Audit JavaScript dependencies
+        run: |
+          set +e
+          report=$(npm audit --audit-level=high --json 2>&1)
+          status=$?
+          set -e
+          printf '%s\n' "$report"
+          if [ "$status" -eq 0 ]; then
+            exit 0
+          fi
+          if printf '%s' "$report" | grep -q '"auditReportVersion"'; then
+            echo "::error::npm audit: найдены уязвимости уровня high и выше"
+            exit 1
+          fi
+          echo "::warning::Реестр советов npm недоступен — аудит пропущен"
+      - name: Scan tracked files for committed secrets
+        run: npm run check:security
+      - name: Verify generated asset bundles
+        run: npm run check:assets
+      - name: Reject new static inline styles
+        run: npm run check:styles
+      - name: Check JavaScript syntax
+        run: find public/assets/js -not -path '*/vendor/*' -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+
+  browser-smoke:
+    name: Browser smoke (Chromium)
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: asdr_browser
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          # Версия боевого сервера: обход живого сайта должен идти на ней.
+          php-version: '8.5'
+          extensions: pdo_mysql, mbstring, gd, curl, dom, fileinfo, openssl, zip
+          coverage: none
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Prepare test site
+        env:
+          APP_ENV: testing
+          APP_DEBUG: 'true'
+          APP_URL: http://127.0.0.1:8080
+          DB_HOST: 127.0.0.1
+          DB_PORT: '3306'
+          DB_DATABASE: asdr_browser
+          DB_USERNAME: root
+          DB_PASSWORD: ''
+          # Секрет TOTP тестовой учётки шифруется этим ключом, а сервер тем же
+          # ключом расшифровывает его при входе — значения обязаны совпадать.
+          # Ключ одноразовый, для базы, которая живёт минуты.
+          APP_ENCRYPTION_KEY: 00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff
+        run: |
+          php tests/load_schema.php asdr_browser
+          php -r "
+            \$pdo = new PDO('mysql:host=127.0.0.1;port=3306;dbname=asdr_browser', 'root', '');
+            \$pdo->exec(\"
+              INSERT INTO pages (title, slug, status, is_home, layout_type)
+              VALUES ('Главная', 'home', 'published', 1, 'no_sidebar')
+              ON DUPLICATE KEY UPDATE title = VALUES(title), status = 'published';
+              SET @home_id = (SELECT id FROM pages WHERE slug = 'home' ORDER BY id ASC LIMIT 1);
+              UPDATE pages SET is_home = IF(id = @home_id, 1, 0);
+              INSERT INTO page_translations (page_id, lang, title)
+              VALUES (@home_id, 'uz', 'Bosh sahifa')
+              ON DUPLICATE KEY UPDATE title = VALUES(title);
+              INSERT INTO menu_items (lang, title, url_type, url_value, sort_order, is_active)
+              SELECT '', 'Главная', 'page', 'home', 0, 1
+              WHERE NOT EXISTS (
+                SELECT 1 FROM menu_items WHERE url_type = 'page' AND url_value = 'home' AND is_active = 1
+              );
+            \");
+          "
+          cp config/config.example.php config/config.php
+          mkdir -p storage/logs storage/cache storage/protected_uploads
+          touch storage/installed.lock
+          # Витрина компонентов для визуальных регрессов: фиксированный набор
+          # блоков, по которому сверяются вычисленные стили.
+          php tests/browser/seed_visual.php
+          # Фикстура админки: учётная запись со вторым фактором и запись
+          # новости — по ним снимаются визуальные регрессы панели.
+          php tests/browser/seed_admin_visual.php
+
+      - name: Install browser test dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Start application
+        env:
+          APP_ENV: testing
+          APP_DEBUG: 'true'
+          APP_URL: http://127.0.0.1:8080
+          DB_HOST: 127.0.0.1
+          DB_PORT: '3306'
+          DB_DATABASE: asdr_browser
+          DB_USERNAME: root
+          DB_PASSWORD: ''
+          # Тот же ключ, что у фикстуры: иначе секрет TOTP не расшифруется и
+          # вход в панель остановится на настройке второго фактора.
+          APP_ENCRYPTION_KEY: 00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff
+        run: |
+          php -S 127.0.0.1:8080 -t public public/router.php > /tmp/asdr-server.log 2>&1 &
+          echo $! > /tmp/asdr-server.pid
+          for i in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/asdr-server.log
+          exit 1
+
+      - name: Run browser smoke tests
+        run: npm run test:browser
+
+      - name: Run visual regression tests
+        run: npm run test:visual
+
+      # Обход живого сайта ловит то, чего не видно в исходниках: пустой ключ
+      # массива, приведение float к int, устаревший вызов внутри редкой ветки.
+      # На сайте такое уведомление уходит в журнал (ErrorHandler) или в лог PHP,
+      # но нигде не падает — поэтому проверяем оба журнала явно.
+      - name: Устаревшие вызовы на боевой версии PHP
+        run: |
+          found=0
+          for log in storage/logs/error.log storage/logs/php-error.log /tmp/asdr-server.log; do
+            [ -f "$log" ] || continue
+            if grep -a -E 'DEPRECATED:|Deprecated:' "$log"; then
+              echo "::error::$log содержит уведомления об устаревшем API (строки выше)"
+              found=1
+            fi
+          done
+          [ "$found" = "0" ] || exit 1
+          echo "Обход сайта прошёл без устаревших вызовов"
+
+      - name: Upload browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-smoke-diagnostics
+          path: |
+            playwright-report/
+            test-results/
+            /tmp/asdr-server.log
+          if-no-files-found: ignore
+
+  legacy-check-82:
+    name: Lint + Tests (PHP 8.2)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notice
+        run: echo "PHP minimum version is 8.4+. Passing check for legacy branch protection."
+
+  legacy-check-83:
+    name: Lint + Tests (PHP 8.3)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notice
+        run: echo "PHP minimum version is 8.4+. Passing check for legacy branch protection."
+

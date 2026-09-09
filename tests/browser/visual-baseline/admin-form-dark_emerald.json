@@ -1,0 +1,40 @@
+{
+  ".form-field > label": {
+    "color": "rgb(248, 250, 252)",
+    "fontSize": "13px",
+    "fontWeight": "500",
+    "marginBottom": "6px"
+  },
+  "input[type=\"text\"]": {
+    "backgroundColor": "rgb(15, 23, 42)",
+    "color": "rgb(248, 250, 252)",
+    "borderColor": "rgb(51, 65, 85)",
+    "borderRadius": "3px",
+    "height": "38px",
+    "fontSize": "13px"
+  },
+  "textarea": {
+    "backgroundColor": "rgb(15, 23, 42)",
+    "color": "rgb(248, 250, 252)",
+    "borderColor": "rgb(51, 65, 85)",
+    "borderRadius": "3px",
+    "fontSize": "13px"
+  },
+  "select": {
+    "backgroundColor": "rgb(15, 23, 42)",
+    "color": "rgb(248, 250, 252)",
+    "borderColor": "rgb(51, 65, 85)",
+    "borderRadius": "3px",
+    "height": "38px"
+  },
+  ".form-hint": {
+    "color": "rgb(148, 163, 184)",
+    "fontSize": "12px"
+  },
+  ".form-card": {
+    "backgroundColor": "rgb(30, 41, 59)",
+    "borderColor": "rgb(51, 65, 85)",
+    "borderRadius": "3px",
+    "padding": "20px 24px"
+  }
+}

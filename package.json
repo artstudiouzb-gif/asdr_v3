@@ -1,0 +1,27 @@
+{
+  "name": "asdr-browser-tests",
+  "private": true,
+  "scripts": {
+    "build:vendor": "node scripts/sync-vendor-assets.mjs",
+    "check:vendor": "node scripts/sync-vendor-assets.mjs --check",
+    "sync:fonts": "node scripts/sync-local-fonts.mjs",
+    "check:fonts": "node scripts/sync-local-fonts.mjs --check",
+    "build:assets": "npm run build:vendor && node scripts/build-assets.mjs",
+    "check:assets": "npm run check:vendor && npm run check:fonts && node scripts/build-assets.mjs --check",
+    "check:security": "node scripts/security-scan.mjs",
+    "check:styles": "node scripts/extract-static-inline-styles.mjs --check",
+    "test:browser": "playwright test --grep-invert @visual",
+    "test:visual": "playwright test --grep @visual"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@melloware/coloris": "0.25.0",
+    "@playwright/test": "1.62.1",
+    "@tabler/icons-sprite": "3.46.0",
+    "axe-core": "^4.13.0",
+    "clean-css": "5.3.3",
+    "subset-font": "^2.5.0",
+    "terser": "5.50.0",
+    "web-vitals": "^6.1.0"
+  }
+}

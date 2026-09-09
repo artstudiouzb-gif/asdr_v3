@@ -1,0 +1,129 @@
+/* «Коллаж»: композиция из разнотипных элементов на общей сетке.
+
+   Размещение приезжает из scoped CSS блока (grid-column / grid-row у каждого
+   элемента), здесь — только само полотно и вид элементов. Наложение получается
+   тем, что два элемента занимают одни и те же ячейки: порядок в разметке решает,
+   кто сверху, и спорить о z-index не о чем. */
+
+.block-collage__title { margin: 0 0 clamp(18px, 2vw, 28px); }
+
+.collage__canvas {
+    display: grid;
+    grid-template-columns: repeat(var(--collage-cols, 6), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--collage-rows, 4), minmax(0, 1fr));
+    gap: var(--collage-gap, 20px);
+    aspect-ratio: 4 / 3;
+}
+.collage__canvas--ratio-1-1 { aspect-ratio: 1 / 1; }
+.collage__canvas--ratio-3-4 { aspect-ratio: 3 / 4; }
+.collage__canvas--ratio-16-9 { aspect-ratio: 16 / 9; }
+.collage__canvas--gap-none { --collage-gap: 0px; }
+.collage__canvas--gap-small { --collage-gap: 10px; }
+.collage__canvas--gap-medium { --collage-gap: 20px; }
+.collage__canvas--gap-large { --collage-gap: 32px; }
+
+.collage__item {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+.collage__item--shape-rounded { border-radius: var(--radius, 14px); }
+.collage__item--shape-circle { border-radius: 50%; }
+.collage__item--shape-square { border-radius: 0; }
+a.collage__item { color: inherit; text-decoration: none; }
+a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offset: 3px; }
+
+/* --- Фотография --- */
+/* Кадр заполняет ячейку целиком: пропорции ячейки задаёт сетка, а не снимок,
+   иначе один вертикальный кадр развалил бы всю композицию. */
+.collage__item--photo picture { display: block; width: 100%; height: 100%; }
+.collage__photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* --- Плитка с числом --- */
+.collage__item--stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: clamp(16px, 2.2vw, 28px);
+    text-align: center;
+    background: var(--collage-bg, var(--gov-surface));
+    color: var(--collage-fg, var(--gov-title));
+}
+.collage__stat-icon { display: grid; place-items: center; }
+.collage__stat-value { font-size: var(--step-6); font-weight: 700; line-height: 1; }
+/* Подпись отличается кеглем, а не блёклостью: приглушать её прозрачностью
+   нельзя — на цветной плитке контраст уходит ниже нормы. */
+.collage__stat-label { font-size: var(--step--1); line-height: 1.35; text-wrap: pretty; }
+
+/* --- Круглая печать --- */
+/* Ячейка бывает не квадратной, а печать обязана остаться кругом. Пропорции у
+   самого элемента мало: при `aspect-ratio` с ограничением по высоте браузер
+   подрезает только высоту, и круг превращается в эллипс (замерено: ячейка
+   190×170 давала печать 190×170). Поэтому диаметр берётся по меньшей стороне
+   ячейки — через единицы контейнера. */
+.collage__item--badge {
+    display: grid;
+    place-items: center;
+    container-type: size;
+    background: none;
+}
+.collage__badge {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: min(100cqw, 100cqh);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--collage-bg, var(--gov-teal));
+    color: var(--collage-fg, #fff);
+}
+.collage__badge-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    animation: collage-badge-spin 20s linear infinite;
+}
+/* Кегль надписи задан атрибутом в CollageBadge: это доля диаметра в единицах
+   viewBox, а не размер текста страницы, и шкале --step-* он не принадлежит. */
+.collage__badge-ring text {
+    fill: currentColor;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+.collage__badge-icon { position: relative; display: grid; place-items: center; }
+@keyframes collage-badge-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+    .collage__badge-ring { animation: none; }
+}
+
+/* --- Узор --- */
+.collage__item--pattern { background: var(--collage-bg, transparent); }
+.collage__pattern {
+    position: absolute;
+    inset: 0;
+    --block-pattern-ink: var(--collage-fg, var(--gov-border));
+    --block-pattern-size: 22px;
+}
+
+/* Телефон: сетка складывается в столбец, наложения и повороты снимаются.
+   Порядок — как в редакторе; пропорция полотна больше не действует, иначе
+   восемь элементов делили бы высоту одного экрана. */
+@media (max-width: 720px) {
+    .collage__canvas {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: none;
+        aspect-ratio: auto;
+    }
+    .collage__item {
+        grid-column: 1 / -1 !important;
+        grid-row: auto !important;
+    }
+    .collage__item--photo { aspect-ratio: 4 / 3; }
+    .collage__item--badge { block-size: 160px; }
+    .collage__item--pattern { display: none; }
+}

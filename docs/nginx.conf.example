@@ -1,0 +1,68 @@
+# ArtStudio CMS — образец конфигурации nginx + PHP-FPM.
+# nginx НЕ читает .htaccess: этот файл заменяет правила Apache.
+# Скопируйте в /etc/nginx/sites-available/artstudio.conf, поправьте
+# server_name, root и путь к сокету PHP-FPM, затем:
+#   ln -s ../sites-available/artstudio.conf /etc/nginx/sites-enabled/
+#   nginx -t && systemctl reload nginx
+
+server {
+    listen 80;
+    server_name example.com www.example.com;
+
+    # ВАЖНО: root указывает на папку public/ проекта, а не на его корень.
+    # app/, storage/, config/, database/ остаются вне веб-корня и недоступны.
+    root /var/www/artstudio/public;
+    index index.php;
+
+    charset utf-8;
+    client_max_body_size 120m;   # чанковая загрузка файлов в админке
+
+    # Сжатие текстовых ответов (HTML/CSS/JS/JSON/SVG ужимаются в 3–5 раз).
+    # Если nginx собран с модулем brotli — добавьте brotli on; brotli_types ...
+    gzip on;
+    gzip_vary on;
+    gzip_comp_level 5;
+    gzip_min_length 512;
+    gzip_types text/plain text/css text/xml application/json
+               application/javascript application/xml+rss application/rss+xml
+               image/svg+xml application/manifest+json;
+
+    # Безопасные заголовки (дублируют SecurityHeaders приложения — не мешает).
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # Скрытые файлы (.git, .htaccess и т.п.) не отдаются.
+    location ~ /\. { deny all; }
+
+    # Служебные расширения не отдаются как статика.
+    location ~* \.(sql|log|lock|ini|env)$ { deny all; }
+
+    # Версионированные ассеты (?v=hash) кэшируются надолго.
+    location ~* \.(css|js|woff2?|ttf|eot|svg|jpe?g|png|gif|webp|ico)$ {
+        expires 1y;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    # Единственные исполняемые PHP — точки входа приложения.
+    # Точные location (=) имеют приоритет над регулярным запретом ниже.
+    location = /index.php {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;  # поправьте под свою версию PHP
+    }
+    location = /download.php {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root/download.php;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+    }
+
+    # Любые прочие .php (в т.ч. в /uploads) не исполняются и не отдаются.
+    location ~ \.php$ { return 404; }
+
+    # Всё остальное — статика напрямую либо роутер приложения.
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+}

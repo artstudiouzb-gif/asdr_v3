@@ -1,0 +1,22 @@
+{
+  "table.table th": {
+    "backgroundColor": "rgb(250, 251, 252)",
+    "color": "rgb(29, 35, 39)",
+    "fontSize": "12px",
+    "fontWeight": "600",
+    "letterSpacing": "0.36px",
+    "textTransform": "uppercase",
+    "padding": "6px 10px",
+    "borderBottomColor": "rgb(220, 220, 222)"
+  },
+  "table.table td": {
+    "color": "rgb(29, 35, 39)",
+    "fontSize": "13px",
+    "lineHeight": "19.5px",
+    "padding": "6px 10px",
+    "borderBottomColor": "color(srgb 0.862745 0.862745 0.870588 / 0.55)"
+  },
+  ".table--striped tbody tr:nth-child(even)": {
+    "backgroundColor": "rgb(250, 251, 252)"
+  }
+}

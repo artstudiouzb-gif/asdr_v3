@@ -1,0 +1,23 @@
+{
+    "name": "asdr/cms",
+    "description": "ASDR CMS - Agency for Strategic Development and Reform",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.4"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "2.2.8"
+    },
+    "config": {
+        "allow-plugins": false,
+        "sort-packages": true
+    },
+    "scripts": {
+        "analyse": "phpstan analyse --no-progress --error-format=table",
+        "lint": "@php -r \"foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator('app')) as \\$f) { if (\\$f->getExtension() === 'php') { passthru('php -l ' . escapeshellarg(\\$f->getPathname()), \\$r); if (\\$r !== 0) exit(\\$r); } }\"",
+        "test": "@php tests/run.php",
+        "smoke": "@php scripts/smoke.php",
+        "check": "@composer lint && @composer test"
+    }
+}

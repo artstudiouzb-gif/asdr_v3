@@ -1,0 +1,50 @@
+{
+  ".media-grid": {
+    "gridTemplateColumns": "172.391px 172.406px 172.391px 172.391px 172.391px",
+    "gap": "14px"
+  },
+  ".media-card": {
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "borderColor": "rgb(29, 35, 39)",
+    "borderRadius": "3px",
+    "aspectRatio": "auto"
+  },
+  ".media-card__thumb": {
+    "objectFit": "cover",
+    "width": "172.391px",
+    "height": "107.734px",
+    "aspectRatio": "16 / 10",
+    "borderColor": "rgb(220, 220, 222)",
+    "borderRadius": "3px"
+  },
+  ".media-card__caption": {
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "color": "rgb(29, 35, 39)",
+    "fontSize": "12px",
+    "padding": "6px 2px 0px"
+  },
+  ".media-card__ext": {
+    "color": "rgb(100, 105, 112)",
+    "fontSize": "11px",
+    "fontWeight": "600"
+  },
+  ".media-card__icon-wrap": {
+    "backgroundColor": "color(srgb 0.937961 0.939608 0.940706)",
+    "color": "rgb(100, 105, 112)",
+    "aspectRatio": "16 / 10",
+    "borderColor": "rgb(220, 220, 222)"
+  },
+  ".media-toolbar": {
+    "backgroundColor": "rgb(255, 255, 255)",
+    "borderColor": "rgb(220, 220, 222)",
+    "padding": "14px 18px"
+  },
+  ".media-toolbar select": {
+    "width": "170px",
+    "minWidth": "170px"
+  },
+  ".media-toolbar input[type=\"search\"]": {
+    "width": "220px",
+    "minWidth": "220px"
+  }
+}

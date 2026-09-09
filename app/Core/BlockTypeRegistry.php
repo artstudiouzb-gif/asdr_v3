@@ -1,0 +1,240 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Core;
+
+use App\Core\BlockData\BlockFieldSchema;
+
+/**
+ * Единый реестр типов блоков.
+ *
+ * Здесь собраны ключи типов, их дефолтные данные и названия для редактора.
+ * Шаблоны обычных блоков следуют соглашению templates/blocks/{type}.php;
+ * columns рендерится программно, потому отдельного шаблона у него нет.
+ */
+final class BlockTypeRegistry
+{
+    /**
+     * Умолчания типов, у которых поля описаны по-старому — списком здесь,
+     * полем в `block_form.php` и веткой в `BlockController::collectData()`.
+     *
+     * Пустой массив означает, что тип переехал на схему полей
+     * (`App\Core\BlockData\BlockFieldSchema`) и умолчания берутся оттуда;
+     * ключ остаётся, чтобы не менялся порядок типов в редакторе. Полный
+     * список даёт `defaults()`, обращаться нужно к нему.
+     *
+     * @var array<string, array<string, mixed>>
+     */
+    public const BASE_DEFAULTS = [
+        'text' => [
+            'variant' => 'default',
+            'title' => '',
+            'content' => '',
+            'aside_title' => '',
+            'items' => [],
+            'quote' => '',
+            // Оформление акцентной цитаты. Пустой цвет и нулевой размер — это
+            // «как в теме»: у блоков, собранных до появления настроек, вид не
+            // меняется. Знак кавычки бывает символом (любым, из документа) или
+            // значком Tabler — пресетом «крупная/мелкая» нужный кегль не
+            // угадать, поэтому размер числом, в пикселях.
+            'quote_bg' => '',
+            'quote_color' => '',
+            'quote_mark' => 'text',
+            'quote_mark_text' => "\u{201c}",
+            'quote_mark_icon' => '',
+            'quote_mark_size' => 0,
+            'quote_mark_color' => '',
+            'quote_mark_position' => 'top-left',
+            'media_type' => 'none',
+            'media_image' => '',
+            'media_video' => '',
+            'media_youtube' => '',
+            'media_alt' => '',
+            'media_caption' => '',
+            'image_position' => 'center-center',
+            'image_position_mobile' => 'center-center',
+        ],
+        'html' => ['html' => ''],
+        'cta' => [], // схема: BlockFieldSchema
+        'advantages' => [], // схема: BlockFieldSchema
+        'slider' => [], // схема: BlockFieldSchema
+        'form' => ['form_id' => null],
+        'columns' => [], // схема: BlockFieldSchema
+        // Вкладки — такой же контейнер, как columns: содержимое вкладки это
+        // вложенные блоки любого типа (column_index = номер вкладки), а сам
+        // блок хранит только подписи вкладок и оформление.
+        'tabs' => [], // схема: BlockFieldSchema
+        'testimonials' => [], // схема: BlockFieldSchema
+        'counters' => [], // схема: BlockFieldSchema
+        'team_list' => [], // схема: BlockFieldSchema
+        'projects_list' => [], // схема: BlockFieldSchema
+        'news_latest' => [], // схема: BlockFieldSchema
+        'partners' => [], // схема: BlockFieldSchema
+        'subscribe' => [], // схема: BlockFieldSchema
+        'faq' => [], // схема: BlockFieldSchema
+        'contact_cards' => [], // схема: BlockFieldSchema
+        // hero_id — ссылка на обложку (тип контента «Обложки»). Когда он задан,
+        // блок только размещает обложку: содержимое и настройки берутся из неё,
+        // а собственные поля блока не используются. Ноль — старая обложка,
+        // собранная прямо в блоке; такие страницы продолжают работать.
+        'hero' => ['hero_id' => 0, 'title' => '', 'eyebrow' => '', 'subtitle' => '', 'bg_type' => 'none', 'image' => '', 'image_mobile' => '', 'image_position' => 'center-center', 'image_position_mobile' => 'center-center', 'video_url' => '', 'video_mobile' => 'poster', 'youtube_url' => '', 'bg_color' => '', 'width' => 'full', 'height' => 'regular', 'custom_height' => '720px', 'height_mobile' => '', 'custom_height_mobile' => '', 'overlay_enabled' => false, 'overlay_mode' => 'gradient', 'overlay_direction' => 'auto', 'overlay_color' => '#0b1a30', 'overlay_opacity' => 35, 'text_position' => 'left', 'text_align_y' => 'center', 'text_width' => '', 'text_color' => '', 'art_image' => '', 'art_alt' => '', 'art_position' => 'above', 'art_size' => 'medium', 'button_color' => '', 'panel_enabled' => false, 'panel_color' => '#0b1a30', 'panel_opacity' => 0, 'button_text' => '', 'button_url' => '', 'button_icon' => '', 'button_icon_image' => '', 'button2_text' => '', 'button2_url' => '', 'button2_icon' => '', 'button2_icon_image' => '', 'video_button_text' => '', 'video_button_url' => '', 'slides' => [], 'autoplay' => 0],
+        'cards_grid' => [], // схема: BlockFieldSchema
+        'media_gallery' => [], // схема: BlockFieldSchema
+        'news_feature' => [], // схема: BlockFieldSchema
+        'person_cards' => [], // схема: BlockFieldSchema
+        'timeline' => [], // схема: BlockFieldSchema
+        'news_docs' => [], // схема: BlockFieldSchema
+        'person_profile' => [], // схема: BlockFieldSchema
+        'bio_education' => [], // схема: BlockFieldSchema
+        'anchor_nav' => [], // схема: BlockFieldSchema
+        'stages' => [], // схема: BlockFieldSchema
+        'text_image' => [], // схема: BlockFieldSchema
+        'docs_list' => [], // схема: BlockFieldSchema
+        'map_point' => [], // схема: BlockFieldSchema
+        'org_structure' => [], // схема: BlockFieldSchema
+        'leader_card' => [], // схема: BlockFieldSchema
+        'icon_text' => [], // схема: BlockFieldSchema
+        'collage' => [], // схема: BlockFieldSchema
+        'table' => [], // схема: BlockFieldSchema
+        'image' => [], // схема: BlockFieldSchema
+        'embed' => [], // схема: BlockFieldSchema
+        'chart' => [], // схема: BlockFieldSchema
+        'divider' => [], // схема: BlockFieldSchema
+        'buttons' => [], // схема: BlockFieldSchema
+    ];
+
+    /** Короткие русские названия для сообщений редактору. */
+    public const TYPE_LABELS = [
+        'text' => 'Текст', 'html' => 'Произвольный HTML', 'cta' => 'Призыв к действию',
+        'advantages' => 'Преимущества', 'slider' => 'Слайдер',
+        'form' => 'Форма', 'columns' => 'Колонки', 'tabs' => 'Вкладки', 'testimonials' => 'Отзывы',
+        'counters' => 'Счётчики', 'team_list' => 'Команда', 'projects_list' => 'Проекты',
+        'news_latest' => 'Последние новости', 'partners' => 'Партнёры',
+        'subscribe' => 'Подписка', 'faq' => 'Вопросы и ответы', 'contact_cards' => 'Контакты',
+        'hero' => 'Обложка',
+        'cards_grid' => 'Карточки', 'media_gallery' => 'Медиагалерея',
+        'news_feature' => 'Новости и аналитика', 'person_cards' => 'Карточки персон', 'timeline' => 'Хронология',
+        'news_docs' => 'Новости и документы', 'person_profile' => 'Профиль персоны',
+        'bio_education' => 'Биография и образование',
+        'anchor_nav' => 'Якорная навигация', 'stages' => 'Этапы', 'text_image' => 'Текст с фото',
+        'docs_list' => 'Список документов', 'map_point' => 'Карта', 'org_structure' => 'Оргструктура',
+        'leader_card' => 'Карточка руководителя',
+        'icon_text' => 'Иконка и текст', 'collage' => 'Коллаж', 'table' => 'Таблица',
+        'image' => 'Изображение', 'embed' => 'Внешняя врезка',
+        'chart' => 'Диаграмма', 'divider' => 'Разделитель', 'buttons' => 'Кнопки',
+    ];
+
+    /**
+     * Более подробные подписи только там, где список добавления блока требует
+     * пояснения. Остальные берутся из TYPE_LABELS.
+     */
+    private const EDITOR_LABEL_OVERRIDES = [
+        'cta' => 'Призыв к действию (CTA)',
+        'tabs' => 'Вкладки (любые блоки внутри)',
+        'team_list' => 'Список команды',
+        'projects_list' => 'Список проектов',
+        'partners' => 'Партнёры (логотипы)',
+        'subscribe' => 'Подписка на дайджест',
+        'contact_cards' => 'Контактные карточки',
+        'hero' => 'Герой (титул + фото/видео)',
+        'cards_grid' => 'Карточки (иконки / фото / категории)',
+        'media_gallery' => 'Медиа-галерея (видео/фото)',
+        'news_feature' => 'Новости и аналитика (крупная + список)',
+        'person_cards' => 'Руководство (карточки персон)',
+        'timeline' => 'История (таймлайн + CTA-карточка)',
+        'news_docs' => 'Новости + документы (2 колонки)',
+        'person_profile' => 'Профиль руководителя',
+        'bio_education' => 'Биография + образование',
+        'anchor_nav' => 'Якорная навигация (вкладки)',
+        'stages' => 'Этапы реализации (таймлайн)',
+        'text_image' => 'Текст + фото (о проекте)',
+        'docs_list' => 'Документы (сетка)',
+        'map_point' => 'Карта с меткой',
+        'org_structure' => 'Структура организации (оргсхема)',
+        'leader_card' => 'Карточка руководителя (с вкладками)',
+        'icon_text' => 'Иконка и текст (контакты, телефоны)',
+        'collage' => 'Коллаж (фото внахлёст, плитки, печать)',
+        'table' => 'Таблица (строки текстом, ячейки через |)',
+        'image' => 'Изображение (одно фото с подписью)',
+        'embed' => 'Внешняя врезка (YouTube, Telegram, Google Формы)',
+        'chart' => 'Диаграмма (столбцы, доли, показатель к цели)',
+        'divider' => 'Разделитель (линия, знак или пустое место)',
+        'buttons' => 'Кнопки (до трёх в ряд)',
+        // Аккордеон и цитата — это FAQ и «Отзывы»: разметка, скрипт и стили у
+        // них те же, и отдельные блоки-близнецы разъехались бы с ними при
+        // первой правке. Названы так, чтобы редактор их нашёл по своему слову.
+        'faq' => 'FAQ / аккордеон (свёрнутые разделы)',
+        'testimonials' => 'Отзывы и цитаты (автор, должность, фото)',
+    ];
+
+    /** @var array<string, array<string, mixed>>|null */
+    private static ?array $defaults = null;
+
+    /**
+     * Умолчания всех типов: у переехавших на схему — из неё, у остальных — из
+     * BASE_DEFAULTS. Порядок типов сохраняется, он же порядок в редакторе.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public static function defaults(): array
+    {
+        if (self::$defaults !== null) {
+            return self::$defaults;
+        }
+
+        $all = [];
+        foreach (self::BASE_DEFAULTS as $type => $fields) {
+            $all[$type] = BlockFieldSchema::has($type) ? BlockFieldSchema::defaults($type) : $fields;
+        }
+
+        return self::$defaults = $all;
+    }
+
+    /** @return list<string> */
+    public static function types(): array
+    {
+        return array_keys(self::BASE_DEFAULTS);
+    }
+
+    public static function has(string $type): bool
+    {
+        return array_key_exists($type, self::BASE_DEFAULTS);
+    }
+
+    /** @return array<string, mixed> */
+    public static function defaultsFor(string $type): array
+    {
+        return self::defaults()[$type] ?? [];
+    }
+
+    /** @return array<string, string> */
+    public static function editorLabels(): array
+    {
+        return array_replace(self::TYPE_LABELS, self::EDITOR_LABEL_OVERRIDES);
+    }
+
+    /**
+     * Контейнеры: содержимое — вложенные блоки, а не поля формы. Шаблона у них
+     * нет (рендер программный, с рекурсией), и вкладывать контейнер в контейнер
+     * нельзя — иначе редактор получает дерево, которое некому показать.
+     *
+     * @var list<string>
+     */
+    public const CONTAINER_TYPES = ['columns', 'tabs'];
+
+    public static function isContainer(string $type): bool
+    {
+        return in_array($type, self::CONTAINER_TYPES, true);
+    }
+
+    public static function templateFile(string $type): ?string
+    {
+        if (!self::has($type) || self::isContainer($type)) {
+            return null;
+        }
+
+        return dirname(__DIR__, 2) . '/templates/blocks/' . $type . '.php';
+    }
+}

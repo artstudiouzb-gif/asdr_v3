@@ -1,0 +1,718 @@
+/*
+ * Admin shell v2
+ *
+ * Бренд находится в верхней части фиксированной боковой панели. Верхняя
+ * панель справа остаётся рабочей зоной: контекст, поиск, быстрые действия и
+ * профиль. Файл подключается после admin.css и переопределяет только оболочку.
+ */
+
+:root {
+    --admin-topbar-h: 64px;
+    --admin-sidebar-w: 286px;
+    --admin-sidebar-collapsed-w: 78px;
+    --admin-shell-bg: #f5f7fb;
+    --admin-topbar-bg: rgba(255, 255, 255, .96);
+    --admin-topbar-text: #172033;
+    --admin-topbar-muted: #64748b;
+    --admin-sidebar-bg: #13233f;
+    --admin-sidebar-text: #e8eef8;
+    --admin-sidebar-muted: #91a2ba;
+    --admin-sidebar-hover: rgba(255, 255, 255, .08);
+    --admin-sidebar-active-bg: color-mix(in srgb, var(--admin-accent) 24%, transparent);
+    --admin-sidebar-active-text: #ffffff;
+    --admin-sidebar-active-border: var(--admin-accent);
+    --admin-shell-border: #e3e8f0;
+}
+
+html[data-admin-theme="wp_classic"] {
+    --admin-sidebar-bg: #202930;
+    --admin-sidebar-text: #f0f0f1;
+    --admin-sidebar-muted: #aeb8c1;
+}
+
+html[data-admin-theme="navy_teal"] {
+    --admin-sidebar-bg: #13233f;
+    --admin-sidebar-active-bg: rgba(13, 148, 136, .28);
+    --admin-sidebar-active-border: #2dd4bf;
+}
+
+html[data-admin-theme="royal_purple"] {
+    --admin-sidebar-bg: #211d4d;
+    --admin-sidebar-active-bg: rgba(124, 58, 237, .3);
+    --admin-sidebar-active-border: #a78bfa;
+}
+
+html[data-admin-theme="dark_emerald"] {
+    --admin-shell-bg: #0f172a;
+    --admin-topbar-bg: rgba(15, 23, 42, .96);
+    --admin-topbar-text: #f8fafc;
+    --admin-topbar-muted: #94a3b8;
+    --admin-shell-border: #334155;
+    --admin-sidebar-bg: #07111f;
+    --admin-sidebar-text: #f8fafc;
+    --admin-sidebar-muted: #7f91a8;
+}
+
+body.admin-body {
+    background: var(--admin-shell-bg);
+}
+
+/* Верхняя панель начинается после sidebar и не дублирует бренд. */
+.admin-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 110;
+    width: calc(100% - var(--admin-sidebar-w));
+    height: var(--admin-topbar-h);
+    margin-left: var(--admin-sidebar-w);
+    padding: 0 24px;
+    gap: 14px;
+    color: var(--admin-topbar-text);
+    background: var(--admin-topbar-bg);
+    border-bottom: 1px solid var(--admin-shell-border);
+    box-shadow: 0 8px 24px rgba(15, 31, 55, .04);
+    backdrop-filter: blur(14px);
+    transition: width .2s ease, margin-left .2s ease;
+}
+
+.admin-topbar__toggle {
+    color: var(--admin-topbar-text);
+}
+
+.admin-topbar__toggle:hover {
+    color: var(--admin-accent);
+    background: var(--admin-accent-soft);
+}
+
+.admin-topbar__crumb {
+    max-width: min(32vw, 430px);
+    overflow: hidden;
+    padding-left: 0;
+    color: var(--admin-topbar-muted);
+    border-left: 0;
+    font-size: var(--admin-fs-base);
+    font-weight: var(--admin-fw-semibold);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-search {
+    width: min(430px, 34vw);
+    min-width: 240px;
+}
+
+.admin-search__icon {
+    color: #7f8da2;
+}
+
+.admin-search__input {
+    min-height: 40px;
+    padding: 9px 48px 9px 38px;
+    color: var(--admin-topbar-text);
+    background: #f7f9fc;
+    border: 1px solid #dce3ed;
+    border-radius: 3px;
+}
+
+.admin-search__input::placeholder {
+    color: #8a96a8;
+}
+
+.admin-search__input:focus {
+    color: var(--admin-topbar-text);
+    background: #ffffff;
+    border-color: color-mix(in srgb, var(--admin-accent) 65%, #dce3ed);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-accent) 12%, transparent);
+}
+
+.admin-search__kbd {
+    color: #718096;
+    background: #ffffff;
+    border-color: #dce3ed;
+}
+
+[data-admin-theme="dark_emerald"] .admin-search__input {
+    color: #f8fafc;
+    background: #111c2d;
+    border-color: #334155;
+}
+
+[data-admin-theme="dark_emerald"] .admin-search__input:focus {
+    background: #172033;
+}
+
+.admin-tools {
+    gap: 8px;
+}
+
+.admin-tbtn {
+    min-height: 38px;
+    padding: 8px 11px;
+    color: var(--admin-topbar-text);
+    background: #ffffff;
+    border: 1px solid #dce3ed;
+    border-radius: 3px;
+}
+
+.admin-tbtn:hover {
+    color: var(--admin-accent-hover);
+    background: var(--admin-accent-soft);
+    border-color: color-mix(in srgb, var(--admin-accent) 40%, #dce3ed);
+}
+
+.admin-tbtn--primary {
+    color: #ffffff;
+    background: var(--admin-accent);
+    border-color: var(--admin-accent);
+    box-shadow: 0 6px 14px color-mix(in srgb, var(--admin-accent) 24%, transparent);
+}
+
+.admin-tbtn--primary:hover {
+    color: #ffffff;
+    background: var(--admin-accent-hover);
+}
+
+[data-admin-theme="dark_emerald"] .admin-tbtn {
+    color: #f8fafc;
+    background: #172033;
+    border-color: #334155;
+}
+
+[data-admin-theme="dark_emerald"] .admin-tbtn--primary {
+    background: var(--admin-accent);
+    border-color: var(--admin-accent);
+}
+
+.admin-user__btn {
+    align-items: center;
+    gap: 9px;
+    min-height: 44px;
+    padding: 4px 7px 4px 4px;
+    color: var(--admin-topbar-text);
+    border-radius: 3px;
+}
+
+.admin-user__btn:hover {
+    background: var(--admin-accent-soft);
+}
+
+.admin-user__avatar {
+    width: 36px;
+    height: 36px;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-hover));
+    border-radius: 3px;
+    box-shadow: 0 4px 10px color-mix(in srgb, var(--admin-accent) 24%, transparent);
+}
+
+.admin-user__identity {
+    display: grid;
+    min-width: 0;
+    line-height: 1.15;
+}
+
+.admin-user__identity strong {
+    max-width: 128px;
+    overflow: hidden;
+    color: var(--admin-topbar-text);
+    font-size: var(--admin-fs-base);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-user__identity small,
+.admin-user__name small {
+    display: block;
+    margin-top: 3px;
+    color: var(--admin-topbar-muted);
+    font-size: var(--admin-fs-xs);
+    font-weight: var(--admin-fw-medium);
+}
+
+.admin-user__chevron {
+    color: var(--admin-topbar-muted);
+}
+
+/* Sidebar занимает всю высоту, включая собственную крупную бренд-зону. */
+.admin-shell {
+    min-height: calc(100vh - var(--admin-topbar-h));
+    padding-left: var(--admin-sidebar-w);
+    transition: padding-left .2s ease;
+}
+
+.admin-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 120;
+    width: var(--admin-sidebar-w);
+    height: 100vh;
+    padding: 0;
+    overflow: hidden;
+    color: var(--admin-sidebar-text);
+    background:
+        radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--admin-accent) 22%, transparent), transparent 30%),
+        var(--admin-sidebar-bg);
+    border-right: 1px solid rgba(255, 255, 255, .07);
+    box-shadow: 14px 0 38px rgba(15, 31, 55, .10);
+    transition: width .2s ease, transform .22s ease;
+    scrollbar-color: rgba(255, 255, 255, .22) transparent;
+}
+
+.admin-sidebar__brand {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 94px;
+    padding: 18px 20px;
+    color: #ffffff;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, .09);
+    isolation: isolate;
+}
+
+.admin-sidebar__brand::after {
+    content: '';
+    position: absolute;
+    right: 18px;
+    bottom: -1px;
+    left: 18px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--admin-accent), transparent);
+    opacity: .9;
+}
+
+.admin-sidebar__brand:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.admin-sidebar__brand-mark {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    min-width: 52px;
+    min-height: 52px;
+}
+
+.admin-sidebar__logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    color: #ffffff;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--admin-accent) 80%, #ffffff), var(--admin-accent-hover));
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: 3px;
+    box-shadow: 0 12px 24px color-mix(in srgb, var(--admin-accent) 32%, transparent);
+    font-size: var(--admin-fs-2xl);
+    font-weight: var(--admin-fw-semibold);
+}
+
+.admin-sidebar__logoimg {
+    display: block;
+    width: auto;
+    max-width: 66px;
+    height: 52px;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 15px rgba(0, 0, 0, .14));
+}
+
+.admin-sidebar__brand-copy {
+    display: grid;
+    min-width: 0;
+    gap: 3px;
+}
+
+.admin-sidebar__brand-copy strong {
+    overflow: hidden;
+    color: #ffffff;
+    font-size: var(--admin-fs-lg);
+    font-weight: var(--admin-fw-semibold);
+    letter-spacing: -.02em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-sidebar__brand-copy small {
+    overflow: hidden;
+    color: var(--admin-sidebar-muted);
+    font-size: var(--admin-fs-xs);
+    font-weight: var(--admin-fw-medium);
+    letter-spacing: .025em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-sidebar__nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 8px 8px 14px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.admin-sidebar__label,
+.admin-sidebar__label--toggle {
+    color: var(--admin-sidebar-muted);
+}
+
+.admin-sidebar__label {
+    padding: 12px 10px 4px;
+    font-size: var(--admin-fs-xs);
+    letter-spacing: .12em;
+}
+
+.admin-sidebar__label--toggle {
+    border-radius: 3px;
+}
+
+.admin-sidebar__label--toggle:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, .05);
+}
+
+.admin-nav-group__items {
+    gap: 0;
+}
+
+.admin-nav-item {
+    position: relative;
+    gap: 9px;
+    min-height: 32px;
+    margin: 0;
+    padding: 5px 11px;
+    color: var(--admin-sidebar-text);
+    border: 0;
+    border-radius: 3px;
+    font-size: var(--admin-fs-md);
+    font-weight: var(--admin-fw-medium);
+    /* Без transform: сдвиг на ховере дёргал пункты (transition его не гасил). */
+    transition: color .16s ease, background-color .16s ease;
+}
+
+.admin-nav-item::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 0;
+    width: 3px;
+    background: transparent;
+    border-radius: 0 3px 3px 0;
+}
+
+.admin-nav-item:hover {
+    color: #ffffff;
+    background: var(--admin-sidebar-hover);
+}
+
+.admin-nav-item.is-active {
+    color: var(--admin-sidebar-active-text);
+    background: var(--admin-sidebar-active-bg);
+    border-left: 0;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--admin-sidebar-active-border) 28%, transparent);
+    font-weight: var(--admin-fw-semibold);
+}
+
+.admin-nav-item.is-active::before {
+    background: var(--admin-sidebar-active-border);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--admin-sidebar-active-border) 50%, transparent);
+}
+
+.admin-nav-item__icon {
+    width: 18px;
+    height: 18px;
+    opacity: .9;
+}
+
+.admin-nav-item.is-active .admin-nav-item__icon {
+    color: #ffffff;
+}
+
+.admin-sidebar__collapse {
+    position: static;
+    flex: 0 0 auto;
+    min-height: 52px;
+    padding: 10px 18px;
+    color: var(--admin-sidebar-muted);
+    background: rgba(4, 12, 26, .18);
+    border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+.admin-sidebar__collapse:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, .07);
+}
+
+.admin-main {
+    width: 100%;
+    /* Ограничение в 1640px оставляло пустые поля по краям на широких
+       мониторах, тогда как рабочей области формы места не хватало. */
+    max-width: none;
+    padding: 30px 38px 56px;
+}
+
+.admin-main__header h1 {
+    color: var(--admin-text);
+    font-size: var(--admin-fs-2xl);
+    font-weight: var(--admin-fw-semibold);
+    letter-spacing: -.025em;
+}
+
+/* Свёрнутый sidebar сохраняет крупный узнаваемый знак. */
+html.admin-nav-collapsed {
+    --admin-sidebar-w: var(--admin-sidebar-collapsed-w);
+}
+
+html.admin-nav-collapsed .admin-sidebar__brand {
+    justify-content: center;
+    min-height: 78px;
+    padding: 13px 10px;
+}
+
+html.admin-nav-collapsed .admin-sidebar__brand::after,
+html.admin-nav-collapsed .admin-sidebar__brand-copy,
+html.admin-nav-collapsed .admin-sidebar__label,
+html.admin-nav-collapsed .admin-nav-item > span,
+html.admin-nav-collapsed .admin-sidebar__collapse > span {
+    display: none;
+}
+
+html.admin-nav-collapsed .admin-sidebar__brand-mark {
+    min-width: 46px;
+    min-height: 46px;
+}
+
+html.admin-nav-collapsed .admin-sidebar__logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 3px;
+    font-size: var(--admin-fs-xl);
+}
+
+html.admin-nav-collapsed .admin-sidebar__logoimg {
+    max-width: 48px;
+    height: 46px;
+}
+
+html.admin-nav-collapsed .admin-sidebar__nav {
+    padding-inline: 9px;
+}
+
+html.admin-nav-collapsed .admin-nav-item {
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px;
+}
+
+html.admin-nav-collapsed .admin-sidebar__collapse {
+    justify-content: center;
+    padding-inline: 10px;
+}
+
+html.admin-nav-collapsed .admin-sidebar__collapse svg {
+    transform: rotate(180deg);
+}
+
+html.admin-nav-collapsed .form-actions--sticky {
+    left: max(calc(var(--admin-sidebar-w) + 24px), calc(50vw - 820px + (var(--admin-sidebar-w) / 2)));
+}
+
+@media (max-width: 1280px) {
+    .admin-topbar {
+        padding-inline: 18px;
+    }
+
+    .admin-user__identity,
+    .admin-user__chevron,
+    .admin-tools__form .admin-tbtn__label {
+        display: none;
+    }
+
+    .admin-search {
+        width: min(360px, 32vw);
+    }
+}
+
+@media (max-width: 1080px) {
+    .admin-topbar__crumb {
+        max-width: 220px;
+    }
+
+    .admin-tools__lang .admin-tbtn__label,
+    .admin-tools > a .admin-tbtn__label {
+        display: none;
+    }
+
+    .admin-search {
+        min-width: 210px;
+    }
+}
+
+@media (max-width: 960px) {
+    :root {
+        --admin-sidebar-w: 286px;
+    }
+
+    html.admin-nav-collapsed {
+        --admin-sidebar-w: 286px;
+    }
+
+    .admin-topbar {
+        width: 100%;
+        margin-left: 0;
+        padding-inline: 14px;
+    }
+
+    .admin-topbar__toggle {
+        display: inline-flex;
+    }
+
+    .admin-shell {
+        padding-left: 0;
+    }
+
+    .admin-sidebar {
+        transform: translateX(-102%);
+        box-shadow: 20px 0 48px rgba(15, 31, 55, .28);
+    }
+
+    body.sidebar-open .admin-sidebar {
+        transform: translateX(0);
+    }
+
+    html.admin-nav-collapsed .admin-sidebar__brand {
+        justify-content: flex-start;
+        min-height: 94px;
+        padding: 18px 20px;
+    }
+
+    html.admin-nav-collapsed .admin-sidebar__brand-copy,
+    html.admin-nav-collapsed .admin-sidebar__label,
+    html.admin-nav-collapsed .admin-nav-item > span,
+    html.admin-nav-collapsed .admin-sidebar__collapse > span {
+        display: initial;
+    }
+
+    html.admin-nav-collapsed .admin-sidebar__brand-copy {
+        display: grid;
+    }
+
+    html.admin-nav-collapsed .admin-sidebar__label {
+        display: block;
+    }
+
+    html.admin-nav-collapsed .admin-nav-item {
+        justify-content: flex-start;
+        padding: 7px 12px;
+    }
+
+    /* На тач-экранах пункт остаётся крупнее: 32px пальцем не попасть. */
+    .admin-nav-item {
+        min-height: 40px;
+        padding: 7px 12px;
+    }
+
+    html.admin-nav-collapsed .admin-sidebar__collapse {
+        justify-content: flex-start;
+        padding: 10px 18px;
+    }
+
+    html.admin-nav-collapsed .admin-sidebar__collapse svg {
+        transform: none;
+    }
+
+    .admin-sidebar-backdrop {
+        z-index: 115;
+    }
+
+    .admin-main {
+        padding: 26px 22px 48px;
+    }
+}
+
+@media (max-width: 720px) {
+    .admin-topbar__crumb {
+        display: none;
+    }
+
+    .admin-search {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+    }
+
+    .admin-search__kbd,
+    .admin-tools__lang,
+    .admin-tools__form,
+    .admin-tools > a {
+        display: none;
+    }
+
+    .admin-tbtn {
+        min-width: 40px;
+        justify-content: center;
+    }
+
+    .admin-tbtn__label {
+        display: none;
+    }
+}
+
+@media (max-width: 520px) {
+    .admin-topbar {
+        gap: 8px;
+        padding-inline: 10px;
+    }
+
+    .admin-search__input {
+        padding-right: 12px;
+    }
+
+    .admin-main {
+        padding: 22px 14px 42px;
+    }
+
+    .admin-main__header h1 {
+        font-size: var(--admin-fs-2xl);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-topbar,
+    .admin-shell,
+    .admin-sidebar,
+    .admin-nav-item {
+        transition: none;
+    }
+}
+
+/* ========================================================================
+   Executive Atmospheric Elevation & Lighting System for Admin Shell
+   ======================================================================== */
+:root {
+    --admin-elevation-card: 
+        0 1px 2px rgba(15, 23, 42, 0.03),
+        0 8px 24px -4px rgba(15, 23, 42, 0.05),
+        0 0 0 1px rgba(15, 23, 42, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    --admin-elevation-hover: 
+        0 2px 4px rgba(15, 23, 42, 0.03),
+        0 16px 36px -8px rgba(15, 23, 42, 0.08),
+        0 0 0 1px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --admin-elevation-dropdown: 
+        0 4px 8px rgba(15, 23, 42, 0.04),
+        0 24px 48px -12px rgba(15, 23, 42, 0.12),
+        0 0 0 1px rgba(15, 23, 42, 0.07);
+}
+
+.admin-card,
+.admin-panel,
+.form-section {
+    box-shadow: var(--admin-elevation-card);
+    border-radius: 3px;
+}
+

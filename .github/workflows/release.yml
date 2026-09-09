@@ -1,0 +1,216 @@
+name: Release package
+
+# Сборка запускается публикацией релиза, а не пушем тега.
+#
+# Прежде здесь стояло `push: tags: 'v*'`, и это тихо не работало: теги в этом
+# репозитории называются `2.4`, `2.7-final`, `3108` — ни один не начинается с
+# `v`, поэтому workflow не запускался ни разу с июля, а релизы выходили без
+# установочного архива. Отказ был невидимым: релиз публиковался, ассетов у
+# него не появлялось, и никто об этом не узнавал, пока архив не понадобился
+# обновлению из панели.
+#
+# Событие `release: published` совпадает с тем, как релизы выпускаются на
+# самом деле — кнопкой в интерфейсе GitHub, — и не зависит от того, как назван
+# тег. Тег-триггер убран, а не добавлен рядом: публикация релиза через
+# интерфейс создаёт и тег, и оба триггера сработали бы на одно действие,
+# запустив сборку дважды.
+#
+# Второй путь — запуск вручную из вкладки Actions. Он нужен затем, что
+# публикация релиза кнопкой доступна только через интерфейс: выпустить релиз
+# из командной строки или по API стало нечем, когда убрали тег-триггер.
+# `publish: true` вместе с именем создаёт релиз и кладёт в него архив.
+#
+# Рекурсии здесь нет: события, созданные встроенным GITHUB_TOKEN, новых
+# запусков workflow не порождают — то есть `gh release create` ниже не
+# запустит эту же сборку повторно через `release: published`.
+on:
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: 'Имя сборки и тега (например, 2.8); пустое = short SHA'
+        required: false
+        type: string
+      publish:
+        description: 'Опубликовать релиз с этим именем (иначе только собрать архив)'
+        required: false
+        default: false
+        type: boolean
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  verify-and-package:
+    name: Verify fresh install package
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: asdr_release
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, mbstring, gd, curl, dom, fileinfo, openssl, zip
+          coverage: none
+
+      - name: Verify schema and application
+        env:
+          TEST_DB_HOST: 127.0.0.1
+          TEST_DB_PORT: '3306'
+          TEST_DB_DATABASE: asdr_release
+          TEST_DB_USERNAME: root
+          TEST_DB_PASSWORD: ''
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          php tests/load_schema.php asdr_release
+          find . -path ./vendor -prune -o -name '*.php' -print0 \
+            | xargs -0 -n1 -P4 php -l >/dev/null
+          php tests/run.php
+
+      - name: Build clean installation archive
+        id: package
+        shell: bash
+        env:
+          MANUAL_NAME: ${{ inputs.release_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          # Идентификаторов два, и это не дубль. `release_id` — то, чем релиз
+          # называется на GitHub: обновление сравнивает установленную версию
+          # именно с тегом (`Updater::check()`), поэтому расхождение хоть на
+          # префикс `v` означало бы «доступно обновление» навсегда.
+          # `release_name` — имя файла архива, из него `v` историчеcки снят.
+          if [[ -n "${RELEASE_TAG}" ]]; then
+            release_id="${RELEASE_TAG}"
+            release_name="${RELEASE_TAG#v}"
+          elif [[ -n "${MANUAL_NAME}" ]]; then
+            release_id="${MANUAL_NAME}"
+            release_name="${MANUAL_NAME}"
+          else
+            release_id="$(git rev-parse --short=12 HEAD)"
+            release_name="${release_id}"
+          fi
+          safe_name="$(printf '%s' "${release_name}" | tr -c 'A-Za-z0-9._-' '-')"
+          archive="asdr-cms-${safe_name}.zip"
+          mkdir -p dist verify-package inject/asdr-cms/storage
+          git archive --format=zip --prefix=asdr-cms/ --output="dist/${archive}" HEAD
+
+          # Пакет обязан знать собственную версию. `storage/` не в git, поэтому
+          # `git archive` этот файл не принесёт, а без него свежая установка
+          # отвечает `unknown` — и панель обновления вечно предлагает поставить
+          # версию, которая уже стоит (`available = tag !== installed`).
+          # Ключи те же, что пишет UpdateRunner после обновления: читатель один
+          # (`App\Core\Release::id`), и вторая форма файла ему не нужна.
+          # `deployed_at` здесь — время сборки; при первом же обновлении его
+          # перезапишет реальное время выкладки.
+          printf '{\n    "release": "%s",\n    "deployed_at": "%s"\n}\n' \
+            "${release_id}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > inject/asdr-cms/storage/release.json
+          archive_path="$(pwd)/dist/${archive}"
+          (cd inject && zip -q "${archive_path}" asdr-cms/storage/release.json)
+
+          unzip -q "dist/${archive}" -d verify-package
+
+          for required in \
+            app/Core/bootstrap.php \
+            config/config.example.php \
+            database/schema.sql \
+            database/seed_demo.php \
+            database/demo_assets/home_blocks.json \
+            public/index.php \
+            public/.htaccess \
+            public/uploads/public/.gitkeep \
+            storage/cache/.gitkeep \
+            storage/logs/.gitkeep \
+            storage/backups/.gitkeep \
+            storage/protected_uploads/.gitkeep \
+            storage/release.json \
+            docs/DEPLOY.md; do
+            test -f "verify-package/asdr-cms/${required}"
+          done
+
+          # Мало положить файл — в нём должна стоять та версия, которая
+          # выпускается. Иначе установка отрапортует о чужой.
+          grep -q "\"release\": \"${release_id}\"" "verify-package/asdr-cms/storage/release.json"
+
+          for forbidden in \
+            config/config.php \
+            storage/installed.lock \
+            .github/workflows/ci.yml \
+            tests/run.php \
+            composer.json \
+            package.json \
+            node_modules \
+            vendor; do
+            test ! -e "verify-package/asdr-cms/${forbidden}"
+          done
+
+          (cd dist && sha256sum "${archive}" > "${archive}.sha256")
+          echo "archive=${archive}" >> "${GITHUB_OUTPUT}"
+          echo "release_name=${safe_name}" >> "${GITHUB_OUTPUT}"
+
+      - name: Upload verified package
+        uses: actions/upload-artifact@v7
+        with:
+          name: asdr-cms-${{ steps.package.outputs.release_name }}
+          path: |
+            dist/${{ steps.package.outputs.archive }}
+            dist/${{ steps.package.outputs.archive }}.sha256
+          if-no-files-found: error
+
+      # Ассеты прикладываются к уже опубликованному релизу, а не создаётся
+      # новый: релиз к этому моменту существует — им и запущена сборка.
+      # Прежний `gh release create` на такое событие просто падал бы с
+      # «release already exists».
+      #
+      # `--clobber` нужен для повторного запуска: сборку релиза перезапускают
+      # после починки, и без него второй заход падал бы на существующем файле.
+      - name: Attach package to the published release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCHIVE: ${{ steps.package.outputs.archive }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          gh release upload "${RELEASE_TAG}" \
+            "dist/${ARCHIVE}" \
+            "dist/${ARCHIVE}.sha256" \
+            --clobber
+
+      # Выпуск релиза ручным запуском: здесь релиза ещё нет, поэтому его
+      # создают, а не дополняют. Имя обязательно — публиковать релиз под
+      # именем вида `a1b2c3d4e5f6` (короткий SHA, которым названа безымянная
+      # сборка) значит выпустить то, что никто потом не опознает.
+      - name: Publish release from a manual run
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCHIVE: ${{ steps.package.outputs.archive }}
+          RELEASE_NAME: ${{ inputs.release_name }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${RELEASE_NAME}" ]]; then
+            echo "Публикация запрошена без имени релиза: заполните release_name." >&2
+            exit 1
+          fi
+          gh release create "${RELEASE_NAME}" \
+            "dist/${ARCHIVE}" \
+            "dist/${ARCHIVE}.sha256" \
+            --generate-notes \
+            --title "${RELEASE_NAME}"

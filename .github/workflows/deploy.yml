@@ -1,0 +1,109 @@
+name: Deploy Branch
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-branch
+  cancel-in-progress: false
+
+jobs:
+  update-deploy-branch:
+    name: Prepare clean deploy branch for Hostinger
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Configure Git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Build clean production files
+        run: |
+          set -euo pipefail
+          CLEAN_DIR="$(mktemp -d)"
+          git archive HEAD | tar -x -C "${CLEAN_DIR}"
+
+          # Write release version info
+          SHORT_SHA="$(git rev-parse --short=12 HEAD)"
+          mkdir -p "${CLEAN_DIR}/storage"
+          printf '{\n    "release": "%s",\n    "deployed_at": "%s"\n}\n' \
+            "${SHORT_SHA}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > "${CLEAN_DIR}/storage/release.json"
+
+          # Write production .gitignore to protect live config, locks, and uploads
+          cat <<'EOF' > "${CLEAN_DIR}/.gitignore"
+          # Production runtime ignores
+          /config/config.php
+          /storage/installed.lock
+          /storage/logs/*
+          !/storage/logs/.gitkeep
+          !/storage/logs/README.md
+          /storage/cache/*
+          !/storage/cache/.gitkeep
+          !/storage/cache/README.md
+          /storage/backups/*
+          !/storage/backups/.gitkeep
+          !/storage/backups/README.md
+          /storage/protected_uploads/*
+          !/storage/protected_uploads/.gitkeep
+          !/storage/protected_uploads/README.md
+          /storage/sessions/*
+          !/storage/sessions/.gitkeep
+          !/storage/sessions/README.md
+          /storage/updates/
+          /storage/integrity/
+          /storage/tmp/
+          /public/uploads/*
+          /public/uploads/**/*
+          /public/uploads/public/*
+          /public/uploads/public/**/*
+          !/public/uploads/public/.gitkeep
+          !/public/uploads/public/index.html
+          .DS_Store
+          Thumbs.db
+          *.bak
+          *.tmp
+          *.zip
+          *.gz
+          *.br
+          EOF
+
+          echo "CLEAN_DIR=${CLEAN_DIR}" >> "${GITHUB_ENV}"
+          echo "SHORT_SHA=${SHORT_SHA}" >> "${GITHUB_ENV}"
+
+      - name: Update deploy branch
+        run: |
+          set -euo pipefail
+          COMMIT_MSG="$(git log -1 --format='%s' HEAD)"
+
+          # Fetch remote deploy branch
+          git fetch origin deploy:deploy
+          git checkout deploy
+
+          # Clear current working directory of tracked files
+          git rm -rf . >/dev/null 2>&1 || true
+
+          # Copy clean production files
+          cp -r "${CLEAN_DIR}/." .
+          rm -rf "${CLEAN_DIR}"
+
+          git add -A
+
+          if git diff --staged --quiet; then
+            echo "No changes for deploy branch."
+          else
+            git commit -m "deploy: ${SHORT_SHA} (${COMMIT_MSG})"
+            git push origin deploy
+          fi

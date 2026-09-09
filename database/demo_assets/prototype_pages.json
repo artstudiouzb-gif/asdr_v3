@@ -1,0 +1,1380 @@
+{
+  "napravleniya": {
+    "ru": {
+      "title": "Направления деятельности",
+      "lead": "Системная работа по ключевым направлениям развития Республики Узбекистан до 2030 года.",
+      "blocks": [
+        [
+          "hero",
+          "",
+          {
+            "eyebrow": "Стратегическое развитие",
+            "title": "Приоритетные направления",
+            "subtitle": "Системная работа по ключевым направлениям развития Республики Узбекистан до 2030 года.",
+            "image": "/uploads/public/hero-demo-g4.jpg",
+            "bg_type": "image",
+            "overlay_enabled": true,
+            "overlay_mode": "gradient",
+            "overlay_direction": "auto",
+            "overlay_color": "#071b3f",
+            "overlay_opacity": 72
+          }
+        ],
+        [
+          "cards_grid",
+          "",
+          {
+            "title": "Ключевые направления",
+            "columns": 3,
+            "items": [
+              {
+                "title": "Устойчивый экономический рост",
+                "text": "Инвестиции, производительность и развитие предпринимательства.",
+                "url": "/ustoychivyy-ekonomicheskiy-rost"
+              },
+              {
+                "title": "Человеческий капитал",
+                "text": "Образование, здоровье и навыки будущего.",
+                "url": "/analitika"
+              },
+              {
+                "title": "Эффективное государство",
+                "text": "Качество институтов и государственных услуг.",
+                "url": "/projects"
+              },
+              {
+                "title": "Зелёная экономика",
+                "text": "Энергоэффективность и рациональное использование ресурсов.",
+                "url": "/projects/zelenaya-energetika"
+              },
+              {
+                "title": "Региональное развитие",
+                "text": "Инфраструктура и точки роста в регионах.",
+                "url": "/projects/transportnaya-infrastruktura"
+              },
+              {
+                "title": "Международное сотрудничество",
+                "text": "Обмен опытом и партнёрские программы.",
+                "url": "/press-centr"
+              }
+            ]
+          }
+        ],
+        [
+          "cta",
+          "",
+          {
+            "variant": "band",
+            "title": "Открытые данные о ходе реформ",
+            "text": "Показатели, документы и результаты публикуются в соответствующих разделах портала.",
+            "button_text": "Перейти к аналитике",
+            "button_url": "/analitika",
+            "bg_color": "#072b61",
+            "text_color": "#ffffff"
+          }
+        ]
+      ]
+    },
+    "uz": {
+      "title": "Faoliyat yo‘nalishlari",
+      "lead": "O‘zbekiston Respublikasining 2030-yilgacha bo‘lgan rivojlanish strategiyasining asosiy yo‘nalishlari bo‘yicha tizimli ishlar.",
+      "blocks": [
+        [
+          "hero",
+          "",
+          {
+            "eyebrow": "Strategik rivojlanish",
+            "title": "Ustuvor yo‘nalishlar",
+            "subtitle": "O‘zbekiston Respublikasining 2030-yilgacha bo‘lgan rivojlanish strategiyasining asosiy yo‘nalishlari bo‘yicha tizimli ishlar.",
+            "image": "/uploads/public/hero-demo-g4.jpg",
+            "bg_type": "image",
+            "overlay_enabled": true,
+            "overlay_mode": "gradient",
+            "overlay_direction": "auto",
+            "overlay_color": "#071b3f",
+            "overlay_opacity": 72
+          }
+        ],
+        [
+          "cards_grid",
+          "",
+          {
+            "title": "Asosiy yo‘nalishlar",
+            "columns": 3,
+            "items": [
+              {
+                "title": "Barqaror iqtisodiy o‘sish",
+                "text": "Investitsiyalar, mahsuldorlik va tadbirkorlikni rivojlantirish.",
+                "url": "/ustoychivyy-ekonomicheskiy-rost"
+              },
+              {
+                "title": "Inson kapitali",
+                "text": "Ta’lim, salomatlik va kelajak ko‘nikmalari.",
+                "url": "/analitika"
+              },
+              {
+                "title": "Samarali davlat boshqaruvi",
+                "text": "Institutlar sifati va davlat xizmatlari.",
+                "url": "/projects"
+              },
+              {
+                "title": "«Yashil» iqtisodiyot",
+                "text": "Energiya samaradorligi va resurslardan oqilona foydalanish.",
+                "url": "/projects/zelenaya-energetika"
+              },
+              {
+                "title": "Hududiy rivojlanish",
+                "text": "Infratuzilma va hududiy o‘sish nuqtalari.",
+                "url": "/projects/transportnaya-infrastruktura"
+              },
+              {
+                "title": "Xalqaro hamkorlik",
+                "text": "Tajriba almashish va hamkorlik dasturlari.",
+                "url": "/press-centr"
+              }
+            ]
+          }
+        ],
+        [
+          "cta",
+          "",
+          {
+            "variant": "band",
+            "title": "Islohotlar ijrosi bo‘yicha ochiq ma’lumotlar",
+            "text": "Ko‘rsatkichlar, hujjatlar va natijalar portalning tegishli bo‘limlarida e’lon qilinadi.",
+            "button_text": "Tahlilga o‘tish",
+            "button_url": "/analitika",
+            "bg_color": "#072b61",
+            "text_color": "#ffffff"
+          }
+        ]
+      ]
+    }
+  },
+  "ustoychivyy-ekonomicheskiy-rost": {
+    "ru": {
+      "title": "Устойчивый экономический рост",
+      "lead": "Благоприятные условия для бизнеса, инвестиций и повышения благосостояния населения.",
+      "blocks": [
+        [
+          "hero",
+          "",
+          {
+            "title": "Устойчивый экономический рост",
+            "subtitle": "Благоприятные условия для бизнеса, инвестиций и повышения благосостояния населения.",
+            "image": "/uploads/public/hero-demo-g4.jpg",
+            "bg_type": "image",
+            "overlay_enabled": true,
+            "overlay_mode": "gradient",
+            "overlay_direction": "auto",
+            "overlay_color": "#071b3f",
+            "overlay_opacity": 70
+          }
+        ],
+        [
+          "anchor_nav",
+          "",
+          {
+            "items": [
+              {
+                "title": "Обзор",
+                "url": "#obzor"
+              },
+              {
+                "title": "Цели",
+                "url": "#celi"
+              },
+              {
+                "title": "Показатели",
+                "url": "#pokazateli"
+              },
+              {
+                "title": "Документы",
+                "url": "#dokumenty"
+              }
+            ]
+          }
+        ],
+        [
+          "text_image",
+          "",
+          {
+            "title": "О направлении",
+            "text": "<p>Устойчивый экономический рост является ключевым условием повышения качества жизни и укрепления конкурентоспособности страны.</p><p>Агентство анализирует эффективность реформ, выявляет ограничения и готовит предложения по развитию частного сектора и регионов.</p>",
+            "image": "/uploads/public/hero-demo-g2.jpg",
+            "items": [
+              {
+                "title": "Рост производительности",
+                "text": "Современные технологии и управленческие практики."
+              },
+              {
+                "title": "Развитие экспорта",
+                "text": "Выход предприятий на новые рынки."
+              },
+              {
+                "title": "Поддержка бизнеса",
+                "text": "Улучшение регуляторной и инвестиционной среды."
+              }
+            ]
+          }
+        ],
+        [
+          "counters",
+          "",
+          {
+            "title": "Ключевые показатели",
+            "items": [
+              {
+                "value": "6,2",
+                "suffix": "%",
+                "label": "целевой рост ВВП"
+              },
+              {
+                "value": "25",
+                "suffix": " млрд",
+                "label": "инвестиционный портфель"
+              },
+              {
+                "value": "150",
+                "suffix": "+",
+                "label": "крупных проектов"
+              },
+              {
+                "value": "15",
+                "suffix": "%",
+                "label": "рост экспортного потенциала"
+              }
+            ]
+          }
+        ],
+        [
+          "docs_list",
+          "",
+          {
+            "title": "Документы",
+            "all_text": "Все документы",
+            "all_url": "/catalog/documenty",
+            "columns": 3,
+            "items": [
+              {
+                "title": "Стратегия развития до 2030 года",
+                "meta": "PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "План приоритетных мероприятий",
+                "meta": "PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Отчёт о ходе реализации",
+                "meta": "PDF",
+                "url": "/catalog/documenty"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    "uz": {
+      "title": "Barqaror iqtisodiy o‘sish",
+      "lead": "Biznes va investitsiyalar uchun qulay sharoitlar yaratish hamda aholi farovonligini oshirish.",
+      "blocks": [
+        [
+          "hero",
+          "",
+          {
+            "title": "Barqaror iqtisodiy o‘sish",
+            "subtitle": "Biznes va investitsiyalar uchun qulay sharoitlar yaratish hamda aholi farovonligini oshirish.",
+            "image": "/uploads/public/hero-demo-g4.jpg",
+            "bg_type": "image",
+            "overlay_enabled": true,
+            "overlay_mode": "gradient",
+            "overlay_direction": "auto",
+            "overlay_color": "#071b3f",
+            "overlay_opacity": 70
+          }
+        ],
+        [
+          "anchor_nav",
+          "",
+          {
+            "items": [
+              {
+                "title": "Sharh",
+                "url": "#obzor"
+              },
+              {
+                "title": "Maqsadlar",
+                "url": "#celi"
+              },
+              {
+                "title": "Ko‘rsatkichlar",
+                "url": "#pokazateli"
+              },
+              {
+                "title": "Hujjatlar",
+                "url": "#dokumenty"
+              }
+            ]
+          }
+        ],
+        [
+          "text_image",
+          "",
+          {
+            "title": "Yo‘nalish haqida",
+            "text": "<p>Barqaror iqtisodiy o‘sish hayot sifatini oshirish va mamlakat raqobatbardoshligini mustahkamlashning asosiy shartidir.</p><p>Agentlik islohotlar samaradorligini tahlil qiladi, to‘siqlarni aniqlaydi hamda xususiy sektor va hududlarni rivojlantirish bo‘yicha takliflar tayyorlaydi.</p>",
+            "image": "/uploads/public/hero-demo-g2.jpg",
+            "items": [
+              {
+                "title": "Mahsuldorlik o‘sishi",
+                "text": "Zamonaviy texnologiyalar va boshqaruv amaliyoti."
+              },
+              {
+                "title": "Eksportni rivojlantirish",
+                "text": "Kattaroq bozorlarga chiqish."
+              },
+              {
+                "title": "Biznesni qo‘llab-quvvatlash",
+                "text": "Regulyatorlik va investitsiyaviy muhitni yaxshilash."
+              }
+            ]
+          }
+        ],
+        [
+          "counters",
+          "",
+          {
+            "title": "Asosiy ko‘rsatkichlar",
+            "items": [
+              {
+                "value": "6,2",
+                "suffix": "%",
+                "label": "YIM maqsadli o‘sishi"
+              },
+              {
+                "value": "25",
+                "suffix": " mlrd",
+                "label": "investitsiya portfeli"
+              },
+              {
+                "value": "150",
+                "suffix": "+",
+                "label": "yirik loyihalar"
+              },
+              {
+                "value": "15",
+                "suffix": "%",
+                "label": "eksport salohiyati o‘sishi"
+              }
+            ]
+          }
+        ],
+        [
+          "docs_list",
+          "",
+          {
+            "title": "Hujjatlar",
+            "all_text": "Barcha hujjatlar",
+            "all_url": "/catalog/documenty",
+            "columns": 3,
+            "items": [
+              {
+                "title": "2030-yilgacha rivojlantirish strategiyasi",
+                "meta": "PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Ustuvor chora-tadbirlar rejasi",
+                "meta": "PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Amalga oshirish borishi bo‘yicha hisobot",
+                "meta": "PDF",
+                "url": "/catalog/documenty"
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  },
+  "analitika": {
+    "ru": {
+      "title": "Аналитические исследования",
+      "lead": "Данные и аналитические материалы для принятия обоснованных стратегических решений.",
+      "blocks": [
+        [
+          "counters",
+          "",
+          {
+            "items": [
+              {
+                "value": "120",
+                "suffix": "+",
+                "label": "исследований и обзоров"
+              },
+              {
+                "value": "25",
+                "suffix": "+",
+                "label": "отраслей экономики"
+              },
+              {
+                "value": "4",
+                "suffix": " раза",
+                "label": "обновление данных в год"
+              },
+              {
+                "value": "100",
+                "suffix": "%",
+                "label": "открытый доступ"
+              }
+            ]
+          }
+        ],
+        [
+          "docs_list",
+          "",
+          {
+            "title": "Последние исследования",
+            "all_text": "Все документы",
+            "all_url": "/catalog/documenty",
+            "columns": 3,
+            "items": [
+              {
+                "title": "Макроэкономический обзор Республики Узбекистан",
+                "meta": "Май 2026 · PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Развитие человеческого капитала",
+                "meta": "Апрель 2026 · PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Инвестиционный климат в регионах",
+                "meta": "Март 2026 · PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Зелёная экономика: мировой опыт",
+                "meta": "Февраль 2026 · PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Транспортно-логистический потенциал",
+                "meta": "Январь 2026 · PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Предпринимательство и занятость",
+                "meta": "Декабрь 2025 · PDF",
+                "url": "/catalog/documenty"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    "uz": {
+      "title": "Tahliliy tadqiqotlar",
+      "lead": "Asoslangan strategik qarorlar qabul qilish uchun ma’lumotlar va tahliliy materiallar.",
+      "blocks": [
+        [
+          "counters",
+          "",
+          {
+            "items": [
+              {
+                "value": "120",
+                "suffix": "+",
+                "label": "tadqiqot va sharhlar"
+              },
+              {
+                "value": "25",
+                "suffix": "+",
+                "label": "iqtisodiyot tarmoqlari"
+              },
+              {
+                "value": "4",
+                "suffix": " marta",
+                "label": "yilda ma’lumotlarni yangilash"
+              },
+              {
+                "value": "100",
+                "suffix": "%",
+                "label": "ochiq foydalanish"
+              }
+            ]
+          }
+        ],
+        [
+          "docs_list",
+          "",
+          {
+            "title": "So‘nggi tadqiqotlar",
+            "all_text": "Barcha hujjatlar",
+            "all_url": "/catalog/documenty",
+            "columns": 3,
+            "items": [
+              {
+                "title": "O‘zbekiston Respublikasi makroiqtisodiy sharhi",
+                "meta": "May 2026 · PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Inson kapitalini rivojlantirish",
+                "meta": "Aprel 2026 · PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Hududlardagi investitsiyaviy muhit",
+                "meta": "Mart 2026 · PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Yashil iqtisodiyot: jahon tajribasi",
+                "meta": "Fevral 2026 · PDF",
+                "url": "/catalog/documenty"
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  },
+  "press-centr": {
+    "ru": {
+      "title": "Пресс-центр",
+      "lead": "Оперативная информация о деятельности Агентства, новости, пресс-релизы, мероприятия и медиаматериалы.",
+      "blocks": [
+        [
+          "counters",
+          "",
+          {
+            "items": [
+              {
+                "value": "1256",
+                "suffix": "+",
+                "label": "новостей опубликовано"
+              },
+              {
+                "value": "245",
+                "suffix": "+",
+                "label": "пресс-релизов"
+              },
+              {
+                "value": "120",
+                "suffix": "+",
+                "label": "мероприятий"
+              },
+              {
+                "value": "8500",
+                "suffix": "+",
+                "label": "представителей СМИ"
+              }
+            ]
+          }
+        ],
+        [
+          "news_feature",
+          "",
+          {
+            "title": "Главное",
+            "all_text": "Все новости",
+            "all_url": "/news",
+            "limit": 6
+          }
+        ],
+        [
+          "cards_grid",
+          "",
+          {
+            "variant": "compact",
+            "title": "Категории",
+            "items": [
+              {
+                "title": "Новости",
+                "url": "/news"
+              },
+              {
+                "title": "Пресс-релизы",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Мероприятия",
+                "url": "/meropriyatiya"
+              },
+              {
+                "title": "Интервью",
+                "url": "/news"
+              },
+              {
+                "title": "Фотогалерея",
+                "url": "/albums"
+              },
+              {
+                "title": "Видео",
+                "url": "/press-centr"
+              }
+            ]
+          }
+        ],
+        [
+          "docs_list",
+          "",
+          {
+            "title": "Пресс-релизы",
+            "all_text": "Все пресс-релизы",
+            "all_url": "/catalog/documenty",
+            "columns": 3,
+            "items": [
+              {
+                "title": "Пресс-релиз: о результатах заседания межведомственной рабочей группы",
+                "meta": "17 мая 2026 · PDF · 245 КБ",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Пресс-релиз: о запуске нового инфраструктурного проекта",
+                "meta": "10 мая 2026 · PDF · 198 КБ",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Пресс-релиз: о сотрудничестве с международными партнёрами",
+                "meta": "5 мая 2026 · PDF · 210 КБ",
+                "url": "/catalog/documenty"
+              }
+            ]
+          }
+        ],
+        [
+          "media_gallery",
+          "",
+          {
+            "title": "Медиаматериалы",
+            "all_text": "Вся галерея",
+            "all_url": "/albums",
+            "source": "media",
+            "limit": 8
+          }
+        ],
+        [
+          "subscribe",
+          "",
+          {
+            "title": "Подпишитесь на новости",
+            "text": "Получайте самые важные новости и аналитические материалы Агентства прямо на вашу почту.",
+            "button_text": "Подписаться"
+          }
+        ]
+      ]
+    },
+    "uz": {
+      "title": "Matbuot xizmati",
+      "lead": "Agentlik faoliyati, yangiliklar, press-relizlar va mediamateriallar haqida tezkor ma’lumotlar.",
+      "blocks": [
+        [
+          "counters",
+          "",
+          {
+            "items": [
+              {
+                "value": "1256",
+                "suffix": "+",
+                "label": "yangiliklar e’lon qilindi"
+              },
+              {
+                "value": "245",
+                "suffix": "+",
+                "label": "press-relizlar"
+              },
+              {
+                "value": "120",
+                "suffix": "+",
+                "label": "tadbirlar"
+              },
+              {
+                "value": "8500",
+                "suffix": "+",
+                "label": "OAV vakillari"
+              }
+            ]
+          }
+        ],
+        [
+          "news_feature",
+          "",
+          {
+            "title": "Asosiy yangiliklar",
+            "all_text": "Barcha yangiliklar",
+            "all_url": "/news",
+            "limit": 6
+          }
+        ],
+        [
+          "cards_grid",
+          "",
+          {
+            "variant": "compact",
+            "title": "Kategoriyalar",
+            "items": [
+              {
+                "title": "Yangiliklar",
+                "url": "/news"
+              },
+              {
+                "title": "Press-relizlar",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Tadbirlar",
+                "url": "/meropriyatiya"
+              },
+              {
+                "title": "Intervyular",
+                "url": "/news"
+              },
+              {
+                "title": "Fotogalereya",
+                "url": "/albums"
+              },
+              {
+                "title": "Video",
+                "url": "/press-centr"
+              }
+            ]
+          }
+        ],
+        [
+          "subscribe",
+          "",
+          {
+            "title": "Yangiliklarga obuna bo‘ling",
+            "text": "Agentlikning eng muhim yangiliklari va tahliliy materiallarini elektron pochtangizga oling.",
+            "button_text": "Obuna bo‘lish"
+          }
+        ]
+      ]
+    }
+  },
+  "meropriyatiya": {
+    "ru": {
+      "title": "Мероприятия",
+      "lead": "Конференции, форумы, семинары и открытые обсуждения Агентства.",
+      "blocks": [
+        [
+          "counters",
+          "",
+          {
+            "items": [
+              {
+                "value": "120",
+                "suffix": "+",
+                "label": "мероприятий запланировано"
+              },
+              {
+                "value": "25000",
+                "suffix": "+",
+                "label": "участников ежегодно"
+              },
+              {
+                "value": "14",
+                "suffix": "",
+                "label": "регионов охвата"
+              },
+              {
+                "value": "40",
+                "suffix": "+",
+                "label": "международных партнёров"
+              }
+            ]
+          }
+        ],
+        [
+          "cards_grid",
+          "",
+          {
+            "title": "Предстоящие мероприятия",
+            "columns": 3,
+            "items": [
+              {
+                "title": "Международная конференция «Узбекистан–2030»",
+                "text": "25 июня · Ташкент",
+                "url": "/news"
+              },
+              {
+                "title": "Форум по зелёной экономике",
+                "text": "5 июля · Самарканд",
+                "url": "/news"
+              },
+              {
+                "title": "Семинар по современному государственному управлению",
+                "text": "18 июля · Ташкент",
+                "url": "/news"
+              }
+            ]
+          }
+        ],
+        [
+          "subscribe",
+          "",
+          {
+            "title": "Анонсы мероприятий",
+            "text": "Получайте приглашения и изменения программы на электронную почту.",
+            "button_text": "Подписаться"
+          }
+        ]
+      ]
+    },
+    "uz": {
+      "title": "Tadbirlar",
+      "lead": "Agentlik tomonidan o‘tkaziladigan konferensiyalar, forumlar va ochiq muloqotlar.",
+      "blocks": [
+        [
+          "counters",
+          "",
+          {
+            "items": [
+              {
+                "value": "120",
+                "suffix": "+",
+                "label": "rejalashtirilgan tadbirlar"
+              },
+              {
+                "value": "25000",
+                "suffix": "+",
+                "label": "har yilgi ishtirokchilar"
+              },
+              {
+                "value": "14",
+                "suffix": "",
+                "label": "hududlar qamrovi"
+              }
+            ]
+          }
+        ],
+        [
+          "cards_grid",
+          "",
+          {
+            "title": "Kutilayotgan tadbirlar",
+            "columns": 3,
+            "items": [
+              {
+                "title": "«O‘zbekiston–2030» xalqaro konferensiyasi",
+                "text": "25-iyun · Toshkent",
+                "url": "/news"
+              },
+              {
+                "title": "Yashil iqtisodiyot forumi",
+                "text": "5-iyul · Samarqand",
+                "url": "/news"
+              },
+              {
+                "title": "Zamonaviy davlat boshqaruvi bo‘yicha seminar",
+                "text": "18-iyul · Toshkent",
+                "url": "/news"
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  },
+  "karera": {
+    "ru": {
+      "title": "Карьера",
+      "lead": "Присоединяйтесь к команде профессионалов, которые создают будущее Нового Узбекистана.",
+      "blocks": [
+        [
+          "hero",
+          "",
+          {
+            "title": "Карьера",
+            "subtitle": "Присоединяйтесь к команде профессионалов, которые создают будущее Нового Узбекистана.",
+            "image": "/uploads/public/hero-demo-g2.jpg",
+            "bg_type": "image",
+            "overlay_enabled": true,
+            "overlay_mode": "gradient",
+            "overlay_direction": "auto",
+            "overlay_color": "#071b3f",
+            "overlay_opacity": 74,
+            "button_text": "Смотреть вакансии",
+            "button_url": "/catalog/vakansii"
+          }
+        ],
+        [
+          "cards_grid",
+          "",
+          {
+            "title": "Работа в Агентстве",
+            "columns": 4,
+            "items": [
+              {
+                "title": "Миссия со смыслом",
+                "text": "Работайте над стратегическими инициативами, которые меняют жизнь миллионов людей."
+              },
+              {
+                "title": "Профессиональный рост",
+                "text": "Развивайтесь вместе с командой экспертов и получайте новые компетенции."
+              },
+              {
+                "title": "Обучение и развитие",
+                "text": "Корпоративное обучение, тренинги и доступ к лучшим мировым практикам."
+              },
+              {
+                "title": "Забота о сотрудниках",
+                "text": "Конкурентная заработная плата, социальные гарантии и гибкий график работы."
+              }
+            ]
+          }
+        ],
+        [
+          "docs_list",
+          "",
+          {
+            "title": "Актуальные вакансии",
+            "all_text": "Все вакансии",
+            "all_url": "/catalog/vakansii",
+            "columns": 2,
+            "items": [
+              {
+                "title": "Аналитик данных",
+                "meta": "Направление аналитики · Ташкент · Полная занятость",
+                "url": "/catalog/vakansii"
+              },
+              {
+                "title": "Специалист по стратегическому планированию",
+                "meta": "Направление стратегического развития · Ташкент · Полная занятость",
+                "url": "/catalog/vakansii"
+              },
+              {
+                "title": "Эксперт по взаимодействию с государственными органами",
+                "meta": "Направление координации · Ташкент · Полная занятость",
+                "url": "/catalog/vakansii"
+              },
+              {
+                "title": "Менеджер проектов",
+                "meta": "Проектный офис · Ташкент · Полная занятость",
+                "url": "/catalog/vakansii"
+              }
+            ]
+          }
+        ],
+        [
+          "stages",
+          "",
+          {
+            "title": "Как проходит отбор",
+            "items": [
+              {
+                "title": "Подача заявки",
+                "text": "Отправьте резюме через форму на сайте."
+              },
+              {
+                "title": "Предварительный отбор",
+                "text": "Мы рассматриваем вашу заявку и свяжемся с вами."
+              },
+              {
+                "title": "Собеседование",
+                "text": "Интервью с руководителем и профильными специалистами."
+              },
+              {
+                "title": "Предложение о работе",
+                "text": "Успешные кандидаты получают предложение присоединиться к нашей команде."
+              }
+            ]
+          }
+        ],
+        [
+          "cta",
+          "",
+          {
+            "variant": "band",
+            "title": "Не нашли подходящую вакансию?",
+            "text": "Отправьте ваше резюме в нашу базу кандидатов, и мы свяжемся с вами, когда появится подходящая позиция.",
+            "button_text": "Отправить резюме",
+            "button_url": "/kontakty",
+            "bg_color": "#072b61",
+            "text_color": "#ffffff"
+          }
+        ]
+      ]
+    },
+    "uz": {
+      "title": "Karyera",
+      "lead": "Yangi O‘zbekiston kelajagini yaratayotgan professionallar jamoasiga qo‘shiling.",
+      "blocks": [
+        [
+          "hero",
+          "",
+          {
+            "title": "Karyera",
+            "subtitle": "Yangi O‘zbekiston kelajagini yaratayotgan professionallar jamoasiga qo‘shiling.",
+            "image": "/uploads/public/hero-demo-g2.jpg",
+            "bg_type": "image",
+            "overlay_enabled": true,
+            "overlay_mode": "gradient",
+            "overlay_direction": "auto",
+            "overlay_color": "#071b3f",
+            "overlay_opacity": 74,
+            "button_text": "Bo‘sh ish o‘rinlari",
+            "button_url": "/catalog/vakansii"
+          }
+        ],
+        [
+          "cards_grid",
+          "",
+          {
+            "title": "Agentlikda ishlash afzalliklari",
+            "columns": 4,
+            "items": [
+              {
+                "title": "Muhim missiya",
+                "text": "Millionlab insonlar hayotini o‘zgartiradigan strategik tashabbuslar ustida ishlang."
+              },
+              {
+                "title": "Kasbiy o‘sish",
+                "text": "Ekspertlar jamoasi bilan birga rivojlaning va yangi ko‘nikmalarga ega bo‘ling."
+              },
+              {
+                "title": "Ta’lim va rivojlanish",
+                "text": "Korporativ ta’lim, treninglar va jahon tajribasi."
+              },
+              {
+                "title": "Xodimlarga g‘amxo‘rlik",
+                "text": "Raqobatbardosh ish haqi va ijtimoiy kafolatlar."
+              }
+            ]
+          }
+        ],
+        [
+          "stages",
+          "",
+          {
+            "title": "Tanlov bosqichlari",
+            "items": [
+              {
+                "title": "Ariza topshirish",
+                "text": "Rezyumengizni saytdagi shakl orqali yuboring."
+              },
+              {
+                "title": "Dastlabki saralash",
+                "text": "Arizangiz ko‘rib chiqiladi hamda aloqaga chiqiladi."
+              },
+              {
+                "title": "Suhbat",
+                "text": "Rahbariyat va mutaxassislar bilan suhbat."
+              },
+              {
+                "title": "Ish taklifi",
+                "text": "Muvaffaqiyatli nomzodlar jamoaga taklif etiladi."
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  },
+  "kontakty": {
+    "ru": {
+      "title": "Контакты",
+      "lead": "Мы открыты для сотрудничества и диалога. Свяжитесь с нами любым удобным способом.",
+      "blocks": [
+        [
+          "contact_cards",
+          "",
+          {
+            "title": "Свяжитесь с нами",
+            "items": [
+              {
+                "title": "Адрес",
+                "lines": "100011, Республика Узбекистан\nг. Ташкент",
+                "link_text": "Смотреть на карте",
+                "link_url": "#map"
+              },
+              {
+                "title": "Телефон",
+                "lines": "+998 71 238 60 00\n+998 71 238 60 01"
+              },
+              {
+                "title": "E-mail",
+                "lines": "info@example.uz\npress@example.uz",
+                "link_text": "Написать нам",
+                "link_url": "/kontakty#forma"
+              },
+              {
+                "title": "Часы работы",
+                "lines": "Понедельник–Пятница\n09:00–18:00, обед 13:00–14:00"
+              }
+            ]
+          }
+        ],
+        [
+          "form",
+          "Форма обращения",
+          {
+            "form_slug": "public-appeal",
+            "layout": "2col"
+          }
+        ],
+        [
+          "map_point",
+          "",
+          {
+            "title": "Как нас найти",
+            "image": "/uploads/public/hero-demo-g2.jpg",
+            "card_title": "Агентство стратегического развития и реформ",
+            "address": "г. Ташкент, Республика Узбекистан",
+            "button_text": "Построить маршрут",
+            "button_url": "https://maps.google.com/"
+          }
+        ],
+        [
+          "faq",
+          "",
+          {
+            "title": "Часто задаваемые вопросы",
+            "items": [
+              {
+                "question": "Как направить предложение по улучшению законодательства?",
+                "answer": "<p>Заполните форму на этой странице, выбрав соответствующую тему. Обращение будет зарегистрировано и передано профильному подразделению.</p>"
+              },
+              {
+                "question": "Как получить официальный ответ на обращение?",
+                "answer": "<p>Ответ направляется по контактам, указанным заявителем, в установленные законодательством сроки.</p>"
+              },
+              {
+                "question": "Как записаться на личный приём?",
+                "answer": "<p>Выберите тему «Запись на приём» в форме обращения — с вами свяжутся для согласования времени.</p>"
+              },
+              {
+                "question": "Как узнать о вакансиях в Агентстве?",
+                "answer": "<p>Актуальные вакансии публикуются в разделе «Карьера» и каталоге вакансий.</p>"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    "uz": {
+      "title": "Bog‘lanish",
+      "lead": "Biz muloqot va hamkorlik uchun ochiqmiz. O‘zingizga qulay usulda bog‘laning.",
+      "blocks": [
+        [
+          "contact_cards",
+          "",
+          {
+            "title": "Biz bilan bog‘laning",
+            "items": [
+              {
+                "title": "Manzil",
+                "lines": "100011, O‘zbekiston Respublikasi\nToshkent shahri",
+                "link_text": "Xaritada ko‘rish",
+                "link_url": "#map"
+              },
+              {
+                "title": "Telefon",
+                "lines": "+998 71 238 60 00\n+998 71 238 60 01"
+              },
+              {
+                "title": "E-mail",
+                "lines": "info@example.uz\npress@example.uz",
+                "link_text": "Xabar yuborish",
+                "link_url": "/kontakty#forma"
+              },
+              {
+                "title": "Ish vaqti",
+                "lines": "Dushanba–Juma\n09:00–18:00, tushlik 13:00–14:00"
+              }
+            ]
+          }
+        ],
+        [
+          "form",
+          "Murojaat shakli",
+          {
+            "form_slug": "public-appeal",
+            "layout": "2col"
+          }
+        ],
+        [
+          "faq",
+          "",
+          {
+            "title": "Ko‘p beriladigan savollar",
+            "items": [
+              {
+                "question": "Taklif va murojaatlarni qanday yuborish mumkin?",
+                "answer": "<p>Ushbu sahifadagi murojaat shaklini to‘ldiring. Murojaatingiz ro‘yxatga olinadi va tegishli bo‘limga yuboriladi.</p>"
+              },
+              {
+                "question": "Rasmiy javobni qanday olish mumkin?",
+                "answer": "<p>Javob ko‘rsatilgan aloqa ma’lumotlariga qonunchilikda belgilangan muddatda yuboriladi.</p>"
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  },
+  "strategiya-2030": {
+    "ru": {
+      "title": "Стратегия «Узбекистан–2030»",
+      "lead": "Стратегические цели и приоритеты развития Республики Узбекистан на период до 2030 года.",
+      "blocks": [
+        [
+          "hero",
+          "",
+          {
+            "eyebrow": "Официальный документ",
+            "title": "Стратегия «Узбекистан–2030»",
+            "subtitle": "Стратегические цели и приоритеты развития Республики Узбекистан на период до 2030 года.",
+            "image": "/uploads/public/hero-demo-g3.jpg",
+            "bg_type": "image",
+            "overlay_enabled": true,
+            "overlay_mode": "gradient",
+            "overlay_direction": "auto",
+            "overlay_color": "#071b3f",
+            "overlay_opacity": 66,
+            "button_text": "Документы",
+            "button_url": "/catalog/documenty"
+          }
+        ],
+        [
+          "counters",
+          "",
+          {
+            "items": [
+              {
+                "value": "5",
+                "suffix": "",
+                "label": "приоритетных направлений"
+              },
+              {
+                "value": "100",
+                "suffix": "+",
+                "label": "целевых показателей"
+              },
+              {
+                "value": "2030",
+                "suffix": "",
+                "label": "горизонт планирования"
+              },
+              {
+                "value": "14",
+                "suffix": "",
+                "label": "регионов реализации"
+              }
+            ]
+          }
+        ],
+        [
+          "stages",
+          "",
+          {
+            "title": "Этапы реализации",
+            "items": [
+              {
+                "title": "2024",
+                "text": "Формирование системы показателей."
+              },
+              {
+                "title": "2025",
+                "text": "Запуск приоритетных программ."
+              },
+              {
+                "title": "2026–2027",
+                "text": "Масштабирование решений."
+              },
+              {
+                "title": "2028–2029",
+                "text": "Оценка эффективности."
+              },
+              {
+                "title": "2030",
+                "text": "Подведение итогов стратегии."
+              }
+            ]
+          }
+        ],
+        [
+          "docs_list",
+          "",
+          {
+            "title": "Материалы стратегии",
+            "all_text": "Все документы",
+            "all_url": "/catalog/documenty",
+            "columns": 3,
+            "items": [
+              {
+                "title": "Стратегия «Узбекистан–2030»",
+                "meta": "PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "План практических мероприятий",
+                "meta": "PDF",
+                "url": "/catalog/documenty"
+              },
+              {
+                "title": "Методика мониторинга показателей",
+                "meta": "PDF",
+                "url": "/catalog/documenty"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    "uz": {
+      "title": "«O‘zbekiston–2030» Strategiyasi",
+      "lead": "2030-yilgacha bo‘lgan davrda O‘zbekiston Respublikasini rivojlantirishning strategik maqsadlari va ustuvor yo‘nalishlari.",
+      "blocks": [
+        [
+          "hero",
+          "",
+          {
+            "eyebrow": "Rasmiy hujjat",
+            "title": "«O‘zbekiston–2030» Strategiyasi",
+            "subtitle": "2030-yilgacha bo‘lgan davrda O‘zbekiston Respublikasini rivojlantirishning strategik maqsadlari va ustuvor yo‘nalishlari.",
+            "image": "/uploads/public/hero-demo-g3.jpg",
+            "bg_type": "image",
+            "overlay_enabled": true,
+            "overlay_mode": "gradient",
+            "overlay_direction": "auto",
+            "overlay_color": "#071b3f",
+            "overlay_opacity": 66,
+            "button_text": "Hujjatlar",
+            "button_url": "/catalog/documenty"
+          }
+        ],
+        [
+          "counters",
+          "",
+          {
+            "items": [
+              {
+                "value": "5",
+                "suffix": "",
+                "label": "ustuvor yo‘nalishlar"
+              },
+              {
+                "value": "100",
+                "suffix": "+",
+                "label": "maqsadli ko‘rsatkichlar"
+              },
+              {
+                "value": "2030",
+                "suffix": "",
+                "label": "rejalashtirish ufqik"
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  }
+}

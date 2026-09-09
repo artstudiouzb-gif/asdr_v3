@@ -1,0 +1,80 @@
+# Конфигурация и установщик
+/config/config.php
+/storage/installed.lock
+
+# Временные файлы и хранилище данных
+/storage/logs/*
+!/storage/logs/.gitkeep
+!/storage/logs/README.md
+/storage/protected_uploads/*
+!/storage/protected_uploads/.gitkeep
+!/storage/protected_uploads/README.md
+# Локальные секреты и инструменты среды разработки (создаёт хук старта).
+/storage/.env.local
+/storage/tools/
+/storage/backups/*
+!/storage/backups/.gitkeep
+!/storage/backups/README.md
+/storage/cache/*
+!/storage/cache/.gitkeep
+!/storage/cache/README.md
+# Загруженные архивы обновлений и снимки отката (scripts/update.php).
+/storage/updates/
+/storage/integrity/
+# Срезы вычисленных стилей админки (scripts/admin-style-snapshot.mjs).
+/storage/tmp/
+/public/uploads/*
+/public/uploads/**/*
+/public/uploads/public/*
+/public/uploads/public/**/*
+!/public/uploads/public/.gitkeep
+!/public/uploads/public/index.html
+
+# Зависимости
+/vendor/
+/node_modules/
+
+# Отчёты тестирования и кэши
+/playwright-report/
+/test-results/
+/coverage/
+/.phpunit.result.cache
+
+# Временные и диагностические скрипты тестов
+tests/scratch_*
+*.scratch.php
+
+# Операционные системы
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Редакторы и IDE
+/.idea/
+/.vscode/
+*.swp
+*~
+*.bak
+*.tmp
+
+# AI и локальные конфигурации агентов
+# Звёздочка, а не /.claude/: из исключённого каталога git не достаёт
+# отдельные файлы, и исключения ниже не работали бы.
+/.claude/*
+# ...кроме общих навыков, команд и хуков: это часть договорённостей проекта,
+# а не локальная настройка машины, и они должны переживать смену окружения.
+!/.claude/skills/
+!/.claude/commands/
+!/.claude/hooks/
+!/.claude/settings.json
+/.antigravity/
+/.gemini/
+
+# Архивы
+*.zip
+*.gz
+*.br
+
+# Экспорт отчёта «Мониторинг 2030» (scripts/u30-report-export.php) — сборка, не исходник
+/build/

@@ -1,0 +1,40 @@
+/* «Внешняя врезка»: ролик YouTube, пост Telegram, форма Google.
+
+   Рамка держит пропорцию сама (aspect-ratio), поэтому старая обёртка с
+   padding-top не нужна: она требовала абсолютного позиционирования iframe и
+   ломалась, когда рядом появлялась подпись. */
+
+.block-embed__title { margin: 0 0 clamp(14px, 1.6vw, 22px); }
+
+.block-embed__frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius, 14px);
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+}
+.block-embed__frame iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.block-embed__frame--ratio-16-9 { aspect-ratio: 16 / 9; }
+.block-embed__frame--ratio-4-3 { aspect-ratio: 4 / 3; }
+.block-embed__frame--ratio-1-1 { aspect-ratio: 1 / 1; }
+/* Своя высота: пропорция поста и формы зависит от содержимого, и растягивать
+   их до 16:9 значит либо резать текст, либо оставлять пустое поле. */
+.block-embed__frame--ratio-fixed { height: var(--embed-height, 600px); }
+
+/* Пост Telegram рисует свой белый фон и свои поля: рамка вокруг него была бы
+   второй, а тень — третьей. */
+.block-embed__frame--telegram { background: transparent; border: 0; }
+
+.block-embed__caption { margin: 10px 0 0; }
+
+/* На узком экране пропорция 16:9 даёт полосу в 190px высотой — читаемо, но
+   форма и пост при своей высоте занимают весь экран целиком. Ограничиваем. */
+@media (max-width: 720px) {
+    .block-embed__frame--ratio-fixed { height: min(var(--embed-height, 600px), 80vh); }
+}
