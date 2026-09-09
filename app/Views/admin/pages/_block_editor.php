@@ -193,7 +193,6 @@ foreach ($blocks as $b) {
         <?php endif; ?>
     <?php endforeach; ?>
     </div>
-</form>
 
     <?php
     // Готовые сборки: страница собирается одним нажатием, с уже расставленными

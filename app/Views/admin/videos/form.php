@@ -98,6 +98,7 @@ $translationLangs = array_values(array_filter(
         <?php endif; ?>
         <div class="form-actions form-actions--sticky">
             <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить</button>
+            <a href="/admin/videos" class="btn">К списку</a>
         </div>
     </form>
 </div>

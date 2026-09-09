@@ -72,7 +72,7 @@ $action = $isEdit ? '/admin/projects/' . (int) $project['id'] . '/edit' : '/admi
         <aside class="entry-side">
             <?= \App\Core\TranslationGroupHelper::renderSidebarMetaBox('projects', $project ?? []) ?>
             <div class="form-card u-inline-c1563b7411">
-                <h3 class="u-inline-3e8ce2fc5a">Параметры публикаций</h3>
+                <h3 class="u-inline-3e8ce2fc5a">Параметры публикации</h3>
                 <div class="form-grid">
                     <div class="form-field">
                         <label class="u-inline-0b87e9e0af" for="status">Статус</label>
@@ -121,6 +121,13 @@ $action = $isEdit ? '/admin/projects/' . (int) $project['id'] . '/edit' : '/admi
         <button type="submit" form="project_edit_form" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить изменения</button>
     <?php endif; ?>
     <a href="/admin/projects" class="btn">Отмена</a>
+    <?php if ($isEdit && ($project['status'] ?? 'draft') === 'published' && (string) ($project['slug'] ?? '') !== ''): ?>
+        <?php $publicPath = \App\Core\Locale::prefix((string) ($project['lang'] ?? '')) . '/projects/' . $project['slug']; ?>
+        <a href="<?= htmlspecialchars($publicPath, ENT_QUOTES) ?>" class="btn" target="_blank" rel="noopener">
+            <?= \App\Core\AdminUi::icon('external-link', 14) ?>
+            Открыть на сайте ↗
+        </a>
+    <?php endif; ?>
 </div>
 
 <?php require __DIR__ . '/../layout/footer.php'; ?>
