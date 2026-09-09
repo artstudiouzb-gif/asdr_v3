@@ -3494,6 +3494,40 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 }
 .secretfield__clear { display: block; margin-top: 6px; }
 .secretfield__clear input { width: auto; margin-right: 6px; }
+
+/* Ответ проверки CDN: заголовки как есть, моноширинным — их читают, а не
+   просматривают, и разница между `HIT` и `MISS` должна быть видна сразу. */
+.cdn-check {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    background: var(--admin-bg);
+}
+.cdn-check__verdict {
+    margin: 0 0 8px;
+    font-weight: var(--admin-fw-semibold);
+    color: var(--admin-text);
+}
+.cdn-check__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    padding: 4px 0;
+    border-top: 1px solid var(--admin-border);
+    font-size: var(--admin-fs-sm);
+}
+.cdn-check__name {
+    min-width: 180px;
+    font-family: var(--admin-font-mono);
+    color: var(--admin-text);
+}
+.cdn-check__value {
+    font-family: var(--admin-font-mono);
+    color: var(--admin-accent);
+    word-break: break-all;
+}
+.cdn-check__note { color: var(--admin-muted); }
 .hero-overlay-mode {
     margin-bottom: 16px;
     padding: 0;

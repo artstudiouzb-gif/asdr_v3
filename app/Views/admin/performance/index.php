@@ -352,6 +352,25 @@ $size = static function (mixed $bytes): string {
                     Инвалидация не нужна: статика версионируется (<code>?v=</code>), а имена загрузок уникальны.
                 </span>
             </div>
+            <p class="form-hint">
+                <b>CDN самого хостинга (Hostinger и подобные) сюда вписывать не нужно</b> — поле должно
+                остаться пустым. Такой CDN включается у хостера и стоит перед тем же самым адресом сайта:
+                отдельного хоста для файлов не появляется, а вписанный сюда чужой адрес только сломал бы
+                ссылки на стили и картинки. Поле нужно лишь pull-zone CDN, который выдаёт свой домен.
+            </p>
+            <div class="form-field">
+                <button type="button" class="btn btn--outline" data-cdn-check
+                        data-cdn-asset="<?= htmlspecialchars(\App\Core\Asset::url('/assets/css/public.min.css'), ENT_QUOTES) ?>">
+                    <?= AdminUi::icon('world') ?>Проверить, идёт ли статика через CDN
+                </button>
+                <span class="form-hint">
+                    Проверка идёт из вашего браузера, а не с сервера: запрос сайта к собственному адресу
+                    обычно разрешается в себя же и до края сети не доходит вовсе — такая проверка отвечала
+                    бы «CDN нет» при работающем CDN. Ответ печатается заголовками как есть: имена у каждого
+                    CDN свои, и пересказывать их одним словом мы не беремся.
+                </span>
+                <div class="cdn-check" data-cdn-check-result hidden></div>
+            </div>
         </div>
 
         <div class="header-builder__group" id="perf-cloudflare">
@@ -416,4 +435,5 @@ $size = static function (mixed $bytes): string {
     <?php endif; ?>
 </div>
 <script src="<?= htmlspecialchars(\App\Core\Asset::url('/assets/js/admin-media-batch.js'), ENT_QUOTES) ?>"></script>
+<script src="<?= htmlspecialchars(\App\Core\Asset::url('/assets/js/admin-cdn-check.js'), ENT_QUOTES) ?>"></script>
 <?php require __DIR__ . '/../layout/footer.php'; ?>
