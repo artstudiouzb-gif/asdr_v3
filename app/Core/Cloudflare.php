@@ -32,7 +32,48 @@ final class Cloudflare
 
     public static function token(): string
     {
-        return trim((string) Setting::get('cf_api_token', ''));
+        return self::normalizeToken((string) Setting::get('cf_api_token', ''));
+    }
+
+    /**
+     * Чистка значения токена.
+     *
+     * `trim()` снимает обычные пробелы, но скопированный из панели Cloudflare
+     * токен приносит с собой неразрывный пробел или нулевой ширины — их видно
+     * не бывает, а заголовок с таким байтом Cloudflare отвергает целиком:
+     * «Invalid request headers». Отказ читается как «токен неверный», хотя сам
+     * токен верный, и починить его вслепую нечем. Поэтому пробелы любого рода
+     * вырезаются: внутри токена их не бывает по формату.
+     */
+    public static function normalizeToken(string $raw): string
+    {
+        $clean = preg_replace('/[\s\x{00A0}\x{180E}\x{200B}-\x{200D}\x{2060}\x{FEFF}]+/u', '', $raw);
+
+        return is_string($clean) ? $clean : trim($raw);
+    }
+
+    /**
+     * Похоже ли значение на API-токен, а не на Global API Key.
+     *
+     * Это две разные вещи, и путают их постоянно: токен (40 знаков из букв,
+     * цифр, `_` и `-`) отправляется как `Authorization: Bearer`, а глобальный
+     * ключ (37 шестнадцатеричных знаков) — только парой заголовков
+     * `X-Auth-Email` + `X-Auth-Key`. Глобальный ключ в Bearer Cloudflare не
+     * разбирает и отвечает про заголовки, ни словом не упоминая, что дело в
+     * типе ключа.
+     */
+    public static function looksLikeToken(string $token): bool
+    {
+        // Одного алфавита мало: шестнадцатеричные знаки — его подмножество, и
+        // под «буквы и цифры» подходят и Global API Key (37 знаков), и Zone ID
+        // (32). Оба попадают в это поле чаще, чем сам токен, поэтому две самые
+        // частые подмены названы по форме. Настоящий токен длиной 40 состоял
+        // бы из одних hex-знаков с вероятностью, которой можно пренебречь.
+        if (preg_match('/^[a-f0-9]{32}$/i', $token) === 1 || preg_match('/^[a-f0-9]{37}$/i', $token) === 1) {
+            return false;
+        }
+
+        return preg_match('/^[A-Za-z0-9_-]{30,120}$/', $token) === 1;
     }
 
     public static function zone(): string
@@ -122,6 +163,14 @@ final class Cloudflare
         if (self::token() === '' || self::zone() === '') {
             return ['ok' => false, 'message' => 'Укажите API-токен и Zone ID.'];
         }
+        if (!self::looksLikeToken(self::token())) {
+            return [
+                'ok' => false,
+                'message' => 'Значение не похоже на API-токен Cloudflare. Нужен токен из «My Profile → '
+                    . 'API Tokens» с правом Zone.Cache Purge (40 знаков: буквы, цифры, «_» и «-»), '
+                    . 'а не Global API Key и не Zone ID.',
+            ];
+        }
 
         $res = Http::request(
             'GET',
@@ -140,11 +189,40 @@ final class Cloudflare
             return ['ok' => true, 'message' => 'Подключено к зоне' . ($name !== '' ? ': ' . $name : '') . '.'];
         }
 
-        $msg = is_array($data) && isset($data['errors'][0]['message'])
-            ? (string) $data['errors'][0]['message']
-            : ('HTTP ' . (int) ($res['status'] ?? 0));
+        return ['ok' => false, 'message' => 'Cloudflare: ' . self::errorText($data, (int) ($res['status'] ?? 0))];
+    }
 
-        return ['ok' => false, 'message' => 'Cloudflare: ' . $msg];
+    /**
+     * Человеческая причина отказа из ответа API.
+     *
+     * Cloudflare кладёт подробность не в `errors[].message`, а в `error_chain`:
+     * верхняя строка говорит «Invalid request headers» и не сообщает ничего —
+     * ровно это и видел владелец. Читаем обе, а для кодов про заголовки
+     * добавляем то, чего в ответе нет вовсе: чем именно токен не подошёл.
+     *
+     * @param mixed $data разобранный JSON ответа
+     */
+    private static function errorText(mixed $data, int $status): string
+    {
+        if (!is_array($data) || !isset($data['errors'][0]) || !is_array($data['errors'][0])) {
+            return 'HTTP ' . $status;
+        }
+
+        $error = $data['errors'][0];
+        $msg = (string) ($error['message'] ?? ('HTTP ' . $status));
+        $chain = $error['error_chain'][0]['message'] ?? '';
+        if (is_string($chain) && $chain !== '') {
+            $msg .= ' — ' . $chain;
+        }
+
+        // 6003 — «Invalid request headers»: заголовок авторизации не разобран.
+        // Причина почти всегда одна из двух, и обе не видны в ответе.
+        if ((int) ($error['code'] ?? 0) === 6003) {
+            $msg .= '. Проверьте, что в поле вставлен API-токен (Zone.Cache Purge), а не Global API Key,'
+                . ' и скопирован он без лишних символов.';
+        }
+
+        return $msg;
     }
 
     /** @return array<int, string> */
@@ -169,10 +247,7 @@ final class Cloudflare
         if (($res['status'] ?? 0) === 200 && is_array($data) && !empty($data['success'])) {
             return true;
         }
-        $msg = is_array($data) && isset($data['errors'][0]['message'])
-            ? (string) $data['errors'][0]['message']
-            : ('HTTP ' . (int) ($res['status'] ?? 0));
-        Logger::warning('Cloudflare ' . $op . ' ошибка: ' . $msg);
+        Logger::warning('Cloudflare ' . $op . ' ошибка: ' . self::errorText($data, (int) ($res['status'] ?? 0)));
 
         return false;
     }
