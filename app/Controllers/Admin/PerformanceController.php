@@ -133,12 +133,15 @@ final class PerformanceController
         );
         $cdn = SettingsValidator::publicBaseUrl((string) ($_POST['perf_cdn_url'] ?? ''));
         $zone = strtolower(trim((string) ($_POST['cf_zone_id'] ?? '')));
-        $cfToken = trim((string) ($_POST['cf_api_token'] ?? ''));
+        // Невидимый пробел из буфера обмена ломает заголовок авторизации, а
+        // отказ приходит от Cloudflare как «Invalid request headers» — чинить
+        // такое вслепую нечем, поэтому чистим на входе.
+        $cfToken = \App\Core\Cloudflare::normalizeToken((string) ($_POST['cf_api_token'] ?? ''));
         $cfEnabled = !empty($_POST['cf_enabled']);
         $clearCfToken = !empty($_POST['clear_cf_api_token']);
         $effectiveCfToken = $clearCfToken
             ? ''
-            : ($cfToken !== '' ? $cfToken : trim((string) Setting::get('cf_api_token', '')));
+            : ($cfToken !== '' ? $cfToken : \App\Core\Cloudflare::normalizeToken((string) Setting::get('cf_api_token', '')));
 
         $errors = [];
         if ($cacheTtl === null) {
@@ -172,6 +175,12 @@ final class PerformanceController
         }
         if ($cfEnabled && ($effectiveCfToken === '' || $zone === '')) {
             $errors[] = 'Для включения Cloudflare укажите API-токен и Zone ID.';
+        }
+        // Global API Key (37 hex) и Zone ID в это поле попадают чаще, чем сам
+        // токен: называем ошибку здесь, а не после неудачной проверки связи.
+        if ($effectiveCfToken !== '' && !\App\Core\Cloudflare::looksLikeToken($effectiveCfToken)) {
+            $errors[] = 'Cloudflare: нужен API-токен с правом Zone.Cache Purge (буквы, цифры, «_» и «-»), '
+                . 'а не Global API Key или Zone ID.';
         }
         if ($errors !== []) {
             Flash::error(implode(' ', $errors));
