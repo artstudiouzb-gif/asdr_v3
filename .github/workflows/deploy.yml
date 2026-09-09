@@ -88,9 +88,15 @@ jobs:
           set -euo pipefail
           COMMIT_MSG="$(git log -1 --format='%s' HEAD)"
 
-          # Fetch remote deploy branch
-          git fetch origin deploy:deploy
-          git checkout deploy
+          # Bootstrap a clean branch on the first deployment. A failed remote
+          # lookup must stop the job, not be mistaken for a missing branch.
+          DEPLOY_REF="$(git ls-remote --heads origin refs/heads/deploy)"
+          if [ -n "${DEPLOY_REF}" ]; then
+            git fetch origin deploy:deploy
+            git checkout deploy
+          else
+            git checkout --orphan deploy
+          fi
 
           # Clear current working directory of tracked files
           git rm -rf . >/dev/null 2>&1 || true
