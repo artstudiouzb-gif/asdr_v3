@@ -1,5 +1,8 @@
 <?php
 
+use App\Core\AdminUi;
+use App\Core\DateFormatter;
+
 $pageTitle = t('Дашборд');
 $activeNav = 'dashboard';
 require __DIR__ . '/layout/header.php';
@@ -13,121 +16,136 @@ require __DIR__ . '/layout/header.php';
 /** @var array<string, mixed> $systemHealth */
 /** @var bool $canManageSubmissions */
 /** @var bool $canManageAudit */
+
+$esc = static fn (mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES);
+
+/**
+ * Плитка счётчика: иконка, число, подпись и необязательное примечание.
+ *
+ * Собирается функцией, а не копируется девять раз: у карточек одинаковая
+ * структура, и разъехавшаяся копия — это разный порядок элементов на одной
+ * сетке. Тон плитки берётся из набора модификаторов (`--admin-success` и
+ * соседние), поэтому цвет глифа и подложки задаётся одним словом.
+ */
+$statCard = static function (
+    string $href,
+    string $icon,
+    string $tone,
+    int|string $value,
+    string $label,
+    string $note = '',
+    bool $highlight = false
+) use ($esc): string {
+    $html = '<a href="' . $esc($href) . '" class="stat-card' . ($highlight ? ' stat-card--highlight' : '') . '">';
+    $html .= '<span class="stat-card__icon stat-card__icon--' . $esc($tone) . '" aria-hidden="true">'
+        . AdminUi::icon($icon, 20) . '</span>';
+    $html .= '<span class="stat-card__value">' . $esc($value) . '</span>';
+    $html .= '<span class="stat-card__label">' . $esc($label) . '</span>';
+    if ($note !== '') {
+        $html .= '<span class="stat-card__note">' . $esc($note) . '</span>';
+    }
+
+    return $html . '</a>';
+};
+
+/** Строка «Статуса системы»: иконка, подпись и готовая разметка значения. */
+$statusRow = static function (string $icon, string $label, string $valueHtml) use ($esc): string {
+    return '<div class="dash-status__row">'
+        . '<span class="dash-status__icon" aria-hidden="true">' . AdminUi::icon($icon, 18) . '</span>'
+        . '<span class="dash-status__body">'
+        . '<span class="dash-status__label">' . $esc($label) . '</span>'
+        . '<span class="dash-status__value">' . $valueHtml . '</span>'
+        . '</span></div>';
+};
+
+/** Бейдж состояния: зелёный, когда всё в порядке. */
+$stateBadge = static function (bool $ok, string $text, string $okIcon = 'check') use ($esc): string {
+    return '<span class="badge ' . ($ok ? 'badge--published' : 'badge--draft') . ' badge--small">'
+        . AdminUi::icon($ok ? $okIcon : 'alert-triangle', 13) . ' ' . $esc($text) . '</span>';
+};
+
+$queueFailed = (int) ($systemHealth['queue_failed'] ?? 0);
 ?>
+<div class="dash-page">
 <section class="admin-welcome" aria-labelledby="admin-welcome-title">
     <div>
-        <h2 id="admin-welcome-title"><?= htmlspecialchars(t('Добро пожаловать'), ENT_QUOTES) ?>, <?= htmlspecialchars($user['username'] ?? '', ENT_QUOTES) ?></h2>
-        <p><?= htmlspecialchars(t('Управляйте содержимым сайта и быстро переходите к основным действиям.'), ENT_QUOTES) ?></p>
+        <h2 id="admin-welcome-title"><?= $esc(t('Добро пожаловать')) ?>, <?= $esc($user['username'] ?? '') ?></h2>
+        <p><?= $esc(t('Управляйте содержимым сайта и быстро переходите к основным действиям.')) ?></p>
     </div>
     <div class="admin-welcome__actions">
-        <a href="/admin/news/create" class="btn btn--primary"><?= \App\Core\AdminUi::icon('plus') ?> <?= htmlspecialchars(t('Добавить новость'), ENT_QUOTES) ?></a>
-        <a href="/admin/pages/create" class="btn"><?= htmlspecialchars(t('Добавить страницу'), ENT_QUOTES) ?></a>
-        <a href="/" target="_blank" rel="noopener" class="btn"><?= htmlspecialchars(t('Открыть сайт'), ENT_QUOTES) ?> ↗</a>
+        <a href="/admin/news/create" class="btn btn--primary"><?= AdminUi::icon('plus', 16) ?> <?= $esc(t('Добавить новость')) ?></a>
+        <a href="/admin/pages/create" class="btn"><?= AdminUi::icon('file-plus', 16) ?> <?= $esc(t('Добавить страницу')) ?></a>
+        <a href="/" target="_blank" rel="noopener" class="btn"><?= AdminUi::icon('external-link', 16) ?> <?= $esc(t('Открыть сайт')) ?></a>
     </div>
 </section>
 
 <div class="stat-grid">
-    <a href="/admin/news" class="stat-card">
-        <span class="stat-card__value"><?= (int) $counts['news'] ?></span>
-        <span class="stat-card__label"><?= htmlspecialchars(t('Новости'), ENT_QUOTES) ?></span>
-        <?php if (!empty($counts['news_drafts'])): ?>
-            <span class="form-hint u-inline-a3a5568692"><?= (int) $counts['news_drafts'] ?> <?= htmlspecialchars(t('черновиков'), ENT_QUOTES) ?></span>
-        <?php endif; ?>
-    </a>
-    <a href="/admin/pages" class="stat-card">
-        <span class="stat-card__value"><?= (int) $counts['pages'] ?></span>
-        <span class="stat-card__label"><?= htmlspecialchars(t('Страницы'), ENT_QUOTES) ?></span>
-    </a>
-    <a href="/admin/projects" class="stat-card">
-        <span class="stat-card__value"><?= (int) $counts['projects'] ?></span>
-        <span class="stat-card__label"><?= htmlspecialchars(t('Проекты'), ENT_QUOTES) ?></span>
-    </a>
-    <a href="/admin/team" class="stat-card">
-        <span class="stat-card__value"><?= (int) $counts['team'] ?></span>
-        <span class="stat-card__label"><?= htmlspecialchars(t('Сотрудники'), ENT_QUOTES) ?></span>
-    </a>
-    <a href="/admin/forms" class="stat-card">
-        <span class="stat-card__value"><?= (int) $counts['forms'] ?></span>
-        <span class="stat-card__label"><?= htmlspecialchars(t('Формы'), ENT_QUOTES) ?></span>
-    </a>
+    <?= $statCard('/admin/news', 'news', 'accent', (int) $counts['news'], t('Новости'),
+        !empty($counts['news_drafts']) ? (int) $counts['news_drafts'] . ' ' . t('черновиков') : '') ?>
+    <?= $statCard('/admin/pages', 'file-text', 'info', (int) $counts['pages'], t('Страницы')) ?>
+    <?= $statCard('/admin/projects', 'briefcase', 'violet', (int) $counts['projects'], t('Проекты')) ?>
+    <?= $statCard('/admin/team', 'users', 'neutral', (int) $counts['team'], t('Сотрудники')) ?>
+    <?= $statCard('/admin/forms', 'forms', 'neutral', (int) $counts['forms'], t('Формы')) ?>
     <?php if ($canManageSubmissions): ?>
-        <a href="/admin/forms/submissions?status=unread" class="stat-card<?= $counts['submissions_unread'] > 0 ? ' stat-card--highlight' : '' ?>">
-            <span class="stat-card__value"><?= (int) $counts['submissions_unread'] ?></span>
-            <span class="stat-card__label"><?= htmlspecialchars(t('Непрочитанные заявки'), ENT_QUOTES) ?></span>
-        </a>
+        <?= $statCard(
+            '/admin/forms/submissions?status=unread',
+            'inbox',
+            $counts['submissions_unread'] > 0 ? 'danger' : 'neutral',
+            (int) $counts['submissions_unread'],
+            t('Непрочитанные заявки'),
+            '',
+            $counts['submissions_unread'] > 0
+        ) ?>
     <?php endif; ?>
-    <a href="/admin/files" class="stat-card">
-        <span class="stat-card__value"><?= (int) $counts['files'] ?></span>
-        <span class="stat-card__label"><?= htmlspecialchars(t('Медиафайлы'), ENT_QUOTES) ?></span>
-    </a>
-    <a href="/admin/languages" class="stat-card">
-        <span class="stat-card__value"><?= (int) ($systemHealth['active_langs_count'] ?? 1) ?></span>
-        <span class="stat-card__label"><?= htmlspecialchars(t('Активные языки'), ENT_QUOTES) ?></span>
-    </a>
-    <a href="/admin/repository" class="stat-card">
-        <span class="stat-card__value"><?= (int) ($counts['repo_downloads'] ?? 0) ?></span>
-        <span class="stat-card__label"><?= htmlspecialchars(t('Скачиваний репозитория'), ENT_QUOTES) ?></span>
-        <span class="form-hint u-inline-a3a5568692"><?= (int) ($counts['repo_files'] ?? 0) ?> <?= htmlspecialchars(t('файлов'), ENT_QUOTES) ?></span>
-    </a>
+    <?= $statCard('/admin/files', 'photo', 'info', (int) $counts['files'], t('Медиафайлы')) ?>
+    <?= $statCard('/admin/languages', 'language', 'success', (int) ($systemHealth['active_langs_count'] ?? 1), t('Активные языки')) ?>
+    <?= $statCard('/admin/repository', 'download', 'success', (int) ($counts['repo_downloads'] ?? 0), t('Скачиваний репозитория'),
+        (int) ($counts['repo_files'] ?? 0) . ' ' . t('файлов')) ?>
 </div>
 
-<div class="dashboard-grid u-inline-8b9688e6e0">
+<div class="dashboard-grid">
     <!-- Виджет: Статус и безопасность системы -->
     <div class="form-card">
-        <div class="u-inline-359c202582">
-            <h3 class="u-inline-1da9facb4d"><?= htmlspecialchars(t('Статус системы'), ENT_QUOTES) ?></h3>
-            <?php if ($canManageAudit): ?>
-                <a href="/admin/security" class="btn btn--small u-inline-e71ae94b55"><?= htmlspecialchars(t('Безопасность'), ENT_QUOTES) ?> →</a>
-            <?php endif; ?>
-        </div>
-        <div class="u-inline-6435a88594">
-            <div class="u-inline-4588dc62ed">
-                <div class="form-hint u-inline-48b8779b18"><?= htmlspecialchars(t('Версия PHP'), ENT_QUOTES) ?></div>
-                <strong class="u-inline-ca55bb2c16"><?= htmlspecialchars((string) ($systemHealth['php_version'] ?? PHP_VERSION), ENT_QUOTES) ?></strong>
-            </div>
-            <div class="u-inline-4588dc62ed">
-                <div class="form-hint u-inline-48b8779b18"><?= htmlspecialchars(t('База данных'), ENT_QUOTES) ?></div>
-                <span class="badge badge--published badge--small"><?= \App\Core\AdminUi::icon('check', 13) ?> <?= htmlspecialchars(t('Подключена'), ENT_QUOTES) ?></span>
-            </div>
-            <div class="u-inline-4588dc62ed">
-                <div class="form-hint u-inline-48b8779b18"><?= htmlspecialchars(t('Защита 2FA / Telegram'), ENT_QUOTES) ?></div>
-                <?php if (!empty($systemHealth['telegram_linked'])): ?>
-                    <span class="badge badge--published badge--small"><?= \App\Core\AdminUi::icon('check', 13) ?> <?= htmlspecialchars(t('Активна'), ENT_QUOTES) ?></span>
-                <?php else: ?>
-                    <span class="badge badge--draft badge--small"><?= htmlspecialchars(t('Не настроена'), ENT_QUOTES) ?></span>
-                <?php endif; ?>
-            </div>
-            <div class="u-inline-4588dc62ed">
-                <div class="form-hint u-inline-48b8779b18"><?= htmlspecialchars(t('Очередь задач'), ENT_QUOTES) ?></div>
-                <span class="badge badge--published badge--small"><?= \App\Core\AdminUi::icon('check', 13) ?> <?= (int) ($systemHealth['queue_pending'] ?? 0) ?> <?= htmlspecialchars(t('в очереди'), ENT_QUOTES) ?></span>
-            </div>
-            <div class="u-inline-4588dc62ed">
-                <div class="form-hint u-inline-48b8779b18"><?= htmlspecialchars(t('Ошибки очереди'), ENT_QUOTES) ?></div>
-                <?php $queueFailed = (int) ($systemHealth['queue_failed'] ?? 0); ?>
-                <span class="badge <?= $queueFailed > 0 ? 'badge--draft' : 'badge--published' ?> badge--small"><?= \App\Core\AdminUi::icon($queueFailed > 0 ? 'alert-triangle' : 'check', 13) ?> <?= $queueFailed ?></span>
-            </div>
-            <div class="u-inline-4588dc62ed">
-                <div class="form-hint u-inline-48b8779b18"><?= htmlspecialchars(t('Обслуживание'), ENT_QUOTES) ?></div>
-                <?php if (!empty($systemHealth['maintenance'])): ?>
-                    <span class="badge badge--draft badge--small"><?= htmlspecialchars(t('Включён'), ENT_QUOTES) ?></span>
-                <?php else: ?>
-                    <span class="badge badge--published badge--small"><?= htmlspecialchars(t('Выключен'), ENT_QUOTES) ?></span>
-                <?php endif; ?>
-            </div>
+        <?= AdminUi::cardHeader(
+            t('Статус системы'),
+            'server',
+            'var(--admin-info)',
+            $canManageAudit
+                ? '<a href="/admin/security" class="btn btn--small">' . $esc(t('Безопасность')) . ' →</a>'
+                : ''
+        ) ?>
+        <div class="dash-status">
+            <?= $statusRow('brand-php', t('Версия PHP'), '<span>' . $esc((string) ($systemHealth['php_version'] ?? PHP_VERSION)) . '</span>') ?>
+            <?= $statusRow('database', t('База данных'), $stateBadge(true, t('Подключена'))) ?>
+            <?= $statusRow('shield-lock', t('Защита 2FA / Telegram'), $stateBadge(
+                !empty($systemHealth['telegram_linked']),
+                !empty($systemHealth['telegram_linked']) ? t('Активна') : t('Не настроена')
+            )) ?>
+            <?= $statusRow('list-check', t('Очередь задач'), $stateBadge(
+                true,
+                (int) ($systemHealth['queue_pending'] ?? 0) . ' ' . t('в очереди')
+            )) ?>
+            <?= $statusRow('alert-triangle', t('Ошибки очереди'), $stateBadge($queueFailed === 0, (string) $queueFailed)) ?>
+            <?= $statusRow('tool', t('Обслуживание'), $stateBadge(
+                empty($systemHealth['maintenance']),
+                empty($systemHealth['maintenance']) ? t('Выключен') : t('Включён')
+            )) ?>
         </div>
     </div>
 
     <?php if ($canManageSubmissions): ?>
     <!-- Виджет: Последние поступившие заявки с сайта -->
     <div class="form-card">
-        <div class="u-inline-359c202582">
-            <h3 class="u-inline-1da9facb4d"><?= htmlspecialchars(t('Последние заявки'), ENT_QUOTES) ?></h3>
-            <a href="/admin/forms/submissions" class="btn btn--small u-inline-e71ae94b55"><?= htmlspecialchars(t('Все заявки'), ENT_QUOTES) ?> →</a>
-        </div>
+        <?= AdminUi::cardHeader(
+            t('Последние заявки'),
+            'inbox',
+            'var(--admin-accent)',
+            '<a href="/admin/forms/submissions" class="btn btn--small">' . $esc(t('Все заявки')) . ' →</a>'
+        ) ?>
         <?php if (empty($recentSubmissions)): ?>
-            <p class="form-hint u-inline-45517d35ab"><?= htmlspecialchars(t('Заявок пока не поступало.'), ENT_QUOTES) ?></p>
+            <p class="form-hint"><?= $esc(t('Заявок пока не поступало.')) ?></p>
         <?php else: ?>
-            <div class="u-inline-1745561f5c">
+            <div class="dash-list">
                 <?php foreach ($recentSubmissions as $sub): ?>
                     <?php
                     $isUnread = (int) ($sub['is_read'] ?? 0) === 0;
@@ -140,17 +158,19 @@ require __DIR__ . '/layout/header.php';
                     );
                     $previewText = implode(' • ', $previewValues);
                     ?>
-                    <a class="u-inline-729013516a" href="/admin/forms/submissions/<?= (int) $sub['id'] ?>">
-                        <div class="u-inline-4e8f89004d">
-                            <strong class="u-inline-ffcf89af9c"><?= htmlspecialchars((string) ($sub['form_title'] ?? t('Форма')), ENT_QUOTES) ?></strong>
-                            <span class="form-hint u-inline-33d0b17b27"><?= htmlspecialchars($previewText !== '' ? $previewText : '—', ENT_QUOTES) ?></span>
-                        </div>
-                        <div class="u-inline-a527bac1ee">
+                    <a class="dash-list__item" href="/admin/forms/submissions/<?= (int) $sub['id'] ?>">
+                        <span class="dash-list__main">
+                            <span class="dash-list__text">
+                                <span class="dash-list__title"><?= $esc($sub['form_title'] ?? t('Форма')) ?></span>
+                                <span class="dash-list__meta"><?= $esc($previewText !== '' ? $previewText : '—') ?></span>
+                            </span>
+                        </span>
+                        <span class="dash-list__side">
                             <?php if ($isUnread): ?>
-                                <span class="badge badge--draft badge--small"><?= htmlspecialchars(t('Новая'), ENT_QUOTES) ?></span>
+                                <span class="badge badge--draft badge--small"><?= $esc(t('Новая')) ?></span>
                             <?php endif; ?>
-                            <span class="form-hint u-inline-083bdc9269"><?= \App\Core\DateFormatter::format((string) $sub['created_at'], 'd.m H:i') ?></span>
-                        </div>
+                            <span class="dash-list__time"><?= DateFormatter::format((string) $sub['created_at'], 'd.m H:i') ?></span>
+                        </span>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -159,66 +179,10 @@ require __DIR__ . '/layout/header.php';
     <?php endif; ?>
 </div>
 
-<!-- Виджет: Поисковые запросы по сайту за последние 30 дней -->
-<?php if (!empty($popularSearches)): ?>
-<div class="form-card u-inline-8b9688e6e0">
-    <h3 class="u-inline-291b7bbb01"><?= htmlspecialchars(t('Популярные поиски на сайте'), ENT_QUOTES) ?></h3>
-    <p class="form-hint"><?= htmlspecialchars(t('Что посетители чаще всего ищут через внутренний поиск за 30 дней.'), ENT_QUOTES) ?></p>
-    <div class="u-inline-d15aa4f40a">
-        <?php foreach ($popularSearches as $s): ?>
-            <?php
-            $q = (string) $s['query'];
-            $cnt = (int) $s['searches_count'];
-            $resCnt = (int) $s['last_results_count'];
-            ?>
-            <div class="u-inline-3df38c3cc4">
-                <?= \App\Core\AdminUi::icon('search', 13, 'btn__icon', 2.5) ?>
-                <strong>«<?= htmlspecialchars($q, ENT_QUOTES) ?>»</strong>
-                <span class="badge badge--small"><?= $cnt ?> <?= htmlspecialchars(t('запросов'), ENT_QUOTES) ?></span>
-                <?php if ($resCnt === 0): ?>
-                    <span class="badge badge--draft badge--small"><?= htmlspecialchars(t('0 результатов'), ENT_QUOTES) ?></span>
-                <?php endif; ?>
-            </div>
-        <?php endforeach; ?>
-    </div>
-</div>
-<?php endif; ?>
-
-<!-- Виджет: Самые читаемые новости за период -->
-<?php if (!empty($topReadNews)): ?>
-<div class="form-card u-inline-8b9688e6e0">
-    <div class="u-inline-359c202582">
-        <div>
-            <h3 class="u-inline-1da9facb4d"><?= htmlspecialchars(t('Самые читаемые новости'), ENT_QUOTES) ?></h3>
-            <p class="form-hint u-inline-6749c87a10"><?= htmlspecialchars(t('Наибольшее число просмотров среди читателей за последние 30 дней.'), ENT_QUOTES) ?></p>
-        </div>
-        <a href="/admin/news" class="btn btn--small u-inline-e71ae94b55"><?= htmlspecialchars(t('Все новости'), ENT_QUOTES) ?> →</a>
-    </div>
-    <div class="u-inline-1745561f5c">
-        <?php foreach ($topReadNews as $idx => $n): ?>
-            <a class="u-inline-232f3d8dee" href="/admin/news/<?= (int) $n['id'] ?>/edit">
-                <div class="u-inline-c76ba7ebe2">
-                    <span class="u-inline-ad45a8dba2">#<?= $idx + 1 ?></span>
-                    <div class="u-inline-1a3ecb21b1">
-                        <strong class="u-inline-86c549d021"><?= htmlspecialchars((string) $n['title'], ENT_QUOTES) ?></strong>
-                        <span class="form-hint u-inline-33d0b17b27"><?= \App\Core\DateFormatter::format((string) ($n['published_at'] ?? 'now'), 'd.m.Y') ?></span>
-                    </div>
-                </div>
-                <div>
-                    <span class="badge badge--published u-inline-5888fddfc8">
-                        <?= \App\Core\AdminUi::icon('eye', 14) ?> <?= number_format((int) ($n['period_views'] ?? 0), 0, '.', ' ') ?> <?= htmlspecialchars(t('просмотров'), ENT_QUOTES) ?>
-                    </span>
-                </div>
-            </a>
-        <?php endforeach; ?>
-    </div>
-</div>
-<?php endif; ?>
-
 <?php if (!empty($recentItems)): ?>
-<div class="form-card continue-card u-inline-8b9688e6e0">
-    <h3 class="u-inline-291b7bbb01"><?= htmlspecialchars(t('Продолжить работу'), ENT_QUOTES) ?></h3>
-    <p class="form-hint"><?= htmlspecialchars(t('Последние материалы, которые редактировались.'), ENT_QUOTES) ?></p>
+<div class="form-card continue-card">
+    <?= AdminUi::cardHeader(t('Продолжить работу'), 'history', 'var(--admin-violet)') ?>
+    <p class="form-hint"><?= $esc(t('Последние материалы, которые редактировались.')) ?></p>
     <div class="continue-list">
         <?php foreach ($recentItems as $item): ?>
             <?php
@@ -226,11 +190,11 @@ require __DIR__ . '/layout/header.php';
             $editUrl = ($isNews ? '/admin/news/' : '/admin/pages/') . (int) $item['id'] . '/edit';
             $isDraft = ($item['status'] ?? '') === 'draft';
             ?>
-            <a href="<?= htmlspecialchars($editUrl, ENT_QUOTES) ?>" class="continue-item">
-                <span class="continue-item__kind"><?= $isNews ? htmlspecialchars(t('Новость'), ENT_QUOTES) : htmlspecialchars(t('Страница'), ENT_QUOTES) ?></span>
-                <span class="continue-item__title"><?= htmlspecialchars((string) $item['title'], ENT_QUOTES) ?></span>
-                <span class="badge <?= $isDraft ? 'badge--draft' : 'badge--published' ?>"><?= $isDraft ? htmlspecialchars(t('Черновик'), ENT_QUOTES) : htmlspecialchars(t('Опубликовано'), ENT_QUOTES) ?></span>
-                <span class="continue-item__time"><?= \App\Core\DateFormatter::format((string) $item['updated_at'], 'd.m.Y H:i') ?></span>
+            <a href="<?= $esc($editUrl) ?>" class="continue-item">
+                <span class="continue-item__kind"><?= $isNews ? $esc(t('Новость')) : $esc(t('Страница')) ?></span>
+                <span class="continue-item__title"><?= $esc($item['title']) ?></span>
+                <span class="badge <?= $isDraft ? 'badge--draft' : 'badge--published' ?>"><?= $isDraft ? $esc(t('Черновик')) : $esc(t('Опубликовано')) ?></span>
+                <span class="continue-item__time"><?= DateFormatter::format((string) $item['updated_at'], 'd.m.Y H:i') ?></span>
             </a>
         <?php endforeach; ?>
     </div>
@@ -252,52 +216,37 @@ $i = 0;
 foreach ($chartData as $date => $count) {
     $x = $padding + $i * $xStep;
     $y = $padding + $chartHeight - ($count / $maxVal) * $chartHeight;
-    $points[] = "$x,$y";
+    $points[] = [$x, $y];
     $i++;
 }
-$pointsStr = implode(' ', $points);
-$fillPointsStr = "$padding," . ($height - $padding) . " $pointsStr " . ($width - $padding) . "," . ($height - $padding);
+$pointsStr = implode(' ', array_map(static fn (array $p): string => $p[0] . ',' . $p[1], $points));
+$fillPointsStr = $padding . ',' . ($height - $padding) . ' ' . $pointsStr . ' ' . ($width - $padding) . ',' . ($height - $padding);
 ?>
 <div class="dashboard-grid">
     <?php if ($canManageSubmissions): ?>
     <div class="form-card">
-        <h3 class="u-inline-291b7bbb01"><?= htmlspecialchars(t('Активность заявок'), ENT_QUOTES) ?></h3>
-        <p class="form-hint"><?= htmlspecialchars(t('Число заполненных форм обратной связи за последние 7 дней.'), ENT_QUOTES) ?></p>
-        <div class="u-inline-4238d06251">
-            <svg class="u-inline-c842ae9ef5" viewBox="0 0 500 220" width="100%" height="100%">
+        <?= AdminUi::cardHeader(t('Активность заявок'), 'chart-line', 'var(--admin-accent)') ?>
+        <p class="form-hint"><?= $esc(t('Число заполненных форм обратной связи за последние 7 дней.')) ?></p>
+        <div class="dash-chart">
+            <svg class="dash-chart__svg" viewBox="0 0 500 220" role="img"
+                 aria-label="<?= $esc(t('Число заполненных форм обратной связи за последние 7 дней.')) ?>">
                 <defs>
                     <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stop-color="var(--admin-accent)" stop-opacity="0.3"></stop>
                         <stop offset="100%" stop-color="var(--admin-accent)" stop-opacity="0"></stop>
                     </linearGradient>
                 </defs>
-                <!-- Grid Lines -->
                 <?php for ($grid = 0; $grid <= 4; $grid++): ?>
                     <?php $gy = $padding + ($chartHeight / 4) * $grid; ?>
                     <line x1="<?= $padding ?>" y1="<?= $gy ?>" x2="<?= $width - $padding ?>" y2="<?= $gy ?>" stroke="var(--admin-border)" stroke-width="1" stroke-dasharray="4,4"></line>
                 <?php endfor; ?>
-                <!-- Filled Area -->
                 <polygon points="<?= $fillPointsStr ?>" fill="url(#chartGrad)"></polygon>
-                <!-- Line -->
                 <polyline points="<?= $pointsStr ?>" fill="none" stroke="var(--admin-accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>
-                <!-- Data Points -->
                 <?php $i = 0; foreach ($chartData as $date => $count): ?>
-                    <?php 
-                    $parts = explode(',', $points[$i]); 
-                    $cx = (float) $parts[0];
-                    $cy = (float) $parts[1];
-                    ?>
+                    <?php [$cx, $cy] = $points[$i]; ?>
                     <circle cx="<?= $cx ?>" cy="<?= $cy ?>" r="5" fill="var(--admin-surface)" stroke="var(--admin-accent)" stroke-width="2"></circle>
-                    <text x="<?= $cx ?>" y="<?= $cy - 10.0 ?>" font-size="10" font-weight="700" fill="var(--admin-text)" text-anchor="middle"><?= $count ?></text>
-                <?php $i++; endforeach; ?>
-                <!-- X Labels -->
-                <?php $i = 0; foreach ($chartData as $date => $count): ?>
-                    <?php 
-                    $parts = explode(',', $points[$i]); 
-                    $cx = $parts[0];
-                    $label = \App\Core\DateFormatter::format($date, 'd.m');
-                    ?>
-                    <text x="<?= $cx ?>" y="<?= $height - $padding + 18 ?>" font-size="10" fill="var(--admin-muted)" text-anchor="middle"><?= $label ?></text>
+                    <text class="dash-chart__value" x="<?= $cx ?>" y="<?= $cy - 10.0 ?>" text-anchor="middle"><?= (int) $count ?></text>
+                    <text class="dash-chart__axis" x="<?= $cx ?>" y="<?= $height - $padding + 18 ?>" text-anchor="middle"><?= $esc(DateFormatter::format((string) $date, 'd.m')) ?></text>
                 <?php $i++; endforeach; ?>
             </svg>
         </div>
@@ -306,26 +255,26 @@ $fillPointsStr = "$padding," . ($height - $padding) . " $pointsStr " . ($width -
 
     <?php if ($canManageAudit): ?>
     <div class="form-card">
-        <h3 class="u-inline-291b7bbb01"><?= htmlspecialchars(t('Журнал действий'), ENT_QUOTES) ?></h3>
-        <p class="form-hint"><?= htmlspecialchars(t('Последние действия администраторов в панели управления.'), ENT_QUOTES) ?></p>
-        <div class="activity-feed u-inline-8a359a76eb">
+        <?= AdminUi::cardHeader(t('Журнал действий'), 'activity', 'var(--admin-neutral)') ?>
+        <p class="form-hint"><?= $esc(t('Последние действия администраторов в панели управления.')) ?></p>
+        <div class="activity-feed">
             <?php if (empty($recentLogs)): ?>
-                <p class="form-hint u-inline-1da9facb4d"><?= htmlspecialchars(t('Действий пока нет.'), ENT_QUOTES) ?></p>
+                <p class="form-hint"><?= $esc(t('Действий пока нет.')) ?></p>
             <?php else: ?>
                 <?php foreach ($recentLogs as $log): ?>
                     <div class="activity-item">
                         <div class="activity-item__meta">
-                            <strong><?= htmlspecialchars((string) ($log['username'] ?? 'System'), ENT_QUOTES) ?></strong>
-                            <span class="activity-item__time"><?= \App\Core\DateFormatter::format((string) $log['created_at'], 'H:i d.m.Y') ?></span>
+                            <strong><?= $esc($log['username'] ?? 'System') ?></strong>
+                            <span class="activity-item__time"><?= DateFormatter::format((string) $log['created_at'], 'H:i d.m.Y') ?></span>
                         </div>
                         <div class="activity-item__desc">
                             <?php $m = strtoupper((string) ($log['method'] ?? '')); ?>
-                            <span class="activity-item__badge activity-item__badge--<?= strtolower($m) ?>"><?= htmlspecialchars($m, ENT_QUOTES) ?></span>
+                            <span class="activity-item__badge activity-item__badge--<?= strtolower($m) ?>"><?= $esc($m) ?></span>
                             <?php if ($m === 'AUTH'): ?>
                                 <?php $authMeta = \App\Models\AuditLog::authEventMeta((string) ($log['path'] ?? '')); ?>
-                                <span><?= htmlspecialchars($authMeta['label'], ENT_QUOTES) ?></span>
+                                <span><?= $esc($authMeta['label']) ?></span>
                             <?php else: ?>
-                                <code><?= htmlspecialchars((string) ($log['path'] ?? ''), ENT_QUOTES) ?></code>
+                                <code><?= $esc($log['path'] ?? '') ?></code>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -337,40 +286,88 @@ $fillPointsStr = "$padding," . ($height - $padding) . " $pointsStr " . ($width -
 </div>
 <?php endif; ?>
 
-<?php if (!empty($topRepoDownloads)): ?>
-<div class="form-card u-inline-e6e3fab9a5">
-    <div class="form-card__header">
-        <h3><?= \App\Core\AdminUi::icon('download', 18) ?> <?= htmlspecialchars(t('Популярные файлы репозитория'), ENT_QUOTES) ?></h3>
-        <a href="/admin/repository" class="btn btn--small"><?= htmlspecialchars(t('Перейти в репозиторий'), ENT_QUOTES) ?> →</a>
-    </div>
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th><?= htmlspecialchars(t('Название документа'), ENT_QUOTES) ?></th>
-                    <th><?= htmlspecialchars(t('Скачиваний'), ENT_QUOTES) ?></th>
-                    <th><?= htmlspecialchars(t('Дата публикации'), ENT_QUOTES) ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($topRepoDownloads as $doc): ?>
-                    <tr>
-                        <td>
-                            <strong><a href="/repo/download/<?= (int) $doc['id'] ?>" target="_blank"><?= htmlspecialchars((string) $doc['title'], ENT_QUOTES) ?></a></strong>
-                            <br><small class="text-muted"><?= htmlspecialchars((string) $doc['original_name'], ENT_QUOTES) ?></small>
-                        </td>
-                        <td>
-                            <span class="badge badge--success"><?= (int) $doc['download_count'] ?></span>
-                        </td>
-                        <td class="text-muted">
-                            <?= \App\Core\DateFormatter::format((string) $doc['created_at'], 'd.m.Y') ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+<?php if (!empty($topReadNews)): ?>
+<div class="form-card">
+    <?= AdminUi::cardHeader(
+        t('Самые читаемые новости'),
+        'eye',
+        'var(--admin-success)',
+        '<a href="/admin/news" class="btn btn--small">' . $esc(t('Все новости')) . ' →</a>'
+    ) ?>
+    <p class="form-hint"><?= $esc(t('Наибольшее число просмотров среди читателей за последние 30 дней.')) ?></p>
+    <div class="dash-list">
+        <?php foreach ($topReadNews as $idx => $n): ?>
+            <a class="dash-list__item" href="/admin/news/<?= (int) $n['id'] ?>/edit">
+                <span class="dash-list__main">
+                    <span class="dash-list__rank"><?= (int) $idx + 1 ?></span>
+                    <span class="dash-list__text">
+                        <span class="dash-list__title"><?= $esc($n['title']) ?></span>
+                        <span class="dash-list__meta"><?= DateFormatter::format((string) ($n['published_at'] ?? 'now'), 'd.m.Y') ?></span>
+                    </span>
+                </span>
+                <span class="dash-list__side">
+                    <span class="badge badge--published badge--small"
+                          title="<?= $esc(t('просмотров')) ?>"
+                          aria-label="<?= $esc(number_format((int) ($n['period_views'] ?? 0), 0, '.', ' ') . ' ' . t('просмотров')) ?>">
+                        <?= AdminUi::icon('eye', 13) ?> <?= $esc(number_format((int) ($n['period_views'] ?? 0), 0, '.', ' ')) ?>
+                    </span>
+                </span>
+            </a>
+        <?php endforeach; ?>
     </div>
 </div>
 <?php endif; ?>
+
+<?php if (!empty($popularSearches)): ?>
+<div class="form-card">
+    <?= AdminUi::cardHeader(t('Популярные поиски на сайте'), 'search', 'var(--admin-info)') ?>
+    <p class="form-hint"><?= $esc(t('Что посетители чаще всего ищут через внутренний поиск за 30 дней.')) ?></p>
+    <div class="dash-tags">
+        <?php foreach ($popularSearches as $s): ?>
+            <?php $resCnt = (int) $s['last_results_count']; ?>
+            <span class="dash-tag">
+                <span class="dash-tag__icon" aria-hidden="true"><?= AdminUi::icon('search', 16) ?></span>
+                <strong>«<?= $esc($s['query']) ?>»</strong>
+                <span class="badge badge--small"><?= (int) $s['searches_count'] ?> <?= $esc(t('запросов')) ?></span>
+                <?php if ($resCnt === 0): ?>
+                    <span class="badge badge--draft badge--small"><?= $esc(t('0 результатов')) ?></span>
+                <?php endif; ?>
+            </span>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if (!empty($topRepoDownloads)): ?>
+<div class="form-card">
+    <?= AdminUi::cardHeader(
+        t('Популярные файлы репозитория'),
+        'download',
+        'var(--admin-success)',
+        '<a href="/admin/repository" class="btn btn--small">' . $esc(t('Перейти в репозиторий')) . ' →</a>'
+    ) ?>
+    <div class="dash-list">
+        <?php foreach ($topRepoDownloads as $doc): ?>
+            <a class="dash-list__item" href="/repo/download/<?= (int) $doc['id'] ?>" target="_blank" rel="noopener">
+                <span class="dash-list__main">
+                    <span class="dash-list__text">
+                        <span class="dash-list__title"><?= $esc($doc['title']) ?></span>
+                        <span class="dash-list__meta"><?= $esc($doc['original_name']) ?></span>
+                    </span>
+                </span>
+                <span class="dash-list__side">
+                    <span class="badge badge--published badge--small"
+                          aria-label="<?= $esc((int) $doc['download_count'] . ' ' . t('скачиваний')) ?>">
+                        <?= AdminUi::icon('download', 13) ?> <?= (int) $doc['download_count'] ?>
+                    </span>
+                    <span class="dash-list__time"><?= DateFormatter::format((string) $doc['created_at'], 'd.m.Y') ?></span>
+                </span>
+            </a>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>
+
+</div>
 
 <?php require __DIR__ . '/layout/footer.php'; ?>
