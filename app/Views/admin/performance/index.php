@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\AdminUi;
 use App\Core\Csrf;
 
 $pageTitle = 'Производительность';
@@ -370,16 +371,11 @@ $size = static function (mixed $bytes): string {
                 <input type="checkbox" name="cf_enabled" value="1" <?= $val('cf_enabled') === '1' ? 'checked' : '' ?>>
                 <span class="hb-switch__track"></span> Включить интеграцию с Cloudflare
             </label>
-            <div class="form-field">
-                <label for="cf_api_token">API-токен</label>
-                <input type="password" id="cf_api_token" name="cf_api_token" value=""
-                       maxlength="5000"
-                       placeholder="<?= $cfTokenConfigured ? 'Сохранён — оставьте пустым без изменений' : 'cf_xxx' ?>"
-                       autocomplete="new-password">
-                <?php if ($cfTokenConfigured): ?>
-                    <label class="form-hint"><input type="checkbox" name="clear_cf_api_token" value="1"> Удалить API-токен</label>
-                <?php endif; ?>
-            </div>
+            <?= AdminUi::secretField('cf_api_token', 'API-токен', $cfTokenConfigured, [
+                'placeholder' => 'cf_xxx',
+                'maxlength' => 5000,
+                'clearLabel' => 'Удалить API-токен',
+            ]) ?>
             <div class="form-field">
                 <label for="cf_zone_id">Zone ID</label>
                 <input type="text" id="cf_zone_id" name="cf_zone_id" maxlength="32"

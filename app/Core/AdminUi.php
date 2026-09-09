@@ -360,6 +360,60 @@ final class AdminUi
     }
 
     /**
+     * Поле секрета (API-ключ, токен, пароль).
+     *
+     * Значение из базы в форму не возвращается — иначе ключ уезжал бы в HTML
+     * каждой отрисовки страницы и попадал бы в менеджер паролей браузера. Но
+     * пустое поле выглядит как незаполненное, и владелец не мог отличить
+     * «ключ сохранён» от «ключа нет»: оба состояния рисовались одинаковой
+     * пустой строкой. Поэтому состояние объявляется дважды и явно — значком
+     * рядом с подписью и точками в самом поле, — а `value` остаётся пустым:
+     * договор «пусто = оставить сохранённое» читают все контроллеры, и маска
+     * в значении рано или поздно ушла бы в базу как настоящий токен.
+     *
+     * @param array{hint?:string,placeholder?:string,maxlength?:int,clearName?:string,clearLabel?:string,canClear?:bool,class?:string} $opts
+     */
+    public static function secretField(string $name, string $label, bool $isSet, array $opts = []): string
+    {
+        $esc = static fn (string $s): string => htmlspecialchars($s, ENT_QUOTES);
+        $hint = (string) ($opts['hint'] ?? '');
+        $placeholder = $isSet
+            ? str_repeat('•', 24)
+            : (string) ($opts['placeholder'] ?? '');
+        $maxlength = (int) ($opts['maxlength'] ?? 0);
+        $clearName = (string) ($opts['clearName'] ?? 'clear_' . $name);
+        $clearLabel = (string) ($opts['clearLabel'] ?? 'Удалить сохранённое значение');
+        $canClear = (bool) ($opts['canClear'] ?? true);
+
+        $badge = $isSet
+            ? '<span class="badge badge--published">' . self::icon('check', 12) . ' сохранён</span>'
+            : '<span class="badge badge--draft">' . self::icon('info', 12) . ' не задан</span>';
+
+        $extraClass = trim((string) ($opts['class'] ?? ''));
+        $html = '<div class="form-field secretfield' . ($isSet ? ' is-set' : '')
+            . ($extraClass !== '' ? ' ' . $esc($extraClass) : '') . '">';
+        $html .= '<label for="' . $esc($name) . '">' . $esc($label) . ' ' . $badge . '</label>';
+        $html .= '<input type="password" class="secretfield__input" id="' . $esc($name) . '" name="' . $esc($name) . '"'
+            . ' value=""'
+            . ($maxlength > 0 ? ' maxlength="' . $maxlength . '"' : '')
+            . ' placeholder="' . $esc($placeholder) . '"'
+            . ' autocomplete="new-password" spellcheck="false">';
+        if ($isSet) {
+            $html .= '<span class="form-hint">Ключ сохранён и скрыт. Оставьте поле пустым — сохранённое значение не изменится.</span>';
+        }
+        if ($hint !== '') {
+            $html .= '<span class="form-hint">' . $hint . '</span>';
+        }
+        if ($isSet && $canClear) {
+            $html .= '<label class="form-hint secretfield__clear"><input type="checkbox" name="' . $esc($clearName)
+                . '" value="1"> ' . $esc($clearLabel) . '</label>';
+        }
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    /**
      * Интерактивный умный виджет выбора фокальной точки (UI/UX Pro Max).
      * Позволяет кликать прямо по изображению, выбирать готовые пресеты из сетки 3x3
      * и мгновенно видеть точное кадрирование.

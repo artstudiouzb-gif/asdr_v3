@@ -183,15 +183,11 @@ require __DIR__ . '/../layout/header.php';
                            placeholder="no-reply@agency.gov.uz">
                 </div>
 
-                <div class="form-field col-12">
-                    <label for="smtp_password">Пароль SMTP (или пароль приложения)</label>
-                    <input type="password" id="smtp_password" name="smtp_password"
-                           value="" autocomplete="new-password"
-                           placeholder="<?= !empty($settings['smtp_password']) ? 'Сохранён — оставьте пустым без изменений' : 'Введите пароль SMTP' ?>">
-                    <?php if (!empty($settings['smtp_password'])): ?>
-                        <label class="form-hint"><input type="checkbox" name="clear_smtp_password" value="1"> Удалить сохранённый пароль</label>
-                    <?php endif; ?>
-                </div>
+                <?= AdminUi::secretField('smtp_password', 'Пароль SMTP (или пароль приложения)', !empty($settings['smtp_password']), [
+                    'placeholder' => 'Введите пароль SMTP',
+                    'clearLabel' => 'Удалить сохранённый пароль',
+                    'class' => 'col-12',
+                ]) ?>
 
                 <div class="form-field col-6">
                     <label for="smtp_from_email">Email отправителя (From Email)</label>
@@ -328,15 +324,12 @@ require __DIR__ . '/../layout/header.php';
             </div>
 
             <div class="form-grid-12">
-                <div class="form-field col-12">
-                    <label for="ai_api_key">Ключ API (Google Gemini API Key)</label>
-                    <input type="password" id="ai_api_key" name="ai_api_key" value=""
-                           placeholder="<?= !empty($settings['ai_api_key']) ? 'Сохранён — оставьте пустым без изменений' : 'AIzaSy...' ?>">
-                    <?php if (!empty($settings['ai_api_key'])): ?>
-                        <label class="form-hint"><input type="checkbox" name="clear_ai_api_key" value="1"> Удалить сохранённый ключ</label>
-                    <?php endif; ?>
-                    <span class="form-hint">Вставьте ключ из <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.</span>
-                </div>
+                <?= AdminUi::secretField('ai_api_key', 'Ключ API (Google Gemini API Key)', !empty($settings['ai_api_key']), [
+                    'placeholder' => 'AIzaSy...',
+                    'hint' => 'Вставьте ключ из <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.',
+                    'clearLabel' => 'Удалить сохранённый ключ',
+                    'class' => 'col-12',
+                ]) ?>
             </div>
         </section>
 
