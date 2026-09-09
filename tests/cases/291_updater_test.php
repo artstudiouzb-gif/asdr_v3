@@ -298,8 +298,15 @@ test('Репозиторий обновления берётся из окруж
     assert_contains("getenv('UPDATE_REPO')", $updater);
     assert_false(str_contains($updater, 'Setting::get'), 'адрес репозитория читается из БД');
 
+    // Само умолчание здесь не называем: второй его копии не место — она
+    // разъедется с первой ровно так, как разъехалась при переезде на asdr_v3.
+    // Проверяем поведение: мусор обязан откатиться к умолчанию, каким бы оно
+    // ни было (а что оно верное, сверяет тест 363 — по origin репозитория).
     putenv('UPDATE_REPO=someone/evil repo');
-    assert_same('artstudiouzb-gif/asdr_v2', Updater::repo(), 'принято мусорное имя репозитория');
+    $onGarbage = Updater::repo();
+    putenv('UPDATE_REPO');
+    assert_same(Updater::repo(), $onGarbage, 'принято мусорное имя репозитория');
+
     putenv('UPDATE_REPO=other-org/other-cms');
     assert_same('other-org/other-cms', Updater::repo());
     putenv('UPDATE_REPO');
