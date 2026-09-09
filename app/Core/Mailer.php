@@ -57,7 +57,22 @@ final class Mailer
         return $this->lastError;
     }
 
+    /**
+     * Отправка письма.
+     *
+     * Исход записывается обёрткой, а не в каждой из пяти точек выхода: пятая
+     * копия одного и того же вызова рано или поздно осталась бы без него, и
+     * именно тот отказ, ради которого память заводилась, остался бы незаписан.
+     */
     public function send(string $toEmail, string $subject, string $body, ?string $toName = null): bool
+    {
+        $ok = $this->deliver($toEmail, $subject, $body, $toName);
+        IntegrationStatus::record('mail', $ok, (string) $this->lastError, 'отправка письма');
+
+        return $ok;
+    }
+
+    private function deliver(string $toEmail, string $subject, string $body, ?string $toName = null): bool
     {
         $this->lastError = null;
 

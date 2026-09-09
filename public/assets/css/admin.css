@@ -3528,6 +3528,51 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
     word-break: break-all;
 }
 .cdn-check__note { color: var(--admin-muted); }
+
+/* Состояние системы: строка факта читается сверху вниз — что проверяли,
+   каков ответ, что делать. Состояние даёт и бейдж, и цветная грань слева:
+   одним цветом различать «в порядке» и «не работает» нельзя — дальтонизм. */
+.health-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    background: var(--admin-surface);
+    font-size: var(--admin-fs-lg);
+    font-weight: var(--admin-fw-semibold);
+    color: var(--admin-text);
+}
+.health-summary--ok { border-left: 4px solid var(--admin-success); }
+.health-summary--warn { border-left: 4px solid var(--admin-warning); }
+.health-summary--fail { border-left: 4px solid var(--admin-danger); }
+.health-summary--unknown { border-left: 4px solid var(--admin-muted); }
+.health-list { display: flex; flex-direction: column; gap: 2px; }
+.health-row {
+    padding: 12px 14px;
+    border-top: 1px solid var(--admin-border);
+    border-left: 3px solid transparent;
+}
+.health-row:first-child { border-top: 0; }
+.health-row--ok { border-left-color: var(--admin-success); }
+.health-row--warn { border-left-color: var(--admin-warning); }
+.health-row--fail { border-left-color: var(--admin-danger); }
+.health-row--unknown { border-left-color: var(--admin-border); }
+.health-row__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.health-row__title {
+    font-weight: var(--admin-fw-semibold);
+    color: var(--admin-text);
+}
+.health-row__value { color: var(--admin-text); font-size: var(--admin-fs-sm); }
+.health-row__hint { margin-top: 4px; color: var(--admin-muted); font-size: var(--admin-fs-sm); }
 .hero-overlay-mode {
     margin-bottom: 16px;
     padding: 0;
