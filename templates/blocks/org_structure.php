@@ -106,8 +106,9 @@ if ($branches !== []) {
 
 // Число колонок ряда и размер шрифта уходят в scoped CSS блока.
 $templateCss = '';
-$fontSize = (int) ($data['font_size'] ?? 0);
-if ($fontSize >= 10 && $fontSize <= 24) {
+// Значение уже из набора схемы, перепроверять нечего; 0 — «как в теме».
+$fontSize = (int) $data['font_size'];
+if ($fontSize > 0) {
     $templateCss .= '#block-' . $blockId . ' .orgstruct{--org-font-size:' . $fontSize . 'px}';
 }
 foreach ($rows as $rowIndex => $row) {
