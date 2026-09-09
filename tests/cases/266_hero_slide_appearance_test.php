@@ -18,7 +18,14 @@ test('У слайда осталось только то, что зависит 
     // фотография, наложение поверх неё и цвет текста — они и остались.
     $fields = array_keys(HeroSlideData::defaults());
 
-    foreach (['overlay', 'overlay_color', 'overlay_opacity', 'overlay_direction', 'content_scheme'] as $keep) {
+    // Цвет кнопки и ссылки тоже принадлежит кадру, а не палитре: акцент,
+    // совпавший с цветом фотографии, на ней исчезает, и менять ради одного
+    // снимка цвет всей обложки нельзя. Это не возврат схемы слайда — фон и
+    // цвет текста секции по-прежнему у обложки (список ниже).
+    foreach ([
+        'overlay', 'overlay_color', 'overlay_opacity', 'overlay_direction', 'content_scheme',
+        'cta_color', 'link_color',
+    ] as $keep) {
         assert_true(in_array($keep, $fields, true), 'у слайда пропала настройка кадра: ' . $keep);
     }
 

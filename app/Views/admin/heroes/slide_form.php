@@ -281,6 +281,16 @@ $customDuration = (int) $data['duration'];
                 </div>
                 <?= $checkbox('cta2_new_tab', 'Открывать в новой вкладке', (bool) $data['cta2_new_tab'], '', 'col-4') ?>
 
+                <?php // Цвет кнопки зависит от кадра: акцент, совпавший с цветом
+                      // фотографии, на ней теряется, а менять ради одного снимка
+                      // палитру всей обложки нельзя. ?>
+                <div class="col-4">
+                    <?= AdminUi::colorField('cta_color', (string) $data['cta_color'], 'Цвет заливки кнопки', '#173a63', 'Использовать общую настройку обложки') ?>
+                </div>
+                <div class="col-4">
+                    <?= AdminUi::colorField('link_color', (string) $data['link_color'], 'Цвет ссылки', '#ffffff', 'Цвет текста слайда') ?>
+                </div>
+
                 <!-- Ссылка со всего слайда -->
                 <div class="col-12"><hr class="form-divider"></div>
                 <div class="form-field col-8">

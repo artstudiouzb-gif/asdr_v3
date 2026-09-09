@@ -375,7 +375,9 @@
 .hero__cta--secondary:hover { background: color-mix(in srgb, var(--hero-fg) 86%, transparent); }
 .hero__cta--ghost { border-color: color-mix(in srgb, var(--hero-fg) 55%, transparent); color: var(--hero-fg); }
 .hero__cta--ghost:hover { background: color-mix(in srgb, var(--hero-fg) 14%, transparent); }
-.hero__cta--link { padding-inline: 0; color: var(--hero-fg); text-decoration: underline; }
+/* Ссылке цвет задаёт слайд (--hero-link); не задан — цвет текста кадра.
+   Подчёркивание идёт currentColor, поэтому второго объявления не нужно. */
+.hero__cta--link { padding-inline: 0; color: var(--hero-link, var(--hero-fg)); text-decoration: underline; }
 .hero__cta-icon { display: inline-flex; flex: none; }
 
 /* --- Навигация --- */

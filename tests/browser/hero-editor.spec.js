@@ -57,6 +57,25 @@ test('slide CTA and inherited gradient controls respond without losing values', 
     await expect(page.locator('[name=overlay_color]')).toBeHidden();
 });
 
+test('slide asks for a colour only from the button style that uses it', async ({ page }) => {
+    // Мёртвых полей на экране нет: заливку слушает вид «Основная», цвет
+    // ссылки — вид «Ссылка», у остальных видов оба поля ничего не меняют.
+    await setup(page, 'slide', input('cta_enabled', 'checkbox') + select('cta_style', ['primary', 'link'])
+        + input('cta2_enabled', 'checkbox') + select('cta2_style', ['ghost', 'link'])
+        + input('cta_color', 'color') + input('link_color', 'color'));
+    await expect(page.locator('[name=cta_color]')).toBeHidden();
+    await expect(page.locator('[name=link_color]')).toBeHidden();
+    await page.check('[name=cta_enabled]');
+    await expect(page.locator('[name=cta_color]')).toBeVisible();
+    await expect(page.locator('[name=link_color]')).toBeHidden();
+    await page.selectOption('[name=cta_style]', 'link');
+    await expect(page.locator('[name=cta_color]')).toBeHidden();
+    await expect(page.locator('[name=link_color]')).toBeVisible();
+    await page.check('[name=cta2_enabled]');
+    await page.selectOption('[name=cta2_style]', 'ghost');
+    await expect(page.locator('[name=cta_color]')).toBeHidden();
+});
+
 test('schedule validates bounds and collapsed summary updates immediately', async ({ page }) => {
     await setup(page, 'cover', select('status', ['draft', 'scheduled', 'published'])
         + input('published_from', 'datetime-local') + input('published_to', 'datetime-local')

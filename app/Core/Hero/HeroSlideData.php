@@ -117,6 +117,13 @@ final class HeroSlideData
             'cta2_style' => 'ghost',
             'cta2_icon' => '',
             'cta2_new_tab' => false,
+            // Цвет кнопок и ссылки зависит от кадра, поэтому и живёт у слайда:
+            // фирменный акцент, попавший в цвет фотографии, на ней исчезает, а
+            // менять ради одного снимка палитру всей обложки нельзя. Пусто —
+            // «как у обложки»: у неё цвет основной кнопки, у ссылки — цвет
+            // текста слайда.
+            'cta_color' => '',
+            'link_color' => '',
 
             // --- Картинка поверх фона (эмблема, логотип программы) ---
             'art_image' => '',
@@ -228,6 +235,8 @@ final class HeroSlideData
             'cta2_style' => BlockDataInput::enum($input, 'cta2_style', self::CTA_STYLES, 'ghost'),
             'cta2_icon' => Icon::cleanName($input['cta2_icon'] ?? ''),
             'cta2_new_tab' => !empty($input['cta2_new_tab']),
+            'cta_color' => BlockDataInput::optionalColor($input, 'cta_color'),
+            'link_color' => BlockDataInput::optionalColor($input, 'link_color'),
 
             'art_image' => BlockDataInput::safeMedia($input['art_image'] ?? ''),
             'art_alt' => BlockDataInput::trimmed($input, 'art_alt'),
@@ -342,6 +351,8 @@ final class HeroSlideData
 
         $d['overlay'] = $enum($d['overlay'] ?? '', HeroSettings::OVERLAYS, '');
         $d['overlay_color'] = $hex($d['overlay_color'] ?? '');
+        $d['cta_color'] = $hex($d['cta_color'] ?? '');
+        $d['link_color'] = $hex($d['link_color'] ?? '');
         $d['watermark_size'] = self::ranged($d['watermark_size'] ?? null, 2, 60, 22);
         $d['watermark_x'] = $enum($d['watermark_x'] ?? '', self::WATERMARK_X, 'center');
         $d['watermark_y'] = $enum($d['watermark_y'] ?? '', self::WATERMARK_Y, 'middle');
