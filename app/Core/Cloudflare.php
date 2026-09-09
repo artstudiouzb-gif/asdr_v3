@@ -204,19 +204,32 @@ final class Cloudflare
         $parts[] = 'токен — ' . ($token['ok'] ? 'активен' : $token['text']);
 
         // 2. Доступ к зоне. Для очистки это право не обязательно, поэтому его
-        //    отказ не делает проверку неуспешной — но знать о нём полезно.
+        //    отказ не делает проверку неуспешной. Но сама запись зоны отвечает
+        //    на вопросы, которых мы прежде не задавали: чья это зона, какого
+        //    она типа и не ведёт ли её партнёр. Отказ очистки при живом токене
+        //    объясняется чаще всего именно этим, а гадать вместо чтения ответа
+        //    мы уже пробовали.
         $zone = self::probe('GET', '/zones/' . rawurlencode(self::zone()));
-        $name = is_array($zone['data']) ? (string) ($zone['data']['result']['name'] ?? '') : '';
+        $facts = self::zoneFacts($zone['data']);
         $parts[] = $zone['ok']
-            ? 'зона — ' . ($name !== '' ? $name : 'доступна')
+            ? 'зона — ' . self::zoneSummary($facts)
             : 'чтение зоны — ' . $zone['text'] . ' (для очистки это право не требуется)';
 
         // 3. Очистка. Ради неё всё и затевалось, поэтому успех проверки решают
         //    этот шаг и первый, а не чтение зоны.
-        $purge = self::probePurge();
-        $parts[] = 'очистка — ' . ($purge['ok'] ? 'работает' : $purge['text']);
+        $purge = self::probePurge($facts['name']);
+        $parts[] = 'очистка — ' . ($purge['ok'] ? 'работает' : $purge['text'] . self::rawTail($purge['raw']));
 
-        $ok = $token['ok'] && $purge['ok'];
+        // Адрес сайта и зона обязаны быть одним доменом. Иначе очистка честно
+        // отработает — и не затронет ни одной страницы сайта: кэш чистится у
+        // той зоны, чей номер записан, а сайт лежит в другой. Проверить это
+        // стоит дешевле, чем однажды искать причину «кэш не сбрасывается».
+        $mismatch = self::siteHostMismatch((string) Config::get('app.url', ''), $facts['name']);
+        if ($mismatch !== '') {
+            $parts[] = $mismatch;
+        }
+
+        $ok = $token['ok'] && $purge['ok'] && $mismatch === '';
 
         return [
             'ok' => $ok,
@@ -225,23 +238,123 @@ final class Cloudflare
     }
 
     /**
+     * Разбор записи зоны на то, что объясняет отказ очистки.
+     *
+     * @param mixed $data разобранный ответ `GET /zones/{id}`
+     * @return array{name: string, type: string, status: string, paused: bool, partner: string, account: string}
+     */
+    public static function zoneFacts(mixed $data): array
+    {
+        $result = is_array($data) && is_array($data['result'] ?? null) ? $data['result'] : [];
+        $host = is_array($result['host'] ?? null) ? $result['host'] : [];
+        $account = is_array($result['account'] ?? null) ? $result['account'] : [];
+
+        return [
+            'name' => (string) ($result['name'] ?? ''),
+            'type' => (string) ($result['type'] ?? ''),
+            'status' => (string) ($result['status'] ?? ''),
+            'paused' => (bool) ($result['paused'] ?? false),
+            'partner' => (string) ($host['name'] ?? ''),
+            'account' => (string) ($account['name'] ?? ''),
+        ];
+    }
+
+    /**
+     * Короткая сводка по зоне для сообщения проверки.
+     *
+     * @param array{name: string, type: string, status: string, paused: bool, partner: string, account: string} $facts
+     */
+    public static function zoneSummary(array $facts): string
+    {
+        $out = $facts['name'] !== '' ? $facts['name'] : 'доступна';
+        $notes = [];
+        if ($facts['account'] !== '') {
+            // Токен не может больше, чем его хозяин: если зона лежит в чужом
+            // аккаунте, где у владельца токена урезанная роль, Cloudflare
+            // молча срежет право очистки, как бы оно ни было записано в самом
+            // токене. Название аккаунта — единственное, по чему это видно.
+            $notes[] = 'аккаунт «' . $facts['account'] . '»';
+        }
+        if ($facts['partner'] !== '') {
+            $notes[] = 'ведёт партнёр ' . $facts['partner'];
+        }
+        if ($facts['type'] === 'partial') {
+            $notes[] = 'подключение CNAME';
+        }
+        if ($facts['status'] !== '' && $facts['status'] !== 'active') {
+            $notes[] = 'состояние ' . $facts['status'];
+        }
+        if ($facts['paused']) {
+            $notes[] = 'проксирование выключено';
+        }
+
+        return $notes === [] ? $out : $out . ' (' . implode(', ', $notes) . ')';
+    }
+
+    /**
+     * Совпадает ли адрес сайта с зоной, чей номер записан в настройках.
+     *
+     * Пустой ответ — расхождения нет (или сравнивать не с чем).
+     */
+    public static function siteHostMismatch(string $appUrl, string $zoneName): string
+    {
+        $zoneName = strtolower(trim($zoneName));
+        $host = strtolower((string) parse_url(trim($appUrl), PHP_URL_HOST));
+        if ($zoneName === '' || $host === '') {
+            return '';
+        }
+        if ($host === $zoneName || str_ends_with($host, '.' . $zoneName)) {
+            return '';
+        }
+
+        return 'внимание: сайт работает на ' . $host . ', а Zone ID указывает на зону ' . $zoneName
+            . ' — очистка кэша не затронет сайт. Возьмите Zone ID домена ' . $host;
+    }
+
+    /**
+     * Ответ Cloudflare как есть — коротким хвостом к разобранному сообщению.
+     *
+     * Разбор ответа — это пересказ, а пересказ уже дважды увёл диагноз не туда.
+     * Поэтому рядом с объяснением печатается и сам ответ: он короткий, а спорить
+     * с ним нельзя.
+     */
+    private static function rawTail(string $raw): string
+    {
+        $raw = trim(preg_replace('/\s+/', ' ', $raw) ?? $raw);
+        if ($raw === '') {
+            return '';
+        }
+        if (mb_strlen($raw) > 300) {
+            $raw = mb_substr($raw, 0, 300) . '…';
+        }
+
+        return ' [ответ Cloudflare: ' . $raw . ']';
+    }
+
+    /**
      * Один шаг проверки.
      *
-     * @return array{ok: bool, text: string, data: mixed}
+     * @return array{ok: bool, text: string, data: mixed, raw: string}
      */
     private static function probe(string $method, string $path, string $body = ''): array
     {
         $res = Http::request($method, self::API . $path, $body, self::authHeaders(), 15);
         if (($res['error'] ?? '') !== '') {
-            return ['ok' => false, 'text' => 'сеть: ' . $res['error'], 'data' => null];
+            return ['ok' => false, 'text' => 'сеть: ' . $res['error'], 'data' => null, 'raw' => ''];
         }
 
-        $data = json_decode((string) ($res['body'] ?? ''), true);
+        $raw = (string) ($res['body'] ?? '');
+        $data = json_decode($raw, true);
         if (($res['status'] ?? 0) === 200 && is_array($data) && !empty($data['success'])) {
-            return ['ok' => true, 'text' => '', 'data' => $data];
+            return ['ok' => true, 'text' => '', 'data' => $data, 'raw' => $raw];
         }
 
-        return ['ok' => false, 'text' => self::errorText($data, (int) ($res['status'] ?? 0)), 'data' => $data];
+        return [
+            'ok' => false,
+            'text' => self::errorText($data, (int) ($res['status'] ?? 0)),
+            'data' => $data,
+            'raw' => $raw,
+        ];
     }
 
     /**
@@ -252,13 +365,19 @@ final class Cloudflare
      * одного адреса, которого на сайте нет, не удаляет ничего, но проходит те
      * же проверки: токен, право Cache Purge и номер зоны.
      *
-     * @return array{ok: bool, text: string, data: mixed}
+     * Адрес берётся у самой зоны, а не у сайта: очистка по адресу, чей домен
+     * зоне не принадлежит, отвергается независимо от прав токена — и отказ
+     * читался бы как нехватка права, которого на самом деле хватает.
+     *
+     * @return array{ok: bool, text: string, data: mixed, raw: string}
      */
-    private static function probePurge(): array
+    private static function probePurge(string $zoneName = ''): array
     {
-        $base = rtrim((string) Config::get('app.url', ''), '/');
+        $base = $zoneName !== ''
+            ? 'https://' . $zoneName
+            : rtrim((string) Config::get('app.url', ''), '/');
         if ($base === '') {
-            return ['ok' => false, 'text' => 'не задан адрес сайта (app.url)', 'data' => null];
+            return ['ok' => false, 'text' => 'не задан адрес сайта (app.url)', 'data' => null, 'raw' => ''];
         }
 
         return self::probe(
@@ -316,10 +435,13 @@ final class Cloudflare
         // и подсказка не срабатывала ни разу.
         foreach (['Unable to purge', 'Unauthorized', 'Authentication error', 'cache.purge', 'requires permission'] as $needle) {
             if (str_contains($msg, $needle)) {
-                $msg .= '. Причин две: у токена нет права Zone · Cache Purge · Purge на эту зону'
+                $msg .= '. Причин три. (1) У токена нет права Zone · Cache Purge · Purge на эту зону'
                     . ' (My Profile → API Tokens → Edit; чтения зоны для очистки недостаточно, поэтому'
-                    . ' проверка связи может проходить, а очистка нет) — либо зона подключена через'
-                    . ' партнёра и не разрешает очистку всего кэша разом.';
+                    . ' зона читается, а очистка нет). (2) Токен не может больше своего хозяина: если зона'
+                    . ' лежит в чужом аккаунте, где у вас урезанная роль, право очистки срезается молча,'
+                    . ' как бы оно ни было записано в токене — сверьте название аккаунта выше и свою роль'
+                    . ' в нём (Manage Account → Members). (3) Зону ведёт партнёр (хостинг, регистратор):'
+                    . ' такие зоны очистку из своего аккаунта не разрешают, сбрасывать кэш придётся у него.';
                 break;
             }
         }
