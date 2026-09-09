@@ -286,12 +286,20 @@ final class Cloudflare
             $msg .= '. Проверьте, что в поле вставлен API-токен (Zone.Cache Purge), а не Global API Key,'
                 . ' и скопирован он без лишних символов.';
         }
-        // Отказ прав: у токена есть доступ к зоне, но нет права на очистку.
-        // Сообщение Cloudflare называет внутренний идентификатор права и
-        // ничего не говорит о том, где его выдать.
-        if (str_contains($msg, 'cache.purge') || str_contains($msg, 'requires permission')) {
-            $msg .= '. Добавьте токену право Zone · Cache Purge · Purge'
-                . ' (My Profile → API Tokens → Edit) — чтения зоны для очистки недостаточно.';
+        // Отказ прав. Формулировки замерены на боевом сайте, а не угаданы:
+        // «Unable to purge. Unauthorized.» приходит, когда токен узнан, но
+        // права Cache Purge у него нет, «Authentication error» — когда токен
+        // не принят вовсе. Ни то, ни другое не называет ни права, ни места,
+        // где его выдать, поэтому объясняем сами. Первая догадка была написана
+        // на текст, которого Cloudflare не присылает («requires permission»),
+        // и подсказка не срабатывала ни разу.
+        foreach (['Unable to purge', 'Unauthorized', 'Authentication error', 'cache.purge', 'requires permission'] as $needle) {
+            if (str_contains($msg, $needle)) {
+                $msg .= '. Cloudflare не даёт очистку этим токеном: добавьте право Zone · Cache Purge · Purge'
+                    . ' на эту зону (My Profile → API Tokens → Edit). Чтения зоны для очистки недостаточно —'
+                    . ' поэтому проверка связи может проходить, а очистка нет.';
+                break;
+            }
         }
 
         return $msg;

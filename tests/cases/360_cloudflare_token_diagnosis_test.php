@@ -87,3 +87,14 @@ test('Причина отказа очистки доходит до сообщ�
         'причину называют обе кнопки: и «Сброс кэша», и «Очистить кэш Cloudflare»'
     );
 });
+
+test('Подсказка написана на формулировки, которые Cloudflare действительно шлёт', function (): void {
+    // Первая версия проверяла текст «requires permission» — его в ответах нет,
+    // и подсказка не срабатывала ни разу. Эти две строки сняты с боевого
+    // журнала: 'Authentication error' (токен не принят) и 'Unable to purge.
+    // Unauthorized.' (токен узнан, права Cache Purge нет).
+    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
+    assert_contains("'Unable to purge'", $source, 'формулировка отказа очистки');
+    assert_contains("'Authentication error'", $source, 'формулировка непринятого токена');
+    assert_contains('Cache Purge', $source, 'подсказка называет право');
+});
