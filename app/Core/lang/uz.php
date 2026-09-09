@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 return [
+    'Остановить показ' => 'Namoyishni to‘xtatish',
+    'Продолжить показ' => 'Namoyishni davom ettirish',
     'Предыдущее фото' => 'Oldingi surat',
     'Следующее фото' => 'Keyingi surat',
     'Соседние новости' => 'Qo‘shni yangiliklar',

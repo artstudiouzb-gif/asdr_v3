@@ -72,7 +72,16 @@ $checkbox = static function (string $name, string $label, bool $checked, string 
 $group = static function (string $title, string $hint, string $state, string $body): string {
     $esc = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES);
 
-    return '<details class="form-section"><summary>' . $esc($title)
+    $summaryFields = [
+        'Размер обложки' => 'width,height,height_mobile',
+        'Текст и расположение' => 'text_position,text_align_y,title_size',
+        'Цветовая схема' => 'scheme,content_scheme',
+        'Наложение и подложка' => 'overlay,overlay_opacity',
+        'Навигация' => 'nav_indicator,nav_arrows',
+        'Автопрокрутка' => 'autoplay,autoplay_interval',
+        'Переход между слайдами' => 'transition,transition_duration',
+    ];
+    return '<details class="form-section" data-hero-summary="' . ($summaryFields[$title] ?? '') . '"><summary>' . $esc($title)
         . ($hint !== '' ? ' <span class="form-section__hint">' . $esc($hint) . '</span>' : '')
         . ($state !== '' ? '<span class="form-section__state">' . $esc($state) . '</span>' : '')
         . '</summary><div class="form-section__body form-section__body--grid">' . $body . '</div></details>';
@@ -183,15 +192,15 @@ $overlayDirections = [
 </div>
 
 <div class="form-card">
-    <?= AdminUi::cardHeader('Пресеты', 'wand') ?>
+    <?= AdminUi::cardHeader('Готовое оформление', 'wand') ?>
     <p class="form-hint">
-        Пресет разом ставит набор настроек оформления. Это разовое действие, а не режим:
-        после применения любую настройку можно поправить вручную, ничего не блокируется.
+        Готовый вариант заменяет общие настройки оформления. Текст и изображения
+        слайдов остаются своими. После применения можно изменить любое значение.
     </p>
     <form method="post" action="/admin/heroes/<?= $heroId ?>/preset" class="form-grid">
         <?= Csrf::field() ?>
         <div class="form-field">
-            <label for="preset">Пресет</label>
+            <label for="preset">Начать с варианта</label>
             <select id="preset" name="preset">
                 <?php foreach (HeroPresets::PRESETS as $key => $preset): ?>
                     <option value="<?= htmlspecialchars($key, ENT_QUOTES) ?>"
@@ -202,12 +211,12 @@ $overlayDirections = [
             </select>
         </div>
         <div class="form-actions">
-            <button type="submit" class="btn">Применить пресет</button>
+            <button type="submit" class="btn">Применить оформление</button>
         </div>
     </form>
 </div>
 
-<form method="post" action="/admin/heroes/<?= $heroId ?>/update">
+<form method="post" action="/admin/heroes/<?= $heroId ?>/update" data-hero-editor="cover">
     <?= Csrf::field() ?>
 
     <div class="form-card">
@@ -233,7 +242,7 @@ $overlayDirections = [
                 <span class="form-hint">Даты работают только при статусе «По расписанию». Обе пустые — обложка не покажется.</span>
             </div>
             <div class="form-field">
-                <label for="priority">Приоритет</label>
+                <label for="priority">Порядок в списке обложек</label>
                 <input type="number" id="priority" name="priority" min="-999" max="999" value="<?= (int) $hero['priority'] ?>">
                 <span class="form-hint">Подсказка редактору при выборе обложки в блоке: чем больше, тем выше в списке.</span>
             </div>
@@ -251,28 +260,27 @@ $overlayDirections = [
 
     <?php
     // Короткие сводки текущих значений — их видно, не открывая группу.
-    $widthLabels = ['full' => 'Во всю ширину', 'standard' => 'По контейнеру'];
+    $widthLabels = ['full' => 'Во всю ширину', 'standard' => 'По ширине сайта'];
     $navLabels = [
         'none' => 'без индикатора', 'dots' => 'точки', 'counter' => 'счётчик',
         'progress' => 'полоса', 'counter_progress' => 'счётчик и полоса', 'thumbs' => 'миниатюры',
     ];
     $transitionLabels = [
-        'fade' => 'Fade', 'slide' => 'Slide', 'fade_slide' => 'Fade + Slide', 'kenburns' => 'Ken Burns',
+        'fade' => 'Плавное появление', 'slide' => 'Сдвиг', 'fade_slide' => 'Появление со сдвигом', 'kenburns' => 'Медленное приближение фото',
     ];
     $overlayLabels = ['none' => 'без наложения', 'solid' => 'сплошное', 'gradient' => 'градиент'];
     ?>
     <div class="form-card">
         <?= AdminUi::cardHeader('Оформление', 'palette') ?>
         <p class="form-hint">
-            Группы свёрнуты, чтобы форму можно было окинуть взглядом: рядом с названием
-            каждой видно текущее значение. Открывайте ту, которую правите — остальные
-            настройки при сохранении не теряются.
+            Общие настройки действуют на все слайды. Фотографии, надписи и ссылки
+            меняются в редакторе слайда. Поля появляются по мере выбора режима.
         </p>
 
         <?php
         ob_start(); ?>
-            <?= $select('width', 'Ширина секции', ['full' => 'Во всю ширину', 'standard' => 'По ширине контейнера'], (string) $settings['width'],
-                'Во всю ширину — фон уходит за края экрана, текст остаётся в рамках сайта.') ?>
+            <?= $select('width', 'Ширина секции', ['full' => 'Во всю ширину', 'standard' => 'По ширине сайта'], (string) $settings['width'],
+                'Во всю ширину — фон занимает всю ширину экрана, текст остаётся в рамках сайта.') ?>
             <?= $select('height', 'Высота', $heightOptions, (string) $settings['height']) ?>
             <div class="form-field">
                 <label for="height_value">Своя высота</label>
@@ -286,8 +294,8 @@ $overlayDirections = [
                 </span>
                 <span class="form-hint">Действует при высоте «Своя высота».</span>
             </div>
-            <?= $select('height_mobile', 'Высота на телефоне', ['' => 'Как на десктопе'] + $heightOptions, (string) $settings['height_mobile'],
-                'Широкий кадр на узком экране режется до полоски: своя высота лечит это, не трогая десктоп.') ?>
+            <?= $select('height_mobile', 'Высота на телефоне', ['' => 'Автоматически — по размеру обложки'] + $heightOptions, (string) $settings['height_mobile'],
+                'Оставьте автоматический размер или задайте отдельную высоту для телефона.') ?>
             <div class="form-field">
                 <label for="height_mobile_value">Своя высота на телефоне</label>
                 <span class="image-field__controls">
@@ -299,7 +307,7 @@ $overlayDirections = [
                     </select>
                 </span>
             </div>
-        <?php echo $group('Геометрия', 'ширина и высота, отдельно для телефона',
+        <?php echo $group('Размер обложки', 'ширина и высота, отдельно для телефона',
             ($widthLabels[$settings['width']] ?? '') . ' · ' . ($heightOptions[$settings['height']] ?? ''),
             (string) ob_get_clean()); ?>
 
@@ -331,11 +339,11 @@ $overlayDirections = [
                 <input type="number" id="text_offset_top" name="text_offset_top" min="0" max="200" step="1"
                        value="<?= (int) $settings['text_offset_top'] ?>">
                 <span class="form-hint">
-                    Опускает весь текстовый блок. 0 — как раньше. На телефоне
+                    Опускает весь текстовый блок. 0 — без дополнительного отступа. На телефоне
                     отступ не занимает больше десятой части высоты экрана.
                 </span>
             </div>
-        <?php echo $group('Контент и типографика', 'положение текста и размеры',
+        <?php echo $group('Текст и расположение', 'положение текста и размеры',
             ($posOptions[$settings['text_position']] ?? '') . ' · заголовок ' . mb_strtolower((string) ($sizeOptions[$settings['title_size']] ?? '')),
             (string) ob_get_clean()); ?>
 
@@ -343,29 +351,28 @@ $overlayDirections = [
         ob_start(); ?>
             <div class="form-field form-field--wide">
                 <span class="form-hint">
-                    Схема обложки задаёт её фон и цвет её собственного текста. На вложенные
-                    компоненты со своей поверхностью она не распространяется: белая карточка
-                    внутри тёмной обложки сохраняет тёмный текст.
+                    Выберите готовую палитру или свои цвета. Фон палитры виден там,
+                    где его не закрывает фотография или видео.
                 </span>
             </div>
             <?= $select('scheme', 'Схема обложки', [
-                'light' => 'Light — светлый фон',
-                'dark' => 'Dark — тёмный фон',
-                'navy' => 'Navy — фирменный тёмно-синий',
-                'custom' => 'Custom — свои цвета',
+                'light' => 'Светлая',
+                'dark' => 'Тёмная',
+                'navy' => 'Тёмно-синяя',
+                'custom' => 'Свои цвета',
             ], (string) $settings['scheme']) ?>
             <?= $select('content_scheme', 'Цвет текста', [
-                'auto' => 'Auto — по фону и наложению',
-                'light' => 'Light — светлый текст',
-                'dark' => 'Dark — тёмный текст',
+                'auto' => 'Автоматически — по фону',
+                'light' => 'Светлый',
+                'dark' => 'Тёмный',
             ], (string) $settings['content_scheme'],
-                'Считается отдельно от схемы обложки: на фотографии цвет текста выбирается по наложению — под тёмной вуалью светлый, под светлой тёмный.') ?>
+                'Автоматический режим учитывает фон. Выберите светлый или тёмный текст, если на фотографии он читается плохо.') ?>
             <div class="form-field">
-                <label for="scheme_bg">Свой фон (Custom)</label>
+                <label for="scheme_bg">Цвет фона</label>
                 <input type="color" id="scheme_bg" name="scheme_bg" value="<?= htmlspecialchars((string) $settings['scheme_bg'], ENT_QUOTES) ?>">
             </div>
             <div class="form-field">
-                <label for="scheme_text">Свой цвет текста (Custom)</label>
+                <label for="scheme_text">Цвет текста вручную</label>
                 <input type="color" id="scheme_text" name="scheme_text" value="<?= htmlspecialchars((string) $settings['scheme_text'], ENT_QUOTES) ?>">
             </div>
             <?= AdminUi::colorField('scheme_accent', (string) $settings['scheme_accent'], 'Цвет основной кнопки', '#173a63', 'Акцент из «Дизайна»') ?>
@@ -406,7 +413,7 @@ $overlayDirections = [
         <?php
         ob_start(); ?>
             <div class="form-field form-field--wide">
-                <span class="form-hint">Навигация занимает собственную полосу внизу и не перекрывает текст и кнопки. Стрелки проявляются по наведению, а на сенсорном экране видны всегда.</span>
+                <span class="form-hint">Навигация занимает собственную полосу внизу и не перекрывает текст и кнопки. Стрелки и индикатор видны постоянно.</span>
             </div>
             <?= $checkbox('nav_arrows', 'Стрелки «назад» и «вперёд»', (bool) $settings['nav_arrows']) ?>
             <?= $checkbox('nav_arrows_mobile', 'Стрелки на телефоне', (bool) $settings['nav_arrows_mobile']) ?>
@@ -427,16 +434,16 @@ $overlayDirections = [
         ob_start(); ?>
             <div class="form-field form-field--wide">
                 <span class="form-hint">
-                    Показ сам останавливается при наведении курсора и после любого действия
-                    посетителя, а через десять секунд бездействия продолжается; в навигации
-                    появляется кнопка паузы — остановить показ должен уметь любой посетитель.
-                    На телефоне автопрокрутки нет: там важнее свайп и заряд батареи.
+                    При наведении курсора смена слайдов приостанавливается. После ручного
+                    переключения или перехода с клавиатуры показ продолжается только
+                    по кнопке «Продолжить показ». На телефоне автопрокрутка запускается
+                    вручную. Видео вне экрана и в скрытой вкладке останавливается.
                     Отдельному слайду можно задать свою длительность в его форме.
                 </span>
             </div>
             <?= $checkbox('autoplay', 'Включить автопрокрутку', (bool) $settings['autoplay']) ?>
             <div class="form-field">
-                <label for="autoplay_interval">Интервал, секунд</label>
+                <label for="autoplay_interval">Время одного слайда, секунд</label>
                 <input type="number" id="autoplay_interval" name="autoplay_interval" min="3" max="30" value="<?= (int) $settings['autoplay_interval'] ?>">
                 <span class="form-hint">Разумный диапазон — 5–7 секунд.</span>
             </div>
@@ -447,14 +454,14 @@ $overlayDirections = [
         <?php
         ob_start(); ?>
             <?= $select('transition', 'Анимация', [
-                'fade' => 'Fade — проявление',
-                'slide' => 'Slide — сдвиг',
-                'fade_slide' => 'Fade + Slide (рекомендуется)',
-                'kenburns' => 'Ken Burns — медленный наезд на фото',
+                'fade' => 'Плавное появление',
+                'slide' => 'Сдвиг',
+                'fade_slide' => 'Появление со сдвигом',
+                'kenburns' => 'Медленное приближение фото',
             ], (string) $settings['transition'],
                 'При системной настройке «меньше движения» и при включённой остановке анимаций слайды меняются мгновенно.') ?>
             <div class="form-field">
-                <label for="transition_duration">Длительность, мс</label>
+                <label for="transition_duration">Скорость перехода, миллисекунд</label>
                 <input type="number" id="transition_duration" name="transition_duration" min="150" max="2000" step="50" value="<?= (int) $settings['transition_duration'] ?>">
             </div>
         <?php echo $group('Переход между слайдами', 'анимация смены',
@@ -462,9 +469,9 @@ $overlayDirections = [
             (string) ob_get_clean()); ?>
     </div>
 
-    <div class="form-actions">
+    <div class="form-actions form-actions--sticky">
         <button type="submit" class="btn btn--primary">Сохранить обложку</button>
     </div>
 </form>
 
-<?php require __DIR__ . '/../layout/footer.php'; ?>
+<?php $heroEditor = true; require __DIR__ . '/../layout/footer.php'; ?>

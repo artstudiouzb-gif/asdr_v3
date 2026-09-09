@@ -85,15 +85,15 @@ $customDuration = (int) $data['duration'];
         <a href="/admin/heroes/<?= $heroId ?>/edit" class="btn btn--small">← К обложке «<?= $esc($hero['name']) ?>»</a>
     </p>
 
-    <form method="post" action="/admin/heroes/<?= $heroId ?>/slides/<?= $slideId ?>/update">
+    <form method="post" action="/admin/heroes/<?= $heroId ?>/slides/<?= $slideId ?>/update" data-hero-editor="slide" data-hero-overlay-default="<?= $esc($settings['overlay']) ?>">
         <?= Csrf::field() ?>
 
-        <!-- 1. Текстовый контент слайда -->
+        <!-- 1. Текст слайда -->
         <div class="settings-card">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('file-text', 20) ?></span>
                 <div>
-                    <h2 class="settings-card__title">Текстовый контент слайда</h2>
+                    <h2 class="settings-card__title">Текст слайда</h2>
                     <p class="settings-card__subtitle">Заголовок, надзаголовок и анонс, отображаемые на первом экране.</p>
                 </div>
             </div>
@@ -154,16 +154,16 @@ $customDuration = (int) $data['duration'];
                 </div>
             </div>
             <div class="form-grid-12">
-                <?= $select('media_type', 'Тип фонового медиа', [
-                    'none' => 'Без фона',
+                <?= $select('media_type', 'Что показать на фоне', [
+                    'none' => 'Только цвет обложки',
                     'image' => 'Изображение (фотография)',
                     'video' => 'Загруженное видео (MP4)',
                     'youtube' => 'Видео с YouTube',
                 ], (string) $data['media_type'], '', 'col-6') ?>
 
                 <?= $select('image_fit', 'Масштабирование изображения', [
-                    'cover' => 'Заполнить область (Cover, обрезать лишнее)',
-                    'contain' => 'Показать целиком (Contain)',
+                    'cover' => 'Заполнить область — края могут обрезаться',
+                    'contain' => 'Показать целиком — без обрезки',
                 ], (string) $data['image_fit'], '', 'col-6') ?>
 
                 <div class="col-12">
@@ -173,10 +173,10 @@ $customDuration = (int) $data['duration'];
                     ]) ?>
                 </div>
 
-                <?= $select('image_position', 'Точка фокусировки (Кадрирование)', $cropOptions, (string) $data['image_position'], '', 'col-6') ?>
+                <?= $select('image_position', 'Какую часть фотографии оставить в кадре', $cropOptions, (string) $data['image_position'], '', 'col-6') ?>
 
                 <div class="form-field col-6">
-                    <label for="video_url">Видео MP4 (прямой URL)</label>
+                    <label for="video_url">Ссылка на файл MP4</label>
                     <input type="text" id="video_url" name="video_url" value="<?= $esc($data['video_url']) ?>" placeholder="/uploads/public/hero.mp4">
                     <span class="form-hint">Воспроизводится в фоновом режиме без звука.</span>
                 </div>
@@ -191,7 +191,7 @@ $customDuration = (int) $data['duration'];
 
                 <div class="col-12">
                     <?= AdminUi::imageField('poster', (string) $data['poster'], [
-                        'label' => 'Кадр-заставка (Poster для видео)',
+                        'label' => 'Заставка до запуска видео',
                         'hint' => 'Отображается до запуска видео и в режиме экономии трафика.',
                     ]) ?>
                 </div>
@@ -237,12 +237,12 @@ $customDuration = (int) $data['duration'];
             </div>
         </div>
 
-        <!-- 4. Кнопки действия (CTA) и ссылки -->
+        <!-- 4. Кнопки и ссылки и ссылки -->
         <div class="settings-card">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('link', 20) ?></span>
                 <div>
-                    <h2 class="settings-card__title">Кнопки действия (CTA)</h2>
+                    <h2 class="settings-card__title">Кнопки и ссылки</h2>
                     <p class="settings-card__subtitle">Интерактивные кнопки перехода и прямые ссылки с первого экрана.</p>
                 </div>
             </div>
@@ -302,9 +302,9 @@ $customDuration = (int) $data['duration'];
             </div>
             <div class="form-grid-12">
                 <?= $select('content_scheme', 'Цвет текста', $inherit + [
-                    'auto' => 'Auto — автоматически',
-                    'light' => 'Light — светлый',
-                    'dark' => 'Dark — тёмный',
+                    'auto' => 'Автоматически — по фону',
+                    'light' => 'Светлый',
+                    'dark' => 'Тёмный',
                 ], (string) $data['content_scheme'], '', 'col-6') ?>
 
                 <?= $select('overlay', 'Наложение на фон', $inherit + [
@@ -336,19 +336,19 @@ $customDuration = (int) $data['duration'];
             </div>
         </div>
 
-        <!-- 6. Мобильная версия (Смартфоны) -->
+        <!-- 6. На телефоне -->
         <div class="settings-card">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('device-mobile', 20) ?></span>
                 <div>
-                    <h2 class="settings-card__title">Мобильная версия (Смартфоны)</h2>
+                    <h2 class="settings-card__title">На телефоне</h2>
                     <p class="settings-card__subtitle">Индивидуальные настройки отображения кадра на мобильных экранах.</p>
                 </div>
             </div>
             <div class="form-grid-12">
                 <div class="col-12">
                     <?= AdminUi::imageField('image_mobile', (string) $data['image_mobile'], [
-                        'label' => 'Вертикальное фото для смартфонов (Mobile Hero)',
+                        'label' => 'Отдельная фотография для телефона',
                         'hint' => 'Если не указано, автоматически используется десктопная фотография.',
                     ]) ?>
                 </div>
@@ -358,6 +358,11 @@ $customDuration = (int) $data['duration'];
                     'desktop' => 'Проигрывать то же видео',
                     'mobile_video' => 'Проигрывать отдельное мобильное видео',
                 ], (string) $data['mobile_media'], '', 'col-6') ?>
+                <div class="form-field col-6">
+                    <label for="video_mobile_url">Отдельный файл MP4 для телефона</label>
+                    <input type="text" id="video_mobile_url" name="video_mobile_url" value="<?= $esc($data['video_mobile_url']) ?>" placeholder="/uploads/public/hero-mobile.mp4">
+                    <span class="form-hint">Вертикальный или облегчённый ролик. Если ссылка пуста, используется основное видео.</span>
+                </div>
             </div>
         </div>
 
@@ -372,7 +377,7 @@ $customDuration = (int) $data['duration'];
             </div>
             <div class="form-grid-12">
                 <div class="form-field col-4">
-                    <label for="duration">Длительность показа слайда (сек)</label>
+                    <label for="duration">Время этого слайда, секунд</label>
                     <input type="number" id="duration" name="duration" min="0" max="120" step="1"
                            value="<?= $customDuration > 0 ? $customDuration : '' ?>"
                            placeholder="<?= $globalDuration ?> — по умолчанию">
@@ -395,7 +400,7 @@ $customDuration = (int) $data['duration'];
                 <div class="settings-card__header">
                     <span class="settings-card__icon"><?= AdminUi::icon('globe', 20) ?></span>
                     <div>
-                        <h2 class="settings-card__title">Языковые версии (Переводы)</h2>
+                        <h2 class="settings-card__title">Переводы</h2>
                         <p class="settings-card__subtitle">Текст, описание и кнопки для дополнительных языков интерфейса.</p>
                     </div>
                 </div>
@@ -477,4 +482,4 @@ $customDuration = (int) $data['duration'];
     </form>
 </div>
 
-<?php require __DIR__ . '/../layout/footer.php'; ?>
+<?php $heroEditor = true; require __DIR__ . '/../layout/footer.php'; ?>
