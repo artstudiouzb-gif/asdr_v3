@@ -106,5 +106,70 @@ test('Код ошибки Cloudflare попадает в сообщение', fu
     // приходится угадывать по формулировке — что уже подводило.
     $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
     assert_contains("' (код '", $source, 'код обязан печататься рядом с текстом');
-    assert_contains('партнёра', $source, 'вторая причина отказа названа: запрет очистки всего кэша');
+    assert_contains('ведёт партнёр', $source, 'причина «зону ведёт партнёр» названа');
+});
+
+/*
+ * Второй заход: токен активен, зона читается, очистка отказывает.
+ *
+ * На этом месте догадка о причине была сделана дважды и дважды мимо. Разница
+ * между «у токена нет права», «право срезано ролью в чужом аккаунте» и «зону
+ * ведёт партнёр» из текста отказа не видна вовсе — зато она видна в самой
+ * записи зоны, которую мы уже запрашиваем и раньше выбрасывали, прочитав из
+ * неё одно название.
+ */
+test('Запись зоны отвечает на то, чего нет в тексте отказа', function (): void {
+    $own = Cloudflare::zoneFacts([
+        'result' => ['name' => 'asdr.uz', 'type' => 'full', 'status' => 'active', 'paused' => false,
+                     'account' => ['name' => 'Artstudio']],
+    ]);
+    assert_same('asdr.uz', $own['name'], 'имя зоны читается');
+    assert_same('Artstudio', $own['account'], 'аккаунт зоны читается: роль в нём режет права токена');
+    assert_same('asdr.uz (аккаунт «Artstudio»)', Cloudflare::zoneSummary($own), 'сводка называет аккаунт');
+
+    $partner = Cloudflare::zoneFacts([
+        'result' => ['name' => 'asdr.uz', 'type' => 'partial', 'status' => 'active', 'paused' => true,
+                     'host' => ['name' => 'Hostinger'], 'account' => ['name' => 'Hostinger Managed']],
+    ]);
+    $summary = Cloudflare::zoneSummary($partner);
+    assert_contains('партнёр Hostinger', $summary, 'партнёрскую зону видно по полю host');
+    assert_contains('CNAME', $summary, 'частичное подключение названо');
+    assert_contains('проксирование выключено', $summary, 'при paused кэша нет вовсе — очистке нечего чистить');
+
+    // Пустой ответ не должен превращаться в набор скобок с пустотой.
+    assert_same('доступна', Cloudflare::zoneSummary(Cloudflare::zoneFacts(null)), 'без данных — без домыслов');
+});
+
+test('Зона не того домена — это отдельная поломка, а не отказ прав', function (): void {
+    // Очистка чужой зоны отработает успешно и не тронет ни одной страницы
+    // сайта. Молчать об этом нельзя: искать потом причину «кэш не
+    // сбрасывается» будет негде — ошибки-то нет.
+    $warn = Cloudflare::siteHostMismatch('https://artstudio.uz', 'asdr.uz');
+    assert_contains('не затронет сайт', $warn, 'расхождение обязано называться прямо');
+    assert_contains('artstudio.uz', $warn, 'назван адрес сайта');
+
+    assert_same('', Cloudflare::siteHostMismatch('https://asdr.uz', 'asdr.uz'), 'домен зоны — не расхождение');
+    assert_same('', Cloudflare::siteHostMismatch('https://www.asdr.uz/', 'asdr.uz'), 'поддомен принадлежит зоне');
+    assert_same('', Cloudflare::siteHostMismatch('', 'asdr.uz'), 'сравнивать не с чем — молчим');
+    assert_same('', Cloudflare::siteHostMismatch('https://asdr.uz', ''), 'зона не прочиталась — молчим');
+});
+
+test('Пробная очистка идёт по домену зоны, а не по адресу сайта', function (): void {
+    // Адрес чужого домена Cloudflare отвергает независимо от прав, и такой
+    // отказ читался бы как нехватка права, которого на деле хватает.
+    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
+    $probe = explode('private static function probePurge', $source)[1] ?? '';
+    assert_contains("'https://' . \$zoneName", $probe, 'проба обязана брать домен у самой зоны');
+    assert_contains('app.url', $probe, 'без имени зоны остаётся прежний адрес сайта');
+});
+
+test('Ответ Cloudflare печатается как есть, а не только в пересказе', function (): void {
+    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
+    assert_contains('ответ Cloudflare:', $source, 'сырой ответ обязан доходить до владельца');
+    assert_contains('rawTail', $source, 'хвост с ответом собирается отдельно');
+    assert_contains("'raw' =>", $source, 'проба обязана вернуть тело ответа');
+
+    // Третью причину назвали только после того, как первые две не подтвердились.
+    assert_contains('Причин три', $source, 'причин у отказа очистки три, а не две');
+    assert_contains('не может больше своего хозяина', $source, 'роль в чужом аккаунте режет права токена');
 });
