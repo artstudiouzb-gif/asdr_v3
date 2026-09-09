@@ -3479,6 +3479,21 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 }
 .colorfield.is-default .colorfield__off { color: var(--admin-accent); }
 .colorfield__off input { width: auto; }
+
+/* Поле секрета: состояние читается и значком у подписи, и точками в поле.
+   Точки живут в placeholder, а не в value — значение из базы в форму не
+   возвращается, и маска, попавшая в value, ушла бы обратно как токен.
+   Поэтому у заполненного поля placeholder красится как обычный текст:
+   бледный серый читался бы как подсказка, то есть как «поле пустое». */
+.secretfield label .badge { margin-left: 6px; vertical-align: middle; }
+.secretfield__input { font-family: var(--admin-font); }
+.secretfield.is-set .secretfield__input::placeholder {
+    color: var(--admin-text);
+    opacity: 1;
+    letter-spacing: .12em;
+}
+.secretfield__clear { display: block; margin-top: 6px; }
+.secretfield__clear input { width: auto; margin-right: 6px; }
 .hero-overlay-mode {
     margin-bottom: 16px;
     padding: 0;

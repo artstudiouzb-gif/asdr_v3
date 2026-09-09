@@ -123,16 +123,13 @@ $mark = static function (bool $done, bool $started = true): string {
     </p>
     <form method="post" action="/admin/telegram/bot" class="form-grid">
         <?= Csrf::field() ?>
+        <?= AdminUi::secretField('telegram_bot_token', 'Токен бота (Bot API Token)', $botConfigured, [
+            'placeholder' => '1234567890:AAH…',
+            'maxlength' => 256,
+            'hint' => 'Формат: цифры, двоеточие, ключ. Без слова «bot» в начале. Этот токен используется для кодов входа и публикаций.',
+            'canClear' => false,
+        ]) ?>
         <div class="form-field">
-            <label for="telegram_bot_token">Токен бота (Bot API Token)</label>
-            <input type="password" id="telegram_bot_token" name="telegram_bot_token"
-                   value=""
-                   maxlength="256"
-                   placeholder="<?= $botConfigured ? 'Сохранён — оставьте пустым без изменений' : '1234567890:AAH…' ?>"
-                   autocomplete="new-password" spellcheck="false">
-            <span class="form-hint">
-                Формат: цифры, двоеточие, ключ. Без слова «bot» в начале. Этот токен используется для кодов входа и публикаций.
-            </span>
             <?php if ($botConfigured && !$setupRestricted): ?>
                 <label class="form-hint tg-danger-check">
                     <input type="checkbox" name="clear_telegram_bot_token" value="1" data-tg-clear-token>
@@ -332,20 +329,12 @@ $mark = static function (bool $done, bool $started = true): string {
         <details class="form-section">
             <summary>Отдельный бот для публикаций <span class="form-section__hint">(опционально)</span></summary>
             <div class="form-section__body">
-                <div class="form-field">
-                    <label for="tg_own_token">Токен бота-публикатора</label>
-                    <input type="password" id="tg_own_token" name="own_token"
-                           value=""
-                           maxlength="256"
-                           placeholder="<?= $channelOwnTokenConfigured ? 'Сохранён — оставьте пустым без изменений' : 'Пусто — использовать основного бота' ?>"
-                           autocomplete="new-password" spellcheck="false">
-                    <span class="form-hint">
-                        Если не заполнено — публикации отправляются основным ботом.
-                    </span>
-                    <?php if ($channelOwnTokenConfigured): ?>
-                        <label class="form-hint"><input type="checkbox" name="clear_own_token" value="1"> Удалить отдельный токен</label>
-                    <?php endif; ?>
-                </div>
+                <?= AdminUi::secretField('own_token', 'Токен бота-публикатора', $channelOwnTokenConfigured, [
+                    'placeholder' => 'Пусто — использовать основного бота',
+                    'maxlength' => 256,
+                    'hint' => 'Если не заполнено — публикации отправляются основным ботом.',
+                    'clearLabel' => 'Удалить отдельный токен',
+                ]) ?>
             </div>
         </details>
 
@@ -387,20 +376,12 @@ $mark = static function (bool $done, bool $started = true): string {
             </span>
         </div>
 
-        <div class="form-field">
-            <label for="telegram_gateway_token">Токен Telegram Gateway API (платный резервный SMS-сервис)</label>
-            <input type="password" id="telegram_gateway_token" name="telegram_gateway_token"
-                   value=""
-                   maxlength="10000"
-                   placeholder="<?= $gatewayConfigured ? 'Сохранён — оставьте пустым без изменений' : 'Введите токен Gateway' ?>"
-                   autocomplete="new-password" spellcheck="false">
-            <?php if ($gatewayConfigured): ?>
-                <label class="form-hint"><input type="checkbox" name="clear_telegram_gateway_token" value="1"> Удалить токен Gateway</label>
-            <?php endif; ?>
-            <span class="form-hint">
-                Служба <code>gateway.telegram.org</code> (для отправки кодов входа на телефоны администраторов без привязки бота).
-            </span>
-        </div>
+        <?= AdminUi::secretField('telegram_gateway_token', 'Токен Telegram Gateway API (платный резервный SMS-сервис)', $gatewayConfigured, [
+            'placeholder' => 'Введите токен Gateway',
+            'maxlength' => 10000,
+            'hint' => 'Служба <code>gateway.telegram.org</code> (для отправки кодов входа на телефоны администраторов без привязки бота).',
+            'clearLabel' => 'Удалить токен Gateway',
+        ]) ?>
 
         <div class="form-field form-field--checkbox">
             <input type="checkbox" id="tg_roundup" name="telegram_roundup" value="1"

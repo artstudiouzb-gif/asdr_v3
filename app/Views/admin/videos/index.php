@@ -82,15 +82,12 @@ $langMap = \App\Models\Video::availableLangsForIds(array_map(static fn ($i): int
                 </select>
                 <span class="form-hint">Скачанный кадр отдаётся с сайта и переживёт смену адресов у YouTube.</span>
             </div>
-            <div class="form-field">
-                <label for="youtube_api_key">Ключ YouTube Data API (необязательно)</label>
-                <input type="password" id="youtube_api_key" name="youtube_api_key" value=""
-                       placeholder="<?= $youtube['api_key'] !== '' ? 'Сохранён — оставьте пустым без изменений' : 'AIzaSy…' ?>">
-                <span class="form-hint">Нужен только для длительности ролика и выборки больше 15 записей за проход. Без ключа импорт работает по открытой ленте канала.</span>
-                <?php if ($youtube['api_key'] !== ''): ?>
-                    <label class="form-hint"><input type="checkbox" name="youtube_api_key_clear" value="1"> Удалить сохранённый ключ</label>
-                <?php endif; ?>
-            </div>
+            <?= AdminUi::secretField('youtube_api_key', 'Ключ YouTube Data API (необязательно)', $youtube['api_key'] !== '', [
+                'placeholder' => 'AIzaSy…',
+                'hint' => 'Нужен только для длительности ролика и выборки больше 15 записей за проход. Без ключа импорт работает по открытой ленте канала.',
+                'clearName' => 'youtube_api_key_clear',
+                'clearLabel' => 'Удалить сохранённый ключ',
+            ]) ?>
             <div class="form-field form-field--checkbox">
                 <input type="checkbox" id="youtube_import_featured" name="youtube_import_featured" value="1" <?= $youtube['featured'] ? 'checked' : '' ?>>
                 <label for="youtube_import_featured">Отмечать новые ролики «Показать на главной»</label>
