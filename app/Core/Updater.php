@@ -34,7 +34,7 @@ final class Updater
     /** Откуда берём релизы. Значение из окружения, а не из настроек в БД:
      *  настройка в панели позволила бы редактору увести обновление на чужой
      *  репозиторий, то есть выполнить свой код на сервере. */
-    private const DEFAULT_REPO = 'artstudiouzb-gif/asdr_v2';
+    private const DEFAULT_REPO = 'artstudiouzb-gif/asdr_v3';
 
     /** Домены GitHub, куда разрешено ходить. Ассеты отдаются с CDN редиректом,
      *  поэтому список шире, чем один api.github.com. */
