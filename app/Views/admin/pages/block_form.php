@@ -1675,7 +1675,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                     <?php endforeach; ?>
                 </p>
             <?php endif; ?>
-            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('org_structure', $data, ['title', 'layout', 'columns', 'council', 'head_title', 'head_name', 'head_url', 'side_items']) ?>
+            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('org_structure', $data, ['title', 'layout', 'columns', 'font_size', 'council', 'head_title', 'head_name', 'head_url', 'side_items']) ?>
             <?php
             // Готовые ссылки на состав сектора: адрес собирается по данным
             // команды, а не переписывается руками (переименование сектора
