@@ -71,3 +71,19 @@ test('Токену хватает одного права Cache Purge, и про
     assert_contains('Cache Purge', $form, 'право названо');
     assert_contains('Global API Key', $form, 'частая подмена названа прямо в форме');
 });
+
+test('Причина отказа очистки доходит до сообщения, а не только до журнала', function (): void {
+    // «Cloudflare: ошибка очистки» не подсказывает, что чинить, а журнал на
+    // shared-хостинге владелец не читает: до storage/logs он не доходит.
+    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
+    assert_contains('lastError', $source, 'причина отказа обязана сохраняться');
+    assert_contains('cache.purge', $source, 'отказ прав объясняется, а не только пересказывается');
+
+    $controller = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/PerformanceController.php');
+    assert_contains('Cloudflare::lastError()', $controller, 'сообщение панели обязано называть причину');
+    assert_same(
+        2,
+        preg_match_all('/Cloudflare::lastError\(\)/', $controller),
+        'причину называют обе кнопки: и «Сброс кэша», и «Очистить кэш Cloudflare»'
+    );
+});

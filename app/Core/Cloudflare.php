@@ -25,6 +25,17 @@ final class Cloudflare
     /** Чистка кэша выполняется не чаще одного раза за запрос. */
     private static bool $purgedThisRequest = false;
 
+    /**
+     * Причина последнего отказа API.
+     *
+     * Очистка отвечает «получилось/не получилось», а почему — знал только
+     * журнал. На shared-хостинге до `storage/logs/error.log` владелец обычно
+     * не доходит, и сообщение «Cloudflare: ошибка очистки» не оставляло ему
+     * ничего, кроме догадок. Тот же случай, что и с проверкой связи: причина
+     * у нас есть, надо её донести.
+     */
+    private static string $lastError = '';
+
     public static function enabled(): bool
     {
         return Setting::get('cf_enabled', '0') === '1'
@@ -275,6 +286,13 @@ final class Cloudflare
             $msg .= '. Проверьте, что в поле вставлен API-токен (Zone.Cache Purge), а не Global API Key,'
                 . ' и скопирован он без лишних символов.';
         }
+        // Отказ прав: у токена есть доступ к зоне, но нет права на очистку.
+        // Сообщение Cloudflare называет внутренний идентификатор права и
+        // ничего не говорит о том, где его выдать.
+        if (str_contains($msg, 'cache.purge') || str_contains($msg, 'requires permission')) {
+            $msg .= '. Добавьте токену право Zone · Cache Purge · Purge'
+                . ' (My Profile → API Tokens → Edit) — чтения зоны для очистки недостаточно.';
+        }
 
         return $msg;
     }
@@ -288,20 +306,29 @@ final class Cloudflare
         ];
     }
 
+    /** Причина последнего отказа очистки — пустая строка, если её не было. */
+    public static function lastError(): string
+    {
+        return self::$lastError;
+    }
+
     /**
      * @param array{status?: int, body?: string, error?: string} $res
      */
     private static function ok(array $res, string $op): bool
     {
         if (($res['error'] ?? '') !== '') {
+            self::$lastError = 'сеть: ' . $res['error'];
             Logger::warning('Cloudflare ' . $op . ' сеть: ' . $res['error']);
             return false;
         }
         $data = json_decode((string) ($res['body'] ?? ''), true);
         if (($res['status'] ?? 0) === 200 && is_array($data) && !empty($data['success'])) {
+            self::$lastError = '';
             return true;
         }
-        Logger::warning('Cloudflare ' . $op . ' ошибка: ' . self::errorText($data, (int) ($res['status'] ?? 0)));
+        self::$lastError = self::errorText($data, (int) ($res['status'] ?? 0));
+        Logger::warning('Cloudflare ' . $op . ' ошибка: ' . self::$lastError);
 
         return false;
     }
