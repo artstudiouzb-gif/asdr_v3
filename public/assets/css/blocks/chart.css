@@ -1,0 +1,110 @@
+/* «Диаграмма»: полосы сравнения, доли одной полосой, показатель к цели.
+
+   Рисуется разметкой и CSS: библиотеку публичная CSP не пропустит, а картинка
+   не переводится и не читается диктором. Длину каждой полосы задаёт scoped CSS
+   блока переменной --chart-share.
+
+   Палитра долей — шесть фиксированных оттенков в этом порядке. Порядок не
+   декоративный: он проверен на различимость при дальтонизме (protan ΔE 9.1,
+   tritan 27.0 на светлой; 8.4 и 23.8 на тёмной) — соседние слоты специально
+   разведены, поэтому переставлять их нельзя. Седьмого оттенка нет: он был бы
+   неотличим от занятого, и хвост сворачивается в «Прочее» (ChartData).
+
+   Тёмный набор — та же шестёрка, пересчитанная под тёмную поверхность, а не
+   осветлённая автоматически. */
+.block-chart {
+    --viz-1: #2a78d6;
+    --viz-2: #eda100;
+    --viz-3: #1baf7a;
+    --viz-4: #eb6834;
+    --viz-5: #4a3aa7;
+    --viz-6: #e87ba4;
+    --chart-track: color-mix(in srgb, var(--gov-title) 8%, transparent);
+}
+:root[data-theme="dark"] .block-chart {
+    --viz-1: #3987e5;
+    --viz-2: #c98500;
+    --viz-3: #199e70;
+    --viz-4: #d95926;
+    --viz-5: #9085e9;
+    --viz-6: #d55181;
+}
+
+.block-chart__title { margin: 0 0 clamp(14px, 1.6vw, 22px); }
+
+/* --- Полосы сравнения и показатель к цели --- */
+.chart__rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.chart__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 4px 12px;
+}
+/* Подпись и значение — настоящий текст, а не подсказка при наведении: диктор
+   читает «Транспорт — 24 %», и отдельное описание диаграмме не требуется. */
+.chart__label { color: var(--section-fg, var(--gov-ink)); font-size: var(--step--1); text-wrap: pretty; }
+.chart__value { color: var(--section-title-fg, var(--gov-title)); font-size: var(--step--1); font-weight: 600; white-space: nowrap; }
+
+.chart__track {
+    grid-column: 1 / -1;
+    display: block;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--chart-track);
+    overflow: hidden;
+}
+.chart__fill {
+    display: block;
+    height: 100%;
+    width: var(--chart-share, 0%);
+    border-radius: 999px;
+    background: var(--gov-teal);
+}
+
+/* Показатель к цели — та же полоса, но крупнее: он на странице один и является
+   заголовком сам по себе. */
+.block-chart--meter .chart__track { height: 16px; }
+.block-chart--meter .chart__value { font-size: var(--step-4); }
+
+/* --- Доли: одна полоса из сегментов --- */
+/* Сегменты разделены зазором в цвет поверхности: без него две соседние заливки
+   читаются как одна широкая. */
+.chart__stack {
+    display: flex;
+    gap: 2px;
+    height: 18px;
+    border-radius: 999px;
+    overflow: hidden;
+}
+.chart__seg { display: block; flex: 0 0 var(--chart-share, 0%); min-width: 2px; }
+
+.chart__legend {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px 20px;
+}
+.chart__legend-item { display: flex; align-items: baseline; gap: 8px; }
+.chart__legend-item .chart__label { flex: 1 1 auto; min-width: 0; }
+.chart__swatch {
+    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    transform: translateY(1px);
+}
+
+.chart__seg--0 { background: var(--viz-1); }
+.chart__seg--1 { background: var(--viz-2); }
+.chart__seg--2 { background: var(--viz-3); }
+.chart__seg--3 { background: var(--viz-4); }
+.chart__seg--4 { background: var(--viz-5); }
+.chart__seg--5 { background: var(--viz-6); }
+
+.block-chart__caption { margin: 14px 0 0; }
+
+@media (max-width: 560px) {
+    .chart__legend { grid-template-columns: minmax(0, 1fr); }
+}

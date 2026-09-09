@@ -1,0 +1,273 @@
+/* Compact, readable layout for the admin «Настройки слайдера» panel. */
+
+.slider-settings-layout {
+    --slider-settings-border: var(--admin-border, #dce3ed);
+    --slider-settings-surface: var(--admin-surface, #ffffff);
+    --slider-settings-soft: var(--admin-surface-soft, #f7f9fc);
+    --slider-settings-text: var(--admin-text, #1f2937);
+    --slider-settings-muted: var(--admin-muted, #667085);
+    --slider-settings-accent: var(--admin-accent, #2563eb);
+    --slider-settings-accent-soft: color-mix(in srgb, var(--slider-settings-accent) 9%, transparent);
+}
+
+.slider-settings-layout__title {
+    margin-bottom: 14px !important;
+}
+
+.slider-settings-layout__tabs {
+    display: inline-flex !important;
+    width: auto !important;
+    max-width: 100%;
+    gap: 3px !important;
+    margin: 0 0 18px !important;
+    padding: 4px !important;
+    border: 1px solid var(--slider-settings-border) !important;
+    border-radius: 3px!important;
+    background: var(--slider-settings-soft) !important;
+}
+
+.slider-settings-layout__tab {
+    min-height: 36px !important;
+    padding: 7px 16px !important;
+    border: 0 !important;
+    border-radius: 3px!important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--slider-settings-muted) !important;
+    font-size: var(--admin-fs-base) !important;
+    font-weight: var(--admin-fw-semibold) !important;
+    line-height: 1.2 !important;
+    white-space: nowrap;
+}
+
+.slider-settings-layout__tab:hover {
+    color: var(--slider-settings-text) !important;
+    background: color-mix(in srgb, var(--slider-settings-surface) 72%, transparent) !important;
+}
+
+.slider-settings-layout__tab.is-current,
+.slider-settings-layout__tab.active,
+.slider-settings-layout__tab.is-active,
+.slider-settings-layout__tab[aria-selected="true"] {
+    color: var(--slider-settings-accent) !important;
+    background: var(--slider-settings-surface) !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .08) !important;
+}
+
+.slider-settings-layout__panel {
+    min-width: 0;
+}
+
+.slider-settings-layout__groups {
+    display: grid;
+    grid-template-columns: minmax(340px, .9fr) minmax(480px, 1.2fr);
+    gap: 14px;
+    width: min(100%, 1120px);
+    align-items: stretch;
+}
+
+.slider-settings-layout__section {
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--slider-settings-border);
+    border-radius: 3px;
+    background: var(--slider-settings-surface);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .025);
+}
+
+.slider-settings-layout__section--behavior {
+    background:
+        linear-gradient(180deg, var(--slider-settings-accent-soft), transparent 74px),
+        var(--slider-settings-surface);
+}
+
+.slider-settings-layout__section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--slider-settings-border) 82%, transparent);
+}
+
+.slider-settings-layout__section-title {
+    margin: 0 0 3px !important;
+    color: var(--slider-settings-text);
+    font-size: var(--admin-fs-md) !important;
+    font-weight: var(--admin-fw-semibold) !important;
+    line-height: 1.25;
+}
+
+.slider-settings-layout__section-hint {
+    max-width: 430px;
+    margin: 0;
+    color: var(--slider-settings-muted);
+    font-size: var(--admin-fs-xs);
+    line-height: 1.4;
+}
+
+.slider-settings-layout__toggle-grid,
+.slider-settings-layout__field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.slider-settings-layout__toggle {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 0;
+    min-height: 52px;
+    margin: 0 !important;
+    padding: 9px 11px !important;
+    border: 1px solid var(--slider-settings-border);
+    border-radius: 3px;
+    background: var(--slider-settings-surface);
+    transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+.slider-settings-layout__toggle:hover {
+    border-color: color-mix(in srgb, var(--slider-settings-accent) 28%, var(--slider-settings-border));
+}
+
+.slider-settings-layout__toggle.is-checked {
+    border-color: color-mix(in srgb, var(--slider-settings-accent) 42%, var(--slider-settings-border));
+    background: color-mix(in srgb, var(--slider-settings-accent) 5%, var(--slider-settings-surface));
+    box-shadow: inset 3px 0 0 color-mix(in srgb, var(--slider-settings-accent) 72%, transparent);
+}
+
+.slider-settings-layout__toggle-label {
+    order: 1;
+    min-width: 0;
+    margin: 0 !important;
+    color: var(--slider-settings-text) !important;
+    font-size: var(--admin-fs-sm) !important;
+    font-weight: var(--admin-fw-semibold) !important;
+    line-height: 1.25 !important;
+    cursor: pointer;
+}
+
+.slider-settings-layout__switch {
+    order: 2;
+    position: relative;
+    flex: 0 0 auto;
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 20px !important;
+    margin: 0 0 0 auto !important;
+    padding: 0 !important;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid #c8d0dc !important;
+    border-radius: 3px!important;
+    background: #dce2ea !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    transition: background-color .16s ease, border-color .16s ease;
+}
+
+.slider-settings-layout__switch::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .2);
+    transition: transform .16s ease;
+}
+
+.slider-settings-layout__switch:checked {
+    border-color: var(--slider-settings-accent) !important;
+    background: var(--slider-settings-accent) !important;
+}
+
+.slider-settings-layout__switch:checked::before {
+    transform: translateX(16px);
+}
+
+.slider-settings-layout__switch:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--slider-settings-accent) 22%, transparent) !important;
+    outline-offset: 2px;
+}
+
+.slider-settings-layout__field {
+    min-width: 0;
+    margin: 0 !important;
+}
+
+.slider-settings-layout__field-label {
+    display: block;
+    margin: 0 0 6px !important;
+    color: var(--slider-settings-text) !important;
+    font-size: var(--admin-fs-xs) !important;
+    font-weight: var(--admin-fw-semibold) !important;
+    line-height: 1.25;
+}
+
+.slider-settings-layout__control {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    border-radius: 3px!important;
+    font-size: var(--admin-fs-base) !important;
+}
+
+.slider-settings-layout__control[type="number"] {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Safe fallback if a third-party block editor nests fields in extra rows. */
+.slider-settings-layout__panel--fallback {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(160px, 240px));
+    gap: 12px;
+    width: min(100%, 1040px);
+    align-items: end;
+}
+
+.slider-settings-layout__panel--fallback .slider-settings-layout__toggle {
+    align-self: stretch;
+}
+
+@media (max-width: 1080px) {
+    .slider-settings-layout__groups {
+        grid-template-columns: 1fr;
+        width: min(100%, 760px);
+    }
+
+    .slider-settings-layout__panel--fallback {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: min(100%, 760px);
+    }
+}
+
+@media (max-width: 640px) {
+    .slider-settings-layout__tabs {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100% !important;
+    }
+
+    .slider-settings-layout__tab {
+        min-width: 0 !important;
+        padding-inline: 8px !important;
+        text-align: center;
+    }
+
+    .slider-settings-layout__section {
+        padding: 13px;
+        border-radius: 3px;
+    }
+
+    .slider-settings-layout__toggle-grid,
+    .slider-settings-layout__field-grid,
+    .slider-settings-layout__panel--fallback {
+        grid-template-columns: 1fr;
+    }
+}

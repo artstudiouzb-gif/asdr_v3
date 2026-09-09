@@ -1,0 +1,346 @@
+/* Shared editorial typography for the public site and TinyMCE. */
+:where(.rich-content) {
+    /* Цвет секции идёт первым, обычный цвет темы — запасным.
+       Текст на цветной секции рисуется этим же компонентом, и без
+       --section-* он оставался тёмным: на navy-секции получалось #1a1a1a
+       по тёмно-синему, около 1.5:1 при норме 4.5:1. Переменная секции вне
+       тёмных секций не задана (:root объявляет её через несуществующую
+       --text-primary), поэтому на светлой странице ничего не меняется, а
+       белая карточка внутри тёмной секции объявляет её себе заново и
+       остаётся с тёмным текстом. */
+    --rich-ink: var(--section-fg, var(--gov-ink, #1f2b3d));
+    --rich-title: var(--section-title-fg, var(--gov-title, var(--gov-navy)));
+    --rich-accent: var(--gov-teal);
+    /* Ссылки в тексте — отдельным токеном: заливки могут быть яркими, а
+       текст обязан держать 4.5:1. --gov-teal-text считается на сервере с
+       поправкой на контраст, сырой акцент давал 3.19:1. */
+    --rich-link: var(--section-link-fg, var(--gov-teal-text));
+    --rich-muted: var(--section-muted-fg, var(--gov-muted, #667182));
+    --rich-border: var(--gov-border, #e5e9f0);
+    --rich-surface: var(--gov-surface, #ffffff);
+    --rich-tint: color-mix(in srgb, var(--rich-title) 5%, var(--rich-surface));
+    color: var(--rich-ink);
+    font-family: var(--font-family, 'Noto Sans', system-ui, -apple-system, 'Segoe UI', sans-serif);
+    font-size: var(--font-size-body, var(--step-0));
+    line-height: 1.75;
+    overflow-wrap: break-word;
+    text-wrap: pretty;
+}
+
+/* Мера строки не задаётся нигде: и текст, и заголовок блока занимают всю
+   ширину колонки — так решил владелец. Токена --rich-measure больше нет,
+   чтобы в разметке не осталось неиспользуемой «половинной» ширины. */
+
+:where(.rich-content) > :first-child { margin-block-start: 0; }
+:where(.rich-content) > :last-child { margin-block-end: 0; }
+
+:where(.rich-content) h2,
+:where(.rich-content) h3,
+:where(.rich-content) h4,
+:where(.rich-content) h5,
+:where(.rich-content) h6 {
+    margin-block: 1.8em .65em;
+    color: var(--rich-title);
+    font-family: var(--font-heading, 'Noto Serif', Georgia, serif);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0;
+    scroll-margin-block-start: 7rem;
+}
+
+:where(.rich-content) h2 { font-size: var(--font-size-h2, var(--step-5)); }
+:where(.rich-content) h3 { font-size: var(--font-size-h3, var(--step-3)); }
+:where(.rich-content) h4 { font-size: var(--font-size-h4, var(--step-2)); }
+:where(.rich-content) h5 { font-size: var(--font-size-h5, var(--step-0)); }
+:where(.rich-content) h6 { font-size: var(--font-size-h6, var(--step--1)); }
+
+:where(.rich-content) p { margin-block: 0 1.1em; }
+/* Полужирный — это выделение, а не смена цвета: синий <strong> в тексте
+   читается как ссылка, и абзац с ним выбивался из остальной статьи. */
+:where(.rich-content) strong { color: inherit; font-weight: 700; }
+:where(.rich-content) small { color: var(--rich-muted); font-size: var(--font-size-small, .875em); }
+:where(.rich-content) sub,
+:where(.rich-content) sup { position: relative; font-size: var(--font-size-small, .72em); line-height: 0; }
+:where(.rich-content) sup { inset-block-start: -.45em; }
+:where(.rich-content) sub { inset-block-end: -.2em; }
+
+:where(.rich-content) a {
+    color: var(--rich-link);
+    /* Не жирные: на странице с перечнем документов почти каждый абзац —
+       ссылка, и полужирное начертание превращает текст в сплошной акцент. */
+    font-weight: inherit;
+    text-decoration-thickness: .08em;
+    text-underline-offset: .2em;
+    text-decoration-skip-ink: auto;
+}
+
+:where(.rich-content) a:hover { text-decoration-thickness: .14em; }
+:where(.rich-content) a:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--rich-accent) 45%, transparent);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+:where(.rich-content) ul,
+:where(.rich-content) ol { margin-block: 0 1.25em; padding-inline-start: 1.45em; }
+:where(.rich-content) li { padding-inline-start: .25em; }
+:where(.rich-content) li + li { margin-block-start: .42em; }
+:where(.rich-content) ol li::marker { color: var(--rich-accent); font-weight: 700; }
+
+/* Маркер маркированного списка — восьмиконечная звезда (руб-эль-Хизб, два
+   наложенных квадрата): та же геометрия, что в эмблеме Агентства. Форму
+   держит от 10px, поэтому размер фиксированный, а не в em. */
+:where(.rich-content) ul { list-style: none; }
+:where(.rich-content) ul > li { position: relative; }
+:where(.rich-content) ul > li::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -1.15em;
+    inset-block-start: .58em;
+    width: 10px;
+    height: 10px;
+    background: var(--rich-accent);
+    /* Вершины: восемь внешних углов на радиусе R и восемь внутренних на
+       0.765R — это ровно контур двух наложенных квадратов. */
+    clip-path: polygon(
+        50% 0%, 64.7% 14.6%, 85.4% 14.6%, 85.4% 35.3%, 100% 50%, 85.4% 64.7%,
+        85.4% 85.4%, 64.7% 85.4%, 50% 100%, 35.3% 85.4%, 14.6% 85.4%, 14.6% 64.7%,
+        0% 50%, 14.6% 35.3%, 14.6% 14.6%, 35.3% 14.6%
+    );
+}
+:where(.rich-content) li > ul,
+:where(.rich-content) li > ol { margin-block: .5em 0; }
+
+:where(.rich-content) blockquote {
+    position: relative;
+    margin-block: 2em;
+    padding: 1.4rem 2.8rem 1.4rem 1.8rem;
+    border-inline-start: 4px solid var(--rich-accent, #0d9488);
+    border-radius: 0 var(--radius, 14px) var(--radius, 14px) 0;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--rich-accent, #0d9488) 7%, transparent), color-mix(in srgb, var(--rich-accent, #0d9488) 2%, transparent));
+    color: var(--rich-title, #1e293b);
+    font-size: var(--font-size-lead, 1.08em);
+    line-height: 1.68;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+:where(.rich-content) blockquote:hover {
+    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06);
+}
+
+:where(.rich-content) blockquote::before {
+    content: "\201C";
+    position: absolute;
+    top: -0.25rem;
+    right: 1.2rem;
+    color: var(--rich-accent, #0d9488);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: var(--font-size-h1, var(--step-11));
+    line-height: 1;
+    opacity: 0.2;
+    pointer-events: none;
+    user-select: none;
+}
+
+:where(.rich-content) blockquote p {
+    margin-block: 0 0.5em;
+}
+
+:where(.rich-content) blockquote > :last-child {
+    margin-block-end: 0;
+}
+
+:where(.rich-content) blockquote cite,
+:where(.rich-content) blockquote footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-block-start: 0.9rem;
+    color: var(--rich-muted, #64748b);
+    font-family: var(--font-family, system-ui, sans-serif);
+    font-size: var(--font-size-meta, var(--step--2));
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+:where(.rich-content) blockquote cite::before,
+:where(.rich-content) blockquote footer::before {
+    content: "\2014";
+    color: var(--rich-accent, #0d9488);
+    font-weight: 800;
+}
+
+:where(.rich-content) blockquote.pullquote,
+:where(.rich-content) .pullquote {
+    background: transparent;
+    border-inline-start: 0;
+    border-radius: 0;
+    border-block: 2px solid var(--rich-accent, #0d9488);
+    padding: 1.6rem 1rem;
+    text-align: center;
+    font-size: var(--font-size-h3, var(--step-2));
+    font-weight: 600;
+}
+:where(.rich-content) blockquote.pullquote::before,
+:where(.rich-content) .pullquote::before {
+    display: none;
+}
+
+:where(.rich-content) figure {
+    margin: 2.2em 0;
+    display: block;
+}
+
+:where(.rich-content) figure.article-media {
+    inline-size: 100%;
+    max-inline-size: 100%;
+}
+:where(.rich-content) figure.article-media--compact { inline-size: min(100%, 520px); }
+:where(.rich-content) figure.article-media--align-left { margin-inline: 0 auto; }
+:where(.rich-content) figure.article-media--align-center { margin-inline: auto; }
+:where(.rich-content) figure.article-media--align-right { margin-inline: auto 0; }
+:where(.rich-content) figure.article-media--wide {
+    position: relative;
+    left: 50%;
+    inline-size: min(calc(100% + clamp(24px, 5vw, 72px)), calc(100vw - 40px));
+    max-inline-size: none;
+    transform: translateX(-50%);
+}
+
+:where(.rich-content) figure img,
+:where(.rich-content) img {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+    border-radius: var(--radius, 12px);
+    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:where(.rich-content) figure:hover img {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+:where(.rich-content) figcaption,
+:where(.rich-content) table caption {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-block-start: 0.8rem;
+    padding: 6px 12px;
+    background: color-mix(in srgb, var(--rich-tint, #f8fafc) 80%, transparent);
+    border-inline-start: 3px solid var(--rich-accent, #0d9488);
+    border-radius: 0 var(--radius-sm, 8px) var(--radius-sm, 8px) 0;
+    color: var(--rich-muted, #475569);
+    font-size: var(--font-size-meta, var(--step--2));
+    line-height: 1.55;
+    text-align: start;
+    font-weight: 500;
+}
+
+:where(.rich-content) figcaption::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    margin-top: .45em;
+    border-radius: 50%;
+    background: var(--rich-accent, #0d9488);
+    flex-shrink: 0;
+}
+:where(.rich-content) .article-media__credit { color: var(--rich-muted, #64748b); font-weight: 400; }
+
+@media (max-width: 640px) {
+    :where(.rich-content) figure.article-media,
+    :where(.rich-content) figure.article-media--compact,
+    :where(.rich-content) figure.article-media--wide {
+        inline-size: 100%;
+        margin-inline: 0;
+        left: auto;
+        transform: none;
+    }
+}
+
+:where(.rich-content) table {
+    inline-size: 100%;
+    margin-block: 1.6em;
+    border: 1px solid var(--rich-border);
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: var(--radius-sm, 8px);
+    background: var(--rich-surface);
+    font-size: var(--font-size-card-text, var(--step--1));
+    line-height: 1.45;
+}
+
+:where(.rich-content) th,
+:where(.rich-content) td {
+    padding: .8rem .9rem;
+    border-block-end: 1px solid var(--rich-border);
+    border-inline-end: 1px solid var(--rich-border);
+    text-align: start;
+    vertical-align: top;
+}
+
+:where(.rich-content) th:last-child,
+:where(.rich-content) td:last-child { border-inline-end: 0; }
+:where(.rich-content) tr:last-child > td { border-block-end: 0; }
+:where(.rich-content) thead th { background: var(--rich-tint); color: var(--rich-title); font-weight: 700; }
+:where(.rich-content) tbody tr:nth-child(even) { background: color-mix(in srgb, var(--rich-title) 2.5%, transparent); }
+:where(.rich-content) tbody tr:hover { background: color-mix(in srgb, var(--rich-accent) 7%, transparent); }
+
+:where(.rich-content) pre {
+    margin-block: 1.5em;
+    padding: 1rem 1.15rem;
+    overflow-x: auto;
+    border: 1px solid color-mix(in srgb, var(--rich-title) 76%, #000000);
+    border-radius: var(--radius-sm, 8px);
+    background: color-mix(in srgb, var(--rich-title) 88%, #000000);
+    color: #f4f7fb;
+    font: .9rem/1.65 ui-monospace, 'Cascadia Code', Consolas, monospace;
+    tab-size: 4;
+}
+
+:where(.rich-content) :not(pre) > code {
+    padding: .12em .35em;
+    border: 1px solid var(--rich-border);
+    border-radius: var(--radius-sm, 4px);
+    background: var(--rich-tint);
+    color: var(--rich-title);
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+    font-size: var(--font-size-small, .88em);
+}
+
+:where(.rich-content) hr { margin-block: 2em; border: 0; border-block-start: 1px solid var(--rich-border); }
+:where(.rich-content) mark { padding-inline: .15em; background: color-mix(in srgb, #ffd84d 52%, transparent); color: inherit; }
+
+/* Первый абзац новости раньше набирался крупнее и синим — «вводкой». Но лид
+   у новости уже есть в шапке, и тот же текст выглядел на странице дважды и
+   по-разному. Текст статьи набран единообразно. */
+
+@media (max-width: 720px) {
+    :where(.rich-content) { font-size: var(--font-size-body, var(--step-0)); }
+    :where(.rich-content) h2 { font-size: var(--font-size-h2, var(--step-4)); }
+    :where(.rich-content) h3 { font-size: var(--font-size-h3, var(--step-2)); }
+    :where(.rich-content) blockquote { padding: 1.1rem 2.8rem 1.1rem 1.15rem; }
+    :where(.rich-content) blockquote::before { inset-inline-end: .65rem; font-size: var(--font-size-h1, var(--step-9)); }
+    :where(.rich-content) table { display: block; max-inline-size: 100%; overflow-x: auto; scrollbar-width: thin; }
+    :where(.rich-content) th,
+    :where(.rich-content) td { min-inline-size: 8rem; }
+}
+
+@media (forced-colors: active) {
+    :where(.rich-content) blockquote,
+    :where(.rich-content) table,
+    :where(.rich-content) th,
+    :where(.rich-content) td { border-color: CanvasText; }
+}
+
+@media print {
+    :where(.rich-content) { color: #000000; }
+    :where(.rich-content) a { color: #000000; }
+    :where(.rich-content) table { display: table; overflow: visible; }
+    :where(.rich-content) pre { white-space: pre-wrap; }
+}

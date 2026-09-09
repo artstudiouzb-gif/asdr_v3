@@ -1,0 +1,11 @@
+/* News index: пагинация отделена от последнего ряда карточек и от следующего блока. */
+.newslist-grid + .listing-pager {
+    margin-top: var(--space-xl, 3rem);
+    margin-bottom: var(--space-s, 1rem);
+}
+
+@media (max-width: 640px) {
+    .newslist-grid + .listing-pager {
+        margin-top: var(--space-l, 2rem);
+    }
+}

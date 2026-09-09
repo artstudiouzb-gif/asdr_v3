@@ -1,0 +1,41 @@
+/*
+ * Hero slide editor compatibility reset.
+ *
+ * admin.css still owns the generic .form-section and .image-field components
+ * used by the rest of the CMS. Those base rules must stay global. This layer
+ * explicitly neutralizes only properties that would otherwise compete with
+ * the dedicated Hero slide editor layout.
+ */
+
+/* admin.css draws its own disclosure arrow with ::before. The Hero editor
+   owns the arrow through ::after, so the legacy marker must not survive. */
+form[action*="/admin/heroes/"][action*="/slides/"] details.form-section > summary::before,
+form[action*="/admin/heroes/"][action*="/slides/"] details.form-section[open] > summary::before {
+    content: none !important;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    transform: none !important;
+}
+
+/* The generic state badge is pushed with margin-left:auto for a flex summary.
+   Hero summaries are CSS Grid, so that old flex alignment must be cleared. */
+form[action*="/admin/heroes/"][action*="/slides/"] .form-section__state {
+    margin-left: 0 !important;
+}
+
+/* The generic body is a flex column. The Hero body is a real field grid.
+   Clear flex-only leftovers so future changes in admin.css cannot leak in. */
+form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid {
+    flex-direction: initial !important;
+    flex-wrap: initial !important;
+}
+
+/* Generic image previews have a fixed card shadow intended for ordinary admin
+   forms. Hero image controls use the calmer section surface instead. */
+form[action*="/admin/heroes/"][action*="/slides/"] .image-field__preview {
+    flex-shrink: initial !important;
+    box-shadow: none !important;
+}

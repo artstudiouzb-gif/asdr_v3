@@ -1,0 +1,276 @@
+/* из public/assets/css/gov-theme.css */
+
+
+/* Анимация фокуса для фильтров, поиска и полей ввода */
+.catlist-toolbar__search input, .catlist-toolbar__sort { transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease; }
+.catlist-toolbar__search input:focus, .catlist-toolbar__search input:focus-visible, .catlist-toolbar__sort:focus, .catlist-toolbar__sort:focus-visible { border-color: var(--gov-teal); box-shadow: 0 0 0 4px color-mix(in srgb, var(--gov-teal) 15%, transparent); outline: none; }
+
+
+
+
+/* ===== Каталог (вакансии, тендеры, документы, мероприятия) ===== */
+.catlist-toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.catlist-toolbar__search { position: relative; flex: 1 1 260px; max-width: 460px; }
+.catlist-toolbar__search svg { position: absolute; left: 14px; top: 50%; translate: 0 -50%; color: var(--gov-muted); pointer-events: none; }
+.catlist-toolbar__search input { width: 100%; height: 46px; padding: 0 14px 0 42px; border: 1px solid var(--gov-border); border-radius: var(--radius-sm, 10px); background: var(--gov-surface); color: var(--gov-title); font: inherit; outline: none; }
+.catlist-toolbar__sort { height: 46px; padding: 0 12px; border: 1px solid var(--gov-border); border-radius: var(--radius-sm, 10px); background: var(--gov-surface); color: var(--gov-title); font: inherit; }
+.catlist-toolbar__btn { height: 46px; padding: 0 22px; border: 0; border-radius: var(--radius-sm, 10px); background: var(--gov-navy); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.catlist-toolbar__btn:hover { background: var(--gov-teal); }
+.catlist-toolbar__reset { color: var(--gov-teal-text); font-weight: 600; text-decoration: none; }
+.catlist-count { color: var(--gov-muted); margin: 0; }
+.catlist-count b { color: var(--gov-title); }
+
+.catlist { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--card-gap, 20px); }
+@media (max-width: 900px) { .catlist { grid-template-columns: 1fr; }
+}
+
+
+/* --- Управление шаблоном списка разделов (Каталог) из настроек дизайна --- */
+body.design-catalog-cards_lg .catlist { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--card-gap, 24px); }
+body.design-catalog-cards_sm .catlist { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+body.design-catalog-cards_sm .catcard { padding: 16px; }
+body.design-catalog-cards_sm .catcard__title { font-size: var(--step-0); }
+body.design-catalog-list .catlist { display: flex; flex-direction: column; gap: 12px; }
+body.design-catalog-list .catcard { display: flex; flex-direction: row; align-items: flex-start; padding: 16px 20px; }
+@media (max-width: 900px) {
+    body.design-catalog-cards_lg .catlist { grid-template-columns: 1fr; }
+    body.design-catalog-cards_sm .catlist { grid-template-columns: 1fr; }
+    body.design-catalog-list .catcard { flex-direction: column; }
+}
+
+.catcard {
+    display: flex;
+    gap: 18px;
+    padding: 24px;
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--gov-surface) 75%, transparent);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid color-mix(in srgb, var(--gov-border) 60%, transparent);
+    box-shadow: var(--card-shadow, 0 4px 20px -6px rgba(15, 27, 45, 0.05));
+    transition: transform 0.35s cubic-bezier(0.165, 0.84, 0.44, 1),
+                box-shadow 0.35s cubic-bezier(0.165, 0.84, 0.44, 1),
+                border-color 0.3s ease,
+                background-color 0.3s ease;
+}
+.catcard:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--gov-teal) 60%, var(--gov-border));
+    box-shadow: 0 12px 32px -8px rgba(15, 27, 45, 0.10);
+    background: color-mix(in srgb, var(--gov-surface) 92%, transparent);
+}
+.catcard--archived {
+    background: color-mix(in srgb, var(--gov-surface) 40%, transparent);
+    opacity: 0.85;
+}
+.catcard--archived .catcard__title a { color: var(--gov-muted); }
+
+.catcard__main {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+.catcard__top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2px;
+}
+.catcard__doc-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm, 8px);
+    background: color-mix(in srgb, var(--gov-teal) 12%, transparent);
+    color: var(--gov-teal-text);
+    flex-shrink: 0;
+}
+.catcard__status {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--gov-teal) 12%, transparent);
+    color: var(--gov-teal-text);
+    font-size: var(--step--4);
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+.catcard__status--off {
+    background: color-mix(in srgb, var(--gov-title) 8%, transparent);
+    color: var(--gov-muted);
+}
+.catcard__created {
+    margin-left: auto;
+    color: var(--gov-muted);
+    font-size: var(--step--3);
+    font-weight: 500;
+}
+
+.catcard__title {
+    margin: 0;
+    font-size: var(--step-2);
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: var(--heading-letter-spacing, -0.015em);
+}
+.catcard__title a {
+    color: var(--gov-title);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.catcard__title a:hover {
+    color: var(--gov-teal-text);
+}
+
+.catcard__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px 12px;
+    margin: 4px 0;
+}
+.catcard__meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm, 8px);
+    background: color-mix(in srgb, var(--gov-bg) 65%, transparent);
+    border: 1px solid color-mix(in srgb, var(--gov-border) 50%, transparent);
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+.catcard:hover .catcard__meta-item {
+    background: color-mix(in srgb, var(--gov-bg) 88%, transparent);
+    border-color: color-mix(in srgb, var(--gov-border) 75%, transparent);
+}
+.catcard__meta-item i {
+    font-style: normal;
+    font-size: var(--step--4);
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--gov-muted);
+}
+.catcard__meta-item span {
+    font-size: var(--step--2);
+    font-weight: 600;
+    color: var(--gov-title);
+    line-height: 1.3;
+}
+
+.catcard__excerpt {
+    margin: 0;
+    color: var(--gov-muted);
+    font-size: var(--step--2);
+    line-height: var(--base-line-height, 1.5);
+}
+
+.catcard__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px dashed color-mix(in srgb, var(--gov-border) 50%, transparent);
+}
+.catcard__file {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border-radius: var(--radius-sm, 6px);
+    background: color-mix(in srgb, var(--gov-navy) 6%, transparent);
+    color: var(--gov-title);
+    font-size: var(--step--3);
+    font-weight: 600;
+}
+.catcard__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    color: var(--gov-teal-text);
+    font-weight: 700;
+    font-size: var(--step--2);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.catcard__more .catcard__arrow {
+    display: inline-block;
+    transition: transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.catcard:hover .catcard__more .catcard__arrow {
+    transform: translateX(4px);
+}
+
+/* Мероприятия: плитка даты слева. */
+.catlist--events .catcard { align-items: flex-start; }
+.catlist--events .catcard--with-image { display: grid; grid-template-columns: 74px minmax(0, 1fr); align-items: start; }
+.catcard__event-media { display: block; grid-column: 1 / -1; width: 100%; height: 190px; overflow: hidden; border-radius: var(--radius, 12px); background: var(--gov-bg); }
+.catcard__event-media picture { display: block; width: 100%; height: 100%; }
+.catcard__event-image { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--media-object-position, center); transition: transform .35s ease; }
+.catcard:hover .catcard__event-image { transform: scale(1.035); }
+.catcard--with-image .catcard__datebox { grid-column: 1; }
+.catcard--with-image .catcard__main { grid-column: 2; }
+.catcard__datebox { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 0 0 74px; min-height: 84px; padding: 10px 6px; border-radius: var(--radius, 12px); background: var(--gov-navy); color: #fff; text-align: center; }
+.catcard__datebox b { font-family: var(--font-heading, 'Noto Serif', serif); font-size: var(--step-5); line-height: 1; }
+.catcard__datebox i { font-style: normal; font-size: var(--step--4); font-weight: 700; letter-spacing: .08em; margin-top: 4px; }
+.catcard__datebox em { font-style: normal; font-size: var(--step--4); opacity: .75; }
+@media (max-width: 560px) {
+    .catcard__event-media { height: 180px; }
+}
+
+
+
+
+/* Деталка записи каталога. */
+.catdetail { display: flex; flex-direction: column; gap: clamp(24px, 3.4vw, 40px); padding-block: 10px clamp(40px, 5vw, 64px); }
+.catdetail__head { max-width: 900px; }
+.catdetail__eyebrow { display: inline-block; color: var(--gov-teal-text); font-size: var(--step--3); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.catdetail__title { margin: 12px 0 10px; font-size: var(--step-8); line-height: 1.15; color: var(--section-title-fg); }
+.catdetail__date { color: var(--gov-muted); font-size: var(--step--2); }
+.catdetail__event-banner { width: 100%; margin: 0; overflow: hidden; border-radius: clamp(14px, 2vw, 22px); aspect-ratio: 16 / 7; background: var(--gov-bg); box-shadow: var(--card-shadow); }
+.catdetail__event-banner picture { display: block; width: 100%; height: 100%; }
+.catdetail__event-image { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--media-object-position, center); }
+.catdetail__grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: clamp(24px, 3.4vw, 48px); align-items: start; }
+@media (max-width: 900px) { .catdetail__grid { grid-template-columns: 1fr; }
+}
+
+.catdetail__body { display: flex; flex-direction: column; gap: 26px; }
+.catdetail__subtitle { margin: 0 0 10px; font-size: var(--step-2); color: var(--gov-title); }
+.catdetail__text { color: var(--gov-ink, #2b3b4e); line-height: var(--base-line-height, 1.6); }
+.catdetail__text img { max-width: 100%; border-radius: var(--radius, 12px); }
+.catdetail__empty { color: var(--gov-muted); }
+.catdetail__card { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 16px; padding: 24px; }
+.catdetail__card-title { margin: 0; font-size: var(--step-0); color: var(--gov-title); }
+.catdetail__facts { display: flex; flex-direction: column; gap: 12px; margin: 0; }
+.catdetail__fact dt { font-size: var(--step--4); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--gov-muted); }
+.catdetail__fact dd { margin: 2px 0 0; color: var(--gov-title); font-weight: 600; }
+.catdetail__download { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 18px; border-radius: var(--radius-sm, 10px); background: var(--gov-navy); color: #fff; font-weight: 700; text-decoration: none; }
+button.catdetail__download { border: none; cursor: pointer; font-family: inherit; font-size: inherit; width: 100%; }
+.catdetail__download:hover { background: var(--gov-teal); }
+.catdetail__back { color: var(--gov-teal-text); font-weight: 600; font-size: var(--step--2); text-decoration: none; }
+.catdetail__back:hover { text-decoration: underline; }
+.catcard--with-image { padding: 0 24px 24px; }
+.catcard--with-image .catcard__event-media {
+    width: calc(100% + 48px);
+    margin-inline: -24px;
+}
+
+/* Узкие экраны: крупные заголовки берут нижнюю границу прежнего clamp,
+   чтобы не переполнять строку.
+
+   `body[class]` — не украшение, а вес селектора: «Дизайн» печатает точные
+   размеры переменными (`--font-size-*`), и правила ниже читают их через
+   `var(...)`. Раньше вес давал режимный класс `design-type-static` на `<body>`
+   (два класса против одного); класса больше нет, а `[class]` даёт ровно
+   тот же вес — классы «Дизайна» у `<body>` есть всегда. Блок обязан
+   оставаться последним в файле. */
+@media (max-width: 640px) {
+    body[class] .catdetail__title { font-size: var(--step-5); }
+}

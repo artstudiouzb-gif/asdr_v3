@@ -1,0 +1,838 @@
+/* ========================================================================
+   Internal pages layout polish
+   Loaded after the public bundle/theme and before content/print modes.
+   ======================================================================== */
+
+:root {
+    --page-reading-width: 880px;
+    --page-section-gap: clamp(38px, 5vw, 68px);
+    --page-card-radius: max(var(--radius, 12px), 14px);
+    --page-soft-shadow: 0 18px 50px -34px rgba(15, 39, 86, .28);
+    --editorial-media-filter: saturate(.9) contrast(1.025);
+}
+
+/* Shared visual language for reusable section headings. Internal pages opt in
+   at the main content level; a future homepage block can opt in locally by
+   adding data-visual-system to its own root without restyling the whole page. */
+[data-visual-system] .section-head {
+    position: relative;
+    padding-block-end: 16px;
+    border-block-end: 1px solid color-mix(in srgb, var(--gov-border) 78%, transparent);
+}
+
+[data-visual-system] .section-head__title {
+    position: relative;
+    padding-inline-start: calc(var(--section-marker-width, 3px) + 15px);
+}
+
+/* Метка заголовка секции. Толщина, высота и вид приходят из «Дизайна»:
+   раньше здесь стояли константы 3px/.16em, и поменять черту было нечем. */
+[data-visual-system] .section-head__title::before {
+    content: "";
+    position: absolute;
+    inset-block-start: .16em;
+    inset-inline-start: 0;
+    block-size: var(--section-marker-height, calc(100% - .32em));
+    inline-size: var(--section-marker-width, 3px);
+    border-radius: 999px;
+    background: var(--gov-teal);
+}
+
+/* Знак вместо черты: та же метка, только залитая по маске эмблемы сайта
+   («Дизайн» → «Эмблема»). Квадрат, поэтому сторону задаёт высота метки. */
+:where(body.design-secmark-emblem) [data-visual-system] .section-head__title {
+    padding-inline-start: calc(var(--section-marker-emblem, .9em) + 14px);
+}
+
+:where(body.design-secmark-emblem) [data-visual-system] .section-head__title::before {
+    inline-size: var(--section-marker-emblem, .9em);
+    block-size: var(--section-marker-emblem, .9em);
+    border-radius: 0;
+    -webkit-mask: var(--gov-emblem) center / contain no-repeat;
+    mask: var(--gov-emblem) center / contain no-repeat;
+}
+
+/* «Без метки» и заголовок не у левого края: метка указывает на начало строки,
+   а у центрированного и правого заголовка начала нет — черта повисала бы
+   слева от текста сама по себе. */
+:where(body.design-secmark-off) [data-visual-system] .section-head__title::before,
+[data-visual-system] .section-head--align-center .section-head__title::before,
+[data-visual-system] .section-head--align-right .section-head__title::before {
+    content: none;
+}
+
+:where(body.design-secmark-off) [data-visual-system] .section-head__title,
+[data-visual-system] .section-head--align-center .section-head__title,
+[data-visual-system] .section-head--align-right .section-head__title {
+    padding-inline-start: 0;
+}
+
+[data-visual-system] .cms-block--bg-navy .section-head {
+    border-block-end-color: color-mix(in srgb, #ffffff 22%, transparent);
+}
+
+[data-visual-system] .cms-block--bg-navy .section-head__title::before {
+    background: var(--gov-teal-on-dark);
+}
+
+/* A restrained photo treatment makes news, project and gallery sources feel
+   like one publication. Portraits and content images are intentionally left
+   untouched so faces and documentary material retain their natural colour. */
+[data-visual-system] :where(
+    .news-card__cover,
+    .relnews-card__media,
+    .album-card__cover,
+    .project-card__media,
+    .catcard__media,
+    .mediacard__media,
+    .imgcard
+) {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gov-navy) 10%, transparent);
+}
+
+[data-visual-system] :where(
+    .news-card__cover,
+    .relnews-card__media,
+    .album-card__cover,
+    .project-card__media,
+    .catcard__media,
+    .mediacard__media,
+    .imgcard
+) img {
+    filter: var(--editorial-media-filter);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    [data-visual-system] :where(
+        .news-card,
+        .relnews-card,
+        .album-card,
+        .project-card,
+        .catcard,
+        .mediacard,
+        .imgcard
+    ):hover img {
+        filter: saturate(1) contrast(1.01);
+    }
+}
+
+@media (forced-colors: active) {
+    [data-visual-system] .section-head { border-block-end-color: CanvasText; }
+    [data-visual-system] .section-head__title::before { background: Highlight; }
+
+    [data-visual-system] :where(
+        .news-card__cover,
+        .relnews-card__media,
+        .album-card__cover,
+        .project-card__media,
+        .catcard__media,
+        .mediacard__media,
+        .imgcard
+    ) img { filter: none; }
+}
+
+/* Page heading and vertical rhythm */
+.site-content:has(> .content-pagehead) .content-pagehead {
+    padding-top: clamp(28px, 3.8vw, 52px);
+    padding-bottom: clamp(20px, 2.6vw, 34px);
+}
+
+.site-content:has(> .content-pagehead) .content-pagehead__inner {
+    max-width: var(--container-max);
+}
+
+.site-content:has(> .content-pagehead) .content-pagehead__title {
+    margin: 0 0 12px;
+    font-size: var(--font-size-h1, clamp(var(--step-7), 4vw, var(--step-9)));
+    line-height: 1.08;
+    letter-spacing: -.035em;
+}
+
+.site-content:has(> .content-pagehead) .content-pagehead__lead {
+    max-width: 760px;
+    font-size: var(--font-size-lead, clamp(var(--step-0), 1.35vw, var(--step-1)));
+    line-height: 1.6;
+}
+
+.site-content:has(> .content-pagehead) > .cms-block,
+.site-content:has(> .content-pagehead) > .page-blocks > .cms-block {
+    padding-block: var(--page-section-gap);
+}
+
+.site-content:has(> .content-pagehead) > .cms-block:not(.cms-block--bg):not(.cms-block--surface-card)
+    + .cms-block:not(.cms-block--bg):not(.cms-block--surface-card),
+.site-content:has(> .content-pagehead) > .page-blocks > .cms-block:not(.cms-block--bg):not(.cms-block--surface-card)
+    + .cms-block:not(.cms-block--bg):not(.cms-block--surface-card) {
+    padding-top: 0;
+}
+
+/* Явно выбранный редактором верхний/нижний отступ сильнее автоматического
+   ритма страницы и локальных пресетов конкретного типа блока. Маркеры
+   добавляет BlockRenderer только для значений, отличных от «По умолчанию».
+   Ограничение screen сохраняет компактную печатную раскладку; режим чтения
+   a11y остаётся сильнее за счёт более специфичного селектора. */
+@media screen {
+    .cms-block.cms-block--pad-top-custom {
+        padding-top: var(--block-pad-top) !important;
+    }
+
+    .cms-block.cms-block--pad-bottom-custom {
+        padding-bottom: var(--block-pad-bottom) !important;
+    }
+}
+
+/* Опциональный контейнер секции: фон принадлежит самому блоку, а не всей
+   полосе страницы. Вертикальный ритм по-прежнему задаёт preset секции. */
+.cms-block--surface-card {
+    box-sizing: border-box;
+    padding-inline: clamp(20px, 3.5vw, 48px);
+    border: 1px solid color-mix(in srgb, var(--gov-border) 84%, transparent);
+    border-radius: var(--page-card-radius);
+    background: var(--gov-surface);
+    box-shadow: var(--page-soft-shadow);
+}
+
+/* Editorial text blocks */
+.site-content:has(> .content-pagehead) .block-text {
+    max-width: var(--page-reading-width);
+}
+
+.site-content:has(> .content-pagehead) .block-text__title {
+    margin: 0 0 18px;
+    font-size: var(--font-size-h2, clamp(var(--step-4), 2.5vw, var(--step-6)));
+    line-height: 1.18;
+    letter-spacing: -.025em;
+}
+
+.site-content:has(> .content-pagehead) .block-text__content,
+.site-content:has(> .content-pagehead) .block-text__content p,
+.site-content:has(> .content-pagehead) .block-text__content li {
+    font-size: var(--font-size-body, var(--step-0));
+    line-height: 1.72;
+}
+
+.site-content:has(> .content-pagehead) .block-text__content p {
+    margin-block: 0 14px;
+}
+
+.site-content:has(> .content-pagehead) .block-text__content ul,
+.site-content:has(> .content-pagehead) .block-text__content ol {
+    display: grid;
+    gap: 7px;
+    padding-left: 22px;
+}
+
+.site-content:has(> .content-pagehead) .block-text__content strong {
+    color: var(--gov-title);
+}
+
+/* About page / advantages */
+.block-advantages__grid {
+    grid-template-columns: repeat(var(--grid-track, 3), minmax(0, 1fr));
+    gap: 18px;
+}
+
+.block-advantages__item:not(.feature-card) {
+    min-height: 100%;
+    padding: clamp(22px, 2.3vw, 30px);
+    gap: 16px;
+    border-radius: var(--page-card-radius);
+    box-shadow: var(--page-soft-shadow);
+}
+
+.block-advantages__item:not(.feature-card) .block-advantages__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm, 12px);
+}
+
+.block-advantages__item:not(.feature-card) h3,
+.block-advantages__item:not(.feature-card) .card__title {
+    margin: 0;
+    font-size: var(--font-size-card-title, var(--step-1));
+    line-height: 1.28;
+}
+
+.block-advantages__item:not(.feature-card) p {
+    font-size: var(--font-size-card-text, var(--step--1));
+    line-height: 1.62;
+}
+
+/* Development stages */
+.stages {
+    --stages-gap: clamp(18px, 2vw, 28px);
+}
+
+.stage {
+    gap: 9px;
+    padding-top: 28px;
+}
+
+.stage__year {
+    font-size: var(--font-size-h3, var(--step-2));
+}
+
+.stage__title {
+    font-size: var(--font-size-card-title, var(--step-0));
+    line-height: 1.38;
+}
+
+.stage__text {
+    font-size: var(--font-size-card-text, var(--step--1));
+    line-height: 1.58;
+}
+
+/* Leadership cards. Keep GridBalance variables so 3/5/6 people still
+   distribute cleanly instead of leaving a visually empty tail. */
+.persons-grid {
+    grid-template-columns: repeat(var(--grid-track, 4), minmax(0, 1fr));
+    gap: clamp(18px, 2.4vw, 28px);
+    align-items: stretch;
+}
+
+.person-card {
+    min-width: 0;
+    border-radius: var(--radius, 16px);
+    box-shadow: 0 12px 34px -28px rgba(15, 39, 86, .45);
+}
+
+.person-card:hover {
+    transform: translateY(-4px);
+}
+
+.person-card__photo,
+.person-card__placeholder {
+    aspect-ratio: 4 / 4.65;
+    max-height: none;
+}
+
+.person-card__body {
+    padding: 20px 18px 22px;
+    gap: 8px;
+}
+
+.person-card__name {
+    font-size: var(--font-size-card-title, var(--step-1));
+    line-height: 1.3;
+}
+
+.person-card__role {
+    font-size: var(--font-size-card-text, var(--step--1));
+    line-height: 1.45;
+}
+
+.person-card__more {
+    margin-top: 10px;
+    font-size: var(--font-size-meta, var(--step--2));
+}
+
+.person-card--vacant {
+    border-style: solid;
+    background: color-mix(in srgb, var(--gov-navy) 2.5%, var(--gov-surface));
+}
+
+.person-card--vacant .person-card__placeholder {
+    background: color-mix(in srgb, var(--gov-navy) 4%, var(--gov-surface));
+}
+
+/* Размер и плотность гириха не переопределяем: сотрудник без фото получает
+   такую же заглушку, и рядом с вакансией в одном ряду они должны совпадать. */
+
+.person-card__vacant {
+    bottom: 20px;
+    /* Не ниже 12px: подпись набрана капслоком с разрядкой, на .7rem она
+       перестаёт читаться и нарушает нижний порог размера текста. */
+    font-size: var(--font-size-meta, var(--step--4));
+    letter-spacing: .12em;
+}
+
+/* Director / person profile */
+.cms-block:has(.block-profile) {
+    padding-top: clamp(26px, 3.2vw, 44px);
+    padding-bottom: clamp(34px, 4vw, 54px);
+}
+
+.block-profile {
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    gap: clamp(36px, 5vw, 72px);
+    align-items: center;
+}
+
+.profile__photo {
+    aspect-ratio: 4 / 4.8;
+    border-radius: var(--radius, 16px);
+    box-shadow: var(--page-soft-shadow);
+}
+
+.profile__name {
+    margin-bottom: 12px;
+    font-size: var(--font-size-h1, clamp(var(--step-6), 3.4vw, var(--step-9)));
+    line-height: 1.08;
+    letter-spacing: -.035em;
+}
+
+.profile__position {
+    margin-bottom: 16px;
+    font-size: var(--font-size-h3, clamp(var(--step-0), 1.45vw, var(--step-2)));
+    line-height: 1.45;
+}
+
+.profile__text {
+    margin-bottom: 0;
+    color: var(--gov-muted);
+    font-size: var(--font-size-lead, var(--step-0));
+    line-height: 1.68;
+}
+
+.cms-block:has(.block-profile) + .cms-block:has(.block-bio) {
+    padding-top: clamp(18px, 2vw, 30px);
+}
+
+.block-bio {
+    grid-template-columns: minmax(0, 1.7fr) minmax(260px, .78fr);
+    gap: clamp(36px, 5vw, 64px);
+}
+
+.bio__title {
+    margin-bottom: 20px;
+    font-size: var(--font-size-h2, clamp(var(--step-5), 2.5vw, var(--step-6)));
+}
+
+.bio__text {
+    margin-bottom: 32px;
+    color: var(--gov-muted);
+    font-size: var(--font-size-body, var(--step-0));
+    line-height: 1.72;
+    /* pre-line здесь больше не нужен: абзацы приходят разметкой, а перенос
+       строки внутри абзаца даёт <br>. С pre-line они бы удвоились. */
+}
+
+.bio__text p {
+    margin: 0 0 14px;
+}
+
+.bio__text p:last-child {
+    margin-bottom: 0;
+}
+
+.bio-career {
+    padding-top: 4px;
+}
+
+.bio-career::before {
+    left: 6px;
+    width: 2px;
+    background: color-mix(in srgb, var(--gov-teal) 24%, var(--gov-border));
+}
+
+.bio-career__item {
+    grid-template-columns: minmax(108px, 132px) minmax(0, 1fr);
+    gap: 22px;
+    padding: 0 0 22px 32px;
+}
+
+.bio-career__item::before {
+    left: 1px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    background: var(--gov-surface);
+    border: 3px solid var(--gov-teal);
+    box-shadow: 0 0 0 4px var(--gov-bg);
+}
+
+.bio-career__item:last-child::before {
+    background: var(--gov-teal);
+}
+
+.bio-career__item:last-child .bio-career__years,
+.bio-career__item:last-child .bio-career__text {
+    color: var(--gov-title);
+    font-weight: 700;
+}
+
+.bio-career__years {
+    font-size: var(--font-size-meta, var(--step--1));
+    line-height: 1.45;
+}
+
+.bio-career__text {
+    font-size: var(--font-size-card-text, var(--step--1));
+    line-height: 1.58;
+}
+
+.bio-side {
+    gap: 20px;
+}
+
+.bio-edu {
+    padding: 26px;
+    border: 1px solid color-mix(in srgb, var(--gov-navy) 8%, var(--gov-border));
+    border-radius: var(--radius, 16px);
+    background: color-mix(in srgb, var(--gov-navy) 4%, var(--gov-surface));
+    box-shadow: var(--page-soft-shadow);
+}
+
+.bio-edu__item {
+    padding: 0 0 20px 26px;
+}
+
+.bio-edu__degree {
+    font-size: var(--font-size-card-title, var(--step-0));
+}
+
+.bio-edu__org {
+    font-size: var(--font-size-meta, var(--step--2));
+    line-height: 1.5;
+}
+
+/* Legal document cards and footer */
+.docs-grid,
+.documents-grid {
+    gap: 18px;
+}
+
+.doc-card {
+    border-radius: var(--radius, 15px);
+    box-shadow: var(--page-soft-shadow);
+}
+
+.site-footer {
+    padding-top: clamp(36px, 4vw, 52px);
+    padding-bottom: 22px;
+}
+
+.site-footer__inner {
+    row-gap: 28px;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .block-advantages__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .persons-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .block-advantages__item:not(.feature-card),
+    .persons-grid > .person-card {
+        grid-column: auto;
+    }
+
+    .block-bio {
+        grid-template-columns: minmax(0, 1.45fr) minmax(250px, .8fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .site-content:has(> .content-pagehead) .content-pagehead {
+        padding-top: 24px;
+    }
+
+    .block-profile {
+        grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+        gap: 32px;
+        align-items: start;
+    }
+
+    .block-bio {
+        grid-template-columns: 1fr;
+    }
+
+    .bio-side {
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    :root {
+        --page-section-gap: clamp(30px, 8vw, 44px);
+    }
+
+    .site-content:has(> .content-pagehead) .content-pagehead__title {
+        font-size: var(--font-size-h1, clamp(var(--step-5), 9vw, var(--step-7)));
+    }
+
+    .block-profile {
+        grid-template-columns: 1fr;
+        gap: 26px;
+    }
+
+    .profile__photo {
+        width: min(100%, 340px);
+    }
+
+    .profile__name {
+        font-size: var(--font-size-h1, clamp(var(--step-5), 8vw, var(--step-7)));
+    }
+
+    .bio-career__item {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        padding-left: 28px;
+    }
+
+    .bio-side {
+        grid-template-columns: 1fr;
+    }
+
+    .person-card__photo,
+    .person-card__placeholder {
+        aspect-ratio: 4 / 4.35;
+    }
+}
+
+@media (max-width: 560px) {
+    .block-advantages__grid,
+    .persons-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .site-content:has(> .content-pagehead) .block-text__content,
+    .site-content:has(> .content-pagehead) .block-text__content p,
+    .site-content:has(> .content-pagehead) .block-text__content li,
+    .profile__text,
+    .bio__text {
+        font-size: var(--font-size-body, var(--step-0));
+    }
+
+    .block-advantages__item:not(.feature-card),
+    .bio-edu {
+        padding: 20px;
+    }
+}
+/* Container-query enhancement for the text + image builder block.
+   Existing viewport media queries in gov-theme.css remain the fallback. */
+.cms-block--text_image {
+    container-type: inline-size;
+    container-name: text-image;
+}
+
+@container text-image (max-width: 900px) {
+    .block-textimage { grid-template-columns: 1fr; }
+}
+
+@container text-image (max-width: 720px) {
+    .block-textimage--image-left .textimage__info,
+    .block-textimage--image-left .textimage__visual { order: initial; }
+}
+
+/* Колонка конструктора — свой контейнер измерения. Сетки блоков считают
+   раскладку по ширине экрана, а в колонке 1:3 узкая доля остаётся узкой на
+   любом экране: пять карточек в ряд там не помещаются никогда, и настройка
+   «Колонок» ломала вёрстку вместо того, чтобы её задавать. Медиазапросы
+   остаются фолбэком — правило @container действует только внутри колонки. */
+.cms-columns__col {
+    container-type: inline-size;
+    container-name: cms-col;
+}
+
+@container cms-col (max-width: 720px) {
+    .cards-grid,
+    .imgcards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .imgcards-grid--carousel .imgcard,
+    .cards-track > * { flex: 0 0 calc((100% - var(--card-gap, 20px)) / 2); }
+}
+
+@container cms-col (max-width: 480px) {
+    .cards-grid,
+    .imgcards-grid,
+    .cat-grid { grid-template-columns: minmax(0, 1fr); }
+    .imgcards-grid--carousel .imgcard,
+    .cards-track > * { flex: 0 0 85%; }
+}
+
+/* ========================================================================
+   Senior Editorial Design System Refinements
+   (Optical tracking, tactile hover, WCAG 2.1 focus)
+   ======================================================================== */
+:root {
+    --editorial-headline-tracking: -0.025em;
+    --editorial-eyebrow-tracking: 0.06em;
+    --editorial-smooth-transition: 240ms cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    
+    /* Layered atmospheric elevation tokens (Apple / Pentagram optical standard) */
+    --elevation-flat: 0 0 0 1px color-mix(in srgb, var(--gov-navy) 8%, transparent);
+    --elevation-resting: 
+        0 1px 2px rgba(15, 23, 42, 0.03),
+        0 8px 20px -4px rgba(15, 23, 42, 0.05),
+        0 0 0 1px rgba(15, 23, 42, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    --elevation-hover: 
+        0 2px 6px rgba(15, 23, 42, 0.03),
+        0 18px 38px -8px rgba(15, 23, 42, 0.09),
+        0 0 0 1px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    --elevation-popover: 
+        0 4px 10px rgba(15, 23, 42, 0.04),
+        0 28px 56px -12px rgba(15, 23, 42, 0.12),
+        0 0 0 1px rgba(15, 23, 42, 0.07);
+}
+
+/* ========================================================================
+   Executive Slate / Midnight Dark Theme (Soft, noble, non-pitch-black)
+   ======================================================================== */
+:root[data-theme="dark"] {
+    --gov-bg: #1e2638;
+    --gov-surface: #29354d;
+    --gov-border: rgba(255, 255, 255, 0.12);
+    --gov-ink: #f8fafc;
+    --gov-muted: #cbd5e1;
+    --gov-title: #ffffff;
+    
+    --elevation-flat: 0 0 0 1px rgba(255, 255, 255, 0.08);
+    --elevation-resting: 
+        0 1px 2px rgba(0, 0, 0, 0.25),
+        0 8px 24px -4px rgba(0, 0, 0, 0.35),
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    --elevation-hover: 
+        0 2px 6px rgba(0, 0, 0, 0.3),
+        0 18px 40px -8px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(255, 255, 255, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    --elevation-popover: 
+        0 4px 12px rgba(0, 0, 0, 0.35),
+        0 28px 60px -12px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+:root[data-theme="dark"] img:not([src*=".svg"]),
+:root[data-theme="dark"] video {
+    filter: brightness(0.92) contrast(1.02);
+}
+
+/* Font smoothing & rendering precision */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Optical headline & paragraph balancing */
+:where(
+    h1, h2, h3,
+    .cms-h1, .cms-h2, .cms-h3,
+    .page-title,
+    .news-detail__title,
+    .project-detail__title,
+    .block-hero__title,
+    .section-head__title
+) {
+    letter-spacing: var(--editorial-headline-tracking);
+}
+
+:where(
+    .rich-content p,
+    .news-card__excerpt,
+    .block-text__content p,
+    .lead-text,
+    .page-lead
+) {
+    text-wrap: pretty;
+}
+
+/* Editorial tabular numerals & metric typography */
+:where(
+    .counter__number,
+    .counter__value,
+    .counter-card__number,
+    .counter-card__value,
+    .block-counters__value,
+    .stat-card__value,
+    .stat-number,
+    time,
+    .news-card__date,
+    .newslist__date,
+    .relnews-card__date,
+    .post-date,
+    .bio-career__years,
+    .stage__year,
+    table td,
+    .table td,
+    .cms-table td,
+    .stats-table td
+) {
+    font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Editorial Eyebrows, Categories and Badges */
+:where(
+    .block-hero__eyebrow,
+    .news-card__category,
+    .section-head__eyebrow,
+    .content-badge,
+    .tag-pill
+) {
+    letter-spacing: var(--editorial-eyebrow-tracking);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Tactile micro-interactions and layered shadows for interactive cards */
+:where(
+    .news-card,
+    .project-card,
+    .album-card,
+    .feature-card,
+    .cms-card
+) {
+    box-shadow: var(--elevation-resting);
+    transition: transform var(--editorial-smooth-transition), box-shadow var(--editorial-smooth-transition), border-color var(--editorial-smooth-transition);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    :where(
+        .news-card,
+        .project-card,
+        .album-card,
+        .feature-card,
+        .cms-card
+    ):hover {
+        transform: translateY(-2px);
+        box-shadow: var(--elevation-hover);
+    }
+}
+
+/* Editorial Card Flex & Baseline Alignment */
+:where(.news-card, .relnews-card, .project-card, .album-card, .news-column) {
+    display: flex;
+    flex-direction: column;
+}
+:where(.news-card__body, .relnews-card__body, .project-card__body, .album-card__body) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+:where(.news-card__meta, .relnews-card__meta, .project-card__meta, .album-card__footer) {
+    margin-top: auto;
+}
+
+/* High-contrast accessible focus ring (WCAG 2.1 AAA) */
+:focus-visible {
+    outline: 2px solid var(--gov-teal);
+    outline-offset: 3px;
+}
+
+/* Executive Mobile Precision: Touch Target Size (WCAG 2.2 AA) */
+@media (pointer: coarse) {
+    :where(
+        button,
+        .btn,
+        .header-search__toggle,
+        .theme-toggle,
+        .lang-select,
+        .site-nav__link,
+        .pagination__link,
+        .accordion__trigger
+    ) {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+

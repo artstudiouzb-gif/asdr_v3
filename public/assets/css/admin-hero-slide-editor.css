@@ -1,0 +1,395 @@
+/* Hero slide editor: readable section hierarchy and consistent field rhythm. */
+
+form[action*="/admin/heroes/"][action*="/slides/"] {
+    --hero-editor-border: var(--admin-border, #dce3ed);
+    --hero-editor-surface: var(--admin-surface, #ffffff);
+    --hero-editor-soft: var(--admin-surface-soft, #f7f9fc);
+    --hero-editor-text: var(--admin-text, #1f2937);
+    --hero-editor-muted: var(--admin-muted, #667085);
+    --hero-editor-accent: var(--admin-accent, #2563eb);
+    --hero-editor-accent-soft: color-mix(in srgb, var(--hero-editor-accent) 7%, var(--hero-editor-surface));
+    width: min(100%, 1480px);
+    margin-inline: auto;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] > .form-card {
+    padding: 22px;
+    border: 1px solid var(--hero-editor-border);
+    border-radius: 3px;
+    background: var(--hero-editor-surface);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] > .form-card > .admin-card-header {
+    margin-bottom: 8px;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] > .form-card > .form-hint {
+    display: block;
+    max-width: none;
+    margin: 0 0 18px;
+    padding: 11px 13px;
+    border: 1px solid color-mix(in srgb, var(--hero-editor-border) 78%, transparent);
+    border-radius: 3px;
+    background: var(--hero-editor-soft);
+    color: var(--hero-editor-muted);
+    font-size: var(--admin-fs-sm);
+    line-height: 1.5;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] details.form-section {
+    margin: 0 0 14px;
+    overflow: clip;
+    border: 1px solid var(--hero-editor-border);
+    border-radius: 3px;
+    background: var(--hero-editor-surface);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .025);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] details.form-section:last-of-type {
+    margin-bottom: 0;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] details.form-section > summary {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(190px, auto) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 14px;
+    min-height: 52px;
+    margin: 0;
+    padding: 13px 44px 13px 15px;
+    list-style: none;
+    cursor: pointer;
+    color: var(--hero-editor-text);
+    background: var(--hero-editor-surface);
+    border-bottom: 1px solid transparent;
+    font-size: var(--admin-fs-base);
+    font-weight: var(--admin-fw-semibold);
+    line-height: 1.3;
+    transition: background-color .16s ease, border-color .16s ease;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] details.form-section > summary::-webkit-details-marker {
+    display: none;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] details.form-section > summary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 17px;
+    width: 7px;
+    height: 7px;
+    border-right: 1.8px solid var(--hero-editor-muted);
+    border-bottom: 1.8px solid var(--hero-editor-muted);
+    transform: translateY(-65%) rotate(45deg);
+    transition: transform .16s ease;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] details.form-section[open] > summary {
+    border-bottom-color: var(--hero-editor-border);
+    background: var(--hero-editor-soft);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] details.form-section[open] > summary::after {
+    transform: translateY(-35%) rotate(225deg);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-section__hint {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--hero-editor-muted);
+    font-size: var(--admin-fs-xs);
+    font-weight: var(--admin-fw-medium);
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-section__state {
+    justify-self: end;
+    max-width: 360px;
+    overflow: hidden;
+    padding: 4px 8px;
+    border: 1px solid color-mix(in srgb, var(--hero-editor-border) 82%, transparent);
+    border-radius: 3px;
+    background: var(--hero-editor-surface);
+    color: var(--hero-editor-muted);
+    font-size: var(--admin-fs-xs);
+    font-weight: var(--admin-fw-semibold);
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] details.form-section[open] .form-section__state {
+    border-color: color-mix(in srgb, var(--hero-editor-accent) 24%, var(--hero-editor-border));
+    background: var(--hero-editor-accent-soft);
+    color: color-mix(in srgb, var(--hero-editor-accent) 80%, var(--hero-editor-text));
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: start;
+    gap: 18px 20px !important;
+    padding: 18px !important;
+    background: var(--hero-editor-surface);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid > .form-field {
+    min-width: 0;
+    margin: 0 !important;
+    align-self: start;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid > .form-field--wide {
+    grid-column: 1 / -1;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field > label,
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field > .field-label {
+    display: block;
+    margin: 0 0 7px !important;
+    color: var(--hero-editor-text);
+    font-size: var(--admin-fs-sm) !important;
+    font-weight: var(--admin-fw-semibold) !important;
+    line-height: 1.35;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field select,
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field textarea {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 3px;
+    font-size: var(--admin-fs-base);
+    line-height: 1.4;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-hint {
+    display: block;
+    margin-top: 6px;
+    color: var(--hero-editor-muted);
+    font-size: var(--admin-fs-xs);
+    font-weight: var(--admin-fw-medium);
+    line-height: 1.45;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field--wide > .form-hint:only-child {
+    margin: 0;
+    padding: 9px 11px;
+    border-left: 3px solid color-mix(in srgb, var(--hero-editor-accent) 48%, var(--hero-editor-border));
+    border-radius: 3px;
+    background: var(--hero-editor-soft);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 3px 9px;
+    min-height: 42px;
+    padding: 10px 11px;
+    border: 1px solid var(--hero-editor-border);
+    border-radius: 3px;
+    background: var(--hero-editor-soft);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox:has(input:checked) {
+    border-color: color-mix(in srgb, var(--hero-editor-accent) 34%, var(--hero-editor-border));
+    background: var(--hero-editor-accent-soft);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input[type="checkbox"] {
+    grid-column: 1;
+    margin: 2px 0 0;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > label {
+    grid-column: 2;
+    margin: 0 !important;
+    cursor: pointer;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > .form-hint {
+    grid-column: 2;
+    margin-top: 1px;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .image-field__row {
+    display: grid !important;
+    grid-template-columns: 108px minmax(0, 1fr);
+    align-items: start;
+    gap: 11px;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .image-field__preview {
+    width: 108px !important;
+    min-width: 108px !important;
+    height: auto !important;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border: 1px solid var(--hero-editor-border);
+    border-radius: 3px;
+    background: var(--hero-editor-soft);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .image-field__preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .image-field__main,
+form[action*="/admin/heroes/"][action*="/slides/"] .image-field__controls {
+    min-width: 0;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .image-field__controls {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .image-field__controls .btn {
+    min-height: 40px;
+    white-space: nowrap;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__control {
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) auto auto;
+    gap: 6px;
+    align-items: center;
+    min-width: 0;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__preview {
+    width: 42px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--hero-editor-border);
+    border-radius: 3px;
+    background: var(--hero-editor-soft);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__choose,
+form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__clear {
+    min-height: 40px;
+    white-space: nowrap;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .clr-field {
+    width: 100%;
+    max-width: none;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid > fieldset.form-grid {
+    grid-column: 1 / -1;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px 18px;
+    margin: 0;
+    padding: 16px;
+    border: 1px solid var(--hero-editor-border);
+    border-radius: 3px;
+    background: var(--hero-editor-soft);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid > fieldset.form-grid > legend {
+    padding: 0 7px;
+    color: var(--hero-editor-text);
+    font-size: var(--admin-fs-sm);
+    font-weight: var(--admin-fw-semibold);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] > .form-actions {
+    position: sticky;
+    z-index: 20;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: min(100%, 1480px);
+    margin: 14px auto 0;
+    padding: 10px 12px;
+    border: 1px solid var(--hero-editor-border);
+    border-radius: 3px 3px 0 0;
+    background: color-mix(in srgb, var(--hero-editor-surface) 94%, transparent);
+    box-shadow: 0 -8px 24px rgba(15, 23, 42, .06);
+    backdrop-filter: blur(12px);
+}
+
+@media (max-width: 1180px) {
+    form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid,
+    form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid > fieldset.form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 760px) {
+    form[action*="/admin/heroes/"][action*="/slides/"] > .form-card {
+        padding: 14px;
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] details.form-section > summary {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 5px 8px;
+        padding: 12px 40px 12px 13px;
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] .form-section__hint {
+        grid-column: 1;
+        grid-row: 2;
+        white-space: normal;
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] .form-section__state {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        max-width: 160px;
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid,
+    form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid > fieldset.form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        padding: 14px !important;
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] .image-field__row {
+        grid-template-columns: 96px minmax(0, 1fr);
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] .image-field__preview {
+        width: 96px !important;
+        min-width: 96px !important;
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] .image-field__controls,
+    form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__control {
+        grid-template-columns: 1fr auto;
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] .image-field__controls > input,
+    form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__control > input {
+        grid-column: 1 / -1;
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] > .form-actions {
+        flex-wrap: wrap;
+        border-radius: 3px 3px 0 0;
+    }
+}

@@ -1,0 +1,97 @@
+/* Запасные начертания с подогнанными метриками.
+
+   Самих файлов шрифтов здесь нет: в поставке лежат только Noto Sans и Noto
+   Serif (`noto-sans.css` / `noto-serif.css`, собирает npm run sync:fonts),
+   остальные семейства каталога «Дизайн» скачивает на сервер
+   App\Core\LocalGoogleFonts. Метрики ниже нужны и тем, и другим: они
+   действуют независимо от того, откуда приехал файл.
+
+   --- Зачем это ---------------------------------------------------------
+   У всех шрифтов стоит font-display: swap. Пока файл не приехал, текст
+   рисуется системным шрифтом, и в момент подмены строка меняет ширину и
+   высоту — макет дёргается (это CLS). Переопределения ниже приводят метрики
+   системного шрифта к метрикам веб-шрифта, поэтому подмена проходит без
+   сдвига.
+
+   Как получены числа:
+     size-adjust      — ЗАМЕРОМ в браузере: ширина одной и той же строки
+                        (кириллица + латиница + цифры) в веб-шрифте и в
+                        запасном. Брать OS/2.xAvgCharWidth из файла нельзя:
+                        наши woff2 — кириллические сабсеты, и это среднее
+                        несопоставимо со средним по полному запасному шрифту.
+                        На Manrope такой расчёт давал −6,45 % вместо −4,11 %
+                        у необработанного Arial, то есть делал хуже.
+     ascent/descent   — hhea.ascent и hhea.descent из файла, делённые на
+                        unitsPerEm и на size-adjust (вертикальные метрики
+                        сабсетом не искажаются).
+   Замер Noto Sans в этом же браузере: строка на 3,29 % шире Arial, поэтому
+   size-adjust 103,29 %; после переопределений расхождение уходит в ноль.
+   Пересчитывать при смене набора шрифтов — скриптом из истории сессии. */
+
+/* --- Пара из поставки --- */
+@font-face {
+    font-family: 'Noto Sans Fallback';
+    src: local('Arial'), local('Liberation Sans'), local('Helvetica');
+    size-adjust: 103.29%;
+    ascent-override: 103.49%;
+    descent-override: 28.37%;
+    line-gap-override: 0%;
+}
+@font-face {
+    font-family: 'Noto Serif Fallback';
+    src: local('Times New Roman'), local('Liberation Serif'), local('Georgia');
+    size-adjust: 119.12%;
+    ascent-override: 89.74%;
+    descent-override: 24.60%;
+    line-gap-override: 0%;
+}
+
+/* --- Семейства каталога: файл приезжает по выбору в разделе «Дизайн» --- */
+@font-face {
+    font-family: 'PT Sans Fallback';
+    src: local('Arial'), local('Liberation Sans'), local('Helvetica');
+    size-adjust: 93.91%;
+    ascent-override: 108.40%;
+    descent-override: 29.39%;
+    line-gap-override: 0%;
+}
+@font-face {
+    font-family: 'PT Serif Fallback';
+    src: local('Times New Roman'), local('Liberation Serif'), local('Georgia');
+    size-adjust: 109.27%;
+    ascent-override: 95.09%;
+    descent-override: 26.17%;
+    line-gap-override: 0%;
+}
+@font-face {
+    font-family: 'Inter Fallback';
+    src: local('Arial'), local('Liberation Sans'), local('Helvetica');
+    size-adjust: 107.09%;
+    ascent-override: 90.46%;
+    descent-override: 22.52%;
+    line-gap-override: 0%;
+}
+@font-face {
+    font-family: 'Inter Tight Fallback';
+    src: local('Arial'), local('Liberation Sans'), local('Helvetica');
+    size-adjust: 97.85%;
+    ascent-override: 99.00%;
+    descent-override: 24.65%;
+    line-gap-override: 0%;
+}
+@font-face {
+    font-family: 'Manrope Fallback';
+    src: local('Arial'), local('Liberation Sans'), local('Helvetica');
+    size-adjust: 102.71%;
+    ascent-override: 103.79%;
+    descent-override: 29.21%;
+    line-gap-override: 0%;
+}
+@font-face {
+    font-family: 'Montserrat Fallback';
+    src: local('Arial'), local('Liberation Sans'), local('Helvetica');
+    size-adjust: 119.80%;
+    ascent-override: 80.80%;
+    descent-override: 20.95%;
+    line-gap-override: 0%;
+}

@@ -1,0 +1,362 @@
+/* Карточка руководителя: портрет и контакты слева, содержимое справа.
+   Вкладки построены как стабильный segmented control: одна дорожка и один
+   подвижный индикатор, без масок, скошенных псевдоэлементов и теневых слоёв. */
+
+.leader-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 36px);
+    align-items: stretch;
+    padding: clamp(18px, 2.4vw, 28px);
+    background: var(--gov-surface);
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius, 14px);
+    box-shadow: var(--shadow-2, 0 4px 12px rgba(15, 23, 42, .08));
+}
+.leader-card::after {
+    content: "";
+    position: absolute;
+    top: clamp(18px, 2.4vw, 28px);
+    bottom: clamp(18px, 2.4vw, 28px);
+    left: 50%;
+    width: 1px;
+    background: var(--gov-border);
+    transform: translateX(-.5px);
+    pointer-events: none;
+}
+
+/* --- Левая колонка --- */
+.leader-card__side {
+    display: grid;
+    grid-template-columns: minmax(0, clamp(200px, 19vw, 230px)) minmax(0, 1fr);
+    grid-template-areas: "photo ident" "photo info";
+    grid-template-rows: auto 1fr;
+    gap: 14px 20px;
+    align-items: start;
+    min-width: 0;
+}
+.leader-card__photo { grid-area: photo; }
+.leader-card__ident { grid-area: ident; }
+.leader-card__info { grid-area: info; }
+.leader-card__info {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+}
+.leader-card__photo {
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm, 8px);
+    background: var(--gov-navy);
+    box-shadow: var(--shadow-2, 0 4px 12px rgba(15, 23, 42, .08));
+}
+.leader-card__photo img,
+.leader-card__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.leader-card__ident {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+.leader-card__name,
+.leader-card__position { overflow-wrap: break-word; }
+h2.leader-card__name,
+h3.leader-card__name { font-family: inherit; }
+.leader-card__name {
+    margin: 0;
+    color: var(--gov-title);
+    font-size: var(--step-3);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.01em;
+}
+.leader-card__position {
+    margin: 0;
+    color: var(--gov-teal-text);
+    font-size: var(--step--1);
+    line-height: 1.45;
+}
+
+.leader-card__contacts,
+.leader-card__socials {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.leader-card__contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.leader-card__contact {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    font-size: var(--step--1);
+}
+.leader-card__contact a {
+    color: var(--gov-ink);
+    text-decoration: none;
+    word-break: break-word;
+}
+.leader-card__contact a:hover {
+    color: var(--gov-teal-text);
+    text-decoration: underline;
+}
+.leader-card__contact-icon,
+.leader-card__tab-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+}
+.leader-card__contact-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--gov-muted);
+}
+.leader-card__contact-icon svg,
+.leader-card__tab-icon svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+.leader-card__hours .leader-card__contact-icon { margin-top: 2px; }
+
+.leader-card__socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.leader-card__social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius-sm, 8px);
+    color: var(--gov-title);
+    transition: border-color .2s ease, color .2s ease, background-color .2s ease;
+}
+.leader-card__social:hover {
+    border-color: color-mix(in srgb, var(--gov-teal) 45%, var(--gov-border));
+    color: var(--gov-teal-text);
+}
+.leader-card__hours {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    color: var(--gov-muted);
+    font-size: var(--step--2);
+    line-height: 1.5;
+}
+
+/* --- Правая колонка и segmented tabs --- */
+.leader-card__main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    background: transparent;
+    box-shadow: none;
+}
+.leader-card__tabs {
+    position: relative;
+    display: grid;
+    align-items: stretch;
+    width: 100%;
+    padding: 6px;
+    border: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--gov-border) 74%, var(--gov-surface));
+    box-shadow: inset 0 2px 4px rgba(15, 23, 42, .05);
+    isolation: isolate;
+}
+.leader-card[data-tab-count="1"] .leader-card__tabs { grid-template-columns: minmax(0, 1fr); }
+.leader-card[data-tab-count="2"] .leader-card__tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.leader-card[data-tab-count="3"] .leader-card__tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.leader-card__tab-indicator {
+    position: absolute;
+    z-index: 0;
+    top: 6px;
+    bottom: 6px;
+    left: 6px;
+    border-radius: 999px;
+    background: var(--accent-fill-strong);
+    box-shadow: var(--shadow-2);
+    pointer-events: none;
+    transition: transform .42s cubic-bezier(.25, 1, .3, 1);
+}
+.leader-card[data-tab-count="1"] .leader-card__tab-indicator { width: calc(100% - 12px); }
+.leader-card[data-tab-count="2"] .leader-card__tab-indicator { width: calc((100% - 12px) / 2); }
+.leader-card[data-tab-count="3"] .leader-card__tab-indicator { width: calc((100% - 12px) / 3); }
+.leader-card__tabs:has(.leader-card__tab:nth-of-type(2).is-active) .leader-card__tab-indicator { transform: translateX(100%); }
+.leader-card__tabs:has(.leader-card__tab:nth-of-type(3).is-active) .leader-card__tab-indicator { transform: translateX(200%); }
+
+.leader-card__tab {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 46px;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--gov-muted);
+    font-size: var(--step--2);
+    font-weight: 600;
+    line-height: 1.15;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color .24s ease;
+}
+.leader-card__tab:not(.is-active):hover { color: var(--gov-title); }
+.leader-card__tab.is-active,
+.leader-card__tab.is-active:hover { color: #fff; }
+.leader-card__tab:focus-visible {
+    outline: 2px solid var(--gov-teal);
+    outline-offset: 2px;
+}
+.leader-card__tab-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.leader-card__tab-icon {
+    width: 22px;
+    height: 22px;
+}
+
+.leader-card__panel {
+    padding: 24px clamp(16px, 2vw, 24px) clamp(10px, 1.6vw, 18px);
+}
+.leader-card--tabbed .leader-card__panel-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+.leader-card__panel-title {
+    margin: 16px 0 4px;
+    color: var(--gov-title);
+    font-size: var(--step-1);
+}
+.leader-card__facts { margin: 0; }
+.leader-card__fact {
+    display: grid;
+    grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+    gap: 12px 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--gov-border) 60%, transparent);
+}
+.leader-card__fact:last-child { border-bottom: 0; }
+.leader-card__fact-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: var(--gov-muted);
+    font-size: var(--step--1);
+    line-height: 1.5;
+}
+.leader-card__fact-icon {
+    display: inline-flex;
+    flex: none;
+    margin-top: 1px;
+}
+.leader-card__fact-value {
+    margin: 0;
+    color: var(--gov-ink);
+    font-size: var(--step--1);
+    line-height: 1.55;
+}
+.leader-card__rich {
+    color: var(--gov-ink);
+    line-height: 1.6;
+}
+.leader-card__rich > :first-child { margin-top: 0; }
+.leader-card__rich > :last-child { margin-bottom: 0; }
+
+@media (max-width: 900px) {
+    .leader-card { grid-template-columns: minmax(0, 1fr); }
+    .leader-card::after { content: none; }
+    .leader-card__side {
+        grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 720px) {
+    .leader-card__fact {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+}
+
+@media (max-width: 640px) {
+    .leader-card__side {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "photo" "ident" "info";
+        grid-template-rows: auto auto auto;
+        justify-items: center;
+        text-align: center;
+    }
+    .leader-card__photo { width: min(100%, 280px); }
+    .leader-card__name { font-size: var(--step-1); }
+    .leader-card__position { font-size: var(--step--2); }
+    .leader-card__tabs { padding: 5px; }
+    .leader-card__tab-indicator {
+        top: 5px;
+        bottom: 5px;
+        left: 5px;
+    }
+    .leader-card[data-tab-count="1"] .leader-card__tab-indicator { width: calc(100% - 10px); }
+    .leader-card[data-tab-count="2"] .leader-card__tab-indicator { width: calc((100% - 10px) / 2); }
+    .leader-card[data-tab-count="3"] .leader-card__tab-indicator { width: calc((100% - 10px) / 3); }
+    .leader-card__tab {
+        min-height: 44px;
+        padding: 10px 8px;
+        font-size: var(--step--3);
+    }
+    .leader-card__panel { padding-top: 20px; }
+
+    .leader-card--mobile-icons .leader-card__tab {
+        min-width: 48px;
+        gap: 0;
+    }
+    .leader-card--mobile-icons .leader-card__tab-text {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .leader-card__social,
+    .leader-card__tab,
+    .leader-card__tab-indicator { transition: none; }
+}

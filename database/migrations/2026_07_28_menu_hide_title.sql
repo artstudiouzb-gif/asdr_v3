@@ -1,0 +1,1 @@
+ALTER TABLE menu_items ADD COLUMN hide_title TINYINT(1) NOT NULL DEFAULT 0;

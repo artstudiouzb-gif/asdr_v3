@@ -1,0 +1,180 @@
+/* Блок «Вкладки»: контейнер, содержимое которого — вложенные блоки любого
+   типа. Полоса вкладок повторяет тот же segmented control, что в карточке
+   руководителя и медиатеке, — третьего рисунка вкладок в проекте быть не
+   должно.
+
+   Разметка работает и без JavaScript: вкладки там — ссылки на заголовки
+   панелей, все панели видны подряд. Поэтому ничего не прячем в покое: панели
+   скрывает скрипт, добавив на корень .is-enhanced. */
+
+.cms-tabs__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: var(--space-small, 24px);
+}
+
+.cms-tabs__tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    color: var(--gov-muted, var(--text-muted));
+    font-size: var(--step--1);
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    /* Система координат для полосы отсчёта автопереключения. */
+    position: relative;
+    transition: color .24s ease, background-color .24s ease, border-color .24s ease;
+}
+
+.cms-tabs__tab:hover { color: var(--gov-title, var(--ink)); }
+
+.cms-tabs__tab:focus-visible {
+    outline: 2px solid var(--gov-teal);
+    outline-offset: 2px;
+}
+
+.cms-tabs__tab-icon {
+    display: inline-flex;
+    flex: none;
+}
+
+/* Положение полосы. «На всю ширину» делит её поровну между вкладками. */
+.cms-tabs--align-center .cms-tabs__list { justify-content: center; }
+.cms-tabs--align-stretch .cms-tabs__tab { flex: 1 1 0; }
+
+/* --- Вариант «переключатель»: общая дорожка --- */
+.cms-tabs--segmented .cms-tabs__list {
+    padding: 6px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--gov-border, var(--line)) 74%, var(--gov-surface, var(--surface)));
+}
+
+.cms-tabs--segmented .cms-tabs__tab.is-active,
+.cms-tabs--segmented .cms-tabs__tab.is-active:hover {
+    background: var(--gov-teal);
+    box-shadow: var(--shadow-2, var(--shadow-md));
+    color: #fff;
+}
+
+/* --- Вариант «подчёркивание» --- */
+.cms-tabs--underline .cms-tabs__list {
+    gap: 4px;
+    border-bottom: 1px solid var(--gov-border, var(--line));
+}
+
+.cms-tabs--underline .cms-tabs__tab {
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+.cms-tabs--underline .cms-tabs__tab.is-active {
+    border-bottom-color: var(--gov-teal);
+    color: var(--gov-title, var(--ink));
+}
+
+/* --- Вариант «список слева» ---
+   Ниже 721px он совпадает с обычным: колонка вкладок рядом с содержимым на
+   телефоне оставляет тексту неприлично мало места. */
+@media (min-width: 721px) {
+    .cms-tabs--vertical .cms-tabs__list {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 2px;
+        margin-bottom: 0;
+    }
+
+    .cms-tabs--vertical .cms-tabs__tab {
+        justify-content: flex-start;
+        border-radius: var(--radius, 12px);
+        text-align: left;
+    }
+
+    .cms-tabs--vertical .cms-tabs__tab.is-active {
+        background: color-mix(in srgb, var(--gov-teal) 12%, transparent);
+        color: var(--gov-title, var(--ink));
+    }
+
+    /* Сетка объявляется на обёртке панелей и списка сразу: у блока есть ещё
+       шапка секции, и она обязана остаться над всей парой. */
+    .cms-tabs--vertical .cms-tabs__body {
+        display: grid;
+        grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
+        gap: var(--space-small, 24px);
+        align-items: start;
+    }
+}
+
+/* --- Панели --- */
+.cms-tabs__panel + .cms-tabs__panel {
+    margin-top: var(--space-small, 24px);
+    padding-top: var(--space-small, 24px);
+    border-top: 1px solid var(--gov-border, var(--line));
+}
+
+/* Вложенные блоки живут по правилам колонок: внешние отступы секции внутри
+   контейнера лишние, расстояние между соседями задаём здесь. */
+.cms-tabs__panel > .cms-block { padding-top: 0; padding-bottom: 0; }
+.cms-tabs__panel > .cms-block + .cms-block { margin-top: var(--space-small, 24px); }
+
+.cms-tabs__panel-title {
+    margin: 0 0 12px;
+    font-size: var(--step-1);
+    line-height: 1.25;
+}
+
+/* Со скриптом заголовок панели дублирует название вкладки — она же и
+   подписывает панель через aria-labelledby. */
+.cms-tabs.is-enhanced .cms-tabs__panel-title { display: none; }
+
+.cms-tabs.is-enhanced .cms-tabs__panel + .cms-tabs__panel {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+}
+
+/* На узком экране полоса вкладок прокручивается вбок, а не рвётся на строки:
+   на переключателе перенос ломает дорожку. */
+@media (max-width: 560px) {
+    .cms-tabs--segmented .cms-tabs__list {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .cms-tabs--segmented .cms-tabs__tab { flex: none; }
+}
+
+/* Пояснение к вкладке: одна строка о том, чему она посвящена. Остаётся видимым
+   и со скриптом — в отличие от заголовка панели, который дублирует название
+   вкладки. */
+.cms-tabs__panel-note {
+    margin: 0 0 16px;
+    max-width: var(--editorial-reading, 760px);
+    color: var(--gov-muted, var(--text-muted));
+    font-size: var(--step--1);
+    line-height: var(--base-line-height, 1.6);
+}
+
+/* Отсчёт до следующей вкладки. Долю считает скрипт (--cms-tabs-progress), а не
+   CSS-анимация: длительность приходит настройкой, и анимацию пришлось бы
+   перезапускать на каждой смене вкладки. У неактивных вкладок доля нулевая,
+   поэтому полоса не видна. */
+.cms-tabs__tab-progress {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 5px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: .5;
+    transform: scaleX(var(--cms-tabs-progress, 0));
+    transform-origin: left center;
+}

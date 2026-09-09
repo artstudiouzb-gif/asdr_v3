@@ -1,0 +1,1225 @@
+/* Стили новостного раздела (.newsdetail-*, .relnews-*).
+   Вынесены из общей темы: правила, нужные только на страницах новостей,
+   приезжали на каждую страницу сайта, включая главную. Подключает
+   AssetCollector::requireThemePart('news_detail') из NewsController —
+   на детальной новости и на списке (список построен на .relnews-card).
+
+   В теме намеренно остались три семейства, которые встречаются вне
+   новостей: .newsdetail-subscribe (виджет подписки, любой сайдбар),
+   .newsdetail-article и .newsdetail__badge (страница проекта). */
+
+/* из public/assets/css/frontend.css */
+
+@media print {
+
+    /* Обложка-hero: на бумаге белый текст на фото нечитаем, поэтому печатаем
+       заголовок и мету обычным чёрным по белому, без подложки. */
+    .newsdetail-phero { background-image: none !important; min-height: 0 !important; padding: 0 !important; }
+    .newsdetail-phero__overlay { display: none !important; }
+
+    /* Колонки статьи на A4 не нужны — один поток. */
+    .newsdetail-body, .newsdetail-head { display: block !important; }
+    .newsdetail-card { border: 0 !important; padding: 0 !important; margin: 12px 0 !important; }
+    /* Заголовок не должен отрываться от текста. */
+    .newsdetail-card__title, .newsdetail__body h2, .newsdetail__body h3 { break-after: avoid; }
+    .newsdetail-photos__grid img, .newsdetail-gallery__slide { break-inside: avoid; }
+}
+
+/* из public/assets/css/gov-theme.css */
+
+body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero { padding-top: 120px; }
+
+/* ==========================================================================
+   Режим чтения для новостей (Reader Mode)
+   ========================================================================== */
+.newsdetail__reader-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 9999px;
+    border: 1px solid var(--gov-border, rgba(0, 0, 0, 0.12));
+    background: var(--gov-surface, rgba(255, 255, 255, 0.08));
+    color: var(--gov-ink, #0b1a30);
+    font-family: var(--font-family, inherit);
+    font-size: var(--step--3); font-weight: 600;
+    cursor: pointer; transition: all 0.2s ease; margin-left: auto;
+}
+.newsdetail__reader-btn:hover {
+    background: var(--gov-teal); color: var(--on-accent, #ffffff);
+    border-color: var(--gov-teal); box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+}
+.newsdetail__reader-btn:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--gov-teal) 42%, transparent);
+    outline-offset: 2px;
+}
+.newsdetail__reader-btn--onDark {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.32);
+}
+.newsdetail__reader-btn--onDark:hover {
+    background: var(--gov-teal);
+    color: #ffffff;
+    border-color: var(--gov-teal);
+}
+
+/* Хештеги в статье */
+.newsdetail-hashtags {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 28px;
+}
+.newsdetail-tag {
+    display: inline-flex; align-items: center; padding: 6px 14px; border-radius: var(--radius, 20px);
+    background: color-mix(in srgb, var(--gov-teal) 10%, transparent);
+    color: var(--gov-teal-on-tint, #00697d); font-size: var(--step--2); font-weight: 600;
+    text-decoration: none; transition: all 0.2s ease;
+}
+.newsdetail-tag:hover {
+    background: var(--gov-teal); color: #ffffff; transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+}
+
+/* 2. Хронология событий (Таймлайн) */
+.newsdetail-timeline {
+    margin: 32px 0; padding: 24px; border-radius: var(--radius, 16px);
+    background: color-mix(in srgb, var(--gov-teal) 3%, var(--gov-surface));
+    border: 1px solid var(--gov-border, rgba(0, 0, 0, 0.1));
+}
+.newsdetail-timeline__title {
+    display: flex; align-items: center; gap: 8px; margin: 0 0 20px;
+    font-size: var(--step-1); font-weight: 700; color: var(--gov-title);
+}
+.newsdetail-timeline__title svg { color: var(--gov-teal); }
+.newsdetail-timeline__list {
+    position: relative; padding-left: 20px;
+}
+.newsdetail-timeline__list::before {
+    content: ''; position: absolute; top: 8px; bottom: 8px; left: 6px; width: 2px;
+    background: color-mix(in srgb, var(--gov-teal) 30%, transparent);
+}
+.newsdetail-timeline__item {
+    position: relative; margin-bottom: 20px;
+}
+.newsdetail-timeline__item:last-child { margin-bottom: 0; }
+.newsdetail-timeline__dot {
+    position: absolute; left: -20px; top: 6px; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--gov-teal); border: 3px solid var(--gov-surface);
+    box-shadow: 0 0 0 2px var(--gov-teal);
+}
+.newsdetail-timeline__date {
+    display: inline-block; font-size: var(--step--4); font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--gov-teal); margin-bottom: 4px;
+}
+.newsdetail-timeline__heading {
+    margin: 0 0 4px; font-size: var(--step-0); font-weight: 700; color: var(--gov-title);
+}
+.newsdetail-timeline__desc {
+    margin: 0; font-size: var(--step--2); line-height: 1.5; color: var(--gov-subtext);
+}
+
+/* Фото галерей новости — настоящие <img> внутри ссылок (alt, lazy, индексация).
+   Заполняют контейнер и наследуют его скругление. */
+.newsdetail-sidegallery__item > img,
+.newsdetail-photos__item > img,
+.newsdetail-sidegallery__item > picture > img,
+.newsdetail-photos__item > picture > img {
+    display: block; width: 100%; height: 100%;
+    object-fit: cover; border-radius: inherit;
+}
+
+
+
+
+/* --- Тело: 3 колонки --- */
+.newsdetail-body { display: grid; grid-template-columns: minmax(0, 240px) minmax(0, 1fr) minmax(0, 340px); gap: clamp(24px, 3.4vw, 48px); align-items: start; }
+@media (max-width: 1100px) { .newsdetail-body { grid-template-columns: minmax(0, 1fr) minmax(0, 340px); } .newsdetail-body .newsdetail-side:first-child { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+}
+
+/* Складываем колонку на 900px, а не на 720: при 340px фиксированного сайдбара
+   статья на 768px сжималась до 362px — 38 знаков в строке (замерено). */
+@media (max-width: 900px) { .newsdetail-body { grid-template-columns: 1fr; } .newsdetail-body .newsdetail-side:first-child { grid-template-columns: 1fr; }
+}
+
+.newsdetail-side { display: flex; flex-direction: column; gap: 22px; position: sticky; top: 24px; }
+@media (max-width: 1100px) { .newsdetail-side { position: static; }
+}
+
+
+/* Аккуратный вертикальный разделитель между новостью и сайдбаром */
+.newsdetail-side--right {
+    position: relative;
+    padding-left: clamp(16px, 2.2vw, 32px);
+    border-left: 1px solid color-mix(in srgb, var(--gov-border, #cbd5e1) 75%, transparent);
+}
+:root[data-theme="dark"] .newsdetail-side--right {
+    border-left-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Левая колонка — то же оформление зеркально. Разметка не переставляется:
+   статья остаётся первой в DOM (диктор и Tab получают содержимое раньше
+   виджетов), а влево колонка уезжает средствами сетки. */
+.newsdetail-side--left:empty { display: none; }
+
+/* Всё «левое» оформление — только на широком экране. Правила стоят в файле
+   ПОСЛЕ блока max-width: 900px, поэтому без парного min-width они перебивали
+   складывание: на 390px сетка оставалась 340px + 1fr, статья схлопывалась в
+   ноль и появлялась прокрутка вбок на 146px (замерено). Пара 900/901 — из
+   общей шкалы точек перелома публички. */
+@media (min-width: 901px) {
+    .newsdetail-side--left {
+        position: relative;
+        padding-right: clamp(16px, 2.2vw, 32px);
+        border-right: 1px solid color-mix(in srgb, var(--gov-border, #cbd5e1) 75%, transparent);
+    }
+    :root[data-theme="dark"] .newsdetail-side--left {
+        border-right-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .newsdetail-body:has(.newsdetail-side--left) { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); }
+    .newsdetail-body:has(.newsdetail-side--left) .newsdetail-side--left { grid-column: 1; grid-row: 1; }
+    .newsdetail-body:has(.newsdetail-side--left) .newsdetail-article { grid-column: 2; }
+}
+@media (max-width: 900px) {
+    .newsdetail-side--right,
+    .newsdetail-side--left {
+        padding-left: 0;
+        padding-right: 0;
+        border-left: 0;
+        border-right: 0;
+        border-top: 1px solid color-mix(in srgb, var(--gov-border, #cbd5e1) 75%, transparent);
+        padding-top: 24px;
+        margin-top: 24px;
+    }
+}
+
+.newsdetail-card { background: var(--gov-surface); border: 1px solid var(--gov-border); border-radius: var(--radius, 12px); padding: 22px; }
+.newsdetail-card__title { font-size: var(--step-1); margin: 0 0 16px; }
+.newsdetail-card--thesis-inline {
+    margin-bottom: 30px;
+    border: 1px solid var(--gov-border);
+    border-left: 4px solid var(--gov-teal);
+    border-radius: 0 12px 12px 0;
+    background: color-mix(in srgb, var(--gov-teal) 4%, var(--gov-surface));
+}
+.newsdetail-card--thesis-inline .newsdetail-card__title {
+    margin-bottom: 14px;
+    color: var(--gov-teal-text);
+    font-size: var(--step-0);
+    font-weight: 700;
+}
+.newsdetail-card--thesis-inline .newsdetail-points { gap: 12px; }
+.newsdetail-card--thesis-inline .newsdetail-points__item { font-size: var(--step--1); line-height: 1.55; }
+.newsdetail-points { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.newsdetail-points__item { display: grid; grid-template-columns: auto 1fr; gap: 10px; font-size: var(--step--2); line-height: 1.5; color: var(--gov-ink); }
+.newsdetail-points__icon { color: var(--gov-teal); margin-top: 1px; }
+.newsdetail-share__title { font-size: var(--step-0); margin: 0 0 12px; }
+.newsdetail-share__row { display: flex; flex-wrap: wrap; gap: 8px; }
+.newsdetail-share__btn { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--gov-border); background: var(--gov-surface); color: var(--gov-title); cursor: pointer; text-decoration: none; transition: background .15s ease, color .15s ease, border-color .15s ease; }
+.newsdetail-share__btn:hover { background: var(--gov-navy); border-color: var(--gov-title); color: #fff; }
+.newsdetail-share__btn.is-copied { background: var(--gov-teal); border-color: var(--gov-teal); color: #fff; }
+
+/* --- Правая колонка --- */
+.newsdetail-event { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 13px; }
+.newsdetail-event__item { display: grid; grid-template-columns: auto 1fr; gap: 10px; font-size: var(--step--2); line-height: 1.5; }
+.newsdetail-event__icon { color: var(--gov-teal); margin-top: 1px; }
+.newsdetail-docs { display: flex; flex-direction: column; gap: 10px; }
+.newsdetail-doc { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--gov-border); border-radius: var(--radius-sm, 10px); text-decoration: none; color: var(--gov-ink); background: var(--gov-surface); transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
+.newsdetail-doc:hover { border-color: var(--gov-teal); box-shadow: 0 8px 24px rgba(19,42,92,.08); background: var(--gov-surface); }
+.newsdetail-doc__icon { color: var(--gov-teal); }
+.newsdetail-doc__title { display: block; font-weight: 700; font-size: var(--step--2); color: var(--gov-title); line-height: 1.35; }
+.newsdetail-doc__meta { display: block; color: var(--gov-muted); font-size: var(--step--4); text-transform: uppercase; letter-spacing: .04em; margin-top: 3px; }
+.newsdetail-doc__dl { color: var(--gov-title); }
+
+/* --- Фотогалерея --- */
+.newsdetail-photos__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 1000px) { .newsdetail-photos__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) { .newsdetail-photos__grid { grid-template-columns: 1fr; }
+}
+
+.newsdetail-photos__item { aspect-ratio: 4/3; border-radius: var(--radius, 14px); background: var(--gov-navy) center/cover no-repeat; transition: transform .25s ease, box-shadow .25s ease; }
+.newsdetail-photos__item:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(19,42,92,.16); }
+
+/* --- Единая система карточек и похожих новостей --- */
+.newsdetail-related__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+@media (max-width: 1100px) {
+    .newsdetail-related__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Ровный ряд собираем ограничением заголовка, а не растяжкой промежутка:
+   раньше лид прижимался к низу карточки (margin-top: auto), и расстояние
+   «заголовок → анонс» у соседей отличалось вдвое. */
+.relnews-card__title {
+    font-weight: 700;
+    color: var(--gov-title);
+    line-height: 1.35;
+    font-size: var(--step--1);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.relnews-card__excerpt { margin-top: 0; }
+.relnews-card:hover .relnews-card__title { color: var(--gov-teal); }
+
+/* --- Предыдущая / следующая --- */
+.newsdetail-adjacent { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border-top: 1px solid var(--gov-border); padding-top: clamp(24px, 3vw, 40px); }
+@media (max-width: 720px) { .newsdetail-adjacent { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .newsdetail-gallery__slide { transition: none; }
+}
+
+
+/* Детальная новость — фолбэки, когда поля не заполнены в админке. */
+.newsdetail-head--full { grid-template-columns: 1fr; }
+.newsdetail-head--full .newsdetail-head__info { max-width: 760px; }
+.newsdetail-body--no-left { grid-template-columns: minmax(0, 1fr) minmax(0, 340px); }
+@media (max-width: 900px) { .newsdetail-body--no-left { grid-template-columns: 1fr; }
+}
+
+.newsdetail-share--inline { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--gov-border); display: flex; align-items: center; gap: 18px; }
+.newsdetail-share--inline .newsdetail-share__title { margin: 0; }
+
+/* Типы отображения новости (выбор в админке). */
+.newsdetail-head--side { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+.newsdetail-head--side .newsdetail-gallery__main { aspect-ratio: 4/3; }
+.newsdetail-media { min-width: 0; }
+.newsdetail-video { margin-bottom: 0; border-radius: var(--radius, 14px); }
+
+/* Премиум-новость: полноэкранный тёмный hero, галерея сбоку, оглавление. */
+.newsdetail--premium { margin-top: -1px; }
+.newsdetail-phero { position: relative; left: calc(50% - 50vw); width: 100vw; min-height: 480px; display: flex; align-items: center; background: var(--news-cover-image, var(--gov-navy)) center/cover no-repeat; color: #fff; }
+.newsdetail-phero__overlay { position: absolute; inset: 0; background: linear-gradient(100deg, rgba(9,22,42,.93) 20%, rgba(9,22,42,.55) 55%, rgba(9,22,42,.25) 100%); }
+/* Вариант «Карточка»: тот же фото-hero, но текст собран в стеклянную панель.
+   Смысл приёма — снимок остаётся виден целиком, а читаемость даёт панель, а не
+   сплошное затемнение всего кадра. Размытие — прогрессивное улучшение: старый
+   браузер покажет просто полупрозрачную подложку, ничего не сломается. */
+.newsdetail-phero--card .newsdetail-phero__overlay {
+    background: linear-gradient(to top, rgba(10, 16, 32, .55), rgba(10, 16, 32, .12) 55%, transparent);
+}
+/* Панель обнимает текст, а не тянется во всю ширину: пустая половина панели
+   справа читалась бы как незаполненный блок. */
+.newsdetail-phero--card .newsdetail-phero__body {
+    max-width: min(var(--container-max), 840px);
+    margin-inline: clamp(16px, 5vw, 90px) auto;
+    padding: clamp(28px, 4vw, 44px) clamp(24px, 3vw, 40px) clamp(30px, 4vw, 48px);
+}
+.newsdetail-phero--card .newsdetail-phero__body > * {
+    position: relative;
+    z-index: 1;
+}
+/* Панель рисуется псевдоэлементом: так она обнимает весь текст сразу и не
+   требует лишней обёртки в шаблоне. */
+.newsdetail-phero--card .newsdetail-phero__body::before {
+    content: "";
+    position: absolute;
+    inset: clamp(16px, 2.5vw, 26px) 0;
+    z-index: 0;
+    border-radius: 18px;
+    background: rgba(18, 26, 50, .62);
+    border: 1px solid rgba(255, 255, 255, .14);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+/* Кегль меньше, чем у «Премиума», но так же плавный: статичная ступень
+   оставляла на 320px те же 36px, что и на десктопе, — заголовок занимал
+   три строки из четырёх видимых в панели. */
+.newsdetail-phero--card .newsdetail-phero__title { font-size: clamp(var(--step-4), 3vw, var(--step-7)); }
+
+/* Вторая плашка — контуром, а не заливкой: рядом с обычной меткой (у неё свой
+   цвет фона) две заливки спорят друг с другом за внимание. */
+.newsdetail-cover__tag {
+    display: inline-block;
+    padding: 5px 12px;
+    border: 1px solid rgba(255, 255, 255, .45);
+    border-radius: var(--radius-pill, 999px);
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: #fff;
+}
+
+/* Показатели: числа в ряд с разделителями. Ряд переносится целыми парами,
+   поэтому подпись никогда не отрывается от своего числа. */
+.newsdetail-cover__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(16px, 3vw, 34px);
+    margin-top: 4px;
+}
+.newsdetail-cover__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 14px;
+    border-left: 2px solid rgba(255, 255, 255, .28);
+}
+.newsdetail-cover__stat-value {
+    font-family: var(--font-heading, var(--font-family));
+    font-size: var(--step-5);
+    font-weight: 800;
+    line-height: 1.05;
+    /* Разряды «1 200» приходят с неразрывным пробелом, но подстраховка нужна
+       и для значений, набранных обычным. */
+    white-space: nowrap;
+}
+.newsdetail-cover__stat-label { font-size: var(--step--2); opacity: .82; }
+
+.newsdetail-cover__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 16px;
+    margin-top: 6px;
+}
+/* Подпись берёт рукописное семейство из «Дизайна». Шрифт не выбран —
+   переменная повторяет заголовочный стек, и подпись остаётся читаемой. */
+.newsdetail-cover__signature {
+    font-family: var(--font-script, var(--font-heading));
+    font-size: var(--step-3);
+    line-height: 1.1;
+}
+.newsdetail-cover__note { font-size: var(--step--2); opacity: .7; letter-spacing: .04em; }
+
+@media (max-width: 720px) {
+    .newsdetail-phero--card .newsdetail-phero__body::before { inset: 12px; border-radius: 14px; }
+    .newsdetail-cover__stat-value { font-size: var(--step-4); }
+}
+
+.newsdetail-phero__body { position: relative; width: 100%; max-width: var(--container-max); margin: 0 auto; padding: clamp(40px, 6vw, 72px) 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+/* Крошки внутри премиум-hero (вместо серой полосы над ним) — светлые на тёмном фоне.
+   Прижаты к верху секции (как на обычном hero), а не в центрированном теле —
+   иначе они оказываются ниже, чем крошки на остальных страницах. */
+.newsdetail-phero .content-crumbs {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 4;
+    width: 100%; max-width: var(--container-max); margin: 0 auto;
+    padding: clamp(14px, 2vw, 22px) 20px 0; font-size: var(--step--2);
+}
+body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero .content-crumbs { top: clamp(88px, 11vw, 130px); }
+/* На узком экране крошки переносятся на две-три строки, и вынутые из потока
+   они ложатся поверх метки и плашек: замерено 30px перекрытия на 640px и ниже
+   (дефект был и до макета «Карточка», на «Премиуме»). Возвращаем их в поток —
+   тогда они занимают своё место. Абсолютное положение на десктопе оставлено
+   намеренно: там крошки должны стоять вровень с крошками остальных страниц. */
+@media (max-width: 640px) {
+    .newsdetail-phero .content-crumbs {
+        position: static;
+        padding-inline: 0;
+        padding-bottom: 6px;
+    }
+    body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero .content-crumbs { top: auto; }
+}
+.newsdetail-phero .content-crumbs a { color: rgba(255, 255, 255, .82); }
+.newsdetail-phero .content-crumbs a:hover { color: #fff; }
+.newsdetail-phero .content-crumbs span { color: rgba(255, 255, 255, .68); }
+.newsdetail-phero__title { font-size: var(--font-size-h1, var(--step-9)); line-height: 1.15; margin: 0; color: #fff; max-width: 22ch; letter-spacing: -.01em; }
+.newsdetail-phero__lead { color: rgba(255,255,255,.85); font-size: var(--step-0); line-height: 1.6; margin: 0; max-width: 48ch; }
+.newsdetail-phero__lead a { color: #fff; text-decoration-color: rgba(255,255,255,.55); }
+/* Мета (дата·чтение·просмотры) и источник на фото-hero — светлые. Базовые серые
+   .newsdetail__meta/__source идут ниже по файлу и при равной специфичности
+   перебивали --onDark; поднимаем специфичность через .newsdetail-phero. */
+/* Та же история, что у меты, только про метку рубрики: .newsdetail__badge--onDark
+   объявлен в теме ВЫШЕ базового .newsdetail__badge и при равной специфичности
+   проигрывал ему — на фото-hero метка получала акцент, посчитанный для светлой
+   подложки, и давала 2.10:1 при норме 4.5:1 (замерено по пикселям). */
+.newsdetail-phero .newsdetail__badge--onDark { background: rgba(23,153,155,.25); color: #7fd8d9; }
+.newsdetail-phero a.newsdetail__badge--onDark:hover { background: rgba(23,153,155,.38); color: #fff; }
+.newsdetail-phero .newsdetail__meta--onDark { color: rgba(255,255,255,.88); }
+.newsdetail-phero .newsdetail__meta-item { background: rgba(255,255,255,.12); color: rgba(255,255,255,.9); }
+.newsdetail-phero .newsdetail__meta-item:hover { background: rgba(255,255,255,.22); color: #fff; }
+.newsdetail-phero .newsdetail__meta--onDark .newsdetail__meta-item svg { color: #7fd8d9; }
+.newsdetail-phero .newsdetail__source--onDark { color: rgba(255,255,255,.75); }
+.newsdetail-phero__video { display: inline-flex; align-items: center; gap: 12px; margin-top: 8px; color: #fff; text-decoration: none; text-transform: uppercase; font-size: var(--step--3); letter-spacing: .08em; font-weight: 700; }
+.newsdetail-phero__play { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.45); transition: background .2s ease; }
+.newsdetail-phero__video:hover .newsdetail-phero__play { background: var(--gov-teal); border-color: var(--gov-teal); }
+/* Отступ от hero до текста задаёт `gap` самой статьи (те же 72px, что между
+   остальными секциями). Собственный `margin-top` здесь складывался с ним и
+   давал 120px — вдвое больше, чем между любой другой парой секций. Настройка
+   администратора по-прежнему добавляется сверху, как и в обычном макете. */
+.newsdetail--premium .newsdetail-body { margin-top: var(--newsdetail-padding-top, 0px); }
+
+/* Галерея-карточка в правой колонке. */
+.newsdetail-sidegallery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.newsdetail-sidegallery__item { aspect-ratio: 4/3; border-radius: var(--radius-sm, 8px); background: var(--gov-navy) center/cover no-repeat; transition: opacity .15s ease; }
+.newsdetail-sidegallery__item--wide { grid-column: 1 / -1; aspect-ratio: 16/9; }
+.newsdetail-sidegallery__item:hover { opacity: .85; }
+.newsdetail-sidegallery__all { width: 100%; justify-content: center; }
+
+/* Оглавление статьи + prev/next. */
+.newsdetail-adjacent--with-toc { grid-template-columns: minmax(0, 300px) 1fr 1fr; }
+@media (max-width: 1000px) { .newsdetail-adjacent--with-toc { grid-template-columns: 1fr; }
+}
+
+.newsdetail-toc { background: color-mix(in srgb, var(--gov-navy) 5%, var(--gov-bg)); border-radius: var(--radius, 14px); padding: 20px 22px; }
+.newsdetail-toc__title { display: block; font-family: var(--font-heading, 'PT Serif', serif); font-weight: 700; color: var(--gov-title); margin-bottom: 12px; }
+.newsdetail-toc__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.newsdetail-toc__list a { display: flex; gap: 10px; align-items: baseline; color: var(--gov-ink); text-decoration: none; font-size: var(--step--2); line-height: 1.35; }
+.newsdetail-toc__list a:hover { color: var(--gov-teal-text); }
+.newsdetail-toc__num { color: var(--gov-teal-on-tint, #00697d); font-weight: 700; font-size: var(--step--3); }
+.relnews-card__excerpt { color: var(--gov-muted); font-size: var(--step--2); line-height: 1.5; }
+/* Премиум-hero новости — полноширинный тёмный экран; прижимаем к шапке,
+   убирая верхний отступ контента (иначе светлая полоса-зазор). */
+.site-content:has(> .newsdetail--premium) { padding-top: 0; }
+
+/* --- Hero: сплит 40/60 --- */
+.newsdetail-head { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: clamp(28px, 4vw, 56px); align-items: start; margin-top: 8px; }
+@media (max-width: 1000px) { .newsdetail-head { grid-template-columns: 1fr; }
+}
+
+.newsdetail-head__info { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; padding-top: 6px; }
+.newsdetail__title { font-size: var(--font-size-h1, var(--step-9)); line-height: 1.12; margin: 0; letter-spacing: -.01em; }
+/* Лид набран той же шкалой, что и текст новости: раньше он был мельче,
+   плотнее, серее и вдвое уже — абзац под ним читался как из другой статьи.
+   Роль вводки держит вес, а не отдельный размер и цвет. Ширина — по
+   контейнеру, как у остального текста. */
+.newsdetail__lead {
+    color: var(--gov-ink, #1f2b3d);
+    font-size: var(--step-0);
+    /* 1.6 — то, чем реально набран текст статьи: правило `p { line-height }`
+       из базовой таблицы перебивает :where(.rich-content) с нулевым весом. */
+    line-height: 1.6;
+    font-weight: 500;
+    margin: 0;
+}
+.newsdetail__meta { display: flex; flex-wrap: wrap; gap: 8px; color: var(--gov-muted); font-size: var(--step--3); margin-top: 4px; }
+.newsdetail__meta-item { display: inline-flex; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.03); padding: 5px 12px; border-radius: var(--radius-sm, 8px); transition: background .15s ease, color .15s ease; }
+:root[data-theme="dark"] .newsdetail__meta-item { background: rgba(255, 255, 255, 0.05); }
+.newsdetail__meta-item:hover { background: rgba(0, 0, 0, 0.055); color: var(--gov-title); }
+:root[data-theme="dark"] .newsdetail__meta-item:hover { background: rgba(255, 255, 255, 0.09); color: #fff; }
+.newsdetail__meta-item svg { color: var(--gov-teal); }
+.newsdetail__source { color: var(--gov-muted); font-size: var(--step--2); margin: 0; }
+.newsdetail__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.newsdetail__btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; border-radius: var(--btn-radius, 8px); font-weight: 700; font-size: var(--step--1); text-decoration: none; transition: background .2s ease, color .2s ease, box-shadow .2s ease; cursor: pointer; }
+.newsdetail__btn--primary { background: var(--gov-navy); color: #fff; }
+.newsdetail__btn--primary:hover { background: color-mix(in srgb, var(--gov-navy) 88%, #000); box-shadow: 0 10px 24px rgba(19,42,92,.22); }
+.newsdetail__btn--ghost { border: 1px solid var(--gov-border); color: var(--gov-title); background: var(--gov-surface); }
+.newsdetail__btn--ghost:hover { border-color: var(--gov-title); }
+
+/* --- Медиа-модуль 16:9 + миниатюры --- */
+.newsdetail-gallery { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.newsdetail-gallery__main { position: relative; aspect-ratio: 16/9; border-radius: var(--radius, 14px); overflow: hidden; background: #16283f; cursor: zoom-in; }
+.newsdetail-gallery__slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; pointer-events: none; z-index: 0; transition: opacity .35s ease; }
+.newsdetail-gallery__slide.is-active { opacity: 1; pointer-events: auto; z-index: 1; }
+.newsdetail-gallery__nav { position: absolute; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); color: var(--gov-navy); font-size: var(--step-3); cursor: pointer; transition: background .15s ease; z-index: 2; }
+.newsdetail-gallery__nav:hover { background: #fff; }
+.newsdetail-gallery__nav--prev { left: 16px; }
+.newsdetail-gallery__nav--next { right: 16px; }
+.newsdetail-gallery__counter { position: absolute; right: 16px; bottom: 14px; padding: 5px 12px; border-radius: 999px; background: rgba(11,26,48,.72); color: #fff; font-size: var(--step--3); z-index: 2; }
+.newsdetail-gallery__thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.newsdetail-gallery__thumb,
+button.newsdetail-gallery__thumb {
+    width: 110px;
+    min-width: 110px;
+    height: 62px;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-sm, 6px);
+    border: 2px solid transparent;
+    background: var(--gov-bg-alt, #f1f5f9);
+    cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+    opacity: .7;
+    box-shadow: none;
+    transition: opacity .15s ease, border-color .15s ease, transform .15s ease;
+}
+.newsdetail-gallery__thumb img,
+button.newsdetail-gallery__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 4px;
+}
+.newsdetail-gallery__thumb.is-active,
+button.newsdetail-gallery__thumb.is-active {
+    opacity: 1;
+    border-color: var(--gov-teal);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--gov-teal) 30%, transparent);
+}
+.newsdetail-gallery__thumb:hover,
+button.newsdetail-gallery__thumb:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   Детальная новость — editorial-уровень (Bloomberg/FT/World Bank).
+   Сплит-hero 40/60, медиа-модуль 16:9 с миниатюрами, 3 колонки тела.
+   ========================================================================== */
+.newsdetail { display: flex; flex-direction: column; gap: clamp(40px, 5vw, 72px); padding-bottom: var(--newsdetail-padding-bottom, clamp(20px, 3vw, 40px)); }
+
+/* --- Изящная микро-кнопка скачивания фото-архива --- */
+.newsdetail-dl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--gov-border, #cbd5e1) 80%, transparent);
+    background: var(--gov-surface, #ffffff);
+    color: var(--gov-title, #0f172a);
+    font-size: var(--step--3);
+    font-weight: 600;
+    text-decoration: none;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.newsdetail-dl-btn__icon {
+    display: inline-flex;
+    align-items: center;
+    color: var(--gov-teal);
+    transition: transform 0.2s ease;
+}
+.newsdetail-dl-btn:hover {
+    background: var(--gov-navy);
+    color: #ffffff;
+    border-color: var(--gov-navy);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    transform: translateY(-1px);
+}
+.newsdetail-dl-btn:hover .newsdetail-dl-btn__icon {
+    color: #ffffff;
+    transform: translateY(2px);
+}
+:root[data-theme="dark"] .newsdetail-dl-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #f1f5f9;
+}
+:root[data-theme="dark"] .newsdetail-dl-btn:hover {
+    background: var(--gov-teal);
+    border-color: var(--gov-teal);
+    color: #ffffff;
+}
+.newsdetail-photos__figure { margin: 0; }
+.newsdetail-photos__figure .media-caption { margin-top: 8px; }
+
+/* ==========================================================================
+   Детальная новость v2 — спокойный редакционный макет.
+
+   Заголовок, медиа и текст образуют одну читаемую колонку; тезисы, сведения
+   и документы собраны в единую информационную рейку. Это убирает прежний
+   трёхколоночный «зигзаг» и сохраняет естественный порядок на узких экранах.
+   ========================================================================== */
+.newsdetail:not(.newsdetail--premium) {
+    display: grid;
+    min-width: 0;
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(292px, 340px);
+    grid-template-rows: auto auto;
+    column-gap: clamp(16px, 1.5vw, 24px);
+    row-gap: clamp(18px, 2.2vw, 28px);
+    align-items: start;
+    padding-top: var(--newsdetail-padding-top, 0px);
+    padding-bottom: var(--newsdetail-padding-bottom, clamp(32px, 5vw, 72px));
+}
+.newsdetail:not(.newsdetail--premium) > .newsdetail-head {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    width: 100%;
+}
+.newsdetail-actionrail { display: none; }
+
+.newsdetail-back-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    background: var(--gov-navy);
+    color: #ffffff;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    flex-shrink: 0;
+    margin-right: 6px;
+}
+.newsdetail-back-pill:hover,
+.newsdetail-back-pill:focus-visible {
+    background: var(--gov-teal);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0, 168, 150, 0.3);
+}
+.newsdetail-actionrail__btn {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--btn-radius, 10px);
+    background: transparent;
+    color: var(--gov-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+.newsdetail-actionrail__btn:hover,
+.newsdetail-actionrail__btn:focus-visible {
+    background: color-mix(in srgb, var(--gov-teal) 12%, var(--gov-surface));
+    color: var(--gov-teal-text);
+    transform: translateY(-1px);
+}
+.newsdetail-actionrail__btn--home {
+    background: var(--gov-navy);
+    color: #fff;
+}
+.newsdetail-actionrail__btn--home:hover,
+.newsdetail-actionrail__btn--home:focus-visible {
+    background: var(--gov-teal);
+    color: #fff;
+}
+.newsdetail-actionrail__btn.is-copied {
+    background: var(--gov-teal);
+    color: #fff;
+}
+.newsdetail-actionrail__btn::after {
+    content: attr(data-label);
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    padding: 6px 9px;
+    border-radius: var(--radius-sm, 8px);
+    background: var(--gov-navy);
+    color: #fff;
+    font-size: var(--step--4);
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-4px, -50%);
+    transition: opacity .16s ease, transform .16s ease;
+}
+.newsdetail-actionrail__btn:hover::after,
+.newsdetail-actionrail__btn:focus-visible::after {
+    opacity: 1;
+    transform: translate(0, -50%);
+}
+.newsdetail-actionrail__divider {
+    width: 24px;
+    height: 1px;
+    margin-block: 2px;
+    background: var(--gov-border);
+}
+.newsdetail:not(.newsdetail--premium) > .newsdetail-body { display: contents; }
+.newsdetail:not(.newsdetail--premium) .newsdetail-side--right {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+}
+.newsdetail:not(.newsdetail--premium) > :is(.newsdetail-photos, .newsdetail-related, .newsdetail-adjacent) {
+    grid-column: 1 / -1;
+}
+/* Одна колонка по центру — только когда боковой колонки нет ни с одной
+   стороны. Без второго :not() правило срабатывало и при левой колонке: сетка
+   схлопывалась в 900px, и карточки ложились поверх текста. */
+.newsdetail:not(.newsdetail--premium):not(:has(.newsdetail-side--right > *)):not(:has(.newsdetail-side--left > *)) {
+    grid-template-columns: minmax(0, 900px);
+    justify-content: center;
+}
+.newsdetail-side--right:empty { display: none; }
+
+/* Левая колонка у обычных макетов — зеркало правой. Переставить надо всё, что
+   размещено поимённо: саму колонку, шапку и статью. Ставим ПОСЛЕ правила выше,
+   иначе оно перебивает по порядку при равной специфичности. */
+@media (min-width: 901px) {
+    .newsdetail:not(.newsdetail--premium):has(.newsdetail-side--left) {
+        grid-template-columns: minmax(292px, 340px) minmax(0, 1fr);
+    }
+    .newsdetail:not(.newsdetail--premium):has(.newsdetail-side--left) > .newsdetail-head { grid-column: 2; }
+    .newsdetail:not(.newsdetail--premium):has(.newsdetail-side--left) .newsdetail-article { grid-column: 2; grid-row: 2; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-side--left { grid-column: 1; grid-row: 1 / span 2; }
+}
+
+/* Открытая редакционная шапка без внешнего контейнера-карточки. */
+.newsdetail:not(.newsdetail--premium) .newsdetail-head {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: clamp(20px, 2.4vw, 30px);
+    margin: 0;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-head__info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    max-width: none;
+    padding: clamp(8px, 1vw, 14px) 0 0;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail__eyebrow {
+    order: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    width: 100%;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail__title { order: 2; }
+.newsdetail:not(.newsdetail--premium) .newsdetail__lead { order: 3; }
+.newsdetail:not(.newsdetail--premium) .newsdetail__source { order: 4; }
+.newsdetail:not(.newsdetail--premium) .newsdetail__actions { order: 5; }
+.newsdetail:not(.newsdetail--premium) .newsdetail__title {
+    width: 100%;
+    max-width: none;
+    font-size: var(--font-size-h1, var(--step-11));
+    line-height: 1.04;
+    letter-spacing: -.035em;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    margin: 0;
+    font-size: var(--step--2);
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail__meta-item {
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail__meta-item:hover { background: transparent; }
+.newsdetail:not(.newsdetail--premium) .newsdetail__reader-btn {
+    min-height: 34px;
+    padding-inline: 12px;
+    border-color: color-mix(in srgb, var(--gov-teal) 32%, var(--gov-border));
+    background: color-mix(in srgb, var(--gov-teal) 6%, var(--gov-surface));
+    color: var(--gov-ink, #0b1a30);
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail__reader-btn:hover {
+    background: var(--gov-teal);
+    color: var(--on-accent, #ffffff);
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail__lead {
+    width: 100%;
+    max-width: none;
+    margin: 2px 0 0;
+    color: var(--gov-ink);
+    font-size: var(--font-size-lead, var(--step-1));
+    line-height: 1.68;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail__source { margin-top: -4px; }
+
+/* Галерея — один выразительный кадр и компактная горизонтальная кинолента. */
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery {
+    align-self: stretch;
+    width: 100%;
+    gap: 10px;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery,
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery__thumbs { min-width: 0; max-width: 100%; }
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery__caption {
+    margin: 2px 0 0;
+    padding: 2px 0 2px 12px;
+    color: var(--gov-ink);
+    font-size: var(--step--4);
+    line-height: 1.55;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery__caption .media-caption__credit {
+    color: var(--gov-muted);
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery__main {
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius, 14px);
+    box-shadow: 0 24px 54px -36px rgba(11, 26, 48, .52);
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery__nav {
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgba(255, 255, 255, .7);
+    background: rgba(255, 255, 255, .92);
+    box-shadow: 0 8px 24px rgba(11, 26, 48, .16);
+    backdrop-filter: blur(8px);
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery__nav:hover {
+    background: var(--gov-teal);
+    border-color: var(--gov-teal);
+    color: #fff;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery__counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    background: rgba(8, 25, 46, .76);
+    font-variant-numeric: tabular-nums;
+    backdrop-filter: blur(8px);
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery__thumbs {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(98px, 118px);
+    gap: 10px;
+    margin: 2px 0 0;
+    padding: 2px 2px 8px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline proximity;
+    scrollbar-width: thin;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery__thumb {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    scroll-snap-align: start;
+    border-radius: var(--radius-sm, 8px);
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-gallery__thumb img {
+    border-radius: inherit;
+}
+
+/* Видеоновость использует ту же медиа-геометрию, что и галерея. Плеер не
+   выглядит отдельным старым виджетом и не меняет ритм страницы. */
+.newsdetail:not(.newsdetail--premium) .newsdetail-media--video {
+    width: 100%;
+    min-width: 0;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-video {
+    width: 100%;
+    margin: 0;
+    border-radius: var(--radius, 14px);
+    background: var(--gov-navy);
+    box-shadow: 0 24px 54px -36px rgba(11, 26, 48, .52);
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-video .news-video__play {
+    width: clamp(62px, 7vw, 78px);
+    height: clamp(62px, 7vw, 78px);
+    border: 1px solid rgba(255, 255, 255, .72);
+    background: rgba(8, 35, 59, .78);
+    box-shadow: 0 14px 34px rgba(8, 25, 46, .28);
+    backdrop-filter: blur(8px);
+    transition: transform .2s ease, background .2s ease;
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-video .news-video__play:hover,
+.newsdetail:not(.newsdetail--premium) .newsdetail-video .news-video__play:focus-visible {
+    background: var(--gov-teal);
+    transform: translate(-50%, -50%) scale(1.05);
+}
+.newsdetail:not(.newsdetail--premium) .newsdetail-video .news-video__iframe,
+.newsdetail:not(.newsdetail--premium) .newsdetail-video .news-video__thumb {
+    border-radius: inherit;
+}
+
+/* Единая информационная рейка. */
+.newsdetail:not(.newsdetail--premium) .newsdetail-side--right {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.newsdetail-card {
+    border-color: color-mix(in srgb, var(--gov-border) 82%, transparent);
+    border-radius: var(--radius, 14px);
+    padding: clamp(19px, 2vw, 24px);
+    box-shadow: 0 16px 42px -38px rgba(11, 26, 48, .55);
+}
+.newsdetail-card__heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 17px;
+}
+.newsdetail-card__heading-icon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex: none;
+    border-radius: var(--radius-sm, 8px);
+    background: color-mix(in srgb, var(--gov-teal) 12%, var(--gov-surface));
+    color: var(--gov-teal-text);
+}
+.newsdetail-card__heading .newsdetail-card__title { margin: 0; }
+.newsdetail-card--summary {
+    border-color: color-mix(in srgb, var(--gov-teal) 23%, var(--gov-border));
+    background: linear-gradient(145deg, color-mix(in srgb, var(--gov-teal) 8%, var(--gov-surface)), var(--gov-surface) 72%);
+}
+.newsdetail-points { counter-reset: news-points; gap: 0; }
+.newsdetail-points__item {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 12px;
+    padding: 13px 0;
+    font-size: var(--step--1);
+    line-height: 1.5;
+}
+.newsdetail-points__item + .newsdetail-points__item {
+    border-top: 1px solid color-mix(in srgb, var(--gov-border) 74%, transparent);
+}
+.newsdetail-points__number {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm, 8px);
+    background: color-mix(in srgb, var(--gov-teal) 13%, var(--gov-surface));
+    color: var(--gov-teal-on-tint, #00697d);
+    font-size: var(--step--4);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.newsdetail-event { gap: 16px; }
+.newsdetail-event__item {
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 11px;
+    font-size: var(--step--2);
+}
+.newsdetail-event__body { display: flex; flex-direction: column; gap: 2px; }
+.newsdetail-event__label {
+    color: var(--gov-muted);
+    font-size: var(--step--4);
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+.newsdetail-doc { padding: 13px; border-radius: var(--radius-sm, 8px); }
+.newsdetail-doc__icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-sm, 8px);
+    background: color-mix(in srgb, var(--gov-teal) 10%, var(--gov-surface));
+}
+.newsdetail:not(.newsdetail--premium) .news-audio-player { margin-bottom: 26px; }
+.newsdetail-share--inline {
+    justify-content: space-between;
+    margin-top: clamp(30px, 4vw, 46px);
+    padding-top: 22px;
+}
+.newsdetail-share__home {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    margin-bottom: 14px;
+    padding: 0 13px;
+    border: 1px solid var(--gov-border);
+    border-radius: var(--btn-radius, 10px);
+    background: var(--gov-surface);
+    color: var(--gov-title);
+    font-size: var(--step--2);
+    font-weight: 700;
+    text-decoration: none;
+}
+.newsdetail-share__home:hover {
+    border-color: var(--gov-teal);
+    color: var(--gov-teal-text);
+}
+.newsdetail-share--inline .newsdetail-share__home { margin: 0 auto 0 0; }
+.newsdetail-share--article-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 clamp(28px, 3.5vw, 42px);
+    padding: 0 0 18px;
+    border-bottom: 1px solid color-mix(in srgb, var(--gov-border) 78%, transparent);
+}
+.newsdetail-share--article-top .newsdetail-share__home {
+    margin: 0 auto 0 0;
+}
+.newsdetail-share--article-top .newsdetail-share__title {
+    margin: 0 2px 0 0;
+    color: var(--gov-muted);
+    font-family: var(--font-family, 'PT Sans', sans-serif);
+    font-size: var(--step--4);
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.newsdetail-share--article-top .newsdetail-share__btn {
+    width: 40px;
+    height: 40px;
+}
+.newsdetail-related {
+    padding-top: clamp(8px, 1.5vw, 18px);
+    border-top: 1px solid color-mix(in srgb, var(--gov-border) 76%, transparent);
+}
+.newsdetail-related__grid { gap: clamp(16px, 2vw, 24px); }
+.relnews-card {
+    gap: 9px;
+    padding: 0 0 14px;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--gov-border) 78%, transparent);
+    border-radius: var(--radius, 14px);
+    background: var(--gov-surface);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.relnews-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--gov-teal) 30%, var(--gov-border));
+    box-shadow: 0 18px 40px -30px rgba(11, 26, 48, .48);
+}
+.relnews-card__media { border-radius: 0; }
+.relnews-card:hover .relnews-card__media { transform: none; box-shadow: none; }
+/* Текст отступает от края: фотография идёт «в край», вставку держит текст.
+   Разметок две — в блоке похожих новостей текст лежит прямо в карточке, а в
+   ленте /news завёрнут в `.relnews-card__body`. Поэтому здесь только прямые
+   потомки, а вставку для ленты даёт padding у тела (gov-theme). Прежде дата
+   отбивалась через `>`, а заголовок — без него: в ленте селектор с `>` не
+   совпадал, и число стояло вплотную к рамке, пока заголовок рядом был отбит
+   на 14px. */
+.relnews-card > .news-meta { margin: 5px 14px 0; }
+.relnews-card > .relnews-card__title,
+.relnews-card > .relnews-card__excerpt { margin-inline: 14px; }
+/* Заголовку не нужен внешний отступ уровня h3: расстояние между строками
+   карточки задаёт её собственный `gap`, а с наследованным `margin-top` дата
+   отходила от заголовка на 31px против 14px у остальных строк. */
+.relnews-card__title { margin-top: 0; margin-bottom: 0; }
+/* Карточка обходится без бокового паддинга (обложка идёт от края до края),
+   поэтому внутренние элементы отступают сами. Только прямые потомки — по той
+   же причине, что у даты и заголовка выше: в ленте /news ссылка лежит внутри
+   `.relnews-card__body`, у которого свой боковой отступ, и общий селектор
+   складывал два отступа — «Читать подробнее» стояло на 14px правее заголовка. */
+.relnews-card > .card-more { margin-inline: 14px; }
+
+@media (max-width: 1000px) {
+    .newsdetail:not(.newsdetail--premium) { display: flex; }
+    .newsdetail:not(.newsdetail--premium) > .newsdetail-body {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+    }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-side--right { display: contents; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-card--summary { order: 1; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-side--right > :not(.newsdetail-card--summary) { order: 3; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-card--summary {
+        display: grid;
+        grid-template-columns: minmax(180px, .38fr) minmax(0, 1fr);
+        gap: 22px;
+        align-items: start;
+    }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-card--summary .newsdetail-card__heading { margin: 0; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-side--right > * {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        align-self: stretch;
+    }
+}
+
+
+@media (min-width: 1361px) {
+    .newsdetail:not(.newsdetail--premium) .newsdetail-share--article-top .newsdetail-share__home { display: none; }
+}
+
+
+@media (max-width: 1360px) {
+    .newsdetail-actionrail { display: none; }
+}
+
+
+@media (max-width: 720px) {
+    .newsdetail:not(.newsdetail--premium) { gap: 18px; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-head { gap: 14px; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-head__info {
+        gap: 12px;
+        padding-top: 0;
+    }
+    .newsdetail:not(.newsdetail--premium) .newsdetail__eyebrow { gap: 6px 10px; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail__meta {
+        gap: 6px 10px;
+        font-size: var(--step--4);
+        line-height: 1.3;
+    }
+    .newsdetail:not(.newsdetail--premium) .newsdetail__meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+    .newsdetail:not(.newsdetail--premium) .newsdetail__meta-item::before,
+    .newsdetail:not(.newsdetail--premium) .newsdetail__meta-item::after {
+        content: none;
+        display: none;
+    }
+    .newsdetail:not(.newsdetail--premium) .newsdetail__reader-btn {
+        min-height: 30px;
+        padding-inline: 9px;
+        font-size: var(--step--4);
+    }
+    .newsdetail:not(.newsdetail--premium) .newsdetail__title {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        font-size: clamp(var(--step-5), 8.8vw, var(--step-8));
+        line-height: 1.06;
+    }
+    .newsdetail:not(.newsdetail--premium) .newsdetail__lead {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        font-size: var(--step-0);
+        line-height: 1.52;
+    }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-gallery { gap: 6px; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-gallery__main { border-radius: var(--radius, 14px); }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-video { border-radius: var(--radius, 14px); }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-gallery__nav {
+        width: 42px;
+        height: 42px;
+    }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-gallery__nav--prev { left: 10px; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-gallery__nav--next { right: 10px; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-gallery__counter { right: 10px; bottom: 10px; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-card--summary {
+        display: block;
+    }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-card--summary .newsdetail-card__heading { margin-bottom: 12px; }
+    .newsdetail-share--inline { align-items: flex-start; flex-direction: column; }
+    .newsdetail-share--inline .newsdetail-share__home { margin: 0 0 4px; }
+    .newsdetail-share--article-top {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-bottom: 16px;
+    }
+    .newsdetail-share--article-top .newsdetail-share__home {
+        flex: 1 0 calc(100% - 4px);
+        width: max-content;
+        margin: 0 0 4px;
+    }
+    .newsdetail-share--article-top .newsdetail-share__title { margin-right: auto; }
+    .newsdetail-related__grid { grid-template-columns: 1fr; }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .relnews-card { transition: none; }
+    .relnews-card:hover { transform: none; }
+    .newsdetail-actionrail__btn,
+    .newsdetail-actionrail__btn::after { transition: none; }
+    .newsdetail:not(.newsdetail--premium) .newsdetail-video .news-video__play { transition: none; }
+}
+
+/* Тач-устройства: снимаем hover-подъём фото-плитки. Селектор жил в общем
+   блоке @media (hover:none) внутри gov-theme.css, а само правило переехало
+   сюда. Файл подключается позже темы, поэтому сброс обязан ехать вместе с
+   правилом — иначе при тапе плитка «залипала» бы приподнятой. */
+@media (hover: none) {
+    .newsdetail-photos__item:hover { transform: none; }
+}
+
+/* Узкие экраны: крупные заголовки берут нижнюю границу прежнего clamp,
+   чтобы не переполнять строку.
+
+   `body[class]` — не украшение, а вес селектора: «Дизайн» печатает точные
+   размеры переменными (`--font-size-*`), и правила ниже читают их через
+   `var(...)`. Раньше вес давал режимный класс `design-type-static` на `<body>`
+   (два класса против одного); класса больше нет, а `[class]` даёт ровно
+   тот же вес — классы «Дизайна» у `<body>` есть всегда. Блок обязан
+   оставаться последним в файле. */
+@media (max-width: 640px) {
+    body[class] .newsdetail__title { font-size: var(--step-5); }
+    body[class] .newsdetail-phero__title { font-size: var(--step-5); }
+}

@@ -1,0 +1,335 @@
+/* из public/assets/css/frontend.css */
+
+
+.block-counters__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 24px; text-align: center; }
+.counter__suffix { margin-left: 2px; }
+.site-footer__counters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.block-form__char-counter {
+    margin-top: 4px;
+    color: var(--text-muted, #718096);
+    font-size: 12px;
+    text-align: right;
+}
+
+/* Полоса статистики (блок «Счётчики» в гос-стиле): карточки с иконкой-подложкой. */
+.block-counters__grid { text-align: left; }
+.counter {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 22px 24px; background: var(--surface, #fff);
+    border: 1px solid var(--border-color); border-radius: var(--radius, 14px);
+}
+.counter__label { color: var(--text-muted); margin-top: 4px; font-size: var(--step--1); }
+:root[data-theme="dark"] .counter__value, :root[data-theme="dark"] .counter__suffix { color: var(--text-main); }
+.counter__icon-img { width: var(--counter-icon-size, 28px); height: var(--counter-icon-size, 28px); object-fit: contain; }
+/* generated:inline-utilities:end */
+
+.block-form__char-counter.is-near-limit {
+    color: #e63946;
+}
+/* из public/assets/css/gov-theme.css */
+
+.rich-lightbox-counter { font-size: var(--step--2); font-weight: 700; color: rgba(255, 255, 255, 0.85); letter-spacing: 0.05em; }
+
+/* ==========================================================================
+   Размеры заголовков: фиксированный размер на десктопе и меньший на узких
+   экранах — «спокойная» типографика без непрерывного масштабирования по
+   ширине. Прежде эти правила висели на классе .design-type-static, то есть
+   на настройке «Масштаб типографики»; у неё не было второго состояния
+   (варианта «Плавающие» в CSS не существовало), и настройка удалена.
+   ========================================================================== */
+
+
+
+
+/* ============================================================================
+   6. КОНТЕНТНЫЕ БЛОКИ, РАЗМЕТКА И HERO-БЛОКИ (Sections, Hero layout, Grid blocks)
+   ============================================================================ */
+
+/* --- Полоса статистики (counters): спокойная цельная карта без стекла --- */
+.block-counters__title { color: var(--counters-text, var(--gov-title)); }
+.block-counters__grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; }
+.counter { 
+    border: 0; 
+    border-right: 1px solid var(--gov-border); 
+    border-radius: 0; 
+    padding: 6px 26px; 
+    box-shadow: none; 
+    background: transparent; 
+    flex-direction: row; 
+    align-items: flex-start; 
+    gap: 14px; 
+}
+.counter__value, .counter__suffix { color: var(--counters-text, var(--gov-title)) !important; font-family: var(--font-family, 'Noto Sans', sans-serif); font-weight: 700; font-size: var(--step-8); line-height: 1; }
+/* Плотный межстрочный: подпись из 2–3 слов не должна «рассыпаться». */
+.counter__label { color: var(--counters-text, var(--gov-muted)); font-size: var(--step--2); line-height: 1.35; margin: 4px 0 0; transition: color 0.3s ease; }
+.block-counters[style*="--counters-text"] .counter__label { opacity: .78; }
+@media (max-width: 720px) { .counter { border-right: 0; border-bottom: 1px solid var(--gov-border); padding: 14px 0; } .counter:last-child { border-bottom: 0; }
+}
+
+
+/* --- Показатели: приставка, примечание, ссылка, крупный кегль, карточки --- */
+
+/* Приставка («более», «до», «≈») набирается мельче числа и стоит на общей
+   с ним базовой линии: выравнивание задано у .counter__num. */
+.counter__prefix { color: var(--counters-text, var(--gov-muted)); font-size: var(--step--1); font-weight: 600; }
+
+
+/* Примечание — третья строка после подписи: сноска к показателю
+   («по данным на 2026 год»), а не вторая подпись. */
+/* Приглушать примечание прозрачностью нельзя: --gov-muted уже подобран впритык
+   к 4.5:1, и множитель 0.8 сажал контраст до 3.51:1 на светлой теме (замерено).
+   Разница с подписью держится кеглем, а не блёклостью. */
+.counter__note { color: var(--counters-text, var(--gov-muted)); font-size: var(--step--3); line-height: 1.35; margin: 4px 0 0; text-wrap: pretty; }
+
+/* Показатель со ссылкой остаётся показателем: цвет наследуется, подчёркивания
+   нет — иначе в полосе появляется синяя строка поперёк остальных. */
+.counter--link { text-decoration: none; color: inherit; }
+.counter--link:hover .counter__label { color: var(--counters-text, var(--gov-title)); }
+.counter--link:focus-visible { outline: 3px solid var(--gov-teal); outline-offset: 3px; }
+
+/* Крупные числа требуют более широкой дорожки: «1 200» с приставкой не влезает
+   в 180px и вылезает за карточку — переносить его нельзя (см. nowrap выше). */
+.block-counters--size-large .block-counters__grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.block-counters--size-large .counter__value,
+.block-counters--size-large .counter__suffix { font-size: var(--step-9); }
+
+/* Вариант «Карточки»: у каждого показателя своя поверхность вместо общей
+   полосы с разделителями. Разделители при этом надо снять — иначе у карточки
+   правая граница оказывается двойной. */
+.block-counters--cards .block-counters__grid { gap: var(--card-gap, 20px); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.block-counters--cards .counter {
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius, 14px);
+    padding: clamp(16px, 2vw, 24px);
+    background: var(--counters-bg, var(--gov-surface));
+}
+.block-counters--cards .counter:last-child { border-right: 1px solid var(--gov-border); }
+@media (max-width: 720px) {
+    .block-counters--cards .counter { border-bottom: 1px solid var(--gov-border); }
+    .block-counters--cards .counter:last-child { border-bottom: 1px solid var(--gov-border); }
+}
+
+
+/* Полоса статистики — белая карта, «наплывает» на нижний край фона hero.
+   Работает на любой странице, где блок счётчиков идёт сразу за hero. */
+.cms-block--hero:has(+ .cms-block--counters) { padding-bottom: 0; }
+/* Запас снизу внутри hero, чтобы карта наезжала на фон, а не на текст/кнопки. */
+/* +28px «воздуха»: карточка счётчиков наезжает ровно на clamp-высоту,
+   без добавки она прилипала вплотную к кнопкам hero. */
+.cms-block--hero + .cms-block--counters .block-counters { margin-top: clamp(-120px, -9vw, -80px); position: relative; z-index: 3; }
+.counter { flex-direction: row; align-items: flex-start; gap: 14px; }
+/* Иконка выровнена к строке числа (компенсирует разницу высот 54px vs текст). */
+.counter__icon { 
+    display: grid; 
+    place-items: center; 
+    width: var(--counter-icon-box-size, 50px);
+    height: var(--counter-icon-box-size, 50px);
+    margin-top: 2px; 
+    border-radius: 50%; 
+    flex-shrink: 0; 
+    background: color-mix(in srgb, var(--counters-text, var(--gov-title)) 8%, transparent); 
+    color: var(--counters-text, var(--gov-title)) !important; 
+    transition: background 0.35s ease, color 0.35s ease;
+}
+.counter__icon svg,
+.counter__icon img,
+.counter__icon-img {
+    width: var(--counter-icon-size, 28px) !important;
+    height: var(--counter-icon-size, 28px) !important;
+    object-fit: contain;
+}
+.counter__num { display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap; }
+.counter__body { display: flex; flex-direction: column; gap: 2px; }
+/* Мобильная иконка меньше и без сдвига — идёт после базовой, чтобы
+   перекрыть её на узком экране (число там мельче). */
+@media (max-width: 720px) {
+    .counter__icon {
+        width: var(--counter-icon-box-size, 50px);
+        height: var(--counter-icon-box-size, 50px);
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 720px) {
+    .cms-block--hero:has(+ .cms-block--counters) .block-hero--media { padding-bottom: 0; }
+    .cms-block--hero + .cms-block--counters { padding-top: var(--space-premium); }
+    .cms-block--hero + .cms-block--counters .block-counters { margin-top: 0; }
+}
+
+
+
+
+/* 2. Overlap layout for integrated counters (adjacent to Hero) */
+.cms-block--hero:has(+ .cms-block--counters) .block-hero--media {
+    padding-bottom: clamp(80px, 9vw, 130px);
+}
+.cms-block--hero + .cms-block--counters {
+    padding-top: 0;
+    position: relative;
+    z-index: 3;
+}
+.cms-block--hero + .cms-block--counters .block-counters {
+    margin-top: clamp(-100px, -7vw, -60px);
+}
+
+/* 3. Improved Premium Counter Card Style */
+.block-counters {
+    background: var(--counters-bg, var(--gov-surface));
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius, 20px);
+    padding: clamp(24px, 3.5vw, 38px);
+    box-shadow: 0 16px 40px rgba(19, 42, 92, 0.06), 0 2px 8px rgba(19, 42, 92, 0.02);
+    position: relative;
+    overflow: hidden;
+    z-index: 3;
+    transition: box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                border-color 0.4s ease;
+}
+:root[data-theme="light"] .block-counters {
+    background: linear-gradient(135deg, #ffffff 60%, #f4f8fc 100%);
+}
+:root[data-theme="dark"] .block-counters {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--gov-surface) 95%, #fff) 0%, color-mix(in srgb, var(--gov-surface) 90%, #000) 100%);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+.block-counters:hover {
+    transform: none;
+    box-shadow: 0 24px 50px rgba(23, 58, 99, 0.12);
+    border-color: var(--gov-teal);
+}
+
+.counter {
+    border-right: 1px solid var(--gov-border);
+}
+.counter:hover {
+    transform: none;
+}
+.counter:last-child {
+    border-right: 0;
+}
+
+.counter__value, .counter__suffix {
+    font-family: var(--font-heading, var(--font-family));
+    font-weight: var(--heading-font-weight, 800);
+    font-size: var(--step-8);
+    /* Сплошной цвет вместо градиента: градиент по тексту перекрывал «Цвет
+       текста» блока — что бы редактор ни выбрал, цифры оставались прежними. */
+    color: var(--counters-text, var(--gov-title));
+    -webkit-text-fill-color: currentColor;
+    display: inline-block;
+}
+
+.counter__label {
+    color: var(--counters-text, var(--gov-muted));
+    font-size: var(--step--1);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+.counter:hover .counter__label {
+    color: var(--gov-teal) !important;
+}
+
+.counter__icon {
+    background: color-mix(in srgb, var(--gov-teal) 8%, transparent);
+    color: var(--gov-teal);
+    transition: background 0.35s ease, color 0.35s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.counter:hover .counter__icon {
+    background: var(--gov-teal) !important;
+    color: #fff !important;
+    transform: scale(1.1) !important;
+}
+.block-counters--icons-no-bg .counter__icon,
+.block-counters--icons-no-bg .counter:hover .counter__icon {
+    background: transparent !important;
+}
+.block-counters--icons-no-bg .counter:hover .counter__icon {
+    color: var(--gov-teal) !important;
+}
+.block-counters .counter__body {
+    flex: 1;
+    min-width: 0;
+}
+.block-counters--icon-pos-left .counter {
+    flex-direction: row;
+}
+.block-counters--icon-pos-right .counter {
+    flex-direction: row-reverse;
+}
+.block-counters--icon-pos-top .counter,
+.block-counters--icon-pos-center .counter {
+    flex-direction: column;
+}
+.block-counters--icon-pos-center .counter {
+    align-items: center;
+}
+.block-counters--icon-pos-top .counter__body,
+.block-counters--icon-pos-center .counter__body {
+    width: 100%;
+}
+.block-counters--text-align-left .counter__body {
+    align-items: flex-start;
+    text-align: left;
+}
+.block-counters--text-align-center .counter__body {
+    align-items: center;
+    text-align: center;
+}
+.block-counters--text-align-right .counter__body {
+    align-items: flex-end;
+    text-align: right;
+}
+/* Выравнивание двигает пару «иконка + текст» целиком. Пока подпись тянулась
+   на всю оставшуюся ширину (flex: 1), «по центру» центрировало её внутри
+   ячейки, а иконка оставалась прижатой к краю: у одиночного показателя это
+   читалось как «настройка не работает». */
+.block-counters--text-align-center .counter { justify-content: center; }
+.block-counters--text-align-right .counter { justify-content: flex-end; }
+/* Иконка справа переворачивает ряд (row-reverse), и главная ось начинается у
+   правого края: «выравнивание справа» с flex-end уводило бы группу влево. */
+.block-counters--text-align-right.block-counters--icon-pos-right .counter { justify-content: flex-start; }
+.block-counters--text-align-center .counter__body,
+.block-counters--text-align-right .counter__body { flex: 0 1 auto; }
+
+/* Подложка блока — настройка, а не данность: «без подложки» снимает фон,
+   рамку, тень, внутренний отступ и подъём при наведении, и показатель встаёт
+   прямо на фон секции. Заливку снимаем и в схемах темы — она объявлена
+   отдельными правилами для светлой и тёмной. */
+.block-counters--panel-none,
+:root[data-theme="light"] .block-counters--panel-none,
+:root[data-theme="dark"] .block-counters--panel-none {
+    background: none;
+    border-color: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+}
+.block-counters--panel-none:hover {
+    transform: none;
+    border-color: transparent;
+    box-shadow: none;
+}
+/* Боковой отступ полосы держала подложка. Без неё крайние показатели обязаны
+   встать вровень с остальными блоками страницы. */
+.block-counters--panel-none.block-counters--row .counter:first-child { padding-left: 0; }
+.block-counters--panel-none.block-counters--row .counter:last-child { padding-right: 0; }
+
+/* Узкие экраны: крупные заголовки берут нижнюю границу прежнего clamp,
+   чтобы не переполнять строку.
+
+   `body[class]` — не украшение, а вес селектора: «Дизайн» печатает точные
+   размеры переменными (`--font-size-*`), и правила ниже читают их через
+   `var(...)`. Раньше вес давал режимный класс `design-type-static` на `<body>`
+   (два класса против одного); класса больше нет, а `[class]` даёт ровно
+   тот же вес — классы «Дизайна» у `<body>` есть всегда. Блок обязан
+   оставаться последним в файле. */
+@media (max-width: 640px) {
+    body[class] .counter__value,
+    body[class] .counter__suffix { font-size: var(--step-5); }
+}
