@@ -106,6 +106,7 @@ final class AiAssistantService
 
             $result = self::normalizeGeneratedFields($fallback, $generated, $target);
             if (self::hasGeneratedTarget($result, $target)) {
+                IntegrationStatus::ok('ai', 'генерация текста');
                 $result['provider'] = 'gemini';
                 $result['model'] = $model;
                 $result['notice'] = '';
@@ -114,6 +115,8 @@ final class AiAssistantService
         }
 
         $fallback['notice'] = 'Gemini временно недоступен: применён локальный анализ ключевых фактов.';
+        IntegrationStatus::fail('ai', 'Gemini не ответил или вернул негодный ответ; применён локальный разбор', 'генерация текста');
+
         return $fallback;
     }
 

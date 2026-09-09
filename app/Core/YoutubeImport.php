@@ -319,6 +319,13 @@ final class YoutubeImport
     {
         Setting::set('youtube_last_sync', date('Y-m-d H:i:s'));
         Setting::set('youtube_last_result', mb_substr(($ok ? '' : 'Ошибка: ') . $summary, 0, 500));
+
+        // Своя отметка здесь одна на оба исхода: неудачный проход затирал время
+        // последнего удачного импорта, и ответить «когда ролики приходили в
+        // последний раз» после первой же ошибки было нечем. Раздел состояния
+        // читает память с двумя отметками; эти две строки остаются — их
+        // показывает список видео.
+        IntegrationStatus::record('youtube', $ok, $summary, 'импорт с канала');
     }
 
     /** @return array{ok:bool, error:string, created:int, updated:int, linked:int, skipped:int, total:int, summary:string} */

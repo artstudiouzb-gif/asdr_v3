@@ -472,15 +472,18 @@ final class Cloudflare
         if (($res['error'] ?? '') !== '') {
             self::$lastError = 'сеть: ' . $res['error'];
             Logger::warning('Cloudflare ' . $op . ' сеть: ' . $res['error']);
+            IntegrationStatus::fail('cloudflare', self::$lastError, $op);
             return false;
         }
         $data = json_decode((string) ($res['body'] ?? ''), true);
         if (($res['status'] ?? 0) === 200 && is_array($data) && !empty($data['success'])) {
             self::$lastError = '';
+            IntegrationStatus::ok('cloudflare', $op);
             return true;
         }
         self::$lastError = self::errorText($data, (int) ($res['status'] ?? 0));
         Logger::warning('Cloudflare ' . $op . ' ошибка: ' . self::$lastError);
+        IntegrationStatus::fail('cloudflare', self::$lastError, $op);
 
         return false;
     }
