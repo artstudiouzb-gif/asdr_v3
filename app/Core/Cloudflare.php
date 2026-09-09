@@ -279,10 +279,16 @@ final class Cloudflare
         if (is_string($chain) && $chain !== '') {
             $msg .= ' — ' . $chain;
         }
+        // Код печатаем рядом с текстом: одна и та же фраза приходит с разными
+        // кодами, и без него причину приходится угадывать по формулировке.
+        $code = (int) ($error['code'] ?? 0);
+        if ($code !== 0) {
+            $msg .= ' (код ' . $code . ')';
+        }
 
         // 6003 — «Invalid request headers»: заголовок авторизации не разобран.
         // Причина почти всегда одна из двух, и обе не видны в ответе.
-        if ((int) ($error['code'] ?? 0) === 6003) {
+        if ($code === 6003) {
             $msg .= '. Проверьте, что в поле вставлен API-токен (Zone.Cache Purge), а не Global API Key,'
                 . ' и скопирован он без лишних символов.';
         }
@@ -295,9 +301,10 @@ final class Cloudflare
         // и подсказка не срабатывала ни разу.
         foreach (['Unable to purge', 'Unauthorized', 'Authentication error', 'cache.purge', 'requires permission'] as $needle) {
             if (str_contains($msg, $needle)) {
-                $msg .= '. Cloudflare не даёт очистку этим токеном: добавьте право Zone · Cache Purge · Purge'
-                    . ' на эту зону (My Profile → API Tokens → Edit). Чтения зоны для очистки недостаточно —'
-                    . ' поэтому проверка связи может проходить, а очистка нет.';
+                $msg .= '. Причин две: у токена нет права Zone · Cache Purge · Purge на эту зону'
+                    . ' (My Profile → API Tokens → Edit; чтения зоны для очистки недостаточно, поэтому'
+                    . ' проверка связи может проходить, а очистка нет) — либо зона подключена через'
+                    . ' партнёра и не разрешает очистку всего кэша разом.';
                 break;
             }
         }

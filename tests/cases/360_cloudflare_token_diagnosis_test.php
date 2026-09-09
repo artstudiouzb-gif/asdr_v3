@@ -98,3 +98,11 @@ test('Подсказка написана на формулировки, кот�
     assert_contains("'Authentication error'", $source, 'формулировка непринятого токена');
     assert_contains('Cache Purge', $source, 'подсказка называет право');
 });
+
+test('Код ошибки Cloudflare попадает в сообщение', function (): void {
+    // Одна и та же фраза приходит с разными кодами, и без кода причину
+    // приходится угадывать по формулировке — что уже подводило.
+    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
+    assert_contains("' (код '", $source, 'код обязан печататься рядом с текстом');
+    assert_contains('партнёра', $source, 'вторая причина отказа названа: запрет очистки всего кэша');
+});
