@@ -30,7 +30,7 @@
     --hero-text-width: 620px;
     --hero-bg: var(--gov-navy);
     --hero-fg: #fff;
-    --hero-accent: var(--color-accent);
+    --hero-accent: var(--gov-teal);
     --hero-overlay: transparent;
     --hero-panel-bg: transparent;
     --hero-duration: 700ms;

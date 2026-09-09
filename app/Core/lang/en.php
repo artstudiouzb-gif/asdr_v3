@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 return [
+    'Остановить показ' => 'Pause playback',
+    'Продолжить показ' => 'Resume playback',
     'Предыдущее фото' => 'Previous photo',
     'Следующее фото' => 'Next photo',
     'Соседние новости' => 'Adjacent news',
