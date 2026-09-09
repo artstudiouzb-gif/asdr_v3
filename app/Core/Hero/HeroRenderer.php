@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace App\Core\Hero;
 
 use App\Core\AccentContrast;
-use App\Core\AppUrl;
 use App\Core\Icon;
-use App\Core\Media;
-use App\Core\MediaPosition;
 use App\Core\TitleMarkup;
 use App\Core\UrlGuard;
 
@@ -119,8 +116,8 @@ final class HeroRenderer
 
         $html = '<div class="' . self::rootClasses($settings, $count) . '"'
             . self::rootAttributes($settings, $count, $label)
-            . '><div class="hero__slides">' . $slidesHtml . '</div>'
-            . self::nav($slides, $settings, $count)
+            . '>' . HeroNavigation::render($slides, $settings, $count)
+            . '<div class="hero__slides">' . $slidesHtml . '</div>'
             . '</div>';
 
         return ['html' => $html, 'css' => $css, 'preload' => $preload];
@@ -173,10 +170,7 @@ final class HeroRenderer
                 $attrs[] = 'data-hero-swipe';
             }
             if ($s['autoplay']) {
-                // Пауза при наведении и при действии, возобновление и
-                // отключение на телефоне больше не настраиваются: это не
-                // выбор редактора, а правильное поведение карусели. Оно
-                // зашито в blocks/hero.js.
+                // Политикой паузы и мобильного запуска управляет runtime.
                 $attrs[] = 'data-hero-autoplay="' . ((int) $s['autoplay_interval'] * 1000) . '"';
             }
         }
@@ -288,10 +282,8 @@ final class HeroRenderer
             . ((int) $d['duration'] > 0 ? ' data-hero-slide-duration="' . ((int) $d['duration'] * 1000) . '"' : '')
             . ' role="group" aria-roledescription="' . htmlspecialchars(t('Слайд'), ENT_QUOTES) . '"'
             . ' aria-label="' . ($index + 1) . ' ' . htmlspecialchars(t('из'), ENT_QUOTES) . ' ' . $count . '"'
-            . ' aria-hidden="' . ($first ? 'false' : 'true') . '"'
-            . ($first ? '' : ' inert')
             . '>'
-            . self::media($d, $first)
+            . HeroMediaRenderer::render($d, $first)
             . self::overlay($d, $s)
             . self::cover($d)
             . self::watermark($d)
@@ -303,103 +295,6 @@ final class HeroRenderer
             . '</div>';
 
         return [$html, self::slideCss($d, $s, $scope, $index, $position)];
-    }
-
-    /**
-     * Слой фона. Картинка-замена рендерится всегда и лежит под видео: это и
-     * постер, и то, что остаётся, если видео показать нельзя.
-     *
-     * @param array<string, mixed> $d
-     */
-    private static function media(array $d, bool $first): string
-    {
-        $type = (string) $d['media_type'];
-        if ($type === 'none') {
-            return '';
-        }
-
-        $positions = MediaPosition::classes($d['image_position'], $d['image_position_mobile']);
-        $fallback = HeroSlideData::fallbackImage($d);
-        $layers = '';
-
-        if ($fallback !== '') {
-            $layers .= Media::picture(
-                $fallback,
-                '',
-                null,
-                null,
-                'hero__image ' . $positions,
-                !$first,
-                '100vw',
-                $first,
-                'hero__fallback ' . $positions,
-                $d['image_mobile'] !== '' ? (string) $d['image_mobile'] : null
-            );
-        }
-
-        if ($type === 'video' && $d['video_url'] !== '') {
-            $layers .= self::video($d, $first);
-        } elseif ($type === 'youtube' && $d['youtube_id'] !== '') {
-            $layers .= self::youtube($d);
-        }
-
-        return $layers === '' ? '' : '<div class="hero__media" aria-hidden="true">' . $layers . '</div>';
-    }
-
-    /** @param array<string, mixed> $d */
-    private static function video(array $d, bool $first): string
-    {
-        $poster = HeroSlideData::fallbackImage($d);
-        $sources = '<source src="' . htmlspecialchars((string) $d['video_url'], ENT_QUOTES) . '" type="video/mp4">';
-
-        // Ролик не стартует по атрибуту autoplay: старт даёт скрипт, когда слайд
-        // действительно показан. Иначе карусель тянула бы все видео сразу — на
-        // мобильном трафике это дороже, чем всё остальное на странице.
-        return '<video class="hero__video" data-hero-video'
-            . ' data-hero-mobile-media="' . htmlspecialchars((string) $d['mobile_media'], ENT_QUOTES) . '"'
-            . ($d['video_mobile_url'] !== ''
-                ? ' data-hero-video-mobile="' . htmlspecialchars((string) $d['video_mobile_url'], ENT_QUOTES) . '"'
-                : '')
-            . ($first ? ' preload="metadata"' : ' preload="none"')
-            . ($poster !== '' ? ' poster="' . htmlspecialchars($poster, ENT_QUOTES) . '"' : '')
-            . ' muted loop playsinline webkit-playsinline'
-            . ' disablepictureinpicture disableremoteplayback'
-            . ' controlslist="nodownload nofullscreen noremoteplayback noplaybackrate"'
-            . ' tabindex="-1" aria-hidden="true" hidden>' . $sources . '</video>';
-    }
-
-    /**
-     * YouTube как фон. Iframe создаёт скрипт: до его готовности (и навсегда,
-     * если ролик недоступен или автовоспроизведение запрещено) виден постер.
-     *
-     * @param array<string, mixed> $d
-     */
-    private static function youtube(array $d): string
-    {
-        $params = [
-            'autoplay' => '1',
-            'mute' => '1',
-            'loop' => '1',
-            'playlist' => (string) $d['youtube_id'],
-            'controls' => '0',
-            'playsinline' => '1',
-            'disablekb' => '1',
-            'fs' => '0',
-            'modestbranding' => '1',
-            'rel' => '0',
-            'iv_load_policy' => '3',
-            'enablejsapi' => '1',
-        ];
-        $origin = AppUrl::base();
-        if ($origin !== '') {
-            $params['origin'] = $origin;
-        }
-        $src = 'https://www.youtube-nocookie.com/embed/' . rawurlencode((string) $d['youtube_id'])
-            . '?' . http_build_query($params, '', '&', PHP_QUERY_RFC3986);
-
-        return '<div class="hero__yt" data-hero-youtube'
-            . ' data-hero-mobile-media="' . htmlspecialchars((string) $d['mobile_media'], ENT_QUOTES) . '"'
-            . ' data-hero-yt-src="' . htmlspecialchars($src, ENT_QUOTES) . '" aria-hidden="true"></div>';
     }
 
     /**
@@ -581,126 +476,6 @@ final class HeroRenderer
         $selector = $scope . ' .hero__slide[data-hero-index="' . $index . '"]';
 
         return $vars === [] ? '' : $selector . '{' . self::declarations($vars) . '}';
-    }
-
-    /**
-     * Навигация: стрелки, индикатор, пауза автопрокрутки. Живёт отдельной
-     * полосой и не накрывает контент — под неё в `.hero__inner` зарезервирован
-     * нижний отступ.
-     *
-     * @param array<int, array<string, mixed>> $slides
-     * @param array<string, mixed> $s
-     */
-    private static function nav(array $slides, array $s, int $count): string
-    {
-        if ($count < 2) {
-            return '';
-        }
-
-        $indicator = (string) $s['nav_indicator'];
-        $arrows = (bool) $s['nav_arrows'];
-        if (!$arrows && $indicator === 'none' && !$s['autoplay']) {
-            return '';
-        }
-
-        $prev = '<button type="button" class="hero__arrow hero__arrow--prev" data-hero-prev'
-            . ' aria-label="' . htmlspecialchars(t('Предыдущий слайд'), ENT_QUOTES) . '">'
-            . Icon::render('chevron-left', 22) . '</button>';
-        $next = '<button type="button" class="hero__arrow hero__arrow--next" data-hero-next'
-            . ' aria-label="' . htmlspecialchars(t('Следующий слайд'), ENT_QUOTES) . '">'
-            . Icon::render('chevron-right', 22) . '</button>';
-
-        // Внешний слой держит полосу на месте (ширина колонки сайта, отступ от
-        // низа), внутренний — сама капсула, которая обжимает содержимое.
-        // Двумя элементами, а не одним: капсуле нельзя задать и «во всю
-        // ширину контейнера», и «по содержимому» одновременно.
-        $html = '<div class="hero__nav"><div class="hero__nav-bar">';
-        if ($arrows) {
-            $html .= $prev;
-        }
-        $html .= '<div class="hero__indicator">' . self::indicator($slides, $indicator, $count) . '</div>';
-        if ($arrows) {
-            $html .= $next;
-        }
-        if ($s['autoplay']) {
-            // Остановить автопрокрутку должен уметь любой посетитель, а не
-            // только тот, кто доведёт курсор до слайда (WCAG 2.2.2).
-            $html .= '<button type="button" class="hero__playpause" data-hero-toggle'
-                . ' aria-label="' . htmlspecialchars(t('Остановить автопрокрутку'), ENT_QUOTES) . '"'
-                . ' data-label-play="' . htmlspecialchars(t('Запустить автопрокрутку'), ENT_QUOTES) . '"'
-                . ' data-label-pause="' . htmlspecialchars(t('Остановить автопрокрутку'), ENT_QUOTES) . '">'
-                . '<span class="hero__playpause-icon hero__playpause-icon--pause" aria-hidden="true">'
-                . Icon::render('player-pause', 18) . '</span>'
-                . '<span class="hero__playpause-icon hero__playpause-icon--play" aria-hidden="true">'
-                . Icon::render('player-play', 18) . '</span></button>';
-        }
-        $html .= '</div></div>'
-            . '<span class="visually-hidden" data-hero-status aria-live="polite"></span>';
-
-        return $html;
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $slides
-     */
-    private static function indicator(array $slides, string $type, int $count): string
-    {
-        $total = str_pad((string) $count, 2, '0', STR_PAD_LEFT);
-
-        $counter = '<span class="hero__counter" aria-hidden="true">'
-            . '<span class="hero__counter-current" data-hero-current>01</span>'
-            . '<span class="hero__counter-sep">/</span>'
-            . '<span class="hero__counter-total">' . $total . '</span></span>';
-        $progress = '<span class="hero__progress" aria-hidden="true">'
-            . '<span class="hero__progress-bar" data-hero-progress></span></span>';
-
-        return match ($type) {
-            'dots' => self::dots($count),
-            'counter' => $counter,
-            'progress' => $progress,
-            // Полоса идёт перед счётчиком: она показывает, сколько осталось до
-            // следующего слайда, а счётчик — где мы сейчас. Слева направо это
-            // читается как «время → позиция», а не наоборот.
-            'counter_progress' => $progress . $counter,
-            'thumbs' => self::thumbs($slides),
-            default => '',
-        };
-    }
-
-    private static function dots(int $count): string
-    {
-        $html = '<span class="hero__dots" role="group" aria-label="'
-            . htmlspecialchars(t('Выбор слайда'), ENT_QUOTES) . '">';
-        for ($i = 0; $i < $count; $i++) {
-            $html .= '<button type="button" class="hero__dot' . ($i === 0 ? ' is-active' : '') . '"'
-                . ' data-hero-goto="' . $i . '"'
-                . ' aria-label="' . htmlspecialchars(t('Перейти к слайду'), ENT_QUOTES) . ' ' . ($i + 1) . '"'
-                . ' aria-current="' . ($i === 0 ? 'true' : 'false') . '"></button>';
-        }
-
-        return $html . '</span>';
-    }
-
-    /** @param array<int, array<string, mixed>> $slides */
-    private static function thumbs(array $slides): string
-    {
-        $html = '<span class="hero__thumbs" role="group" aria-label="'
-            . htmlspecialchars(t('Выбор слайда'), ENT_QUOTES) . '">';
-        foreach ($slides as $i => $slide) {
-            $image = HeroSlideData::fallbackImage($slide['data']);
-            $title = trim((string) $slide['data']['title']);
-            $label = $title !== '' ? $title : t('Перейти к слайду') . ' ' . ($i + 1);
-            $html .= '<button type="button" class="hero__thumb' . ($i === 0 ? ' is-active' : '') . '"'
-                . ' data-hero-goto="' . $i . '"'
-                . ' aria-label="' . htmlspecialchars($label, ENT_QUOTES) . '"'
-                . ' aria-current="' . ($i === 0 ? 'true' : 'false') . '">'
-                . ($image !== '' && UrlGuard::isSafeMedia($image)
-                    ? '<img src="' . htmlspecialchars($image, ENT_QUOTES) . '" alt="" loading="lazy" decoding="async">'
-                    : '<span class="hero__thumb-num" aria-hidden="true">' . str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) . '</span>')
-                . '</button>';
-        }
-
-        return $html . '</span>';
     }
 
     /**

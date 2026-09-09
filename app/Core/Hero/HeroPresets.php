@@ -17,7 +17,7 @@ final class HeroPresets
     /** @var array<string, array{label: string, hint: string, settings: array<string, mixed>}> */
     public const PRESETS = [
         'editorial' => [
-            'label' => 'Editorial',
+            'label' => 'Текст и фотография',
             'hint' => 'Крупный заголовок слева, тёмное затемнение по диагонали — под фоторепортаж.',
             'settings' => [
                 'width' => 'full',
@@ -38,7 +38,7 @@ final class HeroPresets
             ],
         ],
         'government' => [
-            'label' => 'Government',
+            'label' => 'Официальная',
             'hint' => 'Сдержанная официальная шапка: светлый фон, текст слева, без фотографии.',
             'settings' => [
                 'width' => 'standard',
@@ -58,7 +58,7 @@ final class HeroPresets
             ],
         ],
         'navy' => [
-            'label' => 'Navy',
+            'label' => 'Тёмно-синяя',
             'hint' => 'Фирменный тёмно-синий фон, светлый текст — базовый вариант главной.',
             'settings' => [
                 'width' => 'full',
@@ -78,8 +78,8 @@ final class HeroPresets
             ],
         ],
         'full_image' => [
-            'label' => 'Full Image',
-            'hint' => 'Фотография во весь экран, текст по центру, медленный наезд Ken Burns.',
+            'label' => 'Большая фотография',
+            'hint' => 'Фотография во весь экран, текст по центру, медленное приближение фотографии.',
             'settings' => [
                 'width' => 'full',
                 'height' => 'full',
@@ -101,7 +101,7 @@ final class HeroPresets
             ],
         ],
         'video' => [
-            'label' => 'Video',
+            'label' => 'Видео на фоне',
             'hint' => 'Фоновое видео с плотным затемнением; на телефоне вместо него постер.',
             'settings' => [
                 'width' => 'full',
@@ -122,7 +122,7 @@ final class HeroPresets
             ],
         ],
         'minimal' => [
-            'label' => 'Minimal',
+            'label' => 'Только главное',
             'hint' => 'Только заголовок и подзаголовок, невысокая секция, точки вместо счётчика.',
             'settings' => [
                 'width' => 'standard',

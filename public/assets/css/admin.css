@@ -8227,3 +8227,6 @@ table.table--compact th, table.table--compact td,
     justify-content: flex-end;
     margin-bottom: var(--admin-gap, 12px);
 }
+
+/* Dependent hero settings retain their values while absent from the layout. */
+[data-hero-editor] [data-hero-dependent][hidden] { display: none; }

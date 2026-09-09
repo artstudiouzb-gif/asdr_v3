@@ -79,7 +79,7 @@
 }
 
 .hero--carousel { --hero-nav-space: calc(var(--hero-nav-btn) + var(--hero-nav-pad) + var(--hero-nav-bottom)); }
-.hero--nav-none.hero--no-arrows { --hero-nav-space: 0px; }
+.hero:has(.hero__nav) { --hero-nav-space: calc(var(--hero-nav-btn) + var(--hero-nav-pad) + var(--hero-nav-bottom)); }
 .hero--w-standard { max-width: var(--container-max, 1440px); margin-inline: auto; }
 
 /*
@@ -434,7 +434,7 @@
 
 .hero__arrow:hover,
 .hero__playpause:hover { background: color-mix(in srgb, var(--hero-fg) 18%, transparent); }
-.hero__arrow[disabled] { opacity: .45; cursor: default; }
+.hero__arrow[disabled], .hero__playpause[disabled] { opacity: .45; cursor: default; }
 .hero--no-arrows .hero__arrow { display: none; }
 
 /* Пальцем в 34 px попадать неудобно: на сенсорных экранах кнопки капсулы
@@ -444,8 +444,8 @@
     .hero { --hero-nav-btn: 44px; --hero-nav-pad: 46px; }
 }
 .hero__playpause .hero__playpause-icon--play { display: none; }
-.hero__playpause[aria-pressed="true"] .hero__playpause-icon--play { display: inline-flex; }
-.hero__playpause[aria-pressed="true"] .hero__playpause-icon--pause { display: none; }
+.hero__playpause[data-paused="true"] .hero__playpause-icon--play { display: inline-flex; }
+.hero__playpause[data-paused="true"] .hero__playpause-icon--pause { display: none; }
 
 .hero__indicator {
     display: flex;
@@ -626,13 +626,14 @@
 [data-a11y-motion="off"] .hero { --hero-motion: 0; --hero-kenburns: none; }
 
 /*
- * Без JavaScript карусель не переключается — показываем слайды подряд, как
- * это сделано у вкладок. Пустой обложки посетитель не увидит ни при каком
+ * До загрузки JavaScript кадры доступны горизонтальной прокруткой.
+ * Это работает и при отключённых скриптах, и при ошибке загрузки модуля. Пустой обложки посетитель не увидит ни при каком
  * состоянии скриптов.
  */
-@media (scripting: none) {
-    .hero__slides { display: block; }
-    .hero__slide { opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
-    .hero__nav { display: none; }
-    .hero { --hero-nav-space: 0px; }
-}
+/* No inactive content is hidden from assistive technology before enhancement. */
+.hero:not([data-hero-ready]) .hero__slides { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
+.hero:not([data-hero-ready]) .hero__slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
+.hero:not([data-hero-ready]) .hero__nav { display: none; }
+.hero:not([data-hero-ready]) { --hero-nav-space: 0px; --hero-kenburns: none; }
+.hero[data-hero-paused="true"] .hero__image,
+.hero[data-hero-paused="true"] .hero__video { animation-play-state: paused; }

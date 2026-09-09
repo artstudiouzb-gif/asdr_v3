@@ -114,10 +114,10 @@ test('Слайд: пустое оформление означает «как у
 });
 
 test('Слайд: кадр-замена берётся по приоритету, пустой слайд не считается слайдом', function () {
-    $withPoster = HeroSlideData::withDefaults(['poster' => '/uploads/public/p.jpg', 'image' => '/uploads/public/i.jpg']);
+    $withPoster = HeroSlideData::withDefaults(['media_type' => 'video', 'poster' => '/uploads/public/p.jpg', 'image' => '/uploads/public/i.jpg']);
     assert_same('/uploads/public/p.jpg', HeroSlideData::fallbackImage($withPoster), 'постер важнее картинки');
 
-    $imageOnly = HeroSlideData::withDefaults(['image' => '/uploads/public/i.jpg']);
+    $imageOnly = HeroSlideData::withDefaults(['media_type' => 'image', 'image' => '/uploads/public/i.jpg']);
     assert_same('/uploads/public/i.jpg', HeroSlideData::fallbackImage($imageOnly));
 
     assert_true(HeroSlideData::isEmpty(HeroSlideData::defaults()), 'незаполненный слайд пуст');
@@ -181,7 +181,7 @@ test('Разметка обложки: порядок слоёв — фон, з�
     }
     assert_true($order['hero__media'] < $order['hero__overlay'], 'затемнение после фона');
     assert_true($order['hero__overlay'] < $order['hero__inner'], 'контент после затемнения');
-    assert_true($order['hero__inner'] < $order['hero__nav'], 'навигация после контента');
+    assert_true($order['hero__nav'] < $order['hero__inner'], 'управление до содержимого в порядке чтения');
 
     // Инлайн-стилей в блоках быть не должно: оформление уходит в scoped CSS.
     assert_true(strpos($html, ' style="') === false, 'инлайн-стилей в разметке нет');
@@ -211,8 +211,8 @@ test('Разметка обложки: навигация, счётчик и д�
     assert_true(strpos($html, 'aria-roledescription="Карусель"') !== false, 'роль карусели объявлена');
     assert_true(substr_count($html, 'aria-label="Предыдущий слайд"') === 1, 'у стрелки есть подпись для диктора');
     assert_true(strpos($html, 'aria-live="polite"') !== false, 'смена слайда объявляется диктору');
-    assert_true(substr_count($html, 'aria-hidden="false"') === 1, 'открыт ровно один слайд');
-    assert_true(substr_count($html, ' inert') === 2, 'скрытые слайды выключены из порядка табуляции');
+    assert_true(strpos($html, 'data-hero-toggle') < strpos($html, 'data-hero-prev'), 'пауза — первая кнопка');
+    assert_not_contains(' inert', $html, 'до запуска JS все кадры доступны; управление фокусом проверяет браузерный тест');
 });
 
 test('Разметка обложки: один слайд не превращается в карусель', function () {
@@ -367,7 +367,7 @@ test('Стили обложки: фон вне потока, навигация 
         'кадрирование фона задаётся object-fit');
     assert_true(strpos($css, 'padding-block-end: calc(var(--space-xl) + var(--hero-nav-space))') !== false,
         'под навигацию зарезервировано место, а не надежда на короткий текст');
-    assert_true(strpos($css, '@media (scripting: none)') !== false,
+    assert_true(strpos($css, '.hero:not([data-hero-ready])') !== false,
         'без JavaScript слайды показываются подряд, а не исчезают');
     assert_true(strpos($css, '@media (prefers-reduced-motion: reduce)') !== false,
         'системная настройка «меньше движения» учтена');

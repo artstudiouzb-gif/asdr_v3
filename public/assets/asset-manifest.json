@@ -99,11 +99,11 @@
     },
     "/assets/css/blocks/hero.css": {
       "path": "/assets/css/blocks/hero.min.css",
-      "sourceSha256": "c4ca68b9c011a15f3c38bb4e05508b872516535c58d32056d3ea4c37b486daaf",
-      "sha256": "dd35898e48cd7b56ffd55399aabaf55b920402b04a892bffbed201ef62f3c610",
-      "raw": 10980,
-      "gzip": 2817,
-      "brotli": 2481
+      "sourceSha256": "c1ded5767fbb1215127a59ace6333bbf478befdeeea7561540b1694908e03aed",
+      "sha256": "dd27a02f516aad68ddab752f66f21e630aa37bc94b8fef63c13da3c65483f154",
+      "raw": 11376,
+      "gzip": 2878,
+      "brotli": 2541
     },
     "/assets/css/blocks/image.css": {
       "path": "/assets/css/blocks/image.min.css",
@@ -179,11 +179,11 @@
     },
     "/assets/js/blocks/hero.js": {
       "path": "/assets/js/blocks/hero.min.js",
-      "sourceSha256": "caa06fb73950f032221a8d9abd573bd87ed3a5a14eb6099f3a909107f0603c05",
-      "sha256": "629dd64e9a34eb679f8b2b3958a80d61f3002662b69c28342320903c0beb27d1",
-      "raw": 6558,
-      "gzip": 2306,
-      "brotli": 1997
+      "sourceSha256": "04c89a43873558f1abb42b3bb0e9dc961f783e0149df33d9fa8aca56662c18e1",
+      "sha256": "ababae626646adafd0cd8d1c7c08f5e4c44dc260cd52d703c2a3de9192318742",
+      "raw": 8718,
+      "gzip": 2924,
+      "brotli": 2569
     },
     "/assets/js/blocks/leader_card.js": {
       "path": "/assets/js/blocks/leader_card.min.js",

@@ -169,10 +169,10 @@ final class HeroSlideData
         $video = BlockDataInput::safeMedia($input['video_url'] ?? '');
         $image = BlockDataInput::safeMedia($input['image'] ?? '');
 
-        // Заполненное медиа — явное намерение редактора, даже если список
-        // «Фон» остался в положении «без фона».
+        // Явный выбор «только цвет» важнее сохранённых файлов. Автоопределение
+        // остаётся только для вызовов без поля media_type (импорт и API).
         $mediaType = BlockDataInput::enum($input, 'media_type', self::MEDIA_TYPES, 'none');
-        if ($mediaType === 'none') {
+        if (!array_key_exists('media_type', $input)) {
             $mediaType = $youtubeId !== null ? 'youtube' : ($video !== '' ? 'video' : ($image !== '' ? 'image' : 'none'));
         }
 
@@ -270,7 +270,12 @@ final class HeroSlideData
      */
     public static function fallbackImage(array $data): string
     {
-        foreach (['poster', 'image', 'image_mobile'] as $key) {
+        $type = (string) ($data['media_type'] ?? 'video');
+        if ($type === 'none') {
+            return '';
+        }
+        $keys = $type === 'image' ? ['image', 'image_mobile'] : ['poster', 'image', 'image_mobile'];
+        foreach ($keys as $key) {
             $value = trim((string) ($data[$key] ?? ''));
             if ($value !== '') {
                 return $value;
