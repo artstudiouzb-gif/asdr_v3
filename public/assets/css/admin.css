@@ -8143,6 +8143,14 @@ label.hb-behavior-card:has(input:checked) {
     font-size: var(--admin-fs-sm);
 }
 
+/* Подсказка, которая сообщает о проблеме: приглушённый серый читается как
+   пояснение, и предупреждение в нём теряется. Кегль тот же — меняется
+   только цвет и насыщенность. */
+.form-hint--warning {
+    color: var(--admin-danger, #b32d2e);
+    font-weight: var(--admin-fw-medium);
+}
+
 
 
 
