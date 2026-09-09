@@ -358,7 +358,11 @@ $size = static function (mixed $bytes): string {
             <p class="form-hint u-inline-291b7bbb01">
                 Нужно только если сайт или его поддомен <b>проксируется через Cloudflare</b>
                 (оранжевое облако). Тогда при изменении контента кэш Cloudflare очищается автоматически.
-                Токен создайте в Cloudflare → My Profile → API Tokens с правом <code>Zone · Cache Purge</code>.
+                Токен создайте в Cloudflare → My Profile → API Tokens → <strong>Create Custom Token</strong>
+                (готовые шаблоны для очистки кэша не подходят): право <code>Zone · Cache Purge</code>,
+                в Zone Resources выберите свою зону. Право <code>Zone · Zone · Read</code> необязательно —
+                с ним проверка связи дополнительно показывает название зоны. Global API Key сюда не подходит:
+                он работает другими заголовками.
             </p>
             <label class="hb-switch u-inline-af3fee87a1">
                 <input type="checkbox" name="cf_enabled" value="1" <?= $val('cf_enabled') === '1' ? 'checked' : '' ?>>
