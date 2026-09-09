@@ -167,7 +167,18 @@ final class Cloudflare
     }
 
     /**
-     * Проверка подключения: запрашиваем детали зоны.
+     * Проверка подключения — разбор по шагам, а не одно «получилось».
+     *
+     * Прежде она спрашивала только сведения о зоне, и это оказалось худшим из
+     * возможных вопросов: чтение зоны требует права Zone:Read, которого
+     * интеграции не нужно, а очистку — то единственное, ради чего токен и
+     * заводится, — не проверяло вовсе. Отсюда тупик: проверка отвечала
+     * «Подключено к зоне asdr.uz», очистка тут же отказывала, и понять,
+     * какое из трёх звеньев не работает, было нечем.
+     *
+     * Теперь спрашиваем все три и называем каждое: сам токен, доступ к зоне
+     * и очистку. Очистка идёт по несуществующему адресу — ничего не удаляет,
+     * но проходит те же проверки, что и рабочий сброс.
      *
      * @return array{ok: bool, message: string}
      */
@@ -185,77 +196,81 @@ final class Cloudflare
             ];
         }
 
-        $res = Http::request(
-            'GET',
-            self::API . '/zones/' . rawurlencode(self::zone()),
-            '',
-            self::authHeaders(),
-            15
-        );
+        $parts = [];
 
-        if (($res['error'] ?? '') !== '') {
-            return ['ok' => false, 'message' => 'Сеть: ' . $res['error']];
-        }
-        $data = json_decode((string) ($res['body'] ?? ''), true);
-        if (($res['status'] ?? 0) === 200 && is_array($data) && !empty($data['success'])) {
-            $name = (string) ($data['result']['name'] ?? '');
-            return ['ok' => true, 'message' => 'Подключено к зоне' . ($name !== '' ? ': ' . $name : '') . '.'];
-        }
+        // 1. Сам токен: активен ли он и не отозван ли. На этот вопрос отвечает
+        //    любой токен независимо от прав — поэтому шаг и первый.
+        $token = self::probe('GET', '/user/tokens/verify');
+        $parts[] = 'токен — ' . ($token['ok'] ? 'активен' : $token['text']);
 
-        // Отказ авторизации здесь ещё ничего не говорит о токене: сведения о
-        // зоне требуют права Zone:Read, а интеграции нужен только Cache Purge.
-        // Токен, выданный ровно под задачу, спотыкался о нашу же проверку и
-        // выглядел негодным — поэтому спрашиваем то, ради чего он и заведён.
-        if (in_array((int) ($res['status'] ?? 0), [401, 403], true)) {
-            return self::verifyByPurge();
-        }
+        // 2. Доступ к зоне. Для очистки это право не обязательно, поэтому его
+        //    отказ не делает проверку неуспешной — но знать о нём полезно.
+        $zone = self::probe('GET', '/zones/' . rawurlencode(self::zone()));
+        $name = is_array($zone['data']) ? (string) ($zone['data']['result']['name'] ?? '') : '';
+        $parts[] = $zone['ok']
+            ? 'зона — ' . ($name !== '' ? $name : 'доступна')
+            : 'чтение зоны — ' . $zone['text'] . ' (для очистки это право не требуется)';
 
-        return ['ok' => false, 'message' => 'Cloudflare: ' . self::errorText($data, (int) ($res['status'] ?? 0))];
+        // 3. Очистка. Ради неё всё и затевалось, поэтому успех проверки решают
+        //    этот шаг и первый, а не чтение зоны.
+        $purge = self::probePurge();
+        $parts[] = 'очистка — ' . ($purge['ok'] ? 'работает' : $purge['text']);
+
+        $ok = $token['ok'] && $purge['ok'];
+
+        return [
+            'ok' => $ok,
+            'message' => ($ok ? 'Cloudflare готов. ' : 'Cloudflare: ') . implode('; ', $parts) . '.',
+        ];
     }
 
     /**
-     * Запасная проверка для токена с одним правом Cache Purge.
+     * Один шаг проверки.
      *
-     * Сбрасываем кэш одного адреса, которого на сайте нет: очистка
-     * несуществующего пути ничего не удаляет, но проходит ровно те же
-     * проверки, что и рабочий сброс, — токен, право и номер зоны. Проверять
-     * возможность обходным путём (`/user/tokens/verify`) смысла нет: она
-     * подтверждает сам токен и молчит про зону и право.
-     *
-     * @return array{ok: bool, message: string}
+     * @return array{ok: bool, text: string, data: mixed}
      */
-    private static function verifyByPurge(): array
+    private static function probe(string $method, string $path, string $body = ''): array
     {
-        // Адрес сайта — из конфигурации, как и везде: HTTP_HOST подделывается
-        // заголовком, а сброс пошёл бы по чужой зоне.
-        $probe = rtrim((string) Config::get('app.url', ''), '/');
-        if ($probe === '') {
-            return ['ok' => false, 'message' => 'Не задан адрес сайта (app.url) — проверять нечего.'];
-        }
-        $probe .= '/__cf-verify-' . bin2hex(random_bytes(4));
-
-        $res = Http::request(
-            'POST',
-            self::API . '/zones/' . rawurlencode(self::zone()) . '/purge_cache',
-            (string) json_encode(['files' => [$probe]], JSON_THROW_ON_ERROR),
-            self::authHeaders(),
-            15
-        );
-
+        $res = Http::request($method, self::API . $path, $body, self::authHeaders(), 15);
         if (($res['error'] ?? '') !== '') {
-            return ['ok' => false, 'message' => 'Сеть: ' . $res['error']];
+            return ['ok' => false, 'text' => 'сеть: ' . $res['error'], 'data' => null];
         }
+
         $data = json_decode((string) ($res['body'] ?? ''), true);
         if (($res['status'] ?? 0) === 200 && is_array($data) && !empty($data['success'])) {
-            return [
-                'ok' => true,
-                'message' => 'Очистка кэша доступна. Название зоны не показано: у токена нет права '
-                    . 'Zone · Zone · Read, и для работы интеграции оно не нужно.',
-            ];
+            return ['ok' => true, 'text' => '', 'data' => $data];
         }
 
-        return ['ok' => false, 'message' => 'Cloudflare: ' . self::errorText($data, (int) ($res['status'] ?? 0))];
+        return ['ok' => false, 'text' => self::errorText($data, (int) ($res['status'] ?? 0)), 'data' => $data];
     }
+
+    /**
+     * Пробная очистка по несуществующему адресу.
+     *
+     * Сбрасывать весь кэш ради проверки нельзя — это настоящее действие с
+     * последствиями (холодная кромка для всех посетителей сразу). Очистка
+     * одного адреса, которого на сайте нет, не удаляет ничего, но проходит те
+     * же проверки: токен, право Cache Purge и номер зоны.
+     *
+     * @return array{ok: bool, text: string, data: mixed}
+     */
+    private static function probePurge(): array
+    {
+        $base = rtrim((string) Config::get('app.url', ''), '/');
+        if ($base === '') {
+            return ['ok' => false, 'text' => 'не задан адрес сайта (app.url)', 'data' => null];
+        }
+
+        return self::probe(
+            'POST',
+            '/zones/' . rawurlencode(self::zone()) . '/purge_cache',
+            (string) json_encode(
+                ['files' => [$base . '/__cf-verify-' . bin2hex(random_bytes(4))]],
+                JSON_THROW_ON_ERROR
+            )
+        );
+    }
+
 
     /**
      * Человеческая причина отказа из ответа API.
