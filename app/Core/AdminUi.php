@@ -211,6 +211,7 @@ final class AdminUi
             'seo' => 'world-search',
             'performance' => 'gauge',
             'database' => 'database',
+            'health' => 'heartbeat',
             'audit' => 'history',
             'update' => 'cloud-download',
         ][$name] ?? $name;

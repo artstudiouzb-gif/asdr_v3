@@ -43,13 +43,27 @@ final class SocialPublisher
      */
     public function publish(string $network, array $cfg, array $post): array
     {
-        return match ($network) {
+        $result = match ($network) {
             'telegram' => $this->telegram($cfg, $post),
             'facebook' => $this->facebook($cfg, $post),
             'linkedin' => $this->linkedin($cfg, $post),
             'instagram' => $this->instagram($cfg, $post),
             default => ['ok' => false, 'remote_id' => null, 'error' => 'Неизвестная сеть: ' . $network],
         };
+
+        // Память интеграции ведём только там, где она есть в списке известных:
+        // остальные сети пишут в журнал по-прежнему, и заводить им строку на
+        // экране состояния значило бы обещать наблюдение, которого нет.
+        if (isset(IntegrationStatus::KNOWN[$network])) {
+            IntegrationStatus::record(
+                $network,
+                !empty($result['ok']),
+                (string) ($result['error'] ?? ''),
+                'публикация'
+            );
+        }
+
+        return $result;
     }
 
     /**

@@ -61,6 +61,7 @@ if ($navIsSuper) {
         'footer' => ['/admin/footer', t('Подвал сайта')],
     ];
     $navSystem = [
+        'health' => ['/admin/health', t('Состояние системы')],
         'languages' => ['/admin/languages', t('Языки')],
         'content_types' => ['/admin/content-types', t('Типы контента')],
         'telegram' => ['/admin/telegram', 'Telegram'],
