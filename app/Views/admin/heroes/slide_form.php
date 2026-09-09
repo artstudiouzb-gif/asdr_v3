@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Core\AdminUi;
 use App\Core\BlockVisibility;
 use App\Core\Csrf;
+use App\Core\Hero\HeroSettings;
 use App\Models\Language;
 
 /** @var array $hero */
@@ -301,17 +302,14 @@ $customDuration = (int) $data['duration'];
                 </div>
             </div>
             <div class="form-grid-12">
-                <?= $select('content_scheme', 'Цвет текста', $inherit + [
-                    'auto' => 'Автоматически — по фону',
-                    'light' => 'Светлый',
-                    'dark' => 'Тёмный',
-                ], (string) $data['content_scheme'], '', 'col-6') ?>
+                <?= $select('content_scheme', 'Цвет текста', $inherit + HeroSettings::CONTENT_SCHEME_LABELS,
+                    (string) $data['content_scheme'], HeroSettings::CONTENT_SCHEME_HINT, 'col-6') ?>
 
                 <?= $select('overlay', 'Наложение на фон', $inherit + [
                     'none' => 'Без наложения',
                     'solid' => 'Сплошная заливка',
                     'gradient' => 'Градиент',
-                ], (string) $data['overlay'], 'Тёмный цвет затемняет кадр, светлый осветляет.', 'col-4') ?>
+                ], (string) $data['overlay'], 'Вуаль между кадром и текстом: тёмный цвет затемняет кадр, светлый осветляет.', 'col-4') ?>
 
                 <div class="form-field col-4">
                     <label for="overlay_opacity">Плотность наложения (%)</label>
