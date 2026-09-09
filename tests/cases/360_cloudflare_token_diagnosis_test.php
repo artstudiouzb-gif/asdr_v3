@@ -54,3 +54,20 @@ test('Причина отказа доходит до сообщения, а н�
     assert_contains('Cloudflare::normalizeToken', $controller, 'токен чистится при сохранении');
     assert_contains('Cloudflare::looksLikeToken', $controller, 'форма проверяется при сохранении');
 });
+
+test('Токену хватает одного права Cache Purge, и проверка это учитывает', function (): void {
+    // Сведения о зоне требуют Zone:Read, а интеграции нужен только сброс
+    // кэша. Пока проверка ходила только за сведениями, токен, выданный ровно
+    // под задачу, выглядел негодным: отказ авторизации при рабочем токене.
+    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
+    assert_contains('verifyByPurge', $source, 'нет запасной проверки для токена без Zone:Read');
+    assert_contains('403', $source, 'отказ авторизации обязан уводить на запасную проверку');
+    assert_contains('purge_cache', $source, 'запасная проверка спрашивает то, ради чего токен и заведён');
+
+    // Подсказка в форме обязана называть то же право, иначе редактор создаст
+    // токен по инструкции и не пройдёт нашу же проверку.
+    $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/performance/index.php');
+    assert_contains('Create Custom Token', $form, 'шаблоны Cloudflare для очистки кэша не подходят');
+    assert_contains('Cache Purge', $form, 'право названо');
+    assert_contains('Global API Key', $form, 'частая подмена названа прямо в форме');
+});

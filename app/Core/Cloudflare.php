@@ -12,7 +12,9 @@ use App\Models\Setting;
  *
  * Настройки (Производительность → Cloudflare):
  *   cf_enabled   — '1'/'0'
- *   cf_api_token — API-токен с правом «Zone.Cache Purge»
+ *   cf_api_token — API-токен с правом «Zone · Cache Purge» (этого хватает;
+ *                  «Zone · Zone · Read» необязательно — с ним проверка связи
+ *                  показывает ещё и название зоны)
  *   cf_zone_id   — идентификатор зоны сайта
  *   cf_real_ip   — доверять заголовку CF-Connecting-IP ('1'/'0')
  */
@@ -187,6 +189,58 @@ final class Cloudflare
         if (($res['status'] ?? 0) === 200 && is_array($data) && !empty($data['success'])) {
             $name = (string) ($data['result']['name'] ?? '');
             return ['ok' => true, 'message' => 'Подключено к зоне' . ($name !== '' ? ': ' . $name : '') . '.'];
+        }
+
+        // Отказ авторизации здесь ещё ничего не говорит о токене: сведения о
+        // зоне требуют права Zone:Read, а интеграции нужен только Cache Purge.
+        // Токен, выданный ровно под задачу, спотыкался о нашу же проверку и
+        // выглядел негодным — поэтому спрашиваем то, ради чего он и заведён.
+        if (in_array((int) ($res['status'] ?? 0), [401, 403], true)) {
+            return self::verifyByPurge();
+        }
+
+        return ['ok' => false, 'message' => 'Cloudflare: ' . self::errorText($data, (int) ($res['status'] ?? 0))];
+    }
+
+    /**
+     * Запасная проверка для токена с одним правом Cache Purge.
+     *
+     * Сбрасываем кэш одного адреса, которого на сайте нет: очистка
+     * несуществующего пути ничего не удаляет, но проходит ровно те же
+     * проверки, что и рабочий сброс, — токен, право и номер зоны. Проверять
+     * возможность обходным путём (`/user/tokens/verify`) смысла нет: она
+     * подтверждает сам токен и молчит про зону и право.
+     *
+     * @return array{ok: bool, message: string}
+     */
+    private static function verifyByPurge(): array
+    {
+        // Адрес сайта — из конфигурации, как и везде: HTTP_HOST подделывается
+        // заголовком, а сброс пошёл бы по чужой зоне.
+        $probe = rtrim((string) Config::get('app.url', ''), '/');
+        if ($probe === '') {
+            return ['ok' => false, 'message' => 'Не задан адрес сайта (app.url) — проверять нечего.'];
+        }
+        $probe .= '/__cf-verify-' . bin2hex(random_bytes(4));
+
+        $res = Http::request(
+            'POST',
+            self::API . '/zones/' . rawurlencode(self::zone()) . '/purge_cache',
+            (string) json_encode(['files' => [$probe]], JSON_THROW_ON_ERROR),
+            self::authHeaders(),
+            15
+        );
+
+        if (($res['error'] ?? '') !== '') {
+            return ['ok' => false, 'message' => 'Сеть: ' . $res['error']];
+        }
+        $data = json_decode((string) ($res['body'] ?? ''), true);
+        if (($res['status'] ?? 0) === 200 && is_array($data) && !empty($data['success'])) {
+            return [
+                'ok' => true,
+                'message' => 'Очистка кэша доступна. Название зоны не показано: у токена нет права '
+                    . 'Zone · Zone · Read, и для работы интеграции оно не нужно.',
+            ];
         }
 
         return ['ok' => false, 'message' => 'Cloudflare: ' . self::errorText($data, (int) ($res['status'] ?? 0))];
