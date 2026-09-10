@@ -198,6 +198,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <div data-repeater="items">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <?= \App\Core\AdminUi::iconField("items[{$i}][icon_svg]", $item['icon_svg'] ?? '', ['label' => 'Иконка Tabler']) ?>
                             <div class="form-field">
                                 <label>Заголовок</label>
@@ -244,6 +245,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <div data-repeater="slides">
                     <?php foreach (($data['slides'] ?? []) as $i => $slide): ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <?= \App\Core\AdminUi::imageField('slides[' . $i . '][image]', (string) ($slide['image'] ?? ''), ['label' => 'Изображение слайда']) ?>
                             <div class="form-field">
                                 <label>Alt-текст</label>
@@ -359,6 +361,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <div data-repeater="items">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <div class="form-field"><label>Цитата</label><textarea name="items[<?= $i ?>][quote]"><?= htmlspecialchars($item['quote'] ?? '', ENT_QUOTES) ?></textarea></div>
                             <div class="form-field"><label>Имя</label><input type="text" name="items[<?= $i ?>][name]" value="<?= htmlspecialchars($item['name'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field"><label>Должность</label><input type="text" name="items[<?= $i ?>][role]" value="<?= htmlspecialchars($item['role'] ?? '', ENT_QUOTES) ?>"></div>
@@ -416,7 +419,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <span class="form-hint">Не больше трёх: четвёртая — это уже меню, и главное действие теряется среди равных. Кнопка без текста или без ссылки на сайте не появится.</span>
                 <div data-repeater="items" data-repeater-max="<?= \App\Core\BlockData\ButtonsBlockNormalizer::MAX_BUTTONS ?>">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
-                        <div class="repeater-row"><?= $buttonRow((string) $i, is_array($item) ? $item : []) ?></div>
+                        <div class="repeater-row"><span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span><?= $buttonRow((string) $i, is_array($item) ? $item : []) ?></div>
                     <?php endforeach; ?>
                 </div>
                 <template data-repeater-template="items"><?= $buttonRow('__INDEX__', []) ?></template>
@@ -522,7 +525,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <span class="form-hint">Элементы могут занимать одни и те же ячейки — так и получается наложение. Кто ниже в списке, тот лежит поверх. На телефоне коллаж раскладывается в столбец в порядке списка.</span>
                 <div data-repeater="items" data-collage-repeater>
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
-                        <div class="repeater-row"><?= $collageRow((string) $i, is_array($item) ? $item : []) ?></div>
+                        <div class="repeater-row"><span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span><?= $collageRow((string) $i, is_array($item) ? $item : []) ?></div>
                     <?php endforeach; ?>
                 </div>
                 <template data-repeater-template="items"><?= $collageRow('__INDEX__', []) ?></template>
@@ -537,6 +540,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <div data-repeater="items">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <?= \App\Core\AdminUi::iconField("items[{$i}][icon_svg]", $item['icon_svg'] ?? '', ['label' => 'Иконка Tabler']) ?>
                             <?= \App\Core\AdminUi::imageField("items[{$i}][icon_image]", (string) ($item['icon_image'] ?? ''), ['label' => 'Своя иконка (SVG / PNG / WebP)', 'hint' => 'Заполнено — используется вместо иконки Tabler.']) ?>
                             <div class="form-field"><label>Приставка (напр. более, до)</label><input type="text" name="items[<?= $i ?>][prefix]" maxlength="12" value="<?= htmlspecialchars($item['prefix'] ?? '', ENT_QUOTES) ?>"></div>
@@ -628,6 +632,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <div data-repeater="items">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <?= \App\Core\AdminUi::imageField('items[' . $i . '][logo]', (string) ($item['logo'] ?? ''), ['label' => 'Логотип']) ?>
                             <div class="form-field"><label>Название</label><input type="text" name="items[<?= $i ?>][name]" value="<?= htmlspecialchars($item['name'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field"><label>Ссылка (необязательно)</label><input type="text" name="items[<?= $i ?>][url]" value="<?= htmlspecialchars($item['url'] ?? '', ENT_QUOTES) ?>" placeholder="https://..."></div>
@@ -657,6 +662,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <div data-repeater="items">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <div class="form-field"><label>Категория (необязательно)</label><input type="text" name="items[<?= $i ?>][category]" value="<?= htmlspecialchars($item['category'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field"><label>Вопрос</label><input type="text" name="items[<?= $i ?>][question]" value="<?= htmlspecialchars($item['question'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field"><label>Ответ</label><textarea name="items[<?= $i ?>][answer]" data-wysiwyg><?= htmlspecialchars($item['answer'] ?? '', ENT_QUOTES) ?></textarea></div>
@@ -681,6 +687,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <div data-repeater="items">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <?= \App\Core\AdminUi::iconField("items[{$i}][icon_svg]", $item['icon_svg'] ?? '', ['label' => 'Иконка Tabler']) ?>
                             <?= \App\Core\AdminUi::imageField("items[{$i}][icon_image]", (string) ($item['icon_image'] ?? ''), ['label' => 'Своя иконка (картинка)', 'hint' => 'Заполнено — используется вместо иконки Tabler.']) ?>
                             <div class="form-field"><label>Заголовок</label><input type="text" name="items[<?= $i ?>][title]" value="<?= htmlspecialchars($item['title'] ?? '', ENT_QUOTES) ?>" placeholder="напр. Телефон"></div>
@@ -1183,6 +1190,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <div data-repeater="items">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <?php if ($type === 'cards_grid'): ?>
                                 <?= \App\Core\AdminUi::iconField("items[{$i}][icon_svg]", $item['icon_svg'] ?? '', ['label' => 'Иконка Tabler']) ?>
                                 <?= \App\Core\AdminUi::imageField("items[{$i}][image]", (string) ($item['image'] ?? ''), ['label' => 'Изображение для варианта с фото']) ?>
@@ -1231,6 +1239,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <div data-repeater="items">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <?= \App\Core\AdminUi::imageField('items[' . $i . '][photo]', (string) ($item['photo'] ?? ''), ['label' => 'Фото']) ?>
                             <div class="form-field"><label>Имя</label><input type="text" name="items[<?= $i ?>][name]" value="<?= htmlspecialchars($item['name'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field"><label>Должность</label><input type="text" name="items[<?= $i ?>][role]" value="<?= htmlspecialchars($item['role'] ?? '', ENT_QUOTES) ?>"></div>
@@ -1279,6 +1288,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                             : (!$timelineHasStatuses ? ($i === $timelineLastIndex ? 'active' : 'done') : 'planned');
                         ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <div class="form-field"><label>Год</label><input type="text" name="items[<?= $i ?>][year]" value="<?= htmlspecialchars($item['year'] ?? '', ENT_QUOTES) ?>" placeholder="2023+"></div>
                             <div class="form-field"><label>Текст</label><textarea name="items[<?= $i ?>][text]"><?= htmlspecialchars($item['text'] ?? '', ENT_QUOTES) ?></textarea></div>
                             <div class="form-field"><label>Статус</label><select name="items[<?= $i ?>][status]">
@@ -1307,6 +1317,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <div data-repeater="docs">
                     <?php foreach (($data['docs'] ?? []) as $i => $doc): ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <div class="form-field"><label>Название</label><input type="text" name="docs[<?= $i ?>][title]" value="<?= htmlspecialchars($doc['title'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field"><label>Мета (напр. PDF · 2.4 МБ)</label><input type="text" name="docs[<?= $i ?>][meta]" value="<?= htmlspecialchars($doc['meta'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field">
@@ -1705,6 +1716,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                 <div data-repeater="branches">
                     <?php foreach (($data['branches'] ?? []) as $i => $branch): ?>
                         <div class="repeater-row">
+                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
                             <div class="form-field"><label>Должность</label><input type="text" name="branches[<?= $i ?>][title]" value="<?= htmlspecialchars($branch['title'] ?? '', ENT_QUOTES) ?>" placeholder="Первый заместитель директора"></div>
                             <div class="form-field"><label>Ф.И.О. (необязательно)</label><input type="text" name="branches[<?= $i ?>][name]" value="<?= htmlspecialchars($branch['name'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field"><label>Ссылка на профиль (необязательно)</label><input type="text" name="branches[<?= $i ?>][url]" value="<?= htmlspecialchars($branch['url'] ?? '', ENT_QUOTES) ?>" placeholder="/rukovodstvo/..."></div>
@@ -1730,7 +1742,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
               // закрытого details всё равно отправляются с формой). ?>
         <details class="form-section">
             <summary>Оформление секции <span class="form-section__hint">отступы, фон, анимация появления</span></summary>
-            <div class="form-section__body">
+            <div class="form-section__body form-section__body--grid">
         <?php $spacing = $data['_spacing'] ?? 'premium'; ?>
         <div class="form-field">
             <label for="spacing">Вертикальные отступы («воздух»)</label>
@@ -1991,6 +2003,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
                     <option value="<?= htmlspecialchars($rv, ENT_QUOTES) ?>" <?= $revealCurrent === $rv ? 'selected' : '' ?>><?= htmlspecialchars($rl, ENT_QUOTES) ?></option>
                 <?php endforeach; ?>
             </select>
+            <span class="form-hint">Не действует у первого блока страницы и у блока внутри контейнера («Колонки», «Вкладки») — они появляются вместе со страницей или своим контейнером. «Карточки по очереди» у блока без подходящей сетки заменяется обычным плавным появлением.</span>
         </div>
             </div>
         </details>
@@ -2006,7 +2019,7 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
         ?>
         <details class="form-section"<?= $vis::hasConditions($data) ? ' open' : '' ?>>
             <summary>Условия показа <span class="form-section__hint"><?= $visLabel !== '' ? htmlspecialchars($visLabel, ENT_QUOTES) : 'даты показа, устройство' ?></span></summary>
-            <div class="form-section__body">
+            <div class="form-section__body form-section__body--grid">
         <div class="form-field">
             <label for="visible_from">Показывать с</label>
             <input type="datetime-local" id="visible_from" name="visible_from" value="<?= htmlspecialchars($visFrom, ENT_QUOTES) ?>">
