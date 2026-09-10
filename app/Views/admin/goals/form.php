@@ -126,7 +126,7 @@ if ($rows === [] && !empty($_POST['slides'])) {
             <p class="form-hint">Переводы названия и описания появятся здесь после первого сохранения.</p>
         <?php endif; ?>
 
-        <div class="form-actions">
+        <div class="form-actions form-actions--sticky">
             <button type="submit" class="btn btn--primary">Сохранить</button>
             <a class="btn" href="/admin/goals">К списку</a>
         </div>

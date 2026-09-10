@@ -85,7 +85,7 @@ $translationLangs = array_values(array_filter(
                 <?php endforeach; ?>
             </section>
         <?php endif; ?>
-        <div class="form-actions">
+        <div class="form-actions form-actions--sticky">
             <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить</button>
         </div>
     </form>
