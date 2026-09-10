@@ -55,13 +55,30 @@ $langMap = \App\Models\Goal::availableLangsForIds(array_map(static fn ($g): int 
     <?php if (empty($goals)): ?>
         <p class="form-hint"><?= $search !== '' ? 'По запросу ничего не найдено.' : 'Целей пока нет.' ?></p>
     <?php else: ?>
+        <form id="bulkform" method="post" action="/admin/bulk/goals" class="bulk-bar" data-bulk-form>
+            <?= Csrf::field() ?>
+            <input type="hidden" name="return_query" value="<?= htmlspecialchars(http_build_query(array_filter([
+                'q' => $search,
+                'per_page' => $perPage,
+                'page' => $page,
+            ])), ENT_QUOTES) ?>">
+            <select name="bulk_action" required aria-label="Действие с выбранными">
+                <option value="">С выбранными…</option>
+                <?php foreach (\App\Controllers\Admin\BulkController::labels('goals') as $key => $label): ?>
+                    <option value="<?= htmlspecialchars($key, ENT_QUOTES) ?>"><?= htmlspecialchars($label, ENT_QUOTES) ?></option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit" class="btn">Применить</button>
+            <span class="bulk-bar__count" data-bulk-count>0 выбрано</span>
+        </form>
         <table class="admin-table">
             <thead>
-                <tr><th>Название</th><th>Языки</th><th>Снимков</th><th>Состояние</th><th></th></tr>
+                <tr><th class="u-inline-5aec6ffae3"><input type="checkbox" data-select-all form="bulkform" aria-label="Выбрать все"></th><th>Название</th><th>Языки</th><th>Снимков</th><th>Состояние</th><th></th></tr>
             </thead>
             <tbody>
                 <?php foreach ($goals as $goal): ?>
                     <tr>
+                        <td><input type="checkbox" name="ids[]" value="<?= (int) $goal['id'] ?>" form="bulkform" data-bulk-item aria-label="Выбрать цель"></td>
                         <td><a href="/admin/goals/<?= (int) $goal['id'] ?>/edit"><?= htmlspecialchars((string) $goal['name'], ENT_QUOTES) ?></a></td>
                         <td class="u-inline-a9efa5449f"><?= \App\Core\View::renderPartial('admin/layout/lang_badges', [
                             'siteLangs' => $siteLangs,
