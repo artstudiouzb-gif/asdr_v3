@@ -241,6 +241,20 @@ final class TeamMember
         self::bustPageCache();
     }
 
+    /**
+     * Смена статуса без переписывания остальных полей — нужна массовым
+     * действиям списка, которым незачем перечитывать сотрудника целиком.
+     */
+    public static function setStatus(int $id, string $status): void
+    {
+        if (!in_array($status, ['draft', 'published'], true)) {
+            return;
+        }
+        $stmt = Database::pdo()->prepare('UPDATE team_members SET status = :s WHERE id = :id');
+        $stmt->execute([':s' => $status, ':id' => $id]);
+        self::bustPageCache();
+    }
+
     public static function delete(int $id): void
     {
         $stmt = Database::pdo()->prepare('DELETE FROM team_members WHERE id = :id');

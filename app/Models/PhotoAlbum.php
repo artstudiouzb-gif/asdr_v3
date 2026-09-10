@@ -217,6 +217,17 @@ final class PhotoAlbum
         return (int) Database::pdo()->query('SELECT COUNT(*) FROM photo_albums WHERE is_published = 1')->fetchColumn();
     }
 
+    /**
+     * Публикация/снятие без переписывания заголовка, описания и обложки —
+     * нужна массовым действиям списка, которым незачем перечитывать альбом.
+     */
+    public static function setPublished(int $id, bool $published): void
+    {
+        Database::pdo()->prepare('UPDATE photo_albums SET is_published = :p WHERE id = :id')
+            ->execute([':p' => $published ? 1 : 0, ':id' => $id]);
+        self::bustPageCache();
+    }
+
     public static function delete(int $id): void
     {
         Database::pdo()->prepare('DELETE FROM photo_albums WHERE id = :id')->execute([':id' => $id]);
