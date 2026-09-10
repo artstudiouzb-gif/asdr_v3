@@ -17,6 +17,7 @@ use App\Controllers\Admin\PageController as AdminPageController;
 use App\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Controllers\Admin\ContentRevisionController as AdminContentRevisionController;
 use App\Controllers\Admin\HealthController as AdminHealthController;
+use App\Controllers\Admin\LogController as AdminLogController;
 use App\Controllers\Admin\SettingsController;
 use App\Controllers\Admin\TeamController as AdminTeamController;
 use App\Controllers\Admin\GoalController as AdminGoalController;
@@ -182,6 +183,8 @@ $router->get('/admin/search', [\App\Controllers\Admin\SearchController::class, '
 
 // --- Admin: история версий страниц, новостей и проектов ---
 $router->get('/admin/health', [AdminHealthController::class, 'index']);
+$router->get('/admin/logs', [AdminLogController::class, 'index']);
+$router->post('/admin/logs/clear', [AdminLogController::class, 'clear']);
 $router->get('/admin/revisions/{type}/{id}', [AdminContentRevisionController::class, 'index']);
 $router->post('/admin/revisions/{type}/{id}/{revisionId}/restore', [AdminContentRevisionController::class, 'restore']);
 
