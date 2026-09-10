@@ -369,7 +369,7 @@ form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel--colors .
 
 form[action*="/admin/heroes/"][action*="/slides/"] [data-hero-dependent-group][hidden],
 form[action*="/admin/heroes/"][action*="/slides/"] [data-hero-dependent][hidden] {
-    display: none !important;
+    display: none;
 }
 
 form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid > fieldset.form-grid {
