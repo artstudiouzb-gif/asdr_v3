@@ -74,6 +74,118 @@ final class SystemHealth
         return $worst;
     }
 
+    /**
+     * Следующий шаг для строки состояния.
+     *
+     * Подсказка у проверки объясняет причину, но сама по себе не отвечает на
+     * вопрос «куда нажать». Маршрут и короткая инструкция живут рядом с
+     * идентификатором проверки, чтобы дашборд и полный экран не расходились.
+     * Пустой href означает действие на хостинге, которому в CMS нет честной
+     * кнопки: в таком случае экран показывает инструкцию, а не притворяется,
+     * что может исправить cron или переменную окружения сам.
+     *
+     * @return array{label:string,href:string,instruction:string}
+     */
+    public static function solution(string $id): array
+    {
+        if (str_starts_with($id, 'worker:')) {
+            $name = substr($id, strlen('worker:'));
+            $workers = [
+                'mail' => ['mail_worker.php', '* * * * *'],
+                'webhook' => ['webhook_worker.php', '* * * * *'],
+                'social' => ['social_worker.php', '*/5 * * * *'],
+                'backup' => ['backup_worker.php', '0 3 * * *'],
+                'youtube' => ['youtube_worker.php', '0 * * * *'],
+            ];
+            [$script, $schedule] = $workers[$name] ?? [$name . '_worker.php', 'по расписанию задачи'];
+
+            return [
+                'label' => 'Настроить cron',
+                'href' => '',
+                'instruction' => 'В панели хостинга откройте Cron Jobs и восстановите запуск: '
+                    . $schedule . ' php /путь/к/сайту/app/Console/' . $script
+                    . '. После первого успешного запуска статус обновится сам.',
+            ];
+        }
+
+        if (str_starts_with($id, 'watchdog:queue:social_posts')) {
+            return [
+                'label' => 'Открыть публикации',
+                'href' => '/admin/social',
+                'instruction' => 'Проверьте настройки соцсетей и запустите очередь вручную. Если задача снова остаётся в очереди, откройте журнал ошибок.',
+            ];
+        }
+        if (str_starts_with($id, 'watchdog:queue:mail_queue')) {
+            return [
+                'label' => 'Проверить почту',
+                'href' => '/admin/settings#smtp-section',
+                'instruction' => 'Проверьте SMTP контрольной отправкой, затем восстановите ежеминутный запуск mail_worker.php в cron.',
+            ];
+        }
+
+        $solutions = [
+            'watchdog:disk' => [
+                'Проверить хранилище', '/admin/performance#perf-images',
+                'Удалите ненужные загрузки, старые резервные копии и журналы через соответствующие разделы либо увеличьте квоту диска в панели хостинга.',
+            ],
+            'release' => [
+                'Открыть обновления', '/admin/update',
+                'Проверьте установленную версию и завершите обновление тем же способом, которым сайт был развёрнут: git pull либо архив релиза.',
+            ],
+            'migrations' => [
+                'Открыть базу данных', '/admin/database#db-migrations',
+                'Сначала сделайте резервную копию, затем примените ожидающие миграции. Если файлов миграций нет, повторите полную выкладку кода.',
+            ],
+            'https' => [
+                'Проверить адрес сайта', '',
+                'Укажите APP_URL с https:// в конфигурации хостинга, включите SSL-сертификат и после этого заново откройте страницу проверки.',
+            ],
+            'integrity' => [
+                'Пересобрать эталон', '',
+                'После завершённой выкладки выполните: php app/Console/integrity_check.php --baseline. Не пересобирайте эталон, пока происхождение изменённых файлов не проверено.',
+            ],
+            'restore_drill' => [
+                'Открыть резервные копии', '/admin/database#db-diagnostics',
+                'Запустите php app/Console/restore_drill.php, затем добавьте его еженедельный запуск в cron. Команда использует свежую резервную копию и отдельную проверочную базу.',
+            ],
+            'errors_24h' => [
+                'Открыть журнал ошибок', '/admin/audit/errors',
+                'Начните с самой частой свежей группы ошибок. После исправления очистите только старые записи — новые покажут, исчезла ли причина.',
+            ],
+            'heartbeat_ping' => [
+                'Настроить мониторинг', '',
+                'Создайте проверку в сервисе внешнего мониторинга и задайте её URL в переменной окружения MONITORING_HEARTBEAT_URL.',
+            ],
+            'integration:cloudflare' => [
+                'Настроить Cloudflare', '/admin/performance#perf-cloudflare',
+                'Проверьте Zone ID, API-токен и право Zone.Cache Purge, затем выполните контрольную очистку кэша.',
+            ],
+            'integration:telegram' => [
+                'Настроить Telegram', '/admin/telegram',
+                'Проверьте токен бота, привязку администратора и доступ бота к выбранному каналу, затем повторите контрольное действие.',
+            ],
+            'integration:mail' => [
+                'Проверить SMTP', '/admin/settings#smtp-section',
+                'Сохраните параметры SMTP и выполните контрольную отправку внизу раздела настроек.',
+            ],
+            'integration:youtube' => [
+                'Настроить YouTube', '/admin/videos#youtube-import',
+                'Проверьте адрес канала и ключ YouTube Data API, затем запустите импорт вручную.',
+            ],
+            'integration:ai' => [
+                'Настроить ИИ', '/admin/settings#settings-ai',
+                'Проверьте API-ключ и повторите создание аннотации или перевода.',
+            ],
+        ];
+
+        [$label, $href, $instruction] = $solutions[$id] ?? [
+            'Посмотреть подробности', '',
+            'Проверьте указанную причину и журнал ошибок. После исправления состояние обновится при следующем запуске проверки.',
+        ];
+
+        return ['label' => $label, 'href' => $href, 'instruction' => $instruction];
+    }
+
     /** @return list<array{id:string,title:string,state:string,value:string,hint:string,at:?int}> */
     private static function maintenance(): array
     {
