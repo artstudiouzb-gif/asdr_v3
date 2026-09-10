@@ -87,11 +87,25 @@ $customDuration = (int) $data['duration'];
         <a href="/admin/heroes/<?= $heroId ?>/edit" class="btn btn--small">← К обложке «<?= $esc($hero['name']) ?>»</a>
     </p>
 
+    <nav class="settings-jump-nav" aria-label="Разделы слайда">
+        <a href="#slide-text"><?= AdminUi::icon('file-text', 16) ?>Текст</a>
+        <a href="#slide-media"><?= AdminUi::icon('photo', 16) ?>Фон</a>
+        <a href="#slide-art"><?= AdminUi::icon('sparkles', 16) ?>Логотип</a>
+        <a href="#slide-cta"><?= AdminUi::icon('link', 16) ?>Кнопки</a>
+        <a href="#slide-overlay"><?= AdminUi::icon('palette', 16) ?>Наложение</a>
+        <a href="#slide-mobile"><?= AdminUi::icon('device-mobile', 16) ?>Телефон</a>
+        <a href="#slide-schedule"><?= AdminUi::icon('calendar-event', 16) ?>Время показа</a>
+        <?php if ($translationLangs !== []): ?>
+            <a href="#slide-translations"><?= AdminUi::icon('globe', 16) ?>Переводы</a>
+        <?php endif; ?>
+        <a href="#slide-dev"><?= AdminUi::icon('code', 16) ?>Для разработчика</a>
+    </nav>
+
     <form method="post" action="/admin/heroes/<?= $heroId ?>/slides/<?= $slideId ?>/update" data-hero-editor="slide" data-hero-overlay-default="<?= $esc($settings['overlay']) ?>">
         <?= Csrf::field() ?>
 
         <!-- 1. Текст слайда -->
-        <div class="settings-card">
+        <div class="settings-card" id="slide-text">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('file-text', 20) ?></span>
                 <div>
@@ -147,7 +161,7 @@ $customDuration = (int) $data['duration'];
         </div>
 
         <!-- 2. Фон слайда (Медиа) -->
-        <div class="settings-card">
+        <div class="settings-card" id="slide-media">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('photo', 20) ?></span>
                 <div>
@@ -201,7 +215,7 @@ $customDuration = (int) $data['duration'];
         </div>
 
         <!-- 3. Логотип / Иллюстрация поверх фона -->
-        <div class="settings-card">
+        <div class="settings-card" id="slide-art">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('sparkles', 20) ?></span>
                 <div>
@@ -240,7 +254,7 @@ $customDuration = (int) $data['duration'];
         </div>
 
         <!-- 4. Кнопки и ссылки и ссылки -->
-        <div class="settings-card">
+        <div class="settings-card" id="slide-cta">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('link', 20) ?></span>
                 <div>
@@ -317,7 +331,7 @@ $customDuration = (int) $data['duration'];
         </div>
 
         <!-- 5. Наложение и цвет текста -->
-        <div class="settings-card">
+        <div class="settings-card" id="slide-overlay">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('palette', 20) ?></span>
                 <div>
@@ -359,7 +373,7 @@ $customDuration = (int) $data['duration'];
         </div>
 
         <!-- 6. На телефоне -->
-        <div class="settings-card">
+        <div class="settings-card" id="slide-mobile">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('device-mobile', 20) ?></span>
                 <div>
@@ -389,7 +403,7 @@ $customDuration = (int) $data['duration'];
         </div>
 
         <!-- 7. Время показа и расписание -->
-        <div class="settings-card">
+        <div class="settings-card" id="slide-schedule">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('calendar-event', 20) ?></span>
                 <div>
@@ -418,7 +432,7 @@ $customDuration = (int) $data['duration'];
 
         <!-- 8. Переводы на другие языки -->
         <?php if ($translationLangs !== []): ?>
-            <div class="settings-card">
+            <div class="settings-card" id="slide-translations">
                 <div class="settings-card__header">
                     <span class="settings-card__icon"><?= AdminUi::icon('globe', 20) ?></span>
                     <div>
@@ -480,7 +494,7 @@ $customDuration = (int) $data['duration'];
         <?php endif; ?>
 
         <!-- 9. Для разработчика -->
-        <div class="settings-card">
+        <div class="settings-card" id="slide-dev">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('code', 20) ?></span>
                 <div>
