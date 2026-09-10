@@ -27,7 +27,15 @@ test('редактор слайда использует отдельную чи
 
     assert_contains('form[action*="/admin/heroes/"][action*="/slides/"]', $css, 'стили ограничены редактором слайда');
     assert_contains('.form-field--checkbox', $css, 'чекбоксы приведены к единой карточке');
-    assert_contains('.image-field__row', $css, 'поля изображений выровнены в общей сетке');
+    // Раскладка поля медиа принадлежит самому компоненту, а не этому слою:
+    // прежде слой прибивал превью 108px через `!important`, и на ряде шириной
+    // в форму слайда фоновая фотография 1920×1080 показывалась ноготком.
+    assert_contains('.image-field__row {', $admin, 'ряд поля медиа описан в компоненте');
+    assert_not_contains(
+        'width: 108px',
+        $css,
+        'слой снова прибивает превью к фиксированной ширине'
+    );
     assert_contains('position: sticky;', $css, 'действия сохранения остаются доступны на длинной форме');
     assert_contains('@media (max-width: 760px)', $css, 'редактор имеет мобильную раскладку');
     assert_contains('.slide-action-panel__header', $css, 'настройки кнопок оформлены самостоятельными панелями');

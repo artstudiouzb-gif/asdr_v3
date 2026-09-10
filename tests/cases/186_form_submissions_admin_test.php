@@ -63,14 +63,23 @@ test('Заявки: сводка, фильтры и прочтение одно�
     $pdo->exec('DELETE FROM forms');
 });
 
-test('Заявки: дашборд использует настоящее имя формы и ведёт в журнал', function (): void {
-    $controller = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/DashboardController.php');
+/*
+ * Имя формы в заявке — то, что редактор ей дал (`forms.name`), а не выдуманная
+ * колонка `title`, которой в таблице нет: запрос с ней падал бы целиком.
+ *
+ * Прежде это проверялось на дашборде — там была карточка «Последние заявки» с
+ * предпросмотром присланного. Её убрали: сколько заявок не прочитано, говорит
+ * плитка со ссылкой в журнал, а предпросмотр показывал персональные данные
+ * посетителей на первом же экране панели. Проверка переехала туда, где список
+ * заявок остался.
+ */
+test('Заявки: список берёт настоящее имя формы, а дашборд ведёт в журнал', function (): void {
+    $model = (string) file_get_contents(APP_ROOT . '/app/Models/FormSubmission.php');
     $view = (string) file_get_contents(APP_ROOT . '/app/Views/admin/dashboard.php');
 
-    assert_contains('f.name AS form_title', $controller);
-    assert_not_contains('f.title AS form_title', $controller);
-    assert_contains('/admin/forms/submissions', $view);
-    assert_contains('/admin/forms/submissions/<?= (int) $sub[\'id\'] ?>', $view);
+    assert_contains('f.name AS form_name', $model);
+    assert_not_contains('f.title AS form_name', $model);
+    assert_contains('/admin/forms/submissions', $view, 'с дашборда должен быть путь в журнал заявок');
 });
 
 test('Заявки: разметка списка и карточки сбалансирована', function (): void {
