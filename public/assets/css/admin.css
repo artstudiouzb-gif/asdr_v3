@@ -3634,6 +3634,24 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 }
 .health-row__value { color: var(--admin-text); font-size: var(--admin-fs-sm); }
 .health-row__hint { margin-top: 4px; color: var(--admin-muted); font-size: var(--admin-fs-sm); }
+.health-row:target {
+    outline: 2px solid color-mix(in srgb, var(--admin-accent) 35%, transparent);
+    outline-offset: -2px;
+    background: var(--admin-accent-soft);
+}
+.health-row__solution {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--admin-border);
+    background: color-mix(in srgb, var(--admin-surface-soft) 72%, transparent);
+}
+.health-row__solution-icon { display: inline-flex; flex: none; color: var(--admin-accent); }
+.health-row__solution-body { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+.health-row__solution-body strong { font-size: var(--admin-fs-sm); color: var(--admin-text); }
+.health-row__solution-body span { color: var(--admin-muted); font-size: var(--admin-fs-sm); line-height: 1.45; }
 .hero-overlay-mode {
     margin-bottom: 16px;
     padding: 0;
@@ -4066,6 +4084,14 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 .dash-status__row--ok .dash-status__icon { color: var(--admin-success); }
 .dash-status__row--fail .dash-status__value,
 .dash-status__row--warn .dash-status__value { font-weight: var(--admin-fw-semibold); }
+.dash-status__action { flex: none; margin-left: auto; white-space: nowrap; }
+
+@media (max-width: 700px) {
+    .dash-status__row { align-items: flex-start; flex-wrap: wrap; }
+    .dash-status__action { width: 100%; margin-left: 28px; }
+    .health-row__solution { align-items: flex-start; flex-wrap: wrap; }
+    .health-row__solution .btn { width: 100%; justify-content: center; }
+}
 
 /* Список внутри виджета: заявки, читаемые новости. Отрицательные поля дают
    строке подсветку во всю ширину карточки, не сдвигая текст. */

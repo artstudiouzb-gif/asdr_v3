@@ -5,6 +5,7 @@ use App\Core\SystemHealth;
 
 $pageTitle = 'Состояние системы';
 $activeNav = 'health';
+require __DIR__ . '/../layout/header.php';
 
 /** @var list<array{title:string, checks:list<array{id:string,title:string,state:string,value:string,hint:string,at:?int}>}> $groups */
 /** @var string $worst */
@@ -50,7 +51,12 @@ $summary = [
         <?= AdminUi::cardHeader($group['title'], 'activity') ?>
         <div class="health-list">
             <?php foreach ($group['checks'] as $check): ?>
-                <div class="health-row health-row--<?= htmlspecialchars($check['state'], ENT_QUOTES) ?>">
+                <?php
+                $checkId = 'health-' . preg_replace('/[^a-z0-9_-]+/i', '-', $check['id']);
+                $solution = SystemHealth::solution($check['id']);
+                ?>
+                <div class="health-row health-row--<?= htmlspecialchars($check['state'], ENT_QUOTES) ?>"
+                     id="<?= htmlspecialchars($checkId, ENT_QUOTES) ?>">
                     <div class="health-row__head">
                         <span class="health-row__title"><?= htmlspecialchars($check['title'], ENT_QUOTES) ?></span>
                         <span class="badge <?= htmlspecialchars($stateBadge[$check['state']] ?? 'badge--draft', ENT_QUOTES) ?>">
@@ -62,8 +68,24 @@ $summary = [
                     <?php if ($check['hint'] !== ''): ?>
                         <div class="health-row__hint"><?= htmlspecialchars($check['hint'], ENT_QUOTES) ?></div>
                     <?php endif; ?>
+                    <?php if ($check['state'] !== SystemHealth::OK): ?>
+                        <div class="health-row__solution">
+                            <span class="health-row__solution-icon" aria-hidden="true"><?= AdminUi::icon('tool', 16) ?></span>
+                            <div class="health-row__solution-body">
+                                <strong>Как исправить</strong>
+                                <span><?= htmlspecialchars($solution['instruction'], ENT_QUOTES) ?></span>
+                            </div>
+                            <?php if ($solution['href'] !== ''): ?>
+                                <a class="btn btn--small" href="<?= htmlspecialchars($solution['href'], ENT_QUOTES) ?>">
+                                    <?= htmlspecialchars($solution['label'], ENT_QUOTES) ?> <?= AdminUi::icon('arrow-right', 14) ?>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
     </section>
 <?php endforeach; ?>
+
+<?php require __DIR__ . '/../layout/footer.php'; ?>
