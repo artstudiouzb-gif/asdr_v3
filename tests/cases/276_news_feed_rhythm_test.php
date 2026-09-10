@@ -70,11 +70,47 @@ test('Крупные карточки стоят по краям цикла и �
 test('Лента выводит широкую карточку с анонсом, а размер страницы берёт из ритма', function () {
     $listing = (string) file_get_contents(APP_ROOT . '/app/Views/site/_news_list.php');
     $controller = (string) file_get_contents(APP_ROOT . '/app/Controllers/Site/NewsController.php');
+    // Разметка карточки лежит в партиале: мест вывода у ритма два — лента и
+    // мозаика блока подборки, — и вторая копия разъехалась бы с первой.
+    $card = (string) file_get_contents(APP_ROOT . '/app/Views/site/_news_rhythm_card.php');
+    $feature = (string) file_get_contents(APP_ROOT . '/templates/blocks/news_feature.php');
 
     assert_contains('NewsFeedRhythm::slot($index)', $listing, 'ритм считает отдельный класс, а не шаблон');
-    assert_contains('relnews-card relnews-card--<?= $slot ?>', $listing, 'класс карточки — её слот');
-    assert_contains('relnews-card__excerpt', $listing, 'широкая карточка показывает анонс');
+    assert_contains('relnews-card relnews-card--<?= $slot ?>', $card, 'класс карточки — её слот');
+    assert_contains('relnews-card__excerpt', $card, 'широкая карточка показывает анонс');
     assert_contains('NewsFeedRhythm::PAGE_SIZE', $controller, 'размер страницы задаёт ритм');
+
+    // Обе стороны берут одну разметку, а не пишут свою.
+    assert_contains('_news_rhythm_card.php', $listing, 'лента печатает карточку общим партиалом');
+    assert_contains('_news_rhythm_card.php', $feature, 'мозаика печатает карточку тем же партиалом');
+    assert_contains('NewsFeedRhythm::blockSlot(', $feature, 'ритм мозаики считает тот же класс');
+});
+
+test('Мозаика блока набирается ритмом и не оставляет ряд без обложек', function () {
+    $feature = (string) file_get_contents(APP_ROOT . '/templates/blocks/news_feature.php');
+    $renderer = (string) file_get_contents(APP_ROOT . '/app/Core/BlockRenderer.php');
+
+    // Шесть карточек и восемь ячеек: 8 делится на 4 и на 2 колонки, 6 — на 3 и
+    // на 1, а на трёх колонках растяжение выключено. Ряд без дыры получается
+    // на каждой ширине; иное число оборвало бы последний ряд на середине.
+    assert_same(6, NewsFeedRhythm::BLOCK_SIZE, 'мозаика — шесть материалов');
+    $cells = 0;
+    foreach (range(0, NewsFeedRhythm::BLOCK_SIZE - 1) as $i) {
+        $cells += NewsFeedRhythm::blockSlot($i) === NewsFeedRhythm::SLOT_COMPACT ? 1 : 2;
+    }
+    assert_same(8, $cells, 'ячеек ровно восемь');
+    assert_same(NewsFeedRhythm::SLOT_HERO, NewsFeedRhythm::blockSlot(0), 'обложка открывает первый ряд');
+    assert_same(NewsFeedRhythm::SLOT_WIDE, NewsFeedRhythm::blockSlot(5), 'широкая замыкает второй');
+
+    // Лимит берётся из ритма, а не литералом: разъедутся — ряд оборвётся.
+    assert_contains('NewsFeedRhythm::BLOCK_SIZE', $renderer, 'лимит мозаики задаёт ритм');
+    // Прежнее семейство карточек мозаики выводило нижний ряд без обложек.
+    // Сверяем атрибут, а не файл целиком: имена старых классов законно
+    // упоминаются в комментарии рядом, и проверка по голому имени держалась бы
+    // на том, как в нём переносится строка.
+    assert_not_contains('class="newsfeat-text"', $feature, 'карточек без обложки в мозаике не осталось');
+    assert_not_contains('class="newsfeat-mini"', $feature, 'своего семейства карточек у мозаики больше нет');
+    assert_not_contains('class="newsfeat-lead"', $feature, 'крупная карточка мозаики — из ритма, а не своя');
 });
 
 test('Широкая карточка занимает две ячейки и складывается в одну колонку', function () {
@@ -150,9 +186,27 @@ test('Кадры крупных карточек занимают свою пл�
         ),
         'подложка объявлена у текста и не растянута на всю карточку'
     );
+    // Сброс растяжения обязан стоять здесь же. public-layout-polish.css
+    // объявляет всем карточкам `flex: 1 1 auto` и грузится после темы, а
+    // автоотступ забирает свободное место, которого при `flex-grow: 1` не
+    // остаётся: `margin-top: auto` вычислялся в 0, тело занимало 99% карточки,
+    // заголовок стоял у его верха, а сплошная заливка закрывала кадр целиком.
+    assert_true(
+        (bool) preg_match(
+            '/\.relnews-card--wide \.relnews-card__body \{[^}]*flex: 0 0 auto;[^}]*margin-top: auto;/',
+            $css
+        ),
+        'тело карточки не растягивается — иначе автоотступ не прижмёт его к низу'
+    );
     // Высота растушёвки и верхний отступ текста — одно число: разъедутся, и
     // граница подложки перестанет совпадать с началом текста.
-    assert_contains('--newshero-fade: clamp(56px, 9vw, 84px);', $css, 'растушёвка задана переменной');
+    // Величину не закрепляем числом — это настройка вида, и пин превращал бы
+    // сторожа в детектор правок. Стережём условие: растушёвка объявлена одним
+    // числом, и тем же числом задан верхний отступ текста.
+    assert_true(
+        (bool) preg_match('/--newshero-fade: clamp\([^;]+\);/', $css),
+        'растушёвка задана переменной'
+    );
     assert_contains('padding: var(--newshero-fade) 14px', $css, 'отступ текста равен высоте растушёвки');
     // Сплошная заливка под текстом: rgba(6,14,28,.88) поверх даже белой
     // фотографии даёт с белым текстом 13:1 при норме 4.5:1.

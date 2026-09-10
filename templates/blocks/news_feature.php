@@ -19,23 +19,17 @@ $rest = array_slice($news, 1);
 // Дата — единым числовым форматом на всех языках: 19.07.2026.
 $fmt = static fn (string $d): string => DateFormatter::short($d);
 // Метка — необязательная пометка со своим цветом; рубрику показывает категория.
-$badge = static fn (array $i): string => NewsBadge::render($i['badge'] ?? '', $i['badge_color'] ?? null);
 $badgeOverlay = static fn (array $i): string => NewsBadge::renderOverlay($i['badge'] ?? '', $i['badge_color'] ?? null);
-$badgeOnMedia = static fn (array $i): string => NewsBadge::render($i['badge'] ?? '', $i['badge_color'] ?? null, true);
 $category = static fn (array $i): string => trim((string) ($i['category'] ?? ''));
+// «Читать подробнее» остаётся только у «Карточек»: там материалов три-четыре и
+// ссылка отделяет их от текста. В мозаике карточка сама является ссылкой, и
+// подпись повторяла бы очевидное на каждой из шести.
 $more = '<span class="card-more">' . htmlspecialchars(t('Читать подробнее'), ENT_QUOTES)
     . '<span class="card-more__arrow" aria-hidden="true">→</span></span>';
-// В мозаике вся карточка — ссылка, поэтому подпись «Читать подробнее» лишняя:
-// остаётся одна стрелка как знак перехода. Диктору она не нужна — имя ссылке
-// даёт заголовок внутри неё, — поэтому целиком aria-hidden.
-if ($variant === 'mosaic') {
-    $more = '<span class="card-more card-more--arrow" aria-hidden="true">'
-        . '<span class="card-more__arrow">→</span></span>';
-}
 
-// Колонки мозаики задаёт тема (.block-newsfeat--mosaic): раскладка одна для
-// всех блоков этого варианта, поэтому scoped-правило только мешало бы — оно
-// грузится последним и перебивало общую сетку в четыре колонки.
+// Раскладку мозаики задаёт сетка ленты (.newslist-grid) — та же, что на
+// /news, поэтому scoped-правило только мешало бы: оно грузится последним и
+// перебивало бы общие колонки.
 $templateCss = '';
 ?>
 <div class="block-newsfeat block-newsfeat--<?= $variant ?>">
@@ -125,75 +119,28 @@ $templateCss = '';
         <?php endif; ?>
     <?php else: ?>
         <?php
-        // Макет «мозаика»: крупная новость с текстом на обложке, справа две
-        // карточки с фото и следом компактные строки без обложек.
-        // Ряды мозаики фиксированы: две карточки с фото и четыре без.
-        $withThumb = array_slice($rest, 0, 2);
-        $textOnly = array_slice($rest, 2, 4);
+        // Макет «мозаика»: тот же ритм и то же семейство карточек, что и в
+        // ленте /news (App\Core\NewsFeedRhythm) — обложка, четыре компактные и
+        // широкая, зигзагом. Шесть карточек и восемь ячеек, поэтому ряд без
+        // дыры получается на любой ширине.
+        //
+        // Прежде у мозаики было своё семейство (newsfeat-lead / -mini /
+        // -text), и четыре карточки нижнего ряда шли **без обложек** по
+        // замыслу. На главной ряд из четырёх текстовых строк под рядом с
+        // фотографиями читается как «картинки не загрузились», поэтому вид
+        // сведён к ленте: у каждой новости есть кадр, а вес карточкам задаёт
+        // размер плитки, а не наличие снимка.
+        $mosaicDate = $fmt;
         ?>
-        <div class="newsfeat-grid">
-            <a class="newsfeat-lead" href="<?= htmlspecialchars((string) $featured['url'], ENT_QUOTES) ?>">
-                <span class="newsfeat-lead__frame">
-                    <?php if (!empty($featured['cover'])): ?>
-                        <?= \App\Core\Media::picture((string) $featured['cover'], (string) $featured['title'], null, null, 'newsfeat-lead__media', false, '(max-width: 900px) 100vw, 50vw') ?>
-                    <?php else: ?>
-                        <span class="newsfeat-lead__media newsfeat-lead__media--empty" aria-hidden="true"></span>
-                    <?php endif; ?>
-                    <?= $badgeOverlay($featured) ?>
-                    <span class="newsfeat-lead__over">
-                        <span class="news-meta">
-                            <?php if (!empty($featured['published_at'])): ?><time class="newsfeat__date newsfeat__date--on-media"><?= htmlspecialchars($fmt((string) $featured['published_at']), ENT_QUOTES) ?></time><?php endif; ?>
-                            <?php if ($category($featured) !== ''): ?><span class="news-category news-category--on-media"><?= htmlspecialchars($category($featured), ENT_QUOTES) ?></span><?php endif; ?>
-                        </span>
-                        <span class="newsfeat-lead__title"><?= htmlspecialchars((string) $featured['title'], ENT_QUOTES) ?></span>
-                        <?php if (!empty($featured['excerpt'])): ?><span class="newsfeat-lead__excerpt"><?= htmlspecialchars(excerpt((string) $featured['excerpt'], 260), ENT_QUOTES) ?></span><?php endif; ?>
-                        <span class="card-more card-more--on-media"><?= htmlspecialchars(t('Читать подробнее'), ENT_QUOTES) ?><span class="card-more__arrow" aria-hidden="true">→</span></span>
-                    </span>
-                </span>
-            </a>
-
-            <div class="newsfeat-side">
-                <?php if (!empty($withThumb)): ?>
-                    <div class="newsfeat-side__thumbs">
-                        <?php foreach ($withThumb as $item): ?>
-                            <a class="newsfeat-mini" href="<?= htmlspecialchars((string) $item['url'], ENT_QUOTES) ?>">
-                                <span class="newsfeat-mini__thumb news-cover">
-                                    <?php if (!empty($item['cover'])): ?>
-                                        <?= \App\Core\Media::picture((string) $item['cover'], (string) $item['title'], null, null, 'newsfeat-mini__media', true, '(max-width: 700px) 100vw, 25vw') ?>
-                                    <?php else: ?>
-                                        <span class="newsfeat-mini__media newsfeat-mini__media--empty" aria-hidden="true"></span>
-                                    <?php endif; ?>
-                                    <?= $badgeOverlay($item) ?>
-                                </span>
-                                <span class="newsfeat-mini__body">
-                                    <span class="news-meta">
-                                        <?php if (!empty($item['published_at'])): ?><time class="newsfeat__date"><?= htmlspecialchars($fmt((string) $item['published_at']), ENT_QUOTES) ?></time><?php endif; ?>
-                                        <?php if ($category($item) !== ''): ?><span class="news-category"><?= htmlspecialchars($category($item), ENT_QUOTES) ?></span><?php endif; ?>
-                                    </span>
-                                    <span class="newsfeat-mini__title"><?= htmlspecialchars((string) $item['title'], ENT_QUOTES) ?></span>
-                                    <?php if (!empty($item['excerpt'])): ?><span class="newsfeat-mini__excerpt"><?= htmlspecialchars(excerpt((string) $item['excerpt'], 120), ENT_QUOTES) ?></span><?php endif; ?>
-                                    <?= $more ?>
-                                </span>
-                            </a>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-                <?php if (!empty($textOnly)): ?>
-                    <div class="newsfeat-side__texts">
-                        <?php foreach ($textOnly as $item): ?>
-                            <a class="newsfeat-text" href="<?= htmlspecialchars((string) $item['url'], ENT_QUOTES) ?>">
-                                <span class="news-meta">
-                                    <?php if (!empty($item['published_at'])): ?><time class="newsfeat__date"><?= htmlspecialchars($fmt((string) $item['published_at']), ENT_QUOTES) ?></time><?php endif; ?>
-                                    <?php if ($category($item) !== ''): ?><span class="news-category"><?= htmlspecialchars($category($item), ENT_QUOTES) ?></span><?php endif; ?>
-                                    <?= $badge($item) ?>
-                                </span>
-                                <span class="newsfeat-text__title"><?= htmlspecialchars((string) $item['title'], ENT_QUOTES) ?></span>
-                                <span class="newsfeat-text__arrow" aria-hidden="true">→</span>
-                            </a>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
+        <div class="newslist-grid">
+            <?php foreach (array_slice($news, 0, \App\Core\NewsFeedRhythm::BLOCK_SIZE) as $mosaicIndex => $item): ?>
+                <?php
+                $slot = \App\Core\NewsFeedRhythm::blockSlot($mosaicIndex);
+                $card = $item;
+                $cardDate = $mosaicDate;
+                require APP_ROOT . '/app/Views/site/_news_rhythm_card.php';
+                ?>
+            <?php endforeach; ?>
         </div>
     <?php endif; ?>
 </div>
