@@ -5,7 +5,7 @@
   },
   ".media-card": {
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "borderColor": "rgb(248, 250, 252)",
+    "borderColor": "rgb(241, 245, 249)",
     "borderRadius": "3px",
     "aspectRatio": "auto"
   },
@@ -19,7 +19,7 @@
   },
   ".media-card__caption": {
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "color": "rgb(248, 250, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "12px",
     "padding": "6px 2px 0px"
   },
@@ -29,7 +29,7 @@
     "fontWeight": "600"
   },
   ".media-card__icon-wrap": {
-    "backgroundColor": "color(srgb 0.17749 0.218157 0.284353)",
+    "backgroundColor": "color(srgb 0.175569 0.216784 0.283529)",
     "color": "rgb(148, 163, 184)",
     "aspectRatio": "16 / 10",
     "borderColor": "rgb(51, 65, 85)"

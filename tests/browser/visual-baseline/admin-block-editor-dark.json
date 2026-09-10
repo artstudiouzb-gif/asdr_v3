@@ -16,7 +16,7 @@
     "fontSize": "12px"
   },
   ".block-list-item__sub": {
-    "color": "rgb(248, 250, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "13px"
   },
   ".preset-card": {
@@ -25,13 +25,13 @@
     "borderRadius": "3px"
   },
   ".preset-card__title": {
-    "color": "rgb(248, 250, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "16px",
     "fontWeight": "500"
   },
   ".btn--danger": {
     "backgroundColor": "rgb(30, 41, 59)",
-    "color": "rgb(179, 45, 46)",
-    "borderColor": "rgb(241, 182, 193)"
+    "color": "rgb(241, 245, 249)",
+    "borderColor": "rgb(71, 85, 105)"
   }
 }

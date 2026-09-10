@@ -34,8 +34,16 @@ const ADMIN_USER = 'visual';
 const ADMIN_PASSWORD = 'Visual-regression-1';
 const ADMIN_TOTP_SECRET = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
 
-/** Темы панели: светлая по умолчанию и единственная тёмная. */
-const THEMES = ['default', 'dark_emerald'];
+/**
+ * Внешний вид панели: два закрепляемых состояния.
+ *
+ * Прежде здесь стояли имена цветовых тем (`default`, `dark_emerald`) — их было
+ * пять, и эталон покрывал две. Тем больше нет: остался один светлый вид и
+ * отдельная настройка «как в системе / светлая / тёмная», она же единственный
+ * источник тёмного. Снимаем оба конечных состояния; «как в системе» отдельным
+ * снимком не является — оно разрешается в одно из этих двух.
+ */
+const THEMES = ['light', 'dark'];
 
 /**
  * Экраны и то, что на каждом из них интересно. Селектор → свойства.
@@ -342,7 +350,7 @@ async function login(page) {
  */
 async function applyTheme(page, theme) {
     await page.evaluate((value) => {
-        document.documentElement.setAttribute('data-admin-theme', value);
+        document.documentElement.setAttribute('data-admin-appearance', value);
     }, theme);
 }
 

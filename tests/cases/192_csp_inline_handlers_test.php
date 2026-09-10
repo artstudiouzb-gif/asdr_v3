@@ -40,7 +40,7 @@ test('CSP: портал репозитория подключает скрипт
 
 test('CSP: заменённые действия обслуживаются скриптами', function () {
     $admin = (string) file_get_contents(dirname(__DIR__, 2) . '/public/assets/js/admin.js');
-    foreach (['data-file-pick', 'data-autosubmit', 'data-close-target', 'data-remove-closest', 'data-admin-theme-preview'] as $hook) {
+    foreach (['data-file-pick', 'data-autosubmit', 'data-close-target', 'data-remove-closest', 'data-admin-appearance-preview'] as $hook) {
         assert_contains($hook, $admin, "admin.js не обрабатывает {$hook}");
     }
 

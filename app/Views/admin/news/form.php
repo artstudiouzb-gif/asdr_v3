@@ -171,10 +171,7 @@ $existingPoll = !empty($news['id']) ? \App\Models\NewsPoll::findByNews((int) $ne
 
             <!-- Блок 2: Видео, Аудио и Фотогалерея статьи -->
             <div class="form-card u-inline-8a43589152">
-                <div class="u-inline-ab9be0ec4f">
-                    <span class="admin-section-icon admin-section-icon--info"><?= \App\Core\AdminUi::icon('media', 22) ?></span>
-                    <h3 class="u-inline-eb7fb8da4e">2. Дополнительные медиа (Видео, Аудио, Галерея)</h3>
-                </div>
+                <?= \App\Core\AdminUi::cardHeader('2. Дополнительные медиа (Видео, Аудио, Галерея)', 'media', 'var(--admin-info)') ?>
 
                 <div class="form-grid u-inline-210f32db0a">
                     <!-- Ссылка на видео -->
@@ -273,10 +270,7 @@ $existingPoll = !empty($news['id']) ? \App\Models\NewsPoll::findByNews((int) $ne
 
             <!-- Блок 4: Таймлайн и Интерактивный опрос -->
             <div class="form-card u-inline-8a43589152">
-                <div class="u-inline-ab9be0ec4f">
-                    <span class="admin-section-icon admin-section-icon--violet"><?= \App\Core\AdminUi::icon('clock', 22) ?></span>
-                    <h3 class="u-inline-eb7fb8da4e">4. Опрос и Хронология событий</h3>
-                </div>
+                <?= \App\Core\AdminUi::cardHeader('4. Опрос и Хронология событий', 'clock', 'var(--admin-violet)') ?>
 
                 <div class="form-grid">
                     <div class="form-field">
@@ -319,13 +313,12 @@ $existingPoll = !empty($news['id']) ? \App\Models\NewsPoll::findByNews((int) $ne
 
             <!-- Блок 5: Прикреплённые документы -->
             <div class="form-card u-inline-8a43589152">
-                <div class="u-inline-0a679d0540">
-                    <div class="u-inline-7e30d285d2">
-                        <span class="admin-section-icon admin-section-icon--info"><?= \App\Core\AdminUi::icon('document', 22) ?></span>
-                        <h3 class="u-inline-eb7fb8da4e">5. Прикреплённые документы</h3>
-                    </div>
-                    <button type="button" class="btn btn--small btn--secondary" data-add-doc-row="<?= htmlspecialchars($defaultCode, ENT_QUOTES) ?>">+ Добавить документ</button>
-                </div>
+                <?= \App\Core\AdminUi::cardHeader(
+                    '5. Прикреплённые документы',
+                    'document',
+                    'var(--admin-info)',
+                    '<button type="button" class="btn btn--small btn--secondary" data-add-doc-row="' . htmlspecialchars($defaultCode, ENT_QUOTES) . '">+ Добавить документ</button>'
+                ) ?>
                 <div class="docs-container u-inline-2e1ca338d7" data-docs-container="<?= htmlspecialchars($defaultCode, ENT_QUOTES) ?>">
                     <?php foreach ($docs as $idx => $doc): ?>
                         <div class="doc-item-row u-inline-d0009063f3">
@@ -586,10 +579,7 @@ $existingPoll = !empty($news['id']) ? \App\Models\NewsPoll::findByNews((int) $ne
             $cardStats = array_pad($cardStats, \App\Core\NewsCard::MAX_STATS, ['value' => '', 'label' => '']);
             ?>
             <div class="form-card">
-                <div class="u-inline-ab9be0ec4f">
-                    <span class="admin-section-icon admin-section-icon--info"><?= \App\Core\AdminUi::icon('photo', 22) ?></span>
-                    <h3>Обложка-карточка</h3>
-                </div>
+                <?= \App\Core\AdminUi::cardHeader('Обложка-карточка', 'photo', 'var(--admin-info)') ?>
                 <p class="form-hint">
                     Работает при макете «Карточка». Всё, что здесь набрано, переводится вместе
                     с новостью. В заголовке обложки работает разметка строки: <code>*слово*</code> — выделение,

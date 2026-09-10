@@ -114,133 +114,6 @@ body[data-admin-theme="default"] {
     --admin-sidebar-active-border: #60a5fa;
 }
 
-/* 2. Классический тёмный (CMS Style) */
-html[data-admin-theme="wp_classic"],
-body[data-admin-theme="wp_classic"] {
-    --admin-accent-soft: color-mix(in srgb, var(--admin-accent) 12%, var(--admin-surface));
-    --admin-primary: #2563eb;
-    --admin-primary-dark: #1d4ed8;
-    --admin-accent: #2563eb;
-    --admin-info: #2563eb;
-    --admin-topbar-bg: #0f172a;
-    --admin-topbar-text: #f8fafc;
-    --admin-sidebar-bg: #0f172a;
-    --admin-sidebar-text: #94a3b8;
-    --admin-sidebar-muted: #64748b;
-    --admin-sidebar-hover: #1e293b;
-    --admin-sidebar-active-bg: #2563eb;
-    --admin-sidebar-active-text: #ffffff;
-    --admin-sidebar-active-border: #60a5fa;
-}
-
-/* 3. Глубокий океан (Navy & Teal) */
-html[data-admin-theme="navy_teal"],
-body[data-admin-theme="navy_teal"] {
-    --admin-accent-soft: color-mix(in srgb, var(--admin-accent) 12%, var(--admin-surface));
-    --admin-primary: #0d9488;
-    --admin-primary-dark: #0f766e;
-    --admin-accent: #0d9488;
-    --admin-info: #0d9488;
-    --admin-topbar-bg: #0b1329;
-    --admin-topbar-text: #f8fafc;
-    --admin-sidebar-bg: #0b1329;
-    --admin-sidebar-text: #94a3b8;
-    --admin-sidebar-muted: #64748b;
-    --admin-sidebar-hover: #16203d;
-    --admin-sidebar-active-bg: #0d9488;
-    --admin-sidebar-active-text: #ffffff;
-    --admin-sidebar-active-border: #2dd4bf;
-}
-
-/* 4. Премиум Пурпур (Royal Purple) */
-html[data-admin-theme="royal_purple"],
-body[data-admin-theme="royal_purple"] {
-    --admin-accent-soft: color-mix(in srgb, var(--admin-accent) 12%, var(--admin-surface));
-    --admin-primary: #7c3aed;
-    --admin-primary-dark: #6d28d9;
-    --admin-accent: #7c3aed;
-    --admin-info: #7c3aed;
-    --admin-topbar-bg: #111827;
-    --admin-topbar-text: #f9fafb;
-    --admin-sidebar-bg: #111827;
-    --admin-sidebar-text: #9ca3af;
-    --admin-sidebar-muted: #6b7280;
-    --admin-sidebar-hover: #1f2937;
-    --admin-sidebar-active-bg: #7c3aed;
-    --admin-sidebar-active-text: #ffffff;
-    --admin-sidebar-active-border: #c4b5fd;
-}
-
-/* 5. Ночной изумруд (Full Dark Emerald) */
-html[data-admin-theme="dark_emerald"],
-body[data-admin-theme="dark_emerald"] {
-    --admin-primary: #10b981;
-    --admin-primary-dark: #059669;
-    --admin-accent: #10b981;
-    --admin-info: #10b981;
-    --admin-bg: #0f172a;
-    --admin-surface: #1e293b;
-    --admin-card-bg: #1e293b;
-    --admin-topbar-bg: #020617;
-    --admin-topbar-text: #f8fafc;
-    --admin-sidebar-bg: #0f172a;
-    --admin-sidebar-text: #f8fafc;
-    --admin-sidebar-muted: #64748b;
-    --admin-sidebar-hover: #1e293b;
-    --admin-sidebar-active-bg: #1e293b;
-    --admin-sidebar-active-text: #34d399;
-    --admin-sidebar-active-border: #10b981;
-    --admin-text: #f8fafc;
-    --admin-muted: #94a3b8;
-    --admin-border: #334155;
-    --admin-surface-soft: #1e293b;
-    --admin-input-bg: #0f172a;
-    --admin-input-border: #334155;
-    --admin-input-text: #f8fafc;
-    /* Мягкий оттенок акцента объявлен в светлом :root литералом; без своей
-       версии тёмная тема получала светло-голубую подложку у активной вкладки
-       и у всех прочих потребителей этого токена. */
-    --admin-accent-soft: color-mix(in srgb, var(--admin-accent) 20%, var(--admin-surface));
-    --admin-surface-hover: color-mix(in srgb, var(--admin-text) 8%, var(--admin-surface));
-    color-scheme: dark;
-}
-
-[data-admin-theme="dark_emerald"] .admin-card,
-[data-admin-theme="dark_emerald"] .admin-box,
-[data-admin-theme="dark_emerald"] .admin-panel,
-[data-admin-theme="dark_emerald"] .admin-cmd-palette-modal,
-[data-admin-theme="dark_emerald"] .admin-table-wrap,
-[data-admin-theme="dark_emerald"] .admin-filter-bar,
-[data-admin-theme="dark_emerald"] .admin-modal__content {
-    background-color: var(--admin-card-bg, #1e293b);
-    color: var(--admin-text, #f8fafc);
-    border-color: var(--admin-border, #334155);
-}
-
-[data-admin-theme="dark_emerald"] input[type="text"],
-[data-admin-theme="dark_emerald"] input[type="search"],
-[data-admin-theme="dark_emerald"] input[type="email"],
-[data-admin-theme="dark_emerald"] input[type="password"],
-[data-admin-theme="dark_emerald"] input[type="url"],
-[data-admin-theme="dark_emerald"] input[type="number"],
-[data-admin-theme="dark_emerald"] textarea,
-[data-admin-theme="dark_emerald"] select {
-    background-color: #0f172a;
-    color: #f8fafc;
-    border-color: #334155;
-}
-
-[data-admin-theme="dark_emerald"] .admin-cmd-item {
-    color: #f8fafc;
-}
-
-[data-admin-theme="dark_emerald"] .admin-cmd-item.is-selected,
-[data-admin-theme="dark_emerald"] .admin-cmd-item:hover {
-    background-color: #334155;
-    color: #34d399;
-}
-
-
 * { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; }
@@ -357,16 +230,6 @@ input[type="color"] { width: 60px; min-width: 60px; height: 40px; padding: 3px; 
 .clr-picker .clr-preview::before,
 .clr-picker .clr-preview::after { border-radius: 2px; }
 .clr-picker .clr-marker { border-radius: 2px; }
-[data-admin-theme="dark_emerald"] .clr-picker {
-    color: #f8fafc;
-    border-color: #334155;
-    background: #172033;
-}
-[data-admin-theme="dark_emerald"] .clr-picker input.clr-color {
-    color: #f8fafc;
-    border-color: #475569;
-    background: #0f172a;
-}
 input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--admin-accent);
@@ -783,7 +646,6 @@ body.auth-page {
 .totp-qr { display: flex; justify-content: center; margin-bottom: 16px; }
 .totp-qr svg { width: 220px; height: 220px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 3px; background: #ffffff; }
 
-
 /* ============================================================================
    Улучшенные уведомления и всплывающие сообщения (Flash Alerts)
    ============================================================================ */
@@ -821,14 +683,6 @@ body.auth-page {
     border-color: color-mix(in srgb, var(--admin-success, #10b981) 40%, var(--admin-border, #cbd5e1));
     border-left-color: var(--admin-success, #10b981);
     color: #064e3b;
-}
-
-::root[data-theme="dark"] .alert--success,
-body.theme-dark .alert--success,
-[data-admin-theme="dark_emerald"] .alert--success {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: rgba(16, 185, 129, 0.4);
-    color: #6ee7b7;
 }
 
 .alert--success::before {
@@ -3625,10 +3479,24 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 }
 
 /* ============================================================================
-   Dark Mode Support (Автоматический темный режим под тему ОС)
+   Dark Mode Support (тёмный вид — настройка «Внешний вид» в профиле)
+   ----------------------------------------------------------------------------
+   Прежде тот же набор срабатывал при любой тёмной ОС (prefers-color-scheme)
+   независимо от выбранной цветовой темы — пять тем и системная тёмная схема
+   спорили за одни и те же правила: выбрал тему — получил вперемешку с ней
+   чужие цвета. Тем осталась одна («default»), а тёмный вид выбирается
+   отдельно («Как в системе» / «Светлая» / «Тёмная», атрибут
+   data-admin-appearance на <html>, см. App\Controllers\Admin\ProfileController).
+   Набор объявлен дважды под разными селекторами — это осознанное
+   дублирование, списки свойств совпадают построчно: явный выбор «Тёмная»
+   работает в любой ОС, а «Как в системе» слушает prefers-color-scheme только
+   когда сама настройка равна system. При «Светлая» тёмных правил нет вовсе.
+   !important здесь больше не нужен: атрибут data-admin-appearance на <html>
+   добавляет вес селектору, и он естественно перебивает светлые правила
+   темы default — раньше !important спорил с параллельно включённой цветовой
+   темой, которой теперь нет.
    ============================================================================ */
-@media (prefers-color-scheme: dark) {
-    :root {
+    :root[data-admin-appearance="dark"] {
         --admin-topbar-bg: #0f172a;
         --admin-topbar-text: #f8fafc;
         --admin-sidebar-bg: #1e293b;
@@ -3644,157 +3512,276 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
         --admin-border-strong: #475569;
         --admin-accent-soft: rgba(59, 130, 246, 0.12);
     }
-    body {
-        background-color: var(--admin-bg) !important;
-        color: var(--admin-text) !important;
+    :root[data-admin-appearance="dark"] body {
+        background-color: var(--admin-bg);
+        color: var(--admin-text);
     }
-    input, select, textarea {
-        background-color: #1e293b !important;
-        color: var(--admin-text) !important;
-        border-color: var(--admin-border-strong) !important;
+    :root[data-admin-appearance="dark"] input, :root[data-admin-appearance="dark"] select, :root[data-admin-appearance="dark"] textarea {
+        background-color: #1e293b;
+        color: var(--admin-text);
+        border-color: var(--admin-border-strong);
     }
-    input[type="file"]::file-selector-button {
-        background: #0f172a !important;
-        color: var(--admin-text) !important;
-        border-color: var(--admin-border-strong) !important;
+    :root[data-admin-appearance="dark"] input[type="file"]::file-selector-button {
+        background: #0f172a;
+        color: var(--admin-text);
+        border-color: var(--admin-border-strong);
     }
-    input[type="file"]::file-selector-button:hover {
-        background: #1e293b !important;
+    :root[data-admin-appearance="dark"] input[type="file"]::file-selector-button:hover { background: #1e293b; }
+    :root[data-admin-appearance="dark"] input::placeholder, :root[data-admin-appearance="dark"] textarea::placeholder { color: #64748b; }
+    :root[data-admin-appearance="dark"] code {
+        background: #334155;
+        color: #f8fafc;
     }
-    input::placeholder, textarea::placeholder {
-        color: #64748b !important;
+    :root[data-admin-appearance="dark"] .btn {
+        background: #1e293b;
+        color: var(--admin-text);
+        border-color: var(--admin-border-strong);
     }
-    code {
-        background: #334155 !important;
-        color: #f8fafc !important;
+    :root[data-admin-appearance="dark"] .btn:hover {
+        background: #334155;
+        border-color: var(--admin-accent);
+        color: #fff;
+        text-decoration: none;
     }
-    .btn {
-        background: #1e293b !important;
-        color: var(--admin-text) !important;
-        border-color: var(--admin-border-strong) !important;
+    :root[data-admin-appearance="dark"] .btn--primary {
+        background: var(--admin-accent);
+        color: #fff;
+        border-color: var(--admin-accent);
     }
-    .btn:hover {
-        background: #334155 !important;
-        border-color: var(--admin-accent) !important;
-        color: #fff !important;
-        text-decoration: none !important;
+    :root[data-admin-appearance="dark"] .btn--primary:hover { background: var(--admin-accent-hover); }
+    :root[data-admin-appearance="dark"] .admin-search__results {
+        background: #1e293b;
+        border-color: var(--admin-border);
+        box-shadow: 0 16px 40px rgba(0,0,0,.5);
     }
-    .btn--primary {
-        background: var(--admin-accent) !important;
-        color: #fff !important;
-        border-color: var(--admin-accent) !important;
+    :root[data-admin-appearance="dark"] .admin-search__item {
+        color: var(--admin-text);
+        border-bottom-color: var(--admin-border);
     }
-    .btn--primary:hover {
-        background: var(--admin-accent-hover) !important;
-    }
-    .admin-search__results {
-        background: #1e293b !important;
-        border-color: var(--admin-border) !important;
-        box-shadow: 0 16px 40px rgba(0,0,0,.5) !important;
-    }
-    .admin-search__item {
-        color: var(--admin-text) !important;
-        border-bottom-color: var(--admin-border) !important;
-    }
-    .admin-search__item:hover {
-        background: var(--admin-sidebar-hover) !important;
-    }
+    :root[data-admin-appearance="dark"] .admin-search__item:hover { background: var(--admin-sidebar-hover); }
     /* Lists, tables, cards */
     /* Заголовок и ячейка красятся токенами в общем правиле таблиц: набор для
        системной тёмной схемы стоял тут мёртвым — он раньше по файлу. */
-    .admin-table tr:hover td {
-        background-color: var(--admin-sidebar-hover) !important;
-    }
+    :root[data-admin-appearance="dark"] .admin-table tr:hover td { background-color: var(--admin-sidebar-hover); }
     /* Stat cards */
-    .stat-grid a.stat-card {
-        background-color: #1e293b !important;
-        border: 1px solid var(--admin-border) !important;
-        color: var(--admin-text) !important;
+    :root[data-admin-appearance="dark"] .stat-grid a.stat-card {
+        background-color: #1e293b;
+        border: 1px solid var(--admin-border);
+        color: var(--admin-text);
     }
-    .stat-grid a.stat-card:hover {
-        background-color: var(--admin-sidebar-hover) !important;
-        border-color: var(--admin-accent) !important;
-        text-decoration: none !important;
+    :root[data-admin-appearance="dark"] .stat-grid a.stat-card:hover {
+        background-color: var(--admin-sidebar-hover);
+        border-color: var(--admin-accent);
+        text-decoration: none;
     }
-    .stat-card__value {
-        color: var(--admin-accent) !important;
-    }
+    :root[data-admin-appearance="dark"] .stat-card__value { color: var(--admin-accent); }
     /* Forms, cards, blocks editor */
-    .form-card, .design-preset, .revision-item, .audit-item, .block-list-item, .menu-node__inner {
-        background-color: #1e293b !important;
-        border-color: var(--admin-border) !important;
-        color: var(--admin-text) !important;
+    :root[data-admin-appearance="dark"] .form-card, :root[data-admin-appearance="dark"] .design-preset, :root[data-admin-appearance="dark"] .revision-item, :root[data-admin-appearance="dark"] .audit-item, :root[data-admin-appearance="dark"] .block-list-item, :root[data-admin-appearance="dark"] .menu-node__inner {
+        background-color: #1e293b;
+        border-color: var(--admin-border);
+        color: var(--admin-text);
     }
-    .design-preset:hover, .block-list-item:hover, .menu-node__inner:hover {
-        border-color: var(--admin-border-strong) !important;
-    }
-    .design-preset.is-active, .menu-node.is-active > .menu-node__inner {
-        border-color: var(--admin-accent) !important;
-        background-color: var(--admin-accent-soft) !important;
+    :root[data-admin-appearance="dark"] .design-preset:hover, :root[data-admin-appearance="dark"] .block-list-item:hover, :root[data-admin-appearance="dark"] .menu-node__inner:hover { border-color: var(--admin-border-strong); }
+    :root[data-admin-appearance="dark"] .design-preset.is-active, :root[data-admin-appearance="dark"] .menu-node.is-active > .menu-node__inner {
+        border-color: var(--admin-accent);
+        background-color: var(--admin-accent-soft);
     }
     /* Block editor fields */
-    .block-list-item__body {
-        border-top-color: var(--admin-border) !important;
+    :root[data-admin-appearance="dark"] .block-list-item__body { border-top-color: var(--admin-border); }
+    :root[data-admin-appearance="dark"] .art-editor__area {
+        background-color: #1e293b;
+        border-color: var(--admin-border);
     }
-    .art-editor__area {
-        background-color: #1e293b !important;
-        border-color: var(--admin-border) !important;
-    }
-    .hb-switch__track {
-        background: #334155 !important;
-    }
-    .hb-switch {
-        color: var(--admin-text) !important;
-    }
+    :root[data-admin-appearance="dark"] .hb-switch__track { background: #334155; }
+    :root[data-admin-appearance="dark"] .hb-switch { color: var(--admin-text); }
     /* WYSIWYG editor */
-    trix-editor, .trix-content, .editor-statusbar {
-        background-color: #1e293b !important;
-        color: var(--admin-text) !important;
-        border-color: var(--admin-border) !important;
+    :root[data-admin-appearance="dark"] trix-editor, :root[data-admin-appearance="dark"] .trix-content, :root[data-admin-appearance="dark"] .editor-statusbar {
+        background-color: #1e293b;
+        color: var(--admin-text);
+        border-color: var(--admin-border);
     }
-    trix-toolbar {
-        background-color: #0f172a !important;
-        border-color: var(--admin-border) !important;
+    :root[data-admin-appearance="dark"] trix-toolbar {
+        background-color: #0f172a;
+        border-color: var(--admin-border);
     }
-    trix-toolbar button {
-        background-color: #1e293b !important;
-        border-color: var(--admin-border-strong) !important;
-        color: var(--admin-text) !important;
+    :root[data-admin-appearance="dark"] trix-toolbar button {
+        background-color: #1e293b;
+        border-color: var(--admin-border-strong);
+        color: var(--admin-text);
     }
     /* Modals, alerts, flash messages */
-    .flash-message {
-        background-color: #1e293b !important;
-        border-color: var(--admin-border) !important;
-        color: var(--admin-text) !important;
+    :root[data-admin-appearance="dark"] .flash-message {
+        background-color: #1e293b;
+        border-color: var(--admin-border);
+        color: var(--admin-text);
     }
-    .flash-message--success {
-        border-left-color: var(--admin-success) !important;
+    :root[data-admin-appearance="dark"] .flash-message--success { border-left-color: var(--admin-success); }
+    :root[data-admin-appearance="dark"] .flash-message--error { border-left-color: var(--admin-danger); }
+    :root[data-admin-appearance="dark"] .fb-move {
+        background: #1e293b;
+        color: #fff;
+        border-color: var(--admin-border);
     }
-    .flash-message--error {
-        border-left-color: var(--admin-danger) !important;
+    :root[data-admin-appearance="dark"] .fb-move:hover {
+        background: var(--admin-accent);
+        border-color: var(--admin-accent);
     }
-    .fb-move {
-        background: #1e293b !important;
-        color: #fff !important;
-        border-color: var(--admin-border) !important;
+    :root[data-admin-appearance="dark"] .reorder-bar {
+        background: #1e293b;
+        border-color: var(--admin-border);
+        box-shadow: 0 12px 34px rgba(0,0,0,.4);
     }
-    .fb-move:hover {
-        background: var(--admin-accent) !important;
-        border-color: var(--admin-accent) !important;
-    }
-    .reorder-bar {
-        background: #1e293b !important;
-        border-color: var(--admin-border) !important;
-        box-shadow: 0 12px 34px rgba(0,0,0,.4) !important;
-    }
-    .reorder-bar__text {
-        color: var(--admin-text) !important;
-    }
-    .badge--published, .badge--success { background: rgba(16, 185, 129, 0.12) !important; color: #10b981 !important; }
-    .badge--draft { background: rgba(148, 163, 184, 0.12) !important; color: #94a3b8 !important; }
-    .badge--danger { background: rgba(239, 68, 68, 0.12) !important; color: #ef4444 !important; }
-    .badge { background: rgba(148, 163, 184, 0.12) !important; color: #94a3b8 !important; }
-    .badge--accent { background: rgba(96, 165, 250, 0.15) !important; color: #60a5fa !important; }
+    :root[data-admin-appearance="dark"] .reorder-bar__text { color: var(--admin-text); }
+    :root[data-admin-appearance="dark"] .badge--published, :root[data-admin-appearance="dark"] .badge--success { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+    :root[data-admin-appearance="dark"] .badge--draft { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+    :root[data-admin-appearance="dark"] .badge--danger { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+    :root[data-admin-appearance="dark"] .badge { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+    :root[data-admin-appearance="dark"] .badge--accent { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+
+/* Тот же набор — для «Как в системе»: срабатывает только при тёмной ОС и
+   только когда сама настройка не переопределена явно. */
+@media (prefers-color-scheme: dark) {
+        :root[data-admin-appearance="system"] {
+            --admin-topbar-bg: #0f172a;
+            --admin-topbar-text: #f8fafc;
+            --admin-sidebar-bg: #1e293b;
+            --admin-sidebar-text: #cbd5e1;
+            --admin-sidebar-muted: #64748b;
+            --admin-sidebar-hover: #334155;
+            --admin-sidebar-active: #475569;
+            --admin-bg: #0f172a;
+            --admin-surface: #1e293b;
+            --admin-text: #f1f5f9;
+            --admin-muted: #94a3b8;
+            --admin-border: #334155;
+            --admin-border-strong: #475569;
+            --admin-accent-soft: rgba(59, 130, 246, 0.12);
+        }
+        :root[data-admin-appearance="system"] body {
+            background-color: var(--admin-bg);
+            color: var(--admin-text);
+        }
+        :root[data-admin-appearance="system"] input, :root[data-admin-appearance="system"] select, :root[data-admin-appearance="system"] textarea {
+            background-color: #1e293b;
+            color: var(--admin-text);
+            border-color: var(--admin-border-strong);
+        }
+        :root[data-admin-appearance="system"] input[type="file"]::file-selector-button {
+            background: #0f172a;
+            color: var(--admin-text);
+            border-color: var(--admin-border-strong);
+        }
+        :root[data-admin-appearance="system"] input[type="file"]::file-selector-button:hover { background: #1e293b; }
+        :root[data-admin-appearance="system"] input::placeholder, :root[data-admin-appearance="system"] textarea::placeholder { color: #64748b; }
+        :root[data-admin-appearance="system"] code {
+            background: #334155;
+            color: #f8fafc;
+        }
+        :root[data-admin-appearance="system"] .btn {
+            background: #1e293b;
+            color: var(--admin-text);
+            border-color: var(--admin-border-strong);
+        }
+        :root[data-admin-appearance="system"] .btn:hover {
+            background: #334155;
+            border-color: var(--admin-accent);
+            color: #fff;
+            text-decoration: none;
+        }
+        :root[data-admin-appearance="system"] .btn--primary {
+            background: var(--admin-accent);
+            color: #fff;
+            border-color: var(--admin-accent);
+        }
+        :root[data-admin-appearance="system"] .btn--primary:hover { background: var(--admin-accent-hover); }
+        :root[data-admin-appearance="system"] .admin-search__results {
+            background: #1e293b;
+            border-color: var(--admin-border);
+            box-shadow: 0 16px 40px rgba(0,0,0,.5);
+        }
+        :root[data-admin-appearance="system"] .admin-search__item {
+            color: var(--admin-text);
+            border-bottom-color: var(--admin-border);
+        }
+        :root[data-admin-appearance="system"] .admin-search__item:hover { background: var(--admin-sidebar-hover); }
+        /* Lists, tables, cards */
+        /* Заголовок и ячейка красятся токенами в общем правиле таблиц: набор для
+       системной тёмной схемы стоял тут мёртвым — он раньше по файлу. */
+        :root[data-admin-appearance="system"] .admin-table tr:hover td { background-color: var(--admin-sidebar-hover); }
+        /* Stat cards */
+        :root[data-admin-appearance="system"] .stat-grid a.stat-card {
+            background-color: #1e293b;
+            border: 1px solid var(--admin-border);
+            color: var(--admin-text);
+        }
+        :root[data-admin-appearance="system"] .stat-grid a.stat-card:hover {
+            background-color: var(--admin-sidebar-hover);
+            border-color: var(--admin-accent);
+            text-decoration: none;
+        }
+        :root[data-admin-appearance="system"] .stat-card__value { color: var(--admin-accent); }
+        /* Forms, cards, blocks editor */
+        :root[data-admin-appearance="system"] .form-card, :root[data-admin-appearance="system"] .design-preset, :root[data-admin-appearance="system"] .revision-item, :root[data-admin-appearance="system"] .audit-item, :root[data-admin-appearance="system"] .block-list-item, :root[data-admin-appearance="system"] .menu-node__inner {
+            background-color: #1e293b;
+            border-color: var(--admin-border);
+            color: var(--admin-text);
+        }
+        :root[data-admin-appearance="system"] .design-preset:hover, :root[data-admin-appearance="system"] .block-list-item:hover, :root[data-admin-appearance="system"] .menu-node__inner:hover { border-color: var(--admin-border-strong); }
+        :root[data-admin-appearance="system"] .design-preset.is-active, :root[data-admin-appearance="system"] .menu-node.is-active > .menu-node__inner {
+            border-color: var(--admin-accent);
+            background-color: var(--admin-accent-soft);
+        }
+        /* Block editor fields */
+        :root[data-admin-appearance="system"] .block-list-item__body { border-top-color: var(--admin-border); }
+        :root[data-admin-appearance="system"] .art-editor__area {
+            background-color: #1e293b;
+            border-color: var(--admin-border);
+        }
+        :root[data-admin-appearance="system"] .hb-switch__track { background: #334155; }
+        :root[data-admin-appearance="system"] .hb-switch { color: var(--admin-text); }
+        /* WYSIWYG editor */
+        :root[data-admin-appearance="system"] trix-editor, :root[data-admin-appearance="system"] .trix-content, :root[data-admin-appearance="system"] .editor-statusbar {
+            background-color: #1e293b;
+            color: var(--admin-text);
+            border-color: var(--admin-border);
+        }
+        :root[data-admin-appearance="system"] trix-toolbar {
+            background-color: #0f172a;
+            border-color: var(--admin-border);
+        }
+        :root[data-admin-appearance="system"] trix-toolbar button {
+            background-color: #1e293b;
+            border-color: var(--admin-border-strong);
+            color: var(--admin-text);
+        }
+        /* Modals, alerts, flash messages */
+        :root[data-admin-appearance="system"] .flash-message {
+            background-color: #1e293b;
+            border-color: var(--admin-border);
+            color: var(--admin-text);
+        }
+        :root[data-admin-appearance="system"] .flash-message--success { border-left-color: var(--admin-success); }
+        :root[data-admin-appearance="system"] .flash-message--error { border-left-color: var(--admin-danger); }
+        :root[data-admin-appearance="system"] .fb-move {
+            background: #1e293b;
+            color: #fff;
+            border-color: var(--admin-border);
+        }
+        :root[data-admin-appearance="system"] .fb-move:hover {
+            background: var(--admin-accent);
+            border-color: var(--admin-accent);
+        }
+        :root[data-admin-appearance="system"] .reorder-bar {
+            background: #1e293b;
+            border-color: var(--admin-border);
+            box-shadow: 0 12px 34px rgba(0,0,0,.4);
+        }
+        :root[data-admin-appearance="system"] .reorder-bar__text { color: var(--admin-text); }
+        :root[data-admin-appearance="system"] .badge--published, :root[data-admin-appearance="system"] .badge--success { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+        :root[data-admin-appearance="system"] .badge--draft { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+        :root[data-admin-appearance="system"] .badge--danger { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+        :root[data-admin-appearance="system"] .badge { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+        :root[data-admin-appearance="system"] .badge--accent { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
 }
 
 /* --- Сетка дашборда и лог действий --- */
@@ -3954,14 +3941,22 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 .status-badge--danger { background: #fee2e2; color: #991b1b; }
 .status-badge--info { background: #eff6ff; color: #1d4ed8; }
 .status-badge--neutral, .status-badge--draft { background: #f1f5f9; color: #475569; }
-/* Тёмный набор объявлен здесь, а не в общем блоке prefers-color-scheme выше:
-   тот идёт раньше по файлу, и светлые значения перебивали бы его. */
+/* Тёмный набор — по настройке «Внешний вид», не по одной лишь ОС (см.
+   объяснение у «Dark Mode Support» выше): селектор с data-admin-appearance
+   весит больше голого класса и потому выигрывает без !important. Объявлен
+   дважды — «Тёмная» в любой ОС и «Как в системе» под prefers-color-scheme —
+   списки свойств совпадают построчно. */
+:root[data-admin-appearance="dark"] .status-badge--success, :root[data-admin-appearance="dark"] .status-badge--published { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+:root[data-admin-appearance="dark"] .status-badge--warning { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+:root[data-admin-appearance="dark"] .status-badge--danger { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+:root[data-admin-appearance="dark"] .status-badge--info { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+:root[data-admin-appearance="dark"] .status-badge--neutral, :root[data-admin-appearance="dark"] .status-badge--draft { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
 @media (prefers-color-scheme: dark) {
-    .status-badge--success, .status-badge--published { background: rgba(16, 185, 129, 0.12); color: #10b981; }
-    .status-badge--warning { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
-    .status-badge--danger { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
-    .status-badge--info { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
-    .status-badge--neutral, .status-badge--draft { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+    :root[data-admin-appearance="system"] .status-badge--success, :root[data-admin-appearance="system"] .status-badge--published { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+    :root[data-admin-appearance="system"] .status-badge--warning { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+    :root[data-admin-appearance="system"] .status-badge--danger { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+    :root[data-admin-appearance="system"] .status-badge--info { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+    :root[data-admin-appearance="system"] .status-badge--neutral, :root[data-admin-appearance="system"] .status-badge--draft { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
 }
 
 /* Drag and Drop Uploader */
@@ -4044,8 +4039,6 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 @media (prefers-reduced-motion: reduce) {
     .admin-modal-overlay, .admin-modal { transition: none; }
 }
-
-
 
 /* --- Готовые сборки страниц --- */
 .preset-picker > summary { cursor: pointer; list-style: none; }
@@ -6166,30 +6159,6 @@ body.auth-page {
     color: var(--admin-text-muted, #94a3b8);
     font-family: monospace;
 }
-
-[data-admin-theme="dark_emerald"] .repo-subnav__item {
-    color: #94a3b8;
-}
-[data-admin-theme="dark_emerald"] .repo-subnav__item:hover {
-    color: #34d399;
-    background: #1e293b;
-}
-[data-admin-theme="dark_emerald"] .repo-subnav__item.is-active {
-    color: #34d399;
-    background: color-mix(in srgb, #10b981 18%, transparent);
-}
-[data-admin-theme="dark_emerald"] .repo-stat-card {
-    background: #1e293b;
-    border-color: #334155;
-}
-[data-admin-theme="dark_emerald"] .repo-stat-card__val {
-    color: #f8fafc;
-}
-[data-admin-theme="dark_emerald"] .repo-popover__panel {
-    background: #1e293b;
-    border-color: #334155;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-}
 .translation-create-form { display: inline; margin: 0; }
 
 /* Единый выбор локальных Tabler Icons. */
@@ -7687,7 +7656,6 @@ body.auth-page label,
 .multilang-translation-list > div > :first-child { min-width: 0; flex: 1 1 auto; }
 .multilang-translation-list > div > :last-child { flex: 0 0 auto; }
 
-
 /* Спрайт иконок вставляется сразу после <body>. Правило есть в frontend.css,
    но админка его не грузит — и строчный <svg> создавал строку высотой в
    line-height, из-за чего верхняя панель стояла на 26px ниже края экрана и
@@ -7704,7 +7672,6 @@ body.auth-page label,
     color: var(--news-badge-fg, #1d4ed8);
     font-size: var(--admin-fs-xs); font-weight: var(--admin-fw-semibold); line-height: 1.5;
 }
-
 
 /* --- Раздел «Обложки»: визуальный список слайдов --- */
 /* Строка слайда — превью, номер, заголовок и быстрые действия. Порядок
@@ -7745,7 +7712,6 @@ body.auth-page label,
     .hero-slide-item__body { flex-basis: 100%; order: 3; }
     .hero-slide-item__actions { flex-basis: 100%; order: 4; }
 }
-
 
 /* Плотная раскладка форм с большим числом коротких настроек.
    .form-grid — это колонка: каждое поле занимает строку целиком, и форма
@@ -8347,11 +8313,6 @@ label.hb-behavior-card:has(input:checked) {
     color: var(--admin-danger, #b32d2e);
     font-weight: var(--admin-fw-medium);
 }
-
-
-
-
-
 
 /* --- Классы, которые разметка ставила, а CSS не описывал ------------------
    Найдены сверкой class-атрибутов админки с правилами (тест 278). Каждый такой

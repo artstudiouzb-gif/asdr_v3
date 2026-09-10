@@ -4,25 +4,25 @@
     "borderColor": "rgb(51, 65, 85)"
   },
   ".data-table th": {
-    "backgroundColor": "rgb(30, 41, 59)",
-    "color": "rgb(248, 250, 252)",
+    "backgroundColor": "rgb(250, 251, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "12px",
     "fontWeight": "600",
     "padding": "12px 16px",
     "borderBottomColor": "rgb(51, 65, 85)"
   },
   ".data-table td": {
-    "color": "rgb(248, 250, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "13px",
     "padding": "12px 16px",
     "borderBottomColor": "rgb(51, 65, 85)"
   },
   ".data-table tbody tr:nth-child(even)": {
-    "backgroundColor": "color(srgb 0.143294 0.185373 0.254078)"
+    "backgroundColor": "color(srgb 0.142471 0.184784 0.253725)"
   },
   ".badge": {
-    "backgroundColor": "rgb(241, 245, 249)",
-    "color": "rgb(71, 85, 105)",
+    "backgroundColor": "rgba(148, 163, 184, 0.12)",
+    "color": "rgb(148, 163, 184)",
     "borderRadius": "3px",
     "fontSize": "12px",
     "padding": "3px 8px"
@@ -38,13 +38,13 @@
     "fontWeight": "600"
   },
   ".list-filter input": {
-    "backgroundColor": "rgb(15, 23, 42)",
-    "color": "rgb(248, 250, 252)",
+    "backgroundColor": "rgb(255, 255, 255)",
+    "color": "rgb(15, 23, 42)",
     "borderColor": "rgb(51, 65, 85)",
     "height": "38px"
   },
   ".bulk-bar": {
-    "backgroundColor": "rgb(30, 41, 59)",
+    "backgroundColor": "rgb(250, 251, 252)",
     "borderColor": "rgb(51, 65, 85)",
     "padding": "10px 16px"
   },
@@ -53,11 +53,11 @@
     "fontSize": "13px"
   },
   ".lang-filter-count": {
-    "backgroundColor": "color(srgb 0.186039 0.226353 0.291922)",
+    "backgroundColor": "color(srgb 0.183843 0.224784 0.29098)",
     "color": "rgb(148, 163, 184)"
   },
   ".list-filter": {
-    "color": "rgb(248, 250, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "13px",
     "borderRadius": "0px",
     "padding": "0px"

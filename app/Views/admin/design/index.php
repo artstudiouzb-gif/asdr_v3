@@ -329,9 +329,6 @@ foreach ($options as $key => $opt) {
             $gHeading = (string) \App\Models\Setting::get('design_font_google_heading', '');
             $gScript = (string) \App\Models\Setting::get('design_font_script', '');
             ?>
-            <input type="hidden" name="font_size" value="<?= htmlspecialchars((string) ($values['font_size'] ?? 'md'), ENT_QUOTES) ?>">
-            <input type="hidden" name="line_height" value="<?= htmlspecialchars((string) ($values['line_height'] ?? 'normal'), ENT_QUOTES) ?>">
-
             <div class="design-manual u-inline-7dde5e56b3">
                 <div class="design-manual__head">
                     <strong>Семейства шрифтов</strong>
@@ -437,6 +434,39 @@ foreach ($options as $key => $opt) {
                 </div>
             </div>
 
+            <?php $titleRevealOption = \App\Core\DesignSettings::OPTIONS['title_reveal']; ?>
+            <div class="design-opt">
+                <div class="design-opt__label">
+                    <span><?= htmlspecialchars($titleRevealOption['label'], ENT_QUOTES) ?></span>
+                    <small><?= htmlspecialchars($titleRevealOption['hint'], ENT_QUOTES) ?></small>
+                </div>
+                <div class="design-opt__choices">
+                    <?php foreach ($titleRevealOption['choices'] as $val => $label): ?>
+                        <label class="design-card">
+                            <input type="radio" name="title_reveal" value="<?= htmlspecialchars($val, ENT_QUOTES) ?>"
+                                   <?= ($values['title_reveal'] ?? 'off') === $val ? 'checked' : '' ?> data-design-preview-field>
+                            <span class="design-card__label"><?= htmlspecialchars($label, ENT_QUOTES) ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <?php $fontSizeOption = \App\Core\DesignSettings::OPTIONS['font_size']; ?>
+            <div class="design-opt">
+                <div class="design-opt__label">
+                    <span><?= htmlspecialchars($fontSizeOption['label'], ENT_QUOTES) ?></span>
+                    <small><?= htmlspecialchars($fontSizeOption['hint'], ENT_QUOTES) ?></small>
+                </div>
+                <div class="design-opt__choices">
+                    <?php foreach ($fontSizeOption['choices'] as $val => $label): ?>
+                        <label class="design-card">
+                            <input type="radio" name="font_size" value="<?= htmlspecialchars($val, ENT_QUOTES) ?>"
+                                   <?= ($values['font_size'] ?? 'md') === $val ? 'checked' : '' ?> data-design-preview-field>
+                            <span class="design-card__label"><?= htmlspecialchars($label, ENT_QUOTES) ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>
             <div class="design-opt">
                 <div class="design-opt__label">
                     <span>Основной текст (p, span)</span>
@@ -445,6 +475,22 @@ foreach ($options as $key => $opt) {
                 <div class="design-opt__choices">
                     <input class="u-inline-e73ebf4146" type="number" name="font_size_custom" min="12" max="24" step="0.5" inputmode="decimal"
                            value="<?= htmlspecialchars((string) $fontSizeCustom, ENT_QUOTES) ?>" placeholder="напр. <?= htmlspecialchars($fontSizePreset, ENT_QUOTES) ?>" data-design-preview-field>
+                </div>
+            </div>
+            <?php $lineHeightOption = \App\Core\DesignSettings::OPTIONS['line_height']; ?>
+            <div class="design-opt">
+                <div class="design-opt__label">
+                    <span><?= htmlspecialchars($lineHeightOption['label'], ENT_QUOTES) ?></span>
+                    <small><?= htmlspecialchars($lineHeightOption['hint'], ENT_QUOTES) ?></small>
+                </div>
+                <div class="design-opt__choices">
+                    <?php foreach ($lineHeightOption['choices'] as $val => $label): ?>
+                        <label class="design-card">
+                            <input type="radio" name="line_height" value="<?= htmlspecialchars($val, ENT_QUOTES) ?>"
+                                   <?= ($values['line_height'] ?? 'normal') === $val ? 'checked' : '' ?> data-design-preview-field>
+                            <span class="design-card__label"><?= htmlspecialchars($label, ENT_QUOTES) ?></span>
+                        </label>
+                    <?php endforeach; ?>
                 </div>
             </div>
             <div class="design-opt">
