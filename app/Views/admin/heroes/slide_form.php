@@ -55,7 +55,7 @@ $checkbox = static function (string $name, string $label, bool $checked, string 
     return $html . '</div>';
 };
 
-$inherit = ['' => 'Использовать общую настройку обложки'];
+$inherit = ['' => 'Как у обложки'];
 $posOptions = ['left' => 'Слева', 'center' => 'По центру', 'right' => 'Справа'];
 $yOptions = ['top' => 'Сверху', 'center' => 'По центру', 'bottom' => 'Снизу'];
 $sizeOptions = ['s' => 'Мелкий', 'm' => 'Средний', 'l' => 'Крупный', 'xl' => 'Очень крупный'];
@@ -114,11 +114,11 @@ $customDuration = (int) $data['duration'];
                 </div>
             </div>
             <div class="form-grid-12">
-                <div class="form-field col-12">
+                <div class="form-field col-4">
                     <label for="eyebrow">Надзаголовок</label>
                     <input type="text" id="eyebrow" name="eyebrow" value="<?= $esc($data['eyebrow']) ?>" placeholder="Например: Национальная программа развития">
                 </div>
-                <div class="form-field col-12">
+                <div class="form-field col-8">
                     <label for="title">Главный заголовок</label>
                     <input type="text" id="title" name="title" value="<?= $esc($data['title']) ?>" placeholder="Введите заголовок слайда">
                 </div>
@@ -131,7 +131,7 @@ $customDuration = (int) $data['duration'];
                 // при перестройке этой формы, а данные, перевод и стили
                 // остались: настройка была в базе, но задать её было нечем.
                 ?>
-                <div class="form-field col-12">
+                <div class="form-field col-6">
                     <label for="watermark">Фоновая надпись</label>
                     <input type="text" id="watermark" name="watermark" value="<?= $esc($data['watermark']) ?>" maxlength="120" placeholder="Например: aerion">
                     <span class="form-hint">
@@ -325,10 +325,10 @@ $customDuration = (int) $data['duration'];
                     </div>
                     <div class="form-grid-12 slide-action-panel__body">
                         <div class="col-4">
-                            <?= AdminUi::colorField('cta_color', (string) $data['cta_color'], 'Цвет заливки', '#173a63', 'Использовать цвет обложки') ?>
+                            <?= AdminUi::colorField('cta_color', (string) $data['cta_color'], 'Цвет заливки', '#173a63', 'Цвет обложки') ?>
                         </div>
                         <div class="col-4">
-                            <?= AdminUi::colorField('link_color', (string) $data['link_color'], 'Цвет кнопки-ссылки', '#ffffff', 'Использовать цвет текста слайда') ?>
+                            <?= AdminUi::colorField('link_color', (string) $data['link_color'], 'Цвет кнопки-ссылки', '#ffffff', 'Цвет текста слайда') ?>
                         </div>
                         <div class="col-4">
                             <?= AdminUi::colorField('cta_text_color', (string) $data['cta_text_color'], 'Цвет текста', '#ffffff', 'Подобрать по контрасту') ?>
@@ -356,8 +356,13 @@ $customDuration = (int) $data['duration'];
                     <div class="form-grid-12 slide-action-panel__body slide-action-panel__body--link">
                         <div class="form-field col-8">
                             <label for="link_url">Куда ведёт слайд</label>
+                            <?php
+                            // Подсказки под полем нет намеренно: то же самое
+                            // сказано подсказкой внутри поля, а лишняя строка
+                            // делала ряд выше галочки рядом — та прижималась
+                            // к низу и вставала не на линию поля.
+                            ?>
                             <input type="text" id="link_url" name="link_url" value="<?= $esc($data['link_url']) ?>" placeholder="https://..., #forma или /page#forma">
-                            <span class="form-hint">Можно указать страницу, внешний адрес или якорную ссылку.</span>
                         </div>
                         <?= $checkbox('link_new_tab', 'Открывать в новой вкладке', (bool) $data['link_new_tab'], '', 'col-4') ?>
                     </div>
@@ -402,7 +407,7 @@ $customDuration = (int) $data['duration'];
                       // но задать их можно было только у обложки — на кадре с
                       // другим настроением приходилось менять её целиком. ?>
                 <div class="col-4">
-                    <?= AdminUi::colorField('overlay_color', (string) $data['overlay_color'], 'Цвет наложения', '#0b1a30', 'Использовать общую настройку обложки') ?>
+                    <?= AdminUi::colorField('overlay_color', (string) $data['overlay_color'], 'Цвет наложения', '#0b1a30', 'Как у обложки') ?>
                 </div>
             </div>
         </div>

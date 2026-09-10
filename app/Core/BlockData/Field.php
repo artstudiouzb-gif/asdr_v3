@@ -31,6 +31,8 @@ final class Field
      * @param string $input имя поля в форме, если отличается от ключа данных
      * @param array{field:string, values:list<string>}|null $when
      *        условие применимости: поле показывается только при этом варианте
+     * @param string $group подпись группы полей в форме; соседние поля с
+     *        одной подписью редактор видит одним блоком настроек
      */
     private function __construct(
         public readonly string $kind,
@@ -44,6 +46,7 @@ final class Field
         public readonly string $placeholder = '',
         public readonly ?array $when = null,
         public readonly string $swatch = '',
+        public readonly string $group = '',
     ) {
     }
 
@@ -192,8 +195,24 @@ final class Field
         return $this->input !== '' ? $this->input : $key;
     }
 
+    /**
+     * Группа настроек в форме: соседние поля с одной подписью редактор видит
+     * одним блоком с заголовком.
+     *
+     * Нужна там, где настроек больше десятка: у «Карточек» их шестнадцать, и
+     * сплошной столбец полей одинакового веса («Раскладка», «Колонок», «Стиль
+     * карточек», «Размер иконок», «Фон иконок», «Положение иконки»,
+     * «Выравнивание текста»…) читался как анкета, в которой не найти нужное.
+     * Подпись объявляется у поля, а не отдельным списком рядом со схемой:
+     * второй список разъехался бы с первым при первом же переносе настройки.
+     */
+    public function group(string $title): self
+    {
+        return $this->with(group: $title);
+    }
+
     /** @param array{field:string, values:list<string>}|null $when */
-    private function with(string $input = '', ?array $when = null, ?string $hint = null): self
+    private function with(string $input = '', ?array $when = null, ?string $hint = null, ?string $group = null): self
     {
         return new self(
             $this->kind,
@@ -207,6 +226,7 @@ final class Field
             $this->placeholder,
             $when ?? $this->when,
             $this->swatch,
+            $group ?? $this->group,
         );
     }
 }

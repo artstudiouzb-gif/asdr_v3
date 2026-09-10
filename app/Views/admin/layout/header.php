@@ -146,7 +146,7 @@ try {
 } catch (e) {}
 </script>
 </head>
-<body class="admin-body">
+<body class="admin-body" data-color-swatches="<?= htmlspecialchars(json_encode(\App\Core\AdminUi::colorSwatches(), JSON_THROW_ON_ERROR), ENT_QUOTES) ?>">
 <a class="admin-skip-link" href="#admin-content">Перейти к содержимому</a>
 <header class="admin-topbar">
     <button type="button" class="admin-topbar__toggle" data-sidebar-toggle aria-label="Открыть меню" aria-controls="admin-sidebar" aria-expanded="false">

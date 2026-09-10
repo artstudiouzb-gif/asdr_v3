@@ -1410,6 +1410,10 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
     box-shadow: var(--admin-shadow);
     backdrop-filter: blur(12px);
 }
+/* Ссылка на секцию, которой на этой странице нет (все её поля скрыты
+   условием показа): якорь вёл бы в пустоту. `display` у ссылки объявлен
+   правилом, поэтому [hidden] нужен явно. */
+.settings-jump-nav a[hidden] { display: none; }
 .settings-jump-nav a {
     display: inline-flex;
     flex: 0 0 auto;
@@ -2214,8 +2218,58 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
     margin: 18px auto 0;
 }
 .block-editor-form > .form-field,
-.block-editor-form > .colorfield-row {
+.block-editor-form > .colorfield-row,
+.block-editor-form > .bf-fields {
     width: min(100%, 880px);
+}
+
+/* Настройки блока, объявленные схемой полей: две колонки вместо столбца в
+   один ряд. У «Карточек» настроек шестнадцать, и сплошной столбец полей
+   одинакового веса читался как анкета — на экране помещалась треть, а найти
+   нужное можно было только прокруткой. Ширина та же, что у полей выше
+   (880px), поэтому левый и правый края формы остаются общими. */
+.bf-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 20px;
+    align-items: start;
+}
+.bf-fields > .bf-field--full,
+.bf-fields > .colorfield-row,
+.bf-fields > .bf-group,
+.bf-group__fields > .bf-field--full,
+.bf-group__fields > .colorfield-row { grid-column: 1 / -1; }
+.bf-fields > .colorfield-row { margin: 0; }
+.bf-fields .form-field,
+.bf-fields .image-field { margin: 0; }
+/* Группа настроек: заголовок отделяет «Содержимое» от «Вида» и от «Карточки
+   с иконкой», и настройка ищется по смыслу, а не перебором подписей. */
+.bf-group {
+    grid-column: 1 / -1;
+    margin: 2px 0;
+    padding: 4px 16px 16px;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-sm);
+    background: var(--admin-surface-soft);
+}
+.bf-group > legend {
+    margin-left: -4px;
+    padding: 0 6px;
+    color: var(--admin-muted);
+    font-size: var(--admin-fs-xs);
+    font-weight: var(--admin-fw-semibold);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+.bf-group__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 20px;
+    align-items: start;
+}
+@media (max-width: 900px) {
+    .bf-fields,
+    .bf-group__fields { grid-template-columns: minmax(0, 1fr); }
 }
 .block-editor-form [data-repeater] {
     display: grid;
@@ -3386,6 +3440,10 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 
 /* Ряд полей выбора цвета (фон/текст/кнопка) в конструкторе блоков. */
 .colorfield-row { display: flex; flex-wrap: wrap; gap: 16px; margin: 6px 0 14px; }
+/* Поля цвета делят строку поровну. Прежде они сжимались по содержимому, и
+   пара «фон / текст» стояла двумя узкими полями у левого края, а подпись
+   состояния («По умолчанию») в них не помещалась. */
+.colorfield-row > .colorfield { flex: 1 1 200px; max-width: 340px; }
 .hero-visual-settings {
     margin: -4px 0 18px;
     padding: 16px 18px 2px;
@@ -3394,8 +3452,13 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
     border-radius: var(--admin-radius-sm, 2px);
     background: var(--admin-surface-soft, #f8fafc);
 }
-.colorfield { min-width: 168px; }
-.colorfield__control { display: block; }
+/* Поле цвета: образец, значение и возврат к умолчанию — один элемент
+   управления. Подписанная галочка «по умолчанию» остаётся вариантом без
+   JavaScript; со скриптом её заменяет кнопка внутри поля, потому что длинная
+   подпись («Использовать общую настройку обложки») вылезала за колонку и
+   читалась как отдельная настройка. */
+.colorfield { min-width: 200px; }
+.colorfield__control { position: relative; display: block; }
 .colorfield input[type="color"] { width: 100%; height: 38px; padding: 2px; cursor: pointer; }
 /* Образец слева, HEX следом: раньше квадрат стоял справа за текстом и читался
    как отдельная кнопка, а не как значение этого поля. */
@@ -3407,9 +3470,12 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
     min-height: 38px;
     height: 38px;
     padding-right: 12px;
-    padding-left: 44px;
+    /* Образец шириной 30px стоит в 5px от края: при меньшем отступе значение
+       заезжало под него, и «цвет темы» читалось как «т темы». */
+    padding-left: 46px;
     border-color: var(--admin-border);
 }
+.colorfield.is-enhanced .clr-field input[data-coloris] { padding-right: 40px; }
 .colorfield .clr-field button {
     right: auto;
     left: 5px;
@@ -3418,9 +3484,17 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
     border-radius: var(--admin-radius-sm);
 }
 .colorfield.is-default .clr-field button::after {
-    /* Прозрачный образец вместо чужого цвета: значение поля не уходит на
-       сайт, и показывать его квадратом было бы обманом. */
-    background-color: transparent;
+    /* Приглушённый цвет умолчания и косая черта. Прозрачная шашка, стоявшая
+       здесь раньше, означает «прозрачный» — а прозрачности у поля нет вовсе
+       (alpha: false), и состояние читалось как чужое значение. */
+    background-color: color-mix(in srgb, var(--colorfield-swatch, var(--admin-border)) 45%, var(--admin-surface));
+    background-image: linear-gradient(
+        to top right,
+        transparent calc(50% - 1px),
+        var(--admin-surface) calc(50% - 1px),
+        var(--admin-surface) calc(50% + 1px),
+        transparent calc(50% + 1px)
+    );
 }
 .colorfield.is-default .clr-field input[data-coloris] {
     color: var(--admin-muted);
@@ -3428,6 +3502,25 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
     text-transform: none;
     letter-spacing: 0;
 }
+.colorfield__reset {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--admin-radius-sm);
+    background: transparent;
+    color: var(--admin-muted);
+    cursor: pointer;
+}
+.colorfield__reset:hover { background: var(--admin-surface-soft); color: var(--admin-text); }
+.colorfield.is-enhanced .colorfield__off { display: none; }
 .colorfield.is-default .colorfield__off { color: var(--admin-accent); }
 .colorfield__off input { width: auto; }
 
@@ -3616,6 +3709,12 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
         --admin-muted: #94a3b8;
         --admin-border: #334155;
         --admin-border-strong: #475569;
+        /* Подложка групп и шапок таблиц. Тёмного значения у неё не было
+           вовсе, и `#fafbfc` из светлой темы оставался белым: шапка списка,
+           `.form-section` и `.btn--secondary` рисовались светлым текстом по
+           почти белому — замерено 1.02:1 при норме 4.5:1. В тёмной шкале
+           «мягкая» поверхность на ступень светлее обычной, а не темнее. */
+        --admin-surface-soft: #273449;
         --admin-accent-soft: rgba(59, 130, 246, 0.12);
     }
     :root[data-admin-appearance="dark"] body {
@@ -3761,6 +3860,8 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
             --admin-muted: #94a3b8;
             --admin-border: #334155;
             --admin-border-strong: #475569;
+            /* Тот же список свойств, что у явной тёмной темы выше. */
+            --admin-surface-soft: #273449;
             --admin-accent-soft: rgba(59, 130, 246, 0.12);
         }
         :root[data-admin-appearance="system"] body {
@@ -7057,7 +7158,7 @@ label.colorfield__off {
     margin-top: 6px;
     font-size: var(--admin-fs-sm);
     color: var(--admin-muted, #475569);
-    white-space: nowrap;
+    align-items: flex-start;
 }
 
 small, .form-hint, .help-block {
