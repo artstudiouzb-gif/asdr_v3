@@ -12,13 +12,12 @@
     "marginBottom": "9px"
   },
   ".image-field__row": {
-    "display": "flex",
+    "display": "grid",
     "gap": "14px",
-    "alignItems": "flex-start"
+    "alignItems": "start"
   },
   ".image-field__preview": {
-    "width": "132px",
-    "height": "84px",
+    "aspectRatio": "16 / 10",
     "borderColor": "rgb(220, 220, 222)",
     "borderRadius": "3px",
     "backgroundColor": "rgb(250, 251, 252)"

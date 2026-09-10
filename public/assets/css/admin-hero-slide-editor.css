@@ -90,28 +90,14 @@ form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > .form
     margin-top: 1px;
 }
 
-form[action*="/admin/heroes/"][action*="/slides/"] .image-field__row {
-    display: grid !important;
-    grid-template-columns: 108px minmax(0, 1fr);
-    align-items: start;
-    gap: 11px;
-}
-
+/* Размеры превью задаёт сам компонент (`.image-field__row` в admin.css):
+   доля ряда вместо фиксированных пикселей. Прежде этот слой прибивал ему
+   108px через `!important`, и на ряде шире 1400px фоновая фотография
+   1920×1080 показывалась ноготком. Здесь остаётся только своя поверхность. */
 form[action*="/admin/heroes/"][action*="/slides/"] .image-field__preview {
-    width: 108px !important;
-    min-width: 108px !important;
-    height: auto !important;
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
     border: 1px solid var(--hero-editor-border);
     border-radius: 3px;
     background: var(--hero-editor-soft);
-}
-
-form[action*="/admin/heroes/"][action*="/slides/"] .image-field__preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
 }
 
 form[action*="/admin/heroes/"][action*="/slides/"] .image-field__main,
@@ -254,15 +240,6 @@ form[action*="/admin/heroes/"][action*="/slides/"] > .form-actions {
 }
 
 @media (max-width: 760px) {
-    form[action*="/admin/heroes/"][action*="/slides/"] .image-field__row {
-        grid-template-columns: 96px minmax(0, 1fr);
-    }
-
-    form[action*="/admin/heroes/"][action*="/slides/"] .image-field__preview {
-        width: 96px !important;
-        min-width: 96px !important;
-    }
-
     form[action*="/admin/heroes/"][action*="/slides/"] .image-field__controls,
     form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__control {
         grid-template-columns: 1fr auto;

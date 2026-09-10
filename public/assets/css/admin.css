@@ -979,7 +979,9 @@ body.auth-page {
 .admin-welcome__actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .admin-welcome__actions .btn { border-radius: 3px; }
 
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-top: 12px; margin-bottom: 24px; }
+/* Дорожка 160px, а не 170: при 170 шесть плиток не помещались в ряд на
+   стандартной ширине панели, и шестая уезжала на вторую строку одна. */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-top: 12px; margin-bottom: 24px; }
 .stat-card {
     /* Поверхность и рамка из токенов: на тёмной теме карточка оставалась
        белым пятном, а значение внутри — светлым текстом на белом. */
@@ -2880,10 +2882,17 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
     font-size: var(--admin-fs-base);
     font-weight: var(--admin-fw-semibold);
 }
+/* Превью занимает долю ряда, а не фиксированные 132px. Поле медиа стоит и в
+   половине колонки репитера, и во всю ширину формы слайда (там ряд шире
+   1400px) — одно число не годится обоим: на широком ряду фоновая фотография
+   1920×1080 показывалась ноготком в сотню пикселей, а места рядом с ней
+   пустовало на три четверти ряда. Нижняя граница clamp равна прежнему
+   размеру, поэтому в узких местах ничего не изменилось. */
 .image-field__row {
-    display: flex;
+    display: grid;
+    grid-template-columns: clamp(132px, 22%, 280px) minmax(0, 1fr);
     gap: 14px;
-    align-items: flex-start;
+    align-items: start;
 }
 /* Клетчатая подложка показывает прозрачность, contain — не режет логотип:
    при cover от широкой надписи оставался бессмысленный фрагмент. */
@@ -2892,8 +2901,8 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    width: 132px;
-    height: 84px;
+    width: 100%;
+    aspect-ratio: 16 / 10;
     overflow: hidden;
     border: 1px solid var(--admin-border, #cbd5e1);
     border-radius: var(--admin-radius-sm);
@@ -2949,8 +2958,7 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 }
 .image-field .form-hint { margin: 0; font-size: var(--admin-fs-sm); }
 @media (max-width: 560px) {
-    .image-field__row { flex-direction: column; align-items: stretch; }
-    .image-field__preview { width: 100%; height: 130px; }
+    .image-field__row { grid-template-columns: minmax(0, 1fr); }
 }
 .sidebar-cover-preview {
     width: 100% !important;
@@ -4046,6 +4054,18 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 .dash-status__body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .dash-status__label { font-size: var(--admin-fs-sm); color: var(--admin-muted); }
 .dash-status__value { font-size: var(--admin-fs-base); font-weight: var(--admin-fw-medium); color: var(--admin-text); }
+/* «Требует внимания»: у строки есть третья часть — что с этим делать, и в
+   колонке шириной 190px её не прочесть. Поэтому такой список идёт в один
+   столбец, а цвет значка называет тяжесть: отказ или предупреждение. */
+.dash-status--attention { grid-template-columns: minmax(0, 1fr); }
+.dash-status__hint { font-size: var(--admin-fs-sm); color: var(--admin-muted); line-height: 1.45; }
+.dash-status__row--fail { border-color: var(--admin-danger-border); background: var(--admin-danger-soft); }
+.dash-status__row--fail .dash-status__icon { color: var(--admin-danger); }
+.dash-status__row--warn { border-color: var(--admin-warning-border); }
+.dash-status__row--warn .dash-status__icon { color: var(--admin-warning); }
+.dash-status__row--ok .dash-status__icon { color: var(--admin-success); }
+.dash-status__row--fail .dash-status__value,
+.dash-status__row--warn .dash-status__value { font-weight: var(--admin-fw-semibold); }
 
 /* Список внутри виджета: заявки, читаемые новости. Отрицательные поля дают
    строке подсветку во всю ширину карточки, не сдвигая текст. */
@@ -4083,13 +4103,19 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 
 /* График заявок. Высота считается из viewBox, а не задаётся коробке: при
    фиксированной высоте подписи осей обрезались на узком экране. */
-.dash-chart { margin-top: 12px; }
-.dash-chart__svg { display: block; width: 100%; height: auto; }
-.dash-chart__value { font-size: var(--admin-fs-xs); font-weight: var(--admin-fw-semibold); fill: var(--admin-text); }
-.dash-chart__axis { font-size: var(--admin-fs-xs); fill: var(--admin-muted); }
 
-.dashboard-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; margin-top: 24px; }
-@media (max-width: 960px) { .dashboard-grid { grid-template-columns: 1fr; } }
+/* Ряд виджетов дашборда. Дорожки объявлены `auto-fit`, а не парой `1.2fr 1fr`:
+   часть карточек условные (журнал действий — по праву доступа, битые ссылки —
+   по наличию находок), и при одной карточке жёсткая пара оставляла рядом с ней
+   пустую колонку. Пустая дорожка `auto-fit` схлопывается, поэтому одна
+   карточка занимает ряд целиком, две делят его пополам, а на узком экране
+   ложатся в столбец — отдельного медиазапроса для этого не нужно. */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
 
 /* «Продолжить работу»: последние редактированные материалы. */
 .continue-card { max-width: none; margin-top: 24px; }

@@ -123,7 +123,11 @@ const SCREENS = [
             ['.image-field', ['backgroundColor', 'borderColor', 'borderRadius', 'padding']],
             ['.image-field > label', ['color', 'fontSize', 'fontWeight', 'marginBottom']],
             ['.image-field__row', ['display', 'gap', 'alignItems']],
-            ['.image-field__preview', ['width', 'height', 'borderColor', 'borderRadius', 'backgroundColor']],
+            // Размеры превью — доля ряда, а не пиксели: точная ширина зависит
+            // от того, в каком месте формы стоит поле, и записывать её эталоном
+            // значило бы падать на каждой правке соседней колонки. Постоянными
+            // остаются пропорция кадра и вид коробки.
+            ['.image-field__preview', ['aspectRatio', 'borderColor', 'borderRadius', 'backgroundColor']],
             ['.image-field__name', ['color', 'fontSize', 'fontWeight']],
             ['.image-field__controls', ['display', 'gap', 'flexWrap']],
             ['.image-field__url', ['fontFamily', 'height', 'borderRadius']],

@@ -7,7 +7,9 @@ namespace App\Controllers\Admin;
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\RbacGuard;
+use App\Core\SystemHealth;
 use App\Core\View;
+use App\Models\NotFoundLog;
 
 final class DashboardController
 {
@@ -59,48 +61,46 @@ final class DashboardController
             // Игнорируем если таблица пуста
         }
 
-        // Последние поступившие заявки с сайта
-        $recentSubmissions = [];
-        if ($canManageSubmissions) {
-            try {
-                $recentSubmissions = Database::pdo()->query(
-                    'SELECT fs.id, fs.form_id, fs.data_json, fs.is_read, fs.created_at, f.name AS form_title
-                     FROM form_submissions fs
-                     LEFT JOIN forms f ON fs.form_id = f.id
-                     ORDER BY fs.id DESC LIMIT 4'
-                )->fetchAll();
-            } catch (\Throwable $e) {
-                // Игнорируем если таблица пуста
-            }
-        }
-
-        // Статистика здоровья и конфигурации системы
-        $systemHealth = [
-            'php_version' => PHP_VERSION,
-            'maintenance' => \App\Models\Setting::get('maintenance_mode', '0') === '1',
-            'active_langs_count' => count(\App\Models\Language::activeCodes()),
-            'telegram_linked' => \App\Core\TelegramBot::isConfigured() || \App\Core\TelegramGateway::isConfigured(),
-            'queue_pending' => (int) (Database::isConnected() ? Database::pdo()->query("SELECT COUNT(*) FROM jobs WHERE status = 'pending'")->fetchColumn() : 0),
-            'queue_failed' => (int) (Database::isConnected() ? Database::pdo()->query("SELECT COUNT(*) FROM jobs WHERE status = 'failed'")->fetchColumn() : 0),
-        ];
-
-        // Статистика заявок за последние 7 дней для графика
-        $chartData = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = date('Y-m-d', strtotime("-$i days"));
-            $chartData[$date] = 0;
-        }
-        if ($canManageSubmissions) {
-            try {
-                $stmt = Database::pdo()->query('SELECT DATE(created_at) as d, COUNT(*) as c FROM form_submissions WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY DATE(created_at)');
-                foreach ($stmt->fetchAll() as $row) {
-                    if (isset($chartData[$row['d']])) {
-                        $chartData[$row['d']] = (int) $row['c'];
-                    }
+        /*
+         * «Требует внимания»: только те факты состояния, с которыми надо
+         * что-то делать.
+         *
+         * Прежде дашборд считал своё маленькое состояние системы — версию PHP,
+         * «База данных: подключена», число задач в очереди. Версия статична,
+         * подключение к базе тавтологично (страница и так собрана из неё), а
+         * пустая очередь — это «всё хорошо», сказанное там, где смотрят в
+         * тревоге. Настоящие ответы уже считает `SystemHealth` для раздела
+         * «Состояние системы»; второй, наивный список рядом с ним разъехался
+         * бы с первым при первой же новой проверке.
+         *
+         * Берём из него `fail` и `warn`. `unknown` («ни разу не
+         * использовалась») сюда не идёт: ненастроенная интеграция — не
+         * поломка, а на свежей установке таких строк большинство, и они
+         * утопили бы настоящие.
+         */
+        $attention = [];
+        foreach (SystemHealth::groups() as $group) {
+            foreach ($group['checks'] as $check) {
+                if ($check['state'] === SystemHealth::FAIL || $check['state'] === SystemHealth::WARN) {
+                    $attention[] = $check;
                 }
-            } catch (\Throwable $e) {
-                // Игнорируем ошибки при отсутствии таблицы
             }
+        }
+        usort(
+            $attention,
+            static fn (array $a, array $b): int => ($b['state'] === SystemHealth::FAIL ? 1 : 0)
+                <=> ($a['state'] === SystemHealth::FAIL ? 1 : 0)
+        );
+        $attentionTotal = count($attention);
+        $attention = array_slice($attention, 0, 6);
+
+        // Битые ссылки: по ним посетитель уже пришёл и ничего не нашёл, а
+        // починка — один редирект. Журнал 404 отсеивает сканеров при записи.
+        $brokenLinks = [];
+        try {
+            $brokenLinks = NotFoundLog::top(5);
+        } catch (\Throwable $e) {
+            // Журнала может не быть на старой базе — дашборд из-за этого не падает.
         }
 
         // Статистика внутренних поисковых запросов
@@ -114,12 +114,12 @@ final class DashboardController
             'counts' => $counts,
             'recentLogs' => $recentLogs,
             'recentItems' => $recentItems,
-            'recentSubmissions' => $recentSubmissions,
-            'systemHealth' => $systemHealth,
+            'attention' => $attention,
+            'attentionTotal' => $attentionTotal,
+            'brokenLinks' => $brokenLinks,
             'popularSearches' => $popularSearches,
             'topReadNews' => $topReadNews,
             'topRepoDownloads' => $topRepoDownloads,
-            'chartData' => $chartData,
             'canManageSubmissions' => $canManageSubmissions,
             'canManageAudit' => $canManageAudit,
         ]);
