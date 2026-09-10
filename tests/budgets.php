@@ -85,6 +85,81 @@ function admin_markup_classes(): array
  *
  * @return list<string>
  */
+/**
+ * Классы админки, у которых есть правила ТОЛЬКО внутри `@media`.
+ *
+ * Такой класс сторож мёртвых классов не ловит: правило у него есть, значит
+ * формально он живой. А на деле работает только его половина. Ровно так жил
+ * `.form-grid-2col`: в разметке редактора блока он объявлял сетку в две
+ * колонки, в CSS у него было единственное правило — внутри
+ * `@media (max-width: 860px)`, то есть «схлопни в одну колонку». Самой сетки не
+ * существовало нигде, и пары полей градиента и узора никогда в две колонки не
+ * вставали, хотя разметка это заявляла.
+ *
+ * Отличить забытую базу от условного класса по коду нельзя: `display:none` на
+ * узком экране — это законный класс, у которого видимое состояние и есть
+ * умолчание. Поэтому величина держится бюджетом: сегодняшние случаи разобраны
+ * и признаны условными, а **новый** такой класс почти наверняка забытая база —
+ * и разговор о нём начнётся с падения теста, а не через полгода.
+ *
+ * @return list<string>
+ */
+function admin_media_only_classes(): array
+{
+    $css = '';
+    foreach (admin_css_files() as $file) {
+        $css .= (string) file_get_contents($file);
+    }
+
+    // Вырезаем блоки @media целиком, считая скобки: вложенные правила внутри
+    // них не должны попасть в «базу».
+    $base = '';
+    $i = 0;
+    $n = strlen($css);
+    while ($i < $n) {
+        $at = strpos($css, '@media', $i);
+        if ($at === false) {
+            $base .= substr($css, $i);
+            break;
+        }
+        $base .= substr($css, $i, $at - $i);
+        $depth = 0;
+        $j = strpos($css, '{', $at);
+        if ($j === false) {
+            break;
+        }
+        while ($j < $n) {
+            if ($css[$j] === '{') {
+                $depth++;
+            } elseif ($css[$j] === '}') {
+                $depth--;
+                if ($depth === 0) {
+                    break;
+                }
+            }
+            $j++;
+        }
+        $i = $j + 1;
+    }
+
+    preg_match_all('/\.([A-Za-z0-9_-]+)/', $css, $all);
+    preg_match_all('/\.([A-Za-z0-9_-]+)/', $base, $baseMatch);
+    $inBase = array_flip($baseMatch[1]);
+
+    // Считаем только те, что и правда стоят в разметке: класс, которого нигде
+    // нет, — это забота бюджета мёртвых классов, а не этого.
+    $used = admin_markup_classes();
+    $out = [];
+    foreach (array_unique($all[1]) as $class) {
+        if (!isset($inBase[$class]) && isset($used[$class])) {
+            $out[] = $class;
+        }
+    }
+    sort($out);
+
+    return $out;
+}
+
 function admin_orphan_classes(): array
 {
     $css = '';
@@ -525,6 +600,26 @@ function quality_budgets(): array
                 return [
                     'value' => count($orphans),
                     'detail' => implode(', ', array_slice($orphans, 0, 12)),
+                ];
+            },
+        ],
+        'admin_media_only_classes' => [
+            'title' => 'классы админки только внутри @media, без базового правила',
+            'unit' => 'шт',
+            'guard' => 'tests/cases/367_admin_media_only_classes_test.php',
+            'why' => 'сторож мёртвых классов такой класс не ловит — правило у него есть, '
+                . 'работает только половина: так .form-grid-2col объявлял сетку в две колонки, '
+                . 'а в CSS у него было единственное правило «схлопни в одну»',
+            // Четыре сегодняшних разобраны и признаны условными: скрыть на
+            // узком экране, увеличить цель нажатия. Новый такой класс почти
+            // наверняка забытая база, поэтому потолок стоит на факте.
+            'ceiling' => static fn (): int => 4,
+            'measure' => static function (): array {
+                $classes = admin_media_only_classes();
+
+                return [
+                    'value' => count($classes),
+                    'detail' => implode(', ', $classes),
                 ];
             },
         ],
