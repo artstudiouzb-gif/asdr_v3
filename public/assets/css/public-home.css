@@ -52,7 +52,7 @@
     .site-home .imgcard__body { padding: 18px; }
     .site-home .imgcard__title { font-size: .9375rem; line-height: 1.4; }
 
-    .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card, .newsfeat-lead, .newsfeat-mini) {
+    .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card) {
         text-decoration: none;
         box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
         transition: transform var(--feature-card-motion-duration, .4s) cubic-bezier(.16, 1, .3, 1),
@@ -60,19 +60,19 @@
             border-color .3s ease;
     }
     @media (hover: hover) and (pointer: fine) {
-        .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card, .newsfeat-lead, .newsfeat-mini):hover {
+        .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card):hover {
             text-decoration: none;
             box-shadow: 0 16px 36px rgba(37, 99, 235, .12);
             transform: translateY(var(--feature-card-hover-lift, -4px));
             border-color: var(--gov-teal);
-        }
-        /* Крупные карточки ленты исключены: их заголовок лежит на фотографии
+        }/* Крупные карточки ленты исключены: их заголовок лежит на фотографии
            и красится `--newshero-fg`, а тот считается по контрасту с
            подложкой, цвет и плотность которой настраиваются. Бирюзовый на
            тёмной подложке ещё проходит (замерено 5.2:1), а на светлой даёт
            2.6:1 при норме 4.5:1 — настройка вуали молча ломала бы заголовок
            на наведении. О наведении там говорит акцентная рамка поверх кадра. */
-        .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card:not(.relnews-card--hero):not(.relnews-card--wide), .newsfeat-mini, .newsfeat-text):hover :is(.news-column__title, .news-card__title, .newslist-lead__title, .relnews-card__title, .newsfeat-mini__title, .newsfeat-text__title) {
+        
+        .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card:not(.relnews-card--hero):not(.relnews-card--wide)):hover :is(.news-column__title, .news-card__title, .newslist-lead__title, .relnews-card__title) {
             color: var(--gov-teal);
             text-decoration: none;
         }
