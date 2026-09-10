@@ -58,10 +58,10 @@ form[action*="/admin/heroes/"][action*="/slides/"] .form-hint {
 }
 
 form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox {
-    display: grid !important;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: start;
-    gap: 3px 9px;
+    position: relative;
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
     min-height: 42px;
     padding: 10px 11px;
     border: 1px solid var(--hero-editor-border);
@@ -74,21 +74,39 @@ form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox:has(inp
     background: var(--hero-editor-accent-soft);
 }
 
-form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input[type="checkbox"] {
-    grid-column: 1;
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-switch__input {
+    position: absolute;
+    width: 1px;
+    min-width: 1px;
+    max-width: 1px;
+    height: 1px;
+    min-height: 1px;
+    max-height: 1px;
+    margin: 0;
+    opacity: 0;
+    clip-path: inset(50%);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > .slide-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 !important;
+    cursor: pointer;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-switch__track {
     position: relative;
+    flex: 0 0 36px;
     width: 36px;
     height: 20px;
-    margin: 0;
-    appearance: none;
     border: 1px solid var(--hero-editor-border);
     border-radius: 10px;
     background: var(--hero-editor-surface);
-    cursor: pointer;
     transition: border-color .15s ease, background .15s ease;
 }
 
-form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input[type="checkbox"]::after {
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-switch__track::after {
     position: absolute;
     top: 3px;
     left: 3px;
@@ -100,30 +118,31 @@ form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input
     transition: transform .15s ease, background .15s ease;
 }
 
-form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input[type="checkbox"]:checked {
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-switch__input:checked + .slide-switch .slide-switch__track {
     border-color: var(--hero-editor-accent);
     background: var(--hero-editor-accent);
 }
 
-form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input[type="checkbox"]:checked::after {
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-switch__input:checked + .slide-switch .slide-switch__track::after {
     background: var(--hero-editor-surface);
     transform: translateX(16px);
 }
 
-form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input[type="checkbox"]:focus-visible {
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-switch__input:focus-visible + .slide-switch .slide-switch__track {
     outline: 2px solid color-mix(in srgb, var(--hero-editor-accent) 35%, transparent);
     outline-offset: 2px;
 }
 
-form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > label {
-    grid-column: 2;
-    margin: 0 !important;
-    cursor: pointer;
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-switch__text {
+    color: var(--hero-editor-text);
+    font-size: var(--admin-fs-sm);
+    font-weight: var(--admin-fw-semibold);
+    line-height: 1.35;
 }
 
 form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > .form-hint {
-    grid-column: 2;
-    margin-top: 1px;
+    flex-basis: 100%;
+    margin: 3px 0 0 45px;
 }
 
 /* Размеры превью задаёт сам компонент (`.image-field__row` в admin.css):
@@ -240,7 +259,6 @@ form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__hint {
 
 form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__toggle {
     flex: 0 0 auto;
-    grid-template-columns: 36px auto;
     min-height: 0;
     padding: 0;
     border: 0;
