@@ -22,6 +22,6 @@
     "clean-css": "5.3.3",
     "subset-font": "^2.7.0",
     "terser": "5.51.2",
-    "web-vitals": "^6.1.0"
+    "web-vitals": "^6.2.1"
   }
 }
