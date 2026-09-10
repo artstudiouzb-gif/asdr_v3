@@ -9,11 +9,11 @@ require __DIR__ . '/layout/header.php';
 
 /** @var array $user */
 /** @var array $counts */
-/** @var array<string, int> $chartData */
 /** @var array<int, array<string, mixed>> $recentLogs */
 /** @var array<int, array<string, mixed>> $recentItems */
-/** @var array<int, array<string, mixed>> $recentSubmissions */
-/** @var array<string, mixed> $systemHealth */
+/** @var list<array{id:string,title:string,state:string,value:string,hint:string,at:?int}> $attention */
+/** @var int $attentionTotal */
+/** @var array<int, array<string, mixed>> $brokenLinks */
 /** @var bool $canManageSubmissions */
 /** @var bool $canManageAudit */
 
@@ -48,23 +48,25 @@ $statCard = static function (
     return $html . '</a>';
 };
 
-/** Строка «Статуса системы»: иконка, подпись и готовая разметка значения. */
-$statusRow = static function (string $icon, string $label, string $valueHtml) use ($esc): string {
-    return '<div class="dash-status__row">'
-        . '<span class="dash-status__icon" aria-hidden="true">' . AdminUi::icon($icon, 18) . '</span>'
+/**
+ * Строка «Требует внимания»: значок состояния, название факта, ответ и что
+ * с ним делать. Разметка одна на все строки — они приходят из одного списка
+ * (`SystemHealth`), и вторая форма строки читалась бы как другой вид факта.
+ */
+$attentionRow = static function (array $check) use ($esc): string {
+    $fail = ($check['state'] ?? '') === \App\Core\SystemHealth::FAIL;
+
+    return '<div class="dash-status__row dash-status__row--' . ($fail ? 'fail' : 'warn') . '">'
+        . '<span class="dash-status__icon" aria-hidden="true">'
+        . AdminUi::icon($fail ? 'alert-triangle' : 'alert-circle', 18) . '</span>'
         . '<span class="dash-status__body">'
-        . '<span class="dash-status__label">' . $esc($label) . '</span>'
-        . '<span class="dash-status__value">' . $valueHtml . '</span>'
+        . '<span class="dash-status__label">' . $esc($check['title'] ?? '') . '</span>'
+        . '<span class="dash-status__value">' . $esc($check['value'] ?? '') . '</span>'
+        . (($check['hint'] ?? '') !== ''
+            ? '<span class="dash-status__hint">' . $esc($check['hint']) . '</span>'
+            : '')
         . '</span></div>';
 };
-
-/** Бейдж состояния: зелёный, когда всё в порядке. */
-$stateBadge = static function (bool $ok, string $text, string $okIcon = 'check') use ($esc): string {
-    return '<span class="badge ' . ($ok ? 'badge--published' : 'badge--draft') . ' badge--small">'
-        . AdminUi::icon($ok ? $okIcon : 'alert-triangle', 13) . ' ' . $esc($text) . '</span>';
-};
-
-$queueFailed = (int) ($systemHealth['queue_failed'] ?? 0);
 ?>
 <div class="dash-page">
 <section class="admin-welcome" aria-labelledby="admin-welcome-title">
@@ -85,7 +87,9 @@ $queueFailed = (int) ($systemHealth['queue_failed'] ?? 0);
     <?= $statCard('/admin/pages', 'file-text', 'info', (int) $counts['pages'], t('Страницы')) ?>
     <?= $statCard('/admin/projects', 'briefcase', 'violet', (int) $counts['projects'], t('Проекты')) ?>
     <?= $statCard('/admin/team', 'users', 'neutral', (int) $counts['team'], t('Сотрудники')) ?>
-    <?= $statCard('/admin/forms', 'forms', 'neutral', (int) $counts['forms'], t('Формы')) ?>
+    <?php /* Плиток «Формы» и «Активные языки» здесь нет: первая считала
+             определения форм, вторая — настройку. Оба числа месяцами не
+             меняются, то есть занимали место, ничего не сообщая. */ ?>
     <?php if ($canManageSubmissions): ?>
         <?= $statCard(
             '/admin/forms/submissions?status=unread',
@@ -98,85 +102,48 @@ $queueFailed = (int) ($systemHealth['queue_failed'] ?? 0);
         ) ?>
     <?php endif; ?>
     <?= $statCard('/admin/files', 'photo', 'info', (int) $counts['files'], t('Медиафайлы')) ?>
-    <?= $statCard('/admin/languages', 'language', 'success', (int) ($systemHealth['active_langs_count'] ?? 1), t('Активные языки')) ?>
-    <?= $statCard('/admin/repository', 'download', 'success', (int) ($counts['repo_downloads'] ?? 0), t('Скачиваний репозитория'),
-        (int) ($counts['repo_files'] ?? 0) . ' ' . t('файлов')) ?>
+    <?php if ((int) ($counts['repo_files'] ?? 0) > 0): ?>
+        <?php /* Портал файлов включён не везде: пустая плитка «0 скачиваний
+                 из 0 файлов» сообщает только о том, что раздел не используют. */ ?>
+        <?= $statCard('/admin/repository', 'download', 'success', (int) ($counts['repo_downloads'] ?? 0), t('Скачиваний репозитория'),
+            (int) ($counts['repo_files'] ?? 0) . ' ' . t('файлов')) ?>
+    <?php endif; ?>
 </div>
 
 <div class="dashboard-grid">
-    <!-- Виджет: Статус и безопасность системы -->
+    <!-- Виджет: что в системе требует вмешательства -->
     <div class="form-card">
         <?= AdminUi::cardHeader(
-            t('Статус системы'),
-            'server',
-            'var(--admin-info)',
-            $canManageAudit
-                ? '<a href="/admin/security" class="btn btn--small">' . $esc(t('Безопасность')) . ' →</a>'
-                : ''
+            $attentionTotal > 0 ? t('Требует внимания') : t('Состояние системы'),
+            $attentionTotal > 0 ? 'alert-triangle' : 'circle-check',
+            $attentionTotal > 0 ? 'var(--admin-danger)' : 'var(--admin-success)',
+            '<a href="/admin/health" class="btn btn--small">' . $esc(t('Все проверки')) . ' →</a>'
         ) ?>
-        <div class="dash-status">
-            <?= $statusRow('brand-php', t('Версия PHP'), '<span>' . $esc((string) ($systemHealth['php_version'] ?? PHP_VERSION)) . '</span>') ?>
-            <?= $statusRow('database', t('База данных'), $stateBadge(true, t('Подключена'))) ?>
-            <?= $statusRow('shield-lock', t('Защита 2FA / Telegram'), $stateBadge(
-                !empty($systemHealth['telegram_linked']),
-                !empty($systemHealth['telegram_linked']) ? t('Активна') : t('Не настроена')
-            )) ?>
-            <?= $statusRow('list-check', t('Очередь задач'), $stateBadge(
-                true,
-                (int) ($systemHealth['queue_pending'] ?? 0) . ' ' . t('в очереди')
-            )) ?>
-            <?= $statusRow('alert-triangle', t('Ошибки очереди'), $stateBadge($queueFailed === 0, (string) $queueFailed)) ?>
-            <?= $statusRow('tool', t('Обслуживание'), $stateBadge(
-                empty($systemHealth['maintenance']),
-                empty($systemHealth['maintenance']) ? t('Выключен') : t('Включён')
-            )) ?>
-        </div>
-    </div>
-
-    <?php if ($canManageSubmissions): ?>
-    <!-- Виджет: Последние поступившие заявки с сайта -->
-    <div class="form-card">
-        <?= AdminUi::cardHeader(
-            t('Последние заявки'),
-            'inbox',
-            'var(--admin-accent)',
-            '<a href="/admin/forms/submissions" class="btn btn--small">' . $esc(t('Все заявки')) . ' →</a>'
-        ) ?>
-        <?php if (empty($recentSubmissions)): ?>
-            <p class="form-hint"><?= $esc(t('Заявок пока не поступало.')) ?></p>
+        <?php if ($attention === []): ?>
+            <div class="dash-status">
+                <div class="dash-status__row dash-status__row--ok">
+                    <span class="dash-status__icon" aria-hidden="true"><?= AdminUi::icon('circle-check', 18) ?></span>
+                    <span class="dash-status__body">
+                        <span class="dash-status__label"><?= $esc(t('Всё в порядке')) ?></span>
+                        <span class="dash-status__value"><?= $esc(t('Проверки состояния не нашли, чем заняться.')) ?></span>
+                    </span>
+                </div>
+            </div>
         <?php else: ?>
-            <div class="dash-list">
-                <?php foreach ($recentSubmissions as $sub): ?>
-                    <?php
-                    $isUnread = (int) ($sub['is_read'] ?? 0) === 0;
-                    $data = json_decode((string) ($sub['data_json'] ?? '{}'), true) ?: [];
-                    $previewValues = array_map(
-                        static fn (mixed $value): string => is_array($value)
-                            ? implode(', ', array_map('strval', $value))
-                            : (string) $value,
-                        array_slice(array_values($data), 0, 2)
-                    );
-                    $previewText = implode(' • ', $previewValues);
-                    ?>
-                    <a class="dash-list__item" href="/admin/forms/submissions/<?= (int) $sub['id'] ?>">
-                        <span class="dash-list__main">
-                            <span class="dash-list__text">
-                                <span class="dash-list__title"><?= $esc($sub['form_title'] ?? t('Форма')) ?></span>
-                                <span class="dash-list__meta"><?= $esc($previewText !== '' ? $previewText : '—') ?></span>
-                            </span>
-                        </span>
-                        <span class="dash-list__side">
-                            <?php if ($isUnread): ?>
-                                <span class="badge badge--draft badge--small"><?= $esc(t('Новая')) ?></span>
-                            <?php endif; ?>
-                            <span class="dash-list__time"><?= DateFormatter::format((string) $sub['created_at'], 'd.m H:i') ?></span>
-                        </span>
-                    </a>
+            <div class="dash-status dash-status--attention">
+                <?php foreach ($attention as $check): ?>
+                    <?= $attentionRow($check) ?>
                 <?php endforeach; ?>
             </div>
+            <?php if ($attentionTotal > count($attention)): ?>
+                <p class="form-hint">
+                    <?= $esc(t('И ещё')) ?> <?= $attentionTotal - count($attention) ?> —
+                    <a href="/admin/health"><?= $esc(t('в разделе «Состояние системы»')) ?></a>.
+                </p>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
-    <?php endif; ?>
+
 </div>
 
 <?php if (!empty($recentItems)): ?>
@@ -201,59 +168,8 @@ $queueFailed = (int) ($systemHealth['queue_failed'] ?? 0);
 </div>
 <?php endif; ?>
 
-<?php if ($canManageSubmissions || $canManageAudit): ?>
-<?php
-$maxVal = max(1, ...array_values($chartData));
-$width = 500;
-$height = 220;
-$padding = 30;
-$chartWidth = $width - 2 * $padding;
-$chartHeight = $height - 2 * $padding;
-
-$points = [];
-$xStep = count($chartData) > 1 ? $chartWidth / (count($chartData) - 1) : $chartWidth;
-$i = 0;
-foreach ($chartData as $date => $count) {
-    $x = $padding + $i * $xStep;
-    $y = $padding + $chartHeight - ($count / $maxVal) * $chartHeight;
-    $points[] = [$x, $y];
-    $i++;
-}
-$pointsStr = implode(' ', array_map(static fn (array $p): string => $p[0] . ',' . $p[1], $points));
-$fillPointsStr = $padding . ',' . ($height - $padding) . ' ' . $pointsStr . ' ' . ($width - $padding) . ',' . ($height - $padding);
-?>
+<?php if ($canManageAudit): ?>
 <div class="dashboard-grid">
-    <?php if ($canManageSubmissions): ?>
-    <div class="form-card">
-        <?= AdminUi::cardHeader(t('Активность заявок'), 'chart-line', 'var(--admin-accent)') ?>
-        <p class="form-hint"><?= $esc(t('Число заполненных форм обратной связи за последние 7 дней.')) ?></p>
-        <div class="dash-chart">
-            <svg class="dash-chart__svg" viewBox="0 0 500 220" role="img"
-                 aria-label="<?= $esc(t('Число заполненных форм обратной связи за последние 7 дней.')) ?>">
-                <defs>
-                    <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="var(--admin-accent)" stop-opacity="0.3"></stop>
-                        <stop offset="100%" stop-color="var(--admin-accent)" stop-opacity="0"></stop>
-                    </linearGradient>
-                </defs>
-                <?php for ($grid = 0; $grid <= 4; $grid++): ?>
-                    <?php $gy = $padding + ($chartHeight / 4) * $grid; ?>
-                    <line x1="<?= $padding ?>" y1="<?= $gy ?>" x2="<?= $width - $padding ?>" y2="<?= $gy ?>" stroke="var(--admin-border)" stroke-width="1" stroke-dasharray="4,4"></line>
-                <?php endfor; ?>
-                <polygon points="<?= $fillPointsStr ?>" fill="url(#chartGrad)"></polygon>
-                <polyline points="<?= $pointsStr ?>" fill="none" stroke="var(--admin-accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>
-                <?php $i = 0; foreach ($chartData as $date => $count): ?>
-                    <?php [$cx, $cy] = $points[$i]; ?>
-                    <circle cx="<?= $cx ?>" cy="<?= $cy ?>" r="5" fill="var(--admin-surface)" stroke="var(--admin-accent)" stroke-width="2"></circle>
-                    <text class="dash-chart__value" x="<?= $cx ?>" y="<?= $cy - 10.0 ?>" text-anchor="middle"><?= (int) $count ?></text>
-                    <text class="dash-chart__axis" x="<?= $cx ?>" y="<?= $height - $padding + 18 ?>" text-anchor="middle"><?= $esc(DateFormatter::format((string) $date, 'd.m')) ?></text>
-                <?php $i++; endforeach; ?>
-            </svg>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <?php if ($canManageAudit): ?>
     <div class="form-card">
         <?= AdminUi::cardHeader(t('Журнал действий'), 'activity', 'var(--admin-neutral)') ?>
         <p class="form-hint"><?= $esc(t('Последние действия администраторов в панели управления.')) ?></p>
@@ -280,6 +196,41 @@ $fillPointsStr = $padding . ',' . ($height - $padding) . ' ' . $pointsStr . ' ' 
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
+        </div>
+    </div>
+
+    <?php if (!empty($brokenLinks)): ?>
+    <?php /* Битые ссылки: посетитель по ним уже приходил и ничего не нашёл.
+             Починка — один редирект, и она в двух шагах отсюда. Пустого
+             списка не бывает: карточка появляется только при находках. */ ?>
+    <div class="form-card">
+        <?= AdminUi::cardHeader(
+            t('Битые ссылки'),
+            'unlink',
+            'var(--admin-danger)',
+            '<a href="/admin/redirects" class="btn btn--small">' . $esc(t('Редиректы')) . ' →</a>'
+        ) ?>
+        <p class="form-hint"><?= $esc(t('Адреса, по которым посетители получили «страница не найдена».')) ?></p>
+        <div class="dash-list">
+            <?php foreach ($brokenLinks as $nf): ?>
+                <a class="dash-list__item" href="/admin/redirects">
+                    <span class="dash-list__main">
+                        <span class="dash-list__text">
+                            <span class="dash-list__title"><?= $esc($nf['path']) ?></span>
+                            <?php if (!empty($nf['last_referer'])): ?>
+                                <span class="dash-list__meta"><?= $esc(t('Ссылаются с')) ?>: <?= $esc($nf['last_referer']) ?></span>
+                            <?php endif; ?>
+                        </span>
+                    </span>
+                    <span class="dash-list__side">
+                        <span class="badge badge--draft badge--small"
+                              aria-label="<?= $esc((int) $nf['hits'] . ' ' . t('обращений')) ?>">
+                            <?= (int) $nf['hits'] ?>
+                        </span>
+                        <span class="dash-list__time"><?= DateFormatter::format((string) $nf['last_hit_at'], 'd.m H:i') ?></span>
+                    </span>
+                </a>
+            <?php endforeach; ?>
         </div>
     </div>
     <?php endif; ?>
