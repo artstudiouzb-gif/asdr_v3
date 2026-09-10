@@ -32,8 +32,14 @@ test('Списки новостей и меню повторно использ�
 
 test('Страница не предзагружает все локальные шрифты одновременно', function () {
     $header = (string) file_get_contents(APP_ROOT . '/app/Views/site/_header.php');
-    assert_contains('$fontPreloads', $header);
-    assert_contains('array_keys($fontPreloads)', $header);
+    // Список выбранных семейств объявлен один раз: его читают и теги preload
+    // в <head>, и заголовки ранней подсказки (App\Core\EarlyHints). Два
+    // списка разъехались бы при первой смене шрифта.
+    assert_contains('FrontendAssets::bundledFontPreloads()', $header);
+
+    $assets = (string) file_get_contents(APP_ROOT . '/app/Core/FrontendAssets.php');
+    assert_contains('SiteThemeCss::fontStacks()', $assets);
+    assert_contains('stripos(ltrim($selected', $assets);
 });
 
 test('Сервер безопасно отдаёт статические бандлы без конфликтов сжатия и MultiViews', function () {

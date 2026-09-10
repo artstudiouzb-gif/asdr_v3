@@ -43,7 +43,12 @@ test('По умолчанию: цвета и шрифты фирменные', f
     assert_contains("DEFAULT_HEADING_FONT = \"'Noto Serif'", $theme);
 
     $header = (string) file_get_contents(dirname(__DIR__, 2) . '/app/Views/site/_header.php');
-    assert_contains('SiteThemeCss::fontStacks()', $header, 'шапка берёт стек из общего источника');
+    $assets = (string) file_get_contents(dirname(__DIR__, 2) . '/app/Core/FrontendAssets.php');
+    // Стек берётся из общего источника; сама сверка «каким семейством набран
+    // текст» переехала в FrontendAssets — её читает и шапка, и ранняя
+    // подсказка о критических ресурсах.
+    assert_contains('FrontendAssets::bundledFontPreloads()', $header, 'шапка берёт список из общего источника');
+    assert_contains('SiteThemeCss::fontStacks()', $assets, 'список считается по общему стеку');
     assert_not_contains("Setting::get('font_family'", $header, 'второго умолчания в шапке быть не должно');
 
     // Расширенная кириллица обязательна: узбекские Ғ Қ Ҳ лежат в cyrillic-ext.

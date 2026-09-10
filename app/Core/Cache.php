@@ -133,9 +133,56 @@ final class Cache
         @file_put_contents($path, serialize($value), LOCK_EX);
     }
 
+    /**
+     * Запись «только если содержимое изменилось».
+     *
+     * Нужна там, где одно и то же значение перезаписывается на каждом запросе:
+     * аварийный снимок публичной страницы (`PublicResponseCache`) — это
+     * десятки-сотни килобайт, и на shared-хостинге такая запись идёт в
+     * общий дисковый бюджет, ничего не меняя в самом файле.
+     *
+     * Отпечаток лежит рядом отдельным файлом: прочитать шестнадцать байт
+     * дешевле, чем прочитать (и уж тем более записать) саму страницу.
+     *
+     * @return bool true — значение действительно записано.
+     */
+    public static function putIfChanged(string $key, string $value, int $ttl = 0): bool
+    {
+        $path = self::pathFor($key);
+        $signature = hash('xxh3', $value);
+        if (is_file($path) && @file_get_contents($path . '.sig') === $signature) {
+            return false;
+        }
+
+        self::put($key, $value, $ttl);
+        @file_put_contents($path . '.sig', $signature, LOCK_EX);
+
+        return true;
+    }
+
     /** Анти-stampede: сколько раз и с каким шагом ждать чужую генерацию. */
     private const LOCK_WAIT_ATTEMPTS = 30;
     private const LOCK_WAIT_MICROSECONDS = 100_000; // суммарно ~3 секунды
+
+    /**
+     * Коэффициент упреждающего пересчёта (XFetch). Чем он больше, тем раньше
+     * до истечения TTL кто-то один вызовется пересобрать значение. Единица —
+     * значение из исходной статьи: пересчёт начинается примерно за время
+     * самой сборки до срока.
+     */
+    private const XFETCH_BETA = 1.0;
+
+    /**
+     * Потолок «времени сборки» в расчёте упреждения — десятая часть TTL.
+     *
+     * Без потолка дорогая сборка (секунды) при коротком TTL давала бы
+     * упреждение почти на каждом запросе: значение пересобиралось бы
+     * постоянно, то есть кэш переставал бы быть кэшем. С этой долей даже в
+     * самом тяжёлом случае вероятность пересборки сразу после записи —
+     * доли сотой процента, а к последней десятой части срока она доходит до
+     * трети запросов.
+     */
+    private const XFETCH_MAX_SHARE = 0.1;
 
     /**
      * Ленивая генерация с защитой от cache stampede: после сброса кэша
@@ -150,7 +197,7 @@ final class Cache
     public static function remember(string $key, callable $callback, int $ttl = 0): mixed
     {
         $cached = self::getFresh($key, $ttl);
-        if ($cached !== null) {
+        if ($cached !== null && !self::shouldRefreshEarly($key, $ttl)) {
             return $cached;
         }
 
@@ -166,18 +213,34 @@ final class Cache
 
         try {
             if (flock($lock, LOCK_EX | LOCK_NB)) {
-                // Мы — генератор. Перепроверка: кэш мог появиться, пока брали lock.
-                $cached = self::getFresh($key, $ttl);
-                if ($cached !== null) {
-                    return $cached;
+                // Мы — генератор. Перепроверка: кэш мог появиться, пока брали
+                // lock. Упреждающий пересчёт этой ветки не касается: значение
+                // ещё свежее, и перепроверка вернула бы его же, отменив
+                // упреждение.
+                if ($cached === null) {
+                    $cached = self::getFresh($key, $ttl);
+                    if ($cached !== null) {
+                        return $cached;
+                    }
                 }
+                $startedAt = microtime(true);
                 $value = $callback();
                 self::put($key, $value);
+                self::rememberCost($key, microtime(true) - $startedAt);
 
                 return $value;
             }
 
-            // Генерирует другой поток — ждём готовый кэш.
+            // Генерирует другой поток. Если у нас есть готовая копия — отдаём
+            // её и уходим: слегка просроченная страница лучше трёх секунд
+            // ожидания. Копия старше TTL по-прежнему лежит на диске (истечение
+            // срока файл не удаляет), поэтому спрашиваем кэш без учёта TTL.
+            $stale = $cached ?? self::get($key);
+            if ($stale !== null) {
+                return $stale;
+            }
+
+            // Копии нет вовсе (первый заход после сброса) — ждём чужую сборку.
             for ($i = 0; $i < self::LOCK_WAIT_ATTEMPTS; $i++) {
                 usleep(self::LOCK_WAIT_MICROSECONDS);
                 $cached = self::get($key);
@@ -187,14 +250,71 @@ final class Cache
             }
 
             // Генератор завис/упал — не блокируем посетителя, считаем сами.
+            $startedAt = microtime(true);
             $value = $callback();
             self::put($key, $value);
+            self::rememberCost($key, microtime(true) - $startedAt);
 
             return $value;
         } finally {
             flock($lock, LOCK_UN);
             fclose($lock);
         }
+    }
+
+    /**
+     * Пора ли пересобрать значение, не дожидаясь истечения срока (XFetch).
+     *
+     * Обычный кэш с TTL ведёт себя так: пока срок не вышел, все запросы
+     * дешёвые, а в момент истечения кто-то платит полную сборку, и на
+     * популярной странице этот «кто-то» — все пришедшие одновременно. Здесь
+     * же чем ближе срок и чем дороже сборка, тем вероятнее, что очередной
+     * запрос вызовется пересобрать заранее — по свежему ещё значению и в
+     * одиночку. Остальные всё это время получают готовый ответ.
+     *
+     * Без замеренной стоимости сборки упреждать нечем: первый расчёт после
+     * сброса кэша записывает её сам (`rememberCost`).
+     */
+    private static function shouldRefreshEarly(string $key, int $ttl): bool
+    {
+        if ($ttl <= 0) {
+            return false;
+        }
+
+        $path = self::pathFor($key);
+        $mtime = @filemtime($path);
+        if ($mtime === false) {
+            return false;
+        }
+
+        $cost = self::readCost($path);
+        if ($cost <= 0.0) {
+            return false;
+        }
+        $cost = min($cost, $ttl * self::XFETCH_MAX_SHARE);
+
+        // mt_rand(1, …) — чтобы log() не получил ноль: он даёт -INF, и тогда
+        // упреждение срабатывало бы всегда.
+        $random = mt_rand(1, mt_getrandmax()) / mt_getrandmax();
+
+        return (time() - $cost * self::XFETCH_BETA * log($random)) >= ($mtime + $ttl);
+    }
+
+    /** Время последней сборки значения — рядом с самим значением. */
+    private static function rememberCost(string $key, float $seconds): void
+    {
+        if ($seconds <= 0.0) {
+            return;
+        }
+
+        @file_put_contents(self::pathFor($key) . '.meta', (string) round($seconds, 4), LOCK_EX);
+    }
+
+    private static function readCost(string $path): float
+    {
+        $raw = @file_get_contents($path . '.meta');
+
+        return is_string($raw) ? max(0.0, (float) $raw) : 0.0;
     }
 
     public static function forget(string $key): void
@@ -207,6 +327,13 @@ final class Cache
         $path = self::pathFor($key);
         if (is_file($path)) {
             @unlink($path);
+        }
+        // Замер стоимости и отпечаток принадлежат удалённому значению:
+        // оставшись, они описывали бы сборку, которой больше нет.
+        foreach ([$path . '.meta', $path . '.sig'] as $sidecar) {
+            if (is_file($sidecar)) {
+                @unlink($sidecar);
+            }
         }
     }
 

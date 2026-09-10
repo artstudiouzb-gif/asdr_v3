@@ -194,6 +194,14 @@ final class PerformanceController
         Setting::set('perf_public_cache_ttl', (string) $publicTtl);
         Setting::set('perf_shared_cache_ttl', (string) $sharedTtl);
         Setting::set('perf_pretty_html', !empty($_POST['perf_pretty_html']) ? '1' : '0');
+        // Упреждающая загрузка: значение вне набора — подделанная форма, и
+        // берётся умолчание, а не ближайшее допустимое.
+        $speculation = (string) ($_POST['perf_speculation'] ?? '');
+        Setting::set(
+            \App\Core\SpeculationRules::SETTING,
+            in_array($speculation, \App\Core\SpeculationRules::MODES, true) ? $speculation : 'prefetch'
+        );
+        Setting::set(\App\Core\EarlyHints::SETTING, !empty($_POST['perf_early_hints']) ? '1' : '0');
         Setting::set('perf_lazy_load', !empty($_POST['perf_lazy_load']) ? '1' : '0');
         Setting::set('perf_vitals_enabled', !empty($_POST['perf_vitals_enabled']) ? '1' : '0');
         // Доля посетителей, с которых собираем метрики: 1–100 %.

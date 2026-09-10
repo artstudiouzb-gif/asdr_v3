@@ -53,6 +53,54 @@ final class FrontendAssets
         return $styles;
     }
 
+    /**
+     * Файлы шрифтов из поставки: семейство → woff2 с кириллицей.
+     *
+     * Порядок важен: «Noto Serif» начинается с «Noto S», поэтому имена
+     * сверяются целиком, а совпадение прерывает перебор.
+     *
+     * @var array<string, string>
+     */
+    private const BUNDLED_FONTS = [
+        'Noto Serif' => '/assets/fonts/noto-serif/noto-serif-var-cyrillic.woff2',
+        'Noto Sans' => '/assets/fonts/noto-sans/noto-sans-var-cyrillic.woff2',
+    ];
+
+    /**
+     * Файлы шрифтов, которые стоит начать грузить заранее: только те семейства,
+     * которыми реально набран текст.
+     *
+     * Список объявлен здесь, а не в шапке, потому что читателей у него двое —
+     * теги `<link rel=preload>` в `<head>` и заголовки `Link:` ранней подсказки
+     * (`EarlyHints`). Два списка разъехались бы при первой смене шрифта, и
+     * подсказка тянула бы файл, которым ничего не набрано, конкурируя с тем,
+     * который нужен.
+     *
+     * Адрес — без `?v=`: в @font-face файл указан относительным путём без
+     * версии, а preload с другим адресом браузер за тот же ресурс не считает и
+     * качает файл вторым запросом.
+     *
+     * @return list<string>
+     */
+    public static function bundledFontPreloads(): array
+    {
+        $stacks = SiteThemeCss::fontStacks();
+        $files = [];
+        foreach ([(string) ($stacks['body'] ?? ''), (string) ($stacks['heading'] ?? '')] as $selected) {
+            foreach (self::BUNDLED_FONTS as $family => $file) {
+                // Совпадать должно начало стека: семейство, которым набран
+                // текст. Иначе запасное начертание («Inter Fallback») или
+                // дальний элемент стека тянул бы за собой лишний preload.
+                if (stripos(ltrim($selected, " '\""), $family) === 0) {
+                    $files[$file] = true;
+                    break;
+                }
+            }
+        }
+
+        return array_keys($files);
+    }
+
     /** @return array<int, string> */
     public static function scripts(): array
     {

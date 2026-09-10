@@ -97,11 +97,18 @@
 
             var dismissedUntil = parseInt(localStorage.getItem('push_dismissed_until') || '0', 10);
             if (autoPrompt && !isSubscribed && Date.now() > dismissedUntil && Notification.permission !== 'denied') {
-                setTimeout(function () {
-                    if (!isSubscribed) {
-                        promptCard.hidden = false;
-                    }
-                }, promptDelayMs);
+                // Отсчёт начинается с показа страницы, а не с её сборки: при
+                // пререндере документ выполняется заранее и в скрытой вкладке
+                // таймер истёк бы до прихода посетителя — карточка встретила
+                // бы его уже открытой.
+                var startPrompt = function () {
+                    setTimeout(function () {
+                        if (!isSubscribed) {
+                            promptCard.hidden = false;
+                        }
+                    }, promptDelayMs);
+                };
+                if (window.asdrWhenActivated) { window.asdrWhenActivated(startPrompt); } else { startPrompt(); }
             }
 
             var toggleSubscription = function () {
