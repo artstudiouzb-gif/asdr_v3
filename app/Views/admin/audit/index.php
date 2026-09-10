@@ -69,11 +69,7 @@ $qs = static function (int $p) use ($filters): string {
     return $params === [] ? '/admin/audit' : '/admin/audit?' . http_build_query($params);
 };
 ?>
-<div class="u-inline-f94566b02a">
-    <a class="btn btn--small" href="/admin/security">Центр безопасности</a>
-    <a class="btn btn--small btn--primary" href="/admin/audit">Действия администраторов</a>
-    <a class="btn btn--small" href="/admin/audit/errors">Ошибки сайта</a>
-</div>
+<?php $auditTab = 'actions'; require __DIR__ . '/_nav.php'; ?>
 
 <p class="form-hint">Изменения в панели и события входа: кто, что, когда и с какого IP. Тела форм, пароли и токены не сохраняются. Записи старше <?= (int) \App\Models\AuditLog::RETENTION_DAYS ?> дней удаляются автоматически.</p>
 

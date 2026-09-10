@@ -43,8 +43,40 @@ final class LogReader
         'php-error' => 'Ошибки PHP',
     ];
 
-    /** Строка журнала: `[2026-09-10 01:23:45] ERROR: текст`. */
-    private const LINE = '/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s+([A-Z]+):\s*(.*)$/';
+    /** Строка приложения: `[2026-09-10 01:23:45] ERROR: текст`. */
+    private const APP_LINE = '/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s+([A-Z]+):\s*(.*)$/';
+
+    /** Строка стандартного PHP error_log на Apache/FPM. */
+    private const PHP_LINE = '/^\[(\d{2}-[A-Za-z]{3}-\d{4} \d{2}:\d{2}:\d{2})(?: ([A-Z]{2,6}))?\]\s+PHP\s+([^:]+):\s*(.*)$/';
+
+    /**
+     * @return array{date:string, level:string, message:string}|null
+     */
+    private static function parseLine(string $line): ?array
+    {
+        if (preg_match(self::APP_LINE, $line, $match) === 1) {
+            return ['date' => $match[1], 'level' => $match[2], 'message' => $match[3]];
+        }
+        if (preg_match(self::PHP_LINE, $line, $match) !== 1) {
+            return null;
+        }
+
+        $timestamp = strtotime($match[1] . (!empty($match[2]) ? ' ' . $match[2] : ''));
+        if ($timestamp === false) {
+            return null;
+        }
+        $phpLevel = strtolower(trim($match[3]));
+        $level = str_contains($phpLevel, 'fatal') || str_contains($phpLevel, 'parse')
+            ? 'CRITICAL'
+            : (str_contains($phpLevel, 'warning') ? 'WARNING'
+                : (str_contains($phpLevel, 'deprecated') ? 'DEPRECATED' : 'ERROR'));
+
+        return [
+            'date' => date('Y-m-d H:i:s', $timestamp),
+            'level' => $level,
+            'message' => trim($match[3]) . ': ' . $match[4],
+        ];
+    }
 
     public static function dir(): string
     {
@@ -115,7 +147,8 @@ final class LogReader
             if ($line === '') {
                 continue;
             }
-            if (preg_match(self::LINE, $line, $m) !== 1) {
+            $parsed = self::parseLine($line);
+            if ($parsed === null) {
                 // Многострочный стек PHP или чужой формат: считаем отдельно и
                 // не выдаём за разобранную запись.
                 $unparsed++;
@@ -123,18 +156,18 @@ final class LogReader
             }
 
             $total++;
-            $key = $m[2] . "\0" . $m[3];
+            $key = $parsed['level'] . "\0" . $parsed['message'];
             if (!isset($groups[$key])) {
                 $groups[$key] = [
-                    'level' => $m[2],
-                    'message' => $m[3],
+                    'level' => $parsed['level'],
+                    'message' => $parsed['message'],
                     'count' => 0,
-                    'first' => $m[1],
-                    'last' => $m[1],
+                    'first' => $parsed['date'],
+                    'last' => $parsed['date'],
                 ];
             }
             $groups[$key]['count']++;
-            $groups[$key]['last'] = $m[1];
+            $groups[$key]['last'] = $parsed['date'];
         }
         fclose($handle);
 
@@ -181,7 +214,8 @@ final class LogReader
         $edge = date('Y-m-d H:i:s', time() - $seconds);
         $count = 0;
         while (($line = fgets($handle)) !== false) {
-            if (preg_match(self::LINE, rtrim($line, "\r\n"), $m) === 1 && $m[1] >= $edge) {
+            $parsed = self::parseLine(rtrim($line, "\r\n"));
+            if ($parsed !== null && $parsed['date'] >= $edge) {
                 $count++;
             }
         }
@@ -199,6 +233,66 @@ final class LogReader
         }
 
         return @file_put_contents($file, '') !== false;
+    }
+
+    /**
+     * Удаляет датированные записи старше срока, не загружая файл в память.
+     * Строки продолжения удаляются вместе со своей основной записью.
+     *
+     * @return int|null число удалённых записей; null при ошибке файла
+     */
+    public static function purgeOlderThan(string $channel, int $days): ?int
+    {
+        $file = self::path($channel);
+        if ($file === '' || !is_file($file) || $days < 1 || $days > 3650) {
+            return null;
+        }
+
+        $source = @fopen($file, 'c+b');
+        if ($source === false || !@flock($source, LOCK_EX)) {
+            if (is_resource($source)) {
+                fclose($source);
+            }
+            return null;
+        }
+
+        $temporary = @tmpfile();
+        if ($temporary === false) {
+            flock($source, LOCK_UN);
+            fclose($source);
+            return null;
+        }
+
+        $edge = date('Y-m-d H:i:s', time() - ($days * 86400));
+        $keep = true;
+        $removed = 0;
+        rewind($source);
+        while (($line = fgets($source)) !== false) {
+            $parsed = self::parseLine(rtrim($line, "\r\n"));
+            if ($parsed !== null) {
+                $keep = $parsed['date'] >= $edge;
+                if (!$keep) {
+                    $removed++;
+                }
+            }
+            if ($keep && fwrite($temporary, $line) === false) {
+                fclose($temporary);
+                flock($source, LOCK_UN);
+                fclose($source);
+                return null;
+            }
+        }
+
+        rewind($temporary);
+        $written = ftruncate($source, 0) && rewind($source) && stream_copy_to_stream($temporary, $source) !== false;
+        if ($written) {
+            fflush($source);
+        }
+        fclose($temporary);
+        flock($source, LOCK_UN);
+        fclose($source);
+
+        return $written ? $removed : null;
     }
 
     /** Размер файла словами. */

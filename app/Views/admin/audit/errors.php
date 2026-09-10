@@ -28,11 +28,7 @@ $shortFile = static function (string $file): string {
     return str_replace([$root, '\\'], ['', '/'], str_replace('\\', '/', $file));
 };
 ?>
-<div class="u-inline-f94566b02a">
-    <a class="btn btn--small" href="/admin/security">Центр безопасности</a>
-    <a class="btn btn--small" href="/admin/audit">Действия администраторов</a>
-    <a class="btn btn--small btn--primary" href="/admin/audit/errors">Ошибки сайта</a>
-</div>
+<?php $auditTab = 'errors'; require __DIR__ . '/_nav.php'; ?>
 
 <p class="form-hint">Ошибки, перехваченные на сайте и в панели: что случилось, где и почему — понятным языком. Технические детали раскрываются по клику. Записи старше <?= (int) \App\Models\ErrorLog::RETENTION_DAYS ?> дней удаляются автоматически, либо очистите журнал вручную.</p>
 

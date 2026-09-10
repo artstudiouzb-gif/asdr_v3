@@ -3631,7 +3631,7 @@
             { icon: 'menu-2', title: 'Конструктор меню', desc: 'Навигация в шапке и подвале', url: '/admin/menu' },
             { icon: 'photo', title: 'Медиабиблиотека', desc: 'Загрузка изображений и документов', url: '/admin/files' },
             { icon: 'brand-telegram', title: 'Telegram Автопостинг', desc: 'Настройка социальных сетей', url: '/admin/telegram' },
-            { icon: 'clipboard-list', title: 'Журнал действий', desc: 'Аудит системы и историй', url: '/admin/audit' },
+            { icon: 'clipboard-list', title: 'Журналы', desc: 'Действия, ошибки и системные события', url: '/admin/audit' },
             { icon: 'shield-lock', title: 'Безопасность & 2FA', desc: 'Управление доступом и сессиями', url: '/admin/security' },
             { icon: 'world', title: 'Перейти на сайт', desc: 'Открыть публичный сайт', url: '/' }
         ];
