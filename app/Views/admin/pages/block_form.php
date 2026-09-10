@@ -31,6 +31,17 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
             <input type="text" id="title" name="title" value="<?= htmlspecialchars($block['title'] ?? '', ENT_QUOTES) ?>">
         </div>
 
+        <div class="form-field">
+            <label for="anchor">Якорь блока</label>
+            <input type="text" id="anchor" name="anchor" maxlength="80"
+                   value="<?= htmlspecialchars((string) ($data['_anchor'] ?? ''), ENT_QUOTES) ?>"
+                   placeholder="forma" pattern="#?[A-Za-z0-9][A-Za-z0-9_-]*">
+            <span class="form-hint">
+                Необязательно. Укажите <strong>forma</strong> (можно вставить и <strong>#forma</strong>),
+                затем используйте в ссылке <strong>#forma</strong> на этой странице или <strong>/drugaya-stranitsa#forma</strong> с другой страницы.
+            </span>
+        </div>
+
         <?php if (in_array($type, ['text', 'hero'], true)): ?>
             <div class="form-field">
                 <label for="title_field">Заголовок, показываемый на сайте</label>

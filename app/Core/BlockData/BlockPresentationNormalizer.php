@@ -203,6 +203,7 @@ final class BlockPresentationNormalizer
 
     public static function normalize(array $input): array
     {
+        $anchor = self::normalizeAnchor(self::scalarString($input['anchor'] ?? null));
         $spacing = self::scalarString($input['spacing'] ?? null, 'premium');
         $revealType = self::scalarString($input['reveal_type'] ?? null);
         $background = self::scalarString($input['bg'] ?? null, 'none');
@@ -212,6 +213,7 @@ final class BlockPresentationNormalizer
         $device = self::scalarString($input['visible_device'] ?? null);
 
         $normalized = [
+            '_anchor' => $anchor,
             '_spacing' => in_array($spacing, self::SPACING, true) ? $spacing : 'premium',
             '_reveal' => in_array($revealType, self::REVEAL_TYPES, true)
                 ? ['enabled' => true, 'type' => $revealType]
@@ -253,6 +255,25 @@ final class BlockPresentationNormalizer
         $normalized += self::background($input);
 
         return $normalized;
+    }
+
+    /**
+     * Пользовательский якорь блока: в форме можно вставить и `forma`, и
+     * привычное `#forma`. Ограниченный slug безопасен для HTML id и URL.
+     */
+    public static function normalizeAnchor(string $value): string
+    {
+        $value = mb_strtolower(ltrim(trim($value), '#'));
+        $value = preg_replace('/[^a-z0-9_-]+/', '-', $value) ?? '';
+        $value = trim($value, '-_');
+
+        // Технические id секций имеют вид block-123. Не даём пользовательскому
+        // якорю случайно создать второй такой же id на странице.
+        if ($value === '' || preg_match('/^block-[0-9]+$/', $value) === 1) {
+            return '';
+        }
+
+        return mb_substr($value, 0, 80);
     }
 
     /** @param array<string, mixed> $data */
