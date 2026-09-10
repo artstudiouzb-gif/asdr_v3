@@ -8,7 +8,7 @@ form[action*="/admin/heroes/"][action*="/slides/"] {
     --hero-editor-muted: var(--admin-muted, #667085);
     --hero-editor-accent: var(--admin-accent, #2563eb);
     --hero-editor-accent-soft: color-mix(in srgb, var(--hero-editor-accent) 7%, var(--hero-editor-surface));
-    width: min(100%, 1480px);
+    width: min(100%, 1240px);
     margin-inline: auto;
 }
 
@@ -76,7 +76,43 @@ form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox:has(inp
 
 form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input[type="checkbox"] {
     grid-column: 1;
-    margin: 2px 0 0;
+    position: relative;
+    width: 36px;
+    height: 20px;
+    margin: 0;
+    appearance: none;
+    border: 1px solid var(--hero-editor-border);
+    border-radius: 10px;
+    background: var(--hero-editor-surface);
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input[type="checkbox"]::after {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--hero-editor-muted);
+    content: '';
+    transition: transform .15s ease, background .15s ease;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input[type="checkbox"]:checked {
+    border-color: var(--hero-editor-accent);
+    background: var(--hero-editor-accent);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input[type="checkbox"]:checked::after {
+    background: var(--hero-editor-surface);
+    transform: translateX(16px);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > input[type="checkbox"]:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--hero-editor-accent) 35%, transparent);
+    outline-offset: 2px;
 }
 
 form[action*="/admin/heroes/"][action*="/slides/"] .form-field--checkbox > label {
@@ -120,7 +156,7 @@ form[action*="/admin/heroes/"][action*="/slides/"] .image-field__controls .btn {
 form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__control {
     display: grid !important;
     grid-template-columns: 42px minmax(0, 1fr) auto auto;
-    gap: 6px;
+    gap: 0;
     align-items: center;
     min-width: 0;
 }
@@ -131,14 +167,29 @@ form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__preview {
     display: grid;
     place-items: center;
     border: 1px solid var(--hero-editor-border);
-    border-radius: 3px;
+    border-radius: 3px 0 0 3px;
     background: var(--hero-editor-soft);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__control > input {
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
 }
 
 form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__choose,
 form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__clear {
     min-height: 40px;
     white-space: nowrap;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__choose {
+    border-radius: 0;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .tabler-icon-field__clear {
+    margin-left: -1px;
+    border-radius: 0 3px 3px 0;
 }
 
 form[action*="/admin/heroes/"][action*="/slides/"] .clr-field {
@@ -189,10 +240,17 @@ form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__hint {
 
 form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__toggle {
     flex: 0 0 auto;
-    min-height: 38px;
-    padding: 8px 11px;
-    background: var(--hero-editor-surface);
+    grid-template-columns: 36px auto;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
     white-space: nowrap;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__toggle:has(input:checked) {
+    border-color: transparent;
+    background: transparent;
 }
 
 form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__body {
@@ -213,6 +271,19 @@ form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__body .fo
     min-height: 40px;
 }
 
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__body > .form-field--checkbox {
+    align-self: center;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__body > .form-field--checkbox:has(input:checked) {
+    border-color: transparent;
+    background: transparent;
+}
+
 form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel--colors .colorfield__control {
     min-height: 40px;
 }
@@ -229,7 +300,7 @@ form[action*="/admin/heroes/"][action*="/slides/"] > .form-actions {
     display: flex;
     align-items: center;
     gap: 8px;
-    width: min(100%, 1480px);
+    width: min(100%, 1240px);
     margin: 14px auto 0;
     padding: 10px 12px;
     border: 1px solid var(--hero-editor-border);
