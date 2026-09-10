@@ -184,6 +184,7 @@ $router->get('/admin/search', [\App\Controllers\Admin\SearchController::class, '
 // --- Admin: история версий страниц, новостей и проектов ---
 $router->get('/admin/health', [AdminHealthController::class, 'index']);
 $router->get('/admin/logs', [AdminLogController::class, 'index']);
+$router->post('/admin/logs/purge', [AdminLogController::class, 'purge']);
 $router->post('/admin/logs/clear', [AdminLogController::class, 'clear']);
 $router->get('/admin/revisions/{type}/{id}', [AdminContentRevisionController::class, 'index']);
 $router->post('/admin/revisions/{type}/{id}/{revisionId}/restore', [AdminContentRevisionController::class, 'restore']);

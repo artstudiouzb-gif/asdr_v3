@@ -4,8 +4,9 @@ use App\Core\AdminUi;
 use App\Core\Csrf;
 use App\Core\LogReader;
 
-$pageTitle = 'Журнал ошибок';
-$activeNav = 'logs';
+$pageTitle = 'Системные события';
+$activeNav = 'audit';
+require __DIR__ . '/../layout/header.php';
 
 /** @var string $channel */
 /** @var array<string, array{title:string, exists:bool, size:int, mtime:?int}> $channels */
@@ -19,10 +20,11 @@ $levelBadge = [
     'DEPRECATED' => 'badge--draft',
 ];
 ?>
+<?php $auditTab = 'system'; require __DIR__ . '/../audit/_nav.php'; ?>
+
 <p class="form-hint admin-section-intro">
-    Одинаковые записи сведены в одну строку с числом повторов: чинить нужно то, что повторяется,
-    а не то, что случилось однажды. Дословно разные записи не объединяются — две поломки не должны
-    выглядеть одной.
+    Служебные события, предупреждения и резервный файловый журнал ошибок. Одинаковые записи сведены
+    в одну строку с числом повторов; дословно разные события не объединяются.
 </p>
 
 <nav class="settings-jump-nav" aria-label="Журналы">
@@ -37,7 +39,12 @@ $levelBadge = [
 </nav>
 
 <section class="form-card">
-    <?= AdminUi::cardHeader($channels[$channel]['title'] ?? 'Журнал', 'alert-triangle') ?>
+    <?= AdminUi::cardHeader(
+        $channels[$channel]['title'] ?? 'Журнал',
+        'alert-triangle',
+        'var(--admin-accent)',
+        '<a class="btn btn--small" href="/admin/logs?channel=' . urlencode($channel) . '">' . AdminUi::icon('refresh') . 'Обновить</a>'
+    ) ?>
 
     <?php if ($data['total'] === 0): ?>
         <p class="form-hint">Записей нет — это хорошая новость.</p>
@@ -81,11 +88,28 @@ $levelBadge = [
             </table>
         </div>
 
-        <form method="post" action="/admin/logs/clear" class="form-actions"
-              data-confirm="Очистить журнал «<?= htmlspecialchars($channels[$channel]['title'] ?? '', ENT_QUOTES) ?>» целиком? Записи будут удалены безвозвратно.">
-            <?= Csrf::field() ?>
-            <input type="hidden" name="channel" value="<?= htmlspecialchars($channel, ENT_QUOTES) ?>">
-            <button type="submit" class="btn btn--danger"><?= AdminUi::icon('trash') ?>Очистить журнал</button>
-        </form>
+        <div class="form-actions">
+            <form method="post" action="/admin/logs/purge" class="form-grid form-grid--inline"
+                  data-confirm="Удалить старые записи выбранного журнала?">
+                <?= Csrf::field() ?>
+                <input type="hidden" name="channel" value="<?= htmlspecialchars($channel, ENT_QUOTES) ?>">
+                <div class="form-field">
+                    <label for="log_retention_days">Удалить записи старше</label>
+                    <select id="log_retention_days" name="days">
+                        <option value="7">7 дней</option>
+                        <option value="30" selected>30 дней</option>
+                        <option value="90">90 дней</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn"><?= AdminUi::icon('archive') ?>Удалить старые</button>
+            </form>
+            <form method="post" action="/admin/logs/clear"
+                  data-confirm="Очистить журнал «<?= htmlspecialchars($channels[$channel]['title'] ?? '', ENT_QUOTES) ?>» целиком? Записи будут удалены безвозвратно.">
+                <?= Csrf::field() ?>
+                <input type="hidden" name="channel" value="<?= htmlspecialchars($channel, ENT_QUOTES) ?>">
+                <button type="submit" class="btn btn--danger"><?= AdminUi::icon('trash') ?>Очистить журнал</button>
+            </form>
+        </div>
     <?php endif; ?>
 </section>
+<?php require __DIR__ . '/../layout/footer.php'; ?>

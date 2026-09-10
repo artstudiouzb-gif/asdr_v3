@@ -62,7 +62,7 @@ if ($navIsSuper) {
     ];
     $navSystem = [
         'health' => ['/admin/health', t('Состояние системы')],
-        'logs' => ['/admin/logs', t('Журнал ошибок')],
+        'audit' => ['/admin/audit', t('Журналы')],
         'languages' => ['/admin/languages', t('Языки')],
         'content_types' => ['/admin/content-types', t('Типы контента')],
         'telegram' => ['/admin/telegram', 'Telegram'],
@@ -78,7 +78,6 @@ if ($navIsSuper) {
     ];
     $navUsersGroup = [
         'users' => ['/admin/users', t('Пользователи')],
-        'audit' => ['/admin/audit', t('Журнал действий')],
     ];
     $navTools['subscribers'] = ['/admin/subscribers', t('Подписчики')];
     $navTools['repository'] = ['/admin/repository', t('Репозиторий')];

@@ -30,11 +30,7 @@ $entryManaged = !empty($adminEntry['environment_managed']);
 $entryWritable = !empty($adminEntry['writable']);
 ?>
 
-<div class="u-inline-f94566b02a">
-    <a class="btn btn--small btn--primary" href="/admin/security">Центр безопасности</a>
-    <a class="btn btn--small" href="/admin/audit">Действия администраторов</a>
-    <a class="btn btn--small" href="/admin/audit/errors">Ошибки сайта</a>
-</div>
+<?php $auditTab = 'security'; require __DIR__ . '/../audit/_nav.php'; ?>
 
 <p class="admin-subtitle">Состояние защиты входа, активные сессии и понятная история событий аутентификации.</p>
 
