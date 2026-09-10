@@ -296,6 +296,82 @@ form[action*="/admin/heroes/"][action*="/slides/"] .clr-field {
     max-width: none;
 }
 
+/* Buttons and links are separate tasks. Keeping each one in its own panel
+   prevents conditional fields from jumping into unrelated rows when a button
+   or one of its styles is disabled. */
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-stack {
+    display: grid;
+    gap: 14px;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel {
+    overflow: hidden;
+    border: 1px solid var(--hero-editor-border);
+    border-radius: 4px;
+    background: var(--hero-editor-surface);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 66px;
+    padding: 13px 15px;
+    background: var(--hero-editor-soft);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__title {
+    margin: 0;
+    color: var(--hero-editor-text);
+    font-size: var(--admin-fs-base);
+    font-weight: var(--admin-fw-semibold);
+    line-height: 1.35;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__hint {
+    margin: 3px 0 0;
+    color: var(--hero-editor-muted);
+    font-size: var(--admin-fs-xs);
+    font-weight: var(--admin-fw-medium);
+    line-height: 1.4;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__toggle {
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding: 8px 11px;
+    background: var(--hero-editor-surface);
+    white-space: nowrap;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__body {
+    gap: 16px 18px;
+    padding: 16px;
+    border-top: 1px solid var(--hero-editor-border);
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__body > .form-field,
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__body > [class^="col-"],
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__body > [class*=" col-"] {
+    min-width: 0;
+    margin: 0;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__body .form-field--checkbox {
+    align-self: end;
+    min-height: 40px;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel--colors .colorfield__control {
+    min-height: 40px;
+}
+
+form[action*="/admin/heroes/"][action*="/slides/"] [data-hero-dependent-group][hidden],
+form[action*="/admin/heroes/"][action*="/slides/"] [data-hero-dependent][hidden] {
+    display: none !important;
+}
+
 form[action*="/admin/heroes/"][action*="/slides/"] .form-section__body--grid > fieldset.form-grid {
     grid-column: 1 / -1;
     display: grid !important;
@@ -391,5 +467,21 @@ form[action*="/admin/heroes/"][action*="/slides/"] > .form-actions {
     form[action*="/admin/heroes/"][action*="/slides/"] > .form-actions {
         flex-wrap: wrap;
         border-radius: 3px 3px 0 0;
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__header {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__toggle {
+        width: 100%;
+        white-space: normal;
+    }
+
+    form[action*="/admin/heroes/"][action*="/slides/"] .slide-action-panel__body {
+        gap: 14px;
+        padding: 14px;
     }
 }

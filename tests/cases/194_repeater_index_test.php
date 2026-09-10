@@ -36,3 +36,18 @@ test('Репитер: лимит строк не даёт молча потер�
     assert_contains('data-repeater-max="<?= FooterConfig::MAX_COLUMNS ?>"', $view);
     assert_same(4, FooterConfig::MAX_COLUMNS);
 });
+
+test('Редактор блоков собирает поля и действия репитера в компактную карточку', function () {
+    $root = dirname(__DIR__, 2);
+    $js = (string) file_get_contents($root . '/public/assets/js/admin.js');
+    $css = (string) file_get_contents($root . '/public/assets/css/admin.css');
+    $view = (string) file_get_contents($root . '/app/Views/admin/pages/block_form.php');
+
+    assert_contains('class="form-card block-editor-card"', $view);
+    assert_contains('form-grid block-editor-form', $view);
+    assert_contains('function arrangeBlockRepeaterRow(', $js);
+    assert_contains("actions.className = 'repeater-row__actions'", $js);
+    assert_contains('.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row)', $css);
+    assert_contains('grid-template-columns: repeat(12, minmax(0, 1fr));', $css);
+    assert_contains('.block-editor-form .repeater-row__actions', $css);
+});

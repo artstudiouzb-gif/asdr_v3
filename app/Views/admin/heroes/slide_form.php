@@ -253,7 +253,7 @@ $customDuration = (int) $data['duration'];
             </div>
         </div>
 
-        <!-- 4. Кнопки и ссылки и ссылки -->
+        <!-- 4. Кнопки и ссылки -->
         <div class="settings-card" id="slide-cta">
             <div class="settings-card__header">
                 <span class="settings-card__icon"><?= AdminUi::icon('link', 20) ?></span>
@@ -262,71 +262,106 @@ $customDuration = (int) $data['duration'];
                     <p class="settings-card__subtitle">Интерактивные кнопки перехода и прямые ссылки с первого экрана.</p>
                 </div>
             </div>
-            <div class="form-grid-12">
-                <!-- Основная кнопка -->
-                <?= $checkbox('cta_enabled', 'Включить основную кнопку', (bool) $data['cta_enabled'], '', 'col-12') ?>
-                <div class="form-field col-6">
-                    <label for="cta_text">Текст основной кнопки</label>
-                    <input type="text" id="cta_text" name="cta_text" value="<?= $esc($data['cta_text']) ?>" placeholder="Подробнее">
-                </div>
-                <div class="form-field col-6">
-                    <label for="cta_url">Ссылка основной кнопки</label>
-                    <input type="text" id="cta_url" name="cta_url" value="<?= $esc($data['cta_url']) ?>" placeholder="/projects">
-                </div>
-                <?= $select('cta_style', 'Стиль кнопки', $ctaStyles, (string) $data['cta_style'], '', 'col-4') ?>
-                <div class="col-4">
-                    <?= AdminUi::iconField('cta_icon', (string) $data['cta_icon'], ['label' => 'Иконка кнопки']) ?>
-                </div>
-                <?= $checkbox('cta_new_tab', 'Открывать в новой вкладке', (bool) $data['cta_new_tab'], '', 'col-4') ?>
+            <div class="slide-action-stack">
+                <section class="slide-action-panel">
+                    <div class="slide-action-panel__header">
+                        <div>
+                            <h3 class="slide-action-panel__title">Основная кнопка</h3>
+                            <p class="slide-action-panel__hint">Главное действие слайда, например переход к проекту или форме.</p>
+                        </div>
+                        <?= $checkbox('cta_enabled', 'Показывать кнопку', (bool) $data['cta_enabled'], '', 'slide-action-panel__toggle') ?>
+                    </div>
+                    <div class="form-grid-12 slide-action-panel__body" data-hero-dependent-group>
+                        <div class="form-field col-6">
+                            <label for="cta_text">Текст кнопки</label>
+                            <input type="text" id="cta_text" name="cta_text" value="<?= $esc($data['cta_text']) ?>" placeholder="Подробнее">
+                        </div>
+                        <div class="form-field col-6">
+                            <label for="cta_url">Куда ведёт кнопка</label>
+                            <input type="text" id="cta_url" name="cta_url" value="<?= $esc($data['cta_url']) ?>" placeholder="/projects, #forma или /page#forma">
+                        </div>
+                        <?= $select('cta_style', 'Внешний вид', $ctaStyles, (string) $data['cta_style'], '', 'col-4') ?>
+                        <div class="col-4">
+                            <?= AdminUi::iconField('cta_icon', (string) $data['cta_icon'], ['label' => 'Иконка']) ?>
+                        </div>
+                        <?= $checkbox('cta_new_tab', 'Открывать в новой вкладке', (bool) $data['cta_new_tab'], '', 'col-4') ?>
+                    </div>
+                </section>
 
-                <!-- Дополнительная кнопка -->
-                <div class="col-12"><hr class="form-divider"></div>
-                <?= $checkbox('cta2_enabled', 'Включить дополнительную кнопку', (bool) $data['cta2_enabled'], '', 'col-12') ?>
-                <div class="form-field col-6">
-                    <label for="cta2_text">Текст дополнительной кнопки</label>
-                    <input type="text" id="cta2_text" name="cta2_text" value="<?= $esc($data['cta2_text']) ?>" placeholder="Контакты">
-                </div>
-                <div class="form-field col-6">
-                    <label for="cta2_url">Ссылка дополнительной кнопки</label>
-                    <input type="text" id="cta2_url" name="cta2_url" value="<?= $esc($data['cta2_url']) ?>" placeholder="/contacts">
-                </div>
-                <?= $select('cta2_style', 'Стиль дополнительной кнопки', $ctaStyles, (string) $data['cta2_style'], '', 'col-4') ?>
-                <div class="col-4">
-                    <?= AdminUi::iconField('cta2_icon', (string) $data['cta2_icon'], ['label' => 'Иконка дополнительной кнопки']) ?>
-                </div>
-                <?= $checkbox('cta2_new_tab', 'Открывать в новой вкладке', (bool) $data['cta2_new_tab'], '', 'col-4') ?>
+                <section class="slide-action-panel">
+                    <div class="slide-action-panel__header">
+                        <div>
+                            <h3 class="slide-action-panel__title">Дополнительная кнопка</h3>
+                            <p class="slide-action-panel__hint">Второе действие рядом с основной кнопкой.</p>
+                        </div>
+                        <?= $checkbox('cta2_enabled', 'Показывать кнопку', (bool) $data['cta2_enabled'], '', 'slide-action-panel__toggle') ?>
+                    </div>
+                    <div class="form-grid-12 slide-action-panel__body" data-hero-dependent-group>
+                        <div class="form-field col-6">
+                            <label for="cta2_text">Текст кнопки</label>
+                            <input type="text" id="cta2_text" name="cta2_text" value="<?= $esc($data['cta2_text']) ?>" placeholder="Контакты">
+                        </div>
+                        <div class="form-field col-6">
+                            <label for="cta2_url">Куда ведёт кнопка</label>
+                            <input type="text" id="cta2_url" name="cta2_url" value="<?= $esc($data['cta2_url']) ?>" placeholder="/contacts, #forma или /page#forma">
+                        </div>
+                        <?= $select('cta2_style', 'Внешний вид', $ctaStyles, (string) $data['cta2_style'], '', 'col-4') ?>
+                        <div class="col-4">
+                            <?= AdminUi::iconField('cta2_icon', (string) $data['cta2_icon'], ['label' => 'Иконка']) ?>
+                        </div>
+                        <?= $checkbox('cta2_new_tab', 'Открывать в новой вкладке', (bool) $data['cta2_new_tab'], '', 'col-4') ?>
+                    </div>
+                </section>
 
                 <?php // Цвет кнопки зависит от кадра: акцент, совпавший с цветом
                       // фотографии, на ней теряется, а менять ради одного снимка
                       // палитру всей обложки нельзя. ?>
-                <div class="col-4">
-                    <?= AdminUi::colorField('cta_color', (string) $data['cta_color'], 'Цвет заливки кнопки', '#173a63', 'Использовать общую настройку обложки') ?>
-                </div>
-                <div class="col-4">
-                    <?= AdminUi::colorField('link_color', (string) $data['link_color'], 'Цвет ссылки', '#ffffff', 'Цвет текста слайда') ?>
-                </div>
-                <div class="col-4">
-                    <?= AdminUi::colorField('cta_text_color', (string) $data['cta_text_color'], 'Цвет текста кнопки', '#ffffff', 'Считать по контрасту заливки') ?>
-                    <?php // Выбранный цвет применяется как есть — подменять его молча нельзя,
-                          // настройка тогда не работает. Но плохую пару называем вслух:
-                          // норма для текста 4.5:1.
-                    if ($ctaContrast !== null && $ctaContrast['ratio'] < 4.5): ?>
-                        <span class="form-hint form-hint--warning">
-                            Надпись плохо читается на заливке: <?= number_format($ctaContrast['ratio'], 1, ',', '') ?>:1
-                            при норме 4.5:1. Возьмите светлее или темнее — либо снимите цвет,
-                            и он посчитается по заливке.
-                        </span>
-                    <?php endif; ?>
-                </div>
+                <section class="slide-action-panel slide-action-panel--colors" data-hero-dependent-group>
+                    <div class="slide-action-panel__header">
+                        <div>
+                            <h3 class="slide-action-panel__title">Цвета кнопок</h3>
+                            <p class="slide-action-panel__hint">Поля появляются только для выбранных стилей кнопок.</p>
+                        </div>
+                    </div>
+                    <div class="form-grid-12 slide-action-panel__body">
+                        <div class="col-4">
+                            <?= AdminUi::colorField('cta_color', (string) $data['cta_color'], 'Цвет заливки', '#173a63', 'Использовать цвет обложки') ?>
+                        </div>
+                        <div class="col-4">
+                            <?= AdminUi::colorField('link_color', (string) $data['link_color'], 'Цвет кнопки-ссылки', '#ffffff', 'Использовать цвет текста слайда') ?>
+                        </div>
+                        <div class="col-4">
+                            <?= AdminUi::colorField('cta_text_color', (string) $data['cta_text_color'], 'Цвет текста', '#ffffff', 'Подобрать по контрасту') ?>
+                            <?php // Выбранный цвет применяется как есть — подменять его молча нельзя,
+                                  // настройка тогда не работает. Но плохую пару называем вслух:
+                                  // норма для текста 4.5:1.
+                            if ($ctaContrast !== null && $ctaContrast['ratio'] < 4.5): ?>
+                                <span class="form-hint form-hint--warning">
+                                    Надпись плохо читается на заливке: <?= number_format($ctaContrast['ratio'], 1, ',', '') ?>:1
+                                    при норме 4.5:1. Возьмите светлее или темнее — либо снимите цвет,
+                                    и он посчитается по заливке.
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </section>
 
-                <!-- Ссылка со всего слайда -->
-                <div class="col-12"><hr class="form-divider"></div>
-                <div class="form-field col-8">
-                    <label for="link_url">Ссылка со всей площади слайда</label>
-                    <input type="text" id="link_url" name="link_url" value="<?= $esc($data['link_url']) ?>" placeholder="https://...">
-                    <span class="form-hint">Если заполнено, клик по любой свободной части слайда открывает эту ссылку.</span>
-                </div>
-                <?= $checkbox('link_new_tab', 'Открывать ссылку слайда в новой вкладке', (bool) $data['link_new_tab'], '', 'col-4') ?>
+                <section class="slide-action-panel">
+                    <div class="slide-action-panel__header">
+                        <div>
+                            <h3 class="slide-action-panel__title">Ссылка со всего слайда</h3>
+                            <p class="slide-action-panel__hint">Необязательно. Работает при клике по свободной части слайда.</p>
+                        </div>
+                    </div>
+                    <div class="form-grid-12 slide-action-panel__body slide-action-panel__body--link">
+                        <div class="form-field col-8">
+                            <label for="link_url">Куда ведёт слайд</label>
+                            <input type="text" id="link_url" name="link_url" value="<?= $esc($data['link_url']) ?>" placeholder="https://..., #forma или /page#forma">
+                            <span class="form-hint">Можно указать страницу, внешний адрес или якорную ссылку.</span>
+                        </div>
+                        <?= $checkbox('link_new_tab', 'Открывать в новой вкладке', (bool) $data['link_new_tab'], '', 'col-4') ?>
+                    </div>
+                </section>
             </div>
         </div>
 
