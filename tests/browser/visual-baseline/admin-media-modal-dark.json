@@ -10,7 +10,7 @@
     "gridTemplateColumns": "216px 1014px 0px"
   },
   ".media-modal__rail": {
-    "backgroundColor": "rgb(250, 251, 252)",
+    "backgroundColor": "rgb(39, 52, 73)",
     "borderRightColor": "rgb(51, 65, 85)",
     "padding": "16px 12px"
   },
@@ -65,7 +65,7 @@
     "fontSize": "11px"
   },
   ".media-modal__footer": {
-    "backgroundColor": "rgb(250, 251, 252)",
+    "backgroundColor": "rgb(39, 52, 73)",
     "borderTopColor": "rgb(51, 65, 85)",
     "padding": "12px 16px"
   }

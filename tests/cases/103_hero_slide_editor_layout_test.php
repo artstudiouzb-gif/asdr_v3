@@ -2,17 +2,30 @@
 
 declare(strict_types=1);
 
+/*
+ * Редактор слайда: свой слой стилей поверх общей админки.
+ *
+ * Прежде тест сторожил структуру, которой в форме уже нет: `details.form-section`
+ * со сводкой состояния, трёхколоночную сетку `.form-section__body--grid` и
+ * отдельный «legacy reset», гасивший стрелку старого disclosure. Форма давно
+ * собрана из `.settings-card` и `.form-grid-12`, и все эти правила не совпадали
+ * ни с одним элементом страницы — тест проверял наличие мёртвого CSS и потому
+ * зеленел, пока слой ветшал. Замерено обходом страницы: из 51 селектора файла
+ * 21 не находил ничего, а весь reset-файл целиком (12 `!important`) не менял ни
+ * одного вычисленного свойства, кроме `flex-shrink` у превью, которому
+ * `min-width` всё равно не даёт сжаться.
+ *
+ * Теперь сторожим то, что действительно живёт, и отдельно — что мёртвый слой
+ * не вернулся.
+ */
 test('редактор слайда использует отдельную читаемую UI-систему', function (): void {
     $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/admin-hero-slide-editor.css');
-    $reset = (string) file_get_contents(APP_ROOT . '/public/assets/css/admin-hero-slide-editor-legacy-reset.css');
+    $admin = (string) file_get_contents(APP_ROOT . '/public/assets/css/admin.css');
     $brand = (string) file_get_contents(APP_ROOT . '/app/Core/AdminBrand.php');
     $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/heroes/slide_form.php');
     $script = (string) file_get_contents(APP_ROOT . '/public/assets/js/admin-hero-settings.js');
 
     assert_contains('form[action*="/admin/heroes/"][action*="/slides/"]', $css, 'стили ограничены редактором слайда');
-    assert_contains('grid-template-columns: repeat(3, minmax(0, 1fr)) !important;', $css, 'широкий экран использует максимум три читаемые колонки');
-    assert_contains('details.form-section > summary', $css, 'секции получают единый заголовок');
-    assert_contains('.form-section__state', $css, 'сводка состояния секции оформлена отдельно');
     assert_contains('.form-field--checkbox', $css, 'чекбоксы приведены к единой карточке');
     assert_contains('.image-field__row', $css, 'поля изображений выровнены в общей сетке');
     assert_contains('position: sticky;', $css, 'действия сохранения остаются доступны на длинной форме');
@@ -20,18 +33,30 @@ test('редактор слайда использует отдельную чи
     assert_contains('.slide-action-panel__header', $css, 'настройки кнопок оформлены самостоятельными панелями');
     assert_contains('[data-hero-dependent-group][hidden]', $css, 'пустые группы зависимых полей не занимают место');
 
+    // Поле цвета живёт по своим размерам: общее правило полей задавало ему
+    // отступ 10px, и значение уезжало под образец слева.
+    assert_contains(':not(:where([data-coloris]))', $css, 'поле цвета исключено из общего правила размеров');
+    assert_contains('label:not(:where(.colorfield__off))', $css, 'подпись галочки «по умолчанию» не разворачивается в строку');
+
+    assert_contains('class="settings-card"', $form, 'секции формы — карточки настроек, а не старые details');
     assert_contains('class="slide-action-stack"', $form, 'кнопки и ссылка со слайда разделены по смыслу');
     assert_contains('data-hero-dependent-group', $form, 'условные поля остаются внутри своей группы');
     assert_contains('#forma или /page#forma', $form, 'формат якорных ссылок объяснён непосредственно в поле');
+
     assert_contains('function dependentGroups()', $script, 'пустые группы скрываются после пересчёта зависимых полей');
+    assert_contains('function emptySections()', $script, 'секция без единого видимого поля прячется целиком');
+    assert_contains('.settings-jump-nav a[href="#', $script, 'вместе с секцией уходит и ссылка на неё в навигации');
+    assert_contains('.settings-jump-nav a[hidden]', $admin, 'скрытой ссылке навигации нужен явный display: none');
 
-    assert_contains('details.form-section > summary::before', $reset, 'старый disclosure-marker нейтрализуется только внутри Hero editor');
-    assert_contains('content: none !important;', $reset, 'старую стрелку нельзя отрисовать одновременно с новой');
-    assert_contains('margin-left: 0 !important;', $reset, 'flex-выравнивание старого state badge сброшено для grid summary');
-    assert_contains('flex-direction: initial !important;', $reset, 'flex-наследие generic form-section не влияет на новую сетку');
-    assert_contains('box-shadow: none !important;', $reset, 'generic image preview не протаскивает старую тень в новый editor');
+    assert_contains('/assets/css/admin-hero-slide-editor.css', $brand, 'слой подключён через версионируемый Asset::url');
 
-    assert_contains('/assets/css/admin-hero-slide-editor.css', $brand, 'новый слой подключён через версионируемый Asset::url');
-    assert_contains('/assets/css/admin-hero-slide-editor-legacy-reset.css', $brand, 'scoped reset загружается после основного editor layer');
-    assert_contains('data-admin-hero-slide-editor-reset-css', $brand, 'compatibility reset можно однозначно проверить в DOM');
+    // Мёртвый слой не возвращается: этих структур в форме нет.
+    foreach (['details.form-section', '.form-section__state', '.form-section__body--grid', '.form-field--wide'] as $gone) {
+        assert_not_contains($gone, $css, 'слой описывает структуру, которой в форме слайда нет: ' . $gone);
+    }
+    assert_true(
+        !is_file(APP_ROOT . '/public/assets/css/admin-hero-slide-editor-legacy-reset.css'),
+        'отдельный reset-слой снят: он не менял ни одного вычисленного свойства'
+    );
+    assert_not_contains('legacy-reset', $brand, 'снятый слой не подключается');
 });

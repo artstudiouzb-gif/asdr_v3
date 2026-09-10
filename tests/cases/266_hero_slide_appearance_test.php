@@ -41,7 +41,9 @@ test('У слайда осталось только то, что зависит 
 test('Цвет наложения у слайда задаётся из формы и доезжает до данных', function () {
     $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/heroes/slide_form.php');
     assert_contains("'overlay_color'", $form, 'в форме слайда нет цвета наложения');
-    assert_contains('Использовать общую настройку обложки', $form, 'наследование потеряло единую формулировку');
+    // Формулировка наследования одна на всю форму — и в списках, и у поля
+    // цвета; короткая, потому что должна помещаться в сам элемент управления.
+    assert_contains('Как у обложки', $form, 'наследование потеряло единую формулировку');
 
     $out = HeroSlideData::normalize(['overlay' => 'solid', 'overlay_color' => '#001122'], 'ru');
     assert_same('#001122', $out['overlay_color']);

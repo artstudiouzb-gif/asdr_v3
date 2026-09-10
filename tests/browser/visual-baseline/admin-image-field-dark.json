@@ -21,7 +21,7 @@
     "height": "84px",
     "borderColor": "rgb(51, 65, 85)",
     "borderRadius": "3px",
-    "backgroundColor": "rgb(250, 251, 252)"
+    "backgroundColor": "rgb(39, 52, 73)"
   },
   ".image-field__name": {
     "color": "rgb(241, 245, 249)",

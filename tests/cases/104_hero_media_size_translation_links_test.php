@@ -21,8 +21,12 @@ test('Hero editor: one sizing system and translated action URLs', function (): v
 
     assert_contains("'custom' => 'Свой размер'", $form, 'logo custom size');
     assert_contains('name="art_width"', $form, 'logo width field');
-    assert_not_contains('Как у обложки', $form, 'ambiguous legacy wording removed');
-    assert_contains('Использовать общую настройку обложки', $form, 'inheritance wording is explicit');
+    // Наследование от обложки называется одной короткой строкой. Длинная
+    // («Использовать общую настройку обложки», 36 знаков) в элемент управления
+    // не помещалась: в списке шириной в треть ряда она обрезалась на «обложк»,
+    // а в поле цвета уезжала под образец и читалась как «ользовать общую…».
+    assert_contains("'' => 'Как у обложки'", $form, 'наследование названо одной строкой');
+    assert_not_contains('Использовать общую настройку обложки', $form, 'длинная формулировка не помещается в поле');
 
     assert_contains("'custom' => (int) \$d['art_width']", $renderer, 'renderer uses custom logo width');
     assert_not_contains('.hero__art--large img { max-height:', $baseCss, 'legacy max-height artwork sizing is removed');

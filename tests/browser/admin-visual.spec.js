@@ -150,7 +150,11 @@ const SCREENS = [
             ['.colorfield > label', ['color', 'fontSize', 'fontWeight']],
             ['.colorfield .clr-field', ['display', 'width']],
             ['.colorfield .clr-field input', ['backgroundColor', 'color', 'borderColor', 'borderRadius', 'paddingLeft', 'fontFamily']],
-            ['.colorfield__off', ['color', 'fontSize', 'gap', 'marginTop']],
+            // Управление у поля одно: галочка «по умолчанию» со скриптом
+            // прячется, а её место занимает кнопка возврата внутри поля.
+            // `display` в эталоне и есть этот факт.
+            ['.colorfield__off', ['display', 'color', 'fontSize', 'gap', 'marginTop']],
+            ['.colorfield__reset', ['display', 'width', 'height', 'right', 'color']],
         ],
     },
     {

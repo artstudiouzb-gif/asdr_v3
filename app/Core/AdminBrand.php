@@ -73,9 +73,6 @@ final class AdminBrand
         $html .= '<link rel="stylesheet" data-admin-hero-slide-editor-css="1" href="'
             . htmlspecialchars(Asset::url('/assets/css/admin-hero-slide-editor.css'), ENT_QUOTES)
             . '">';
-        $html .= '<link rel="stylesheet" data-admin-hero-slide-editor-reset-css="1" href="'
-            . htmlspecialchars(Asset::url('/assets/css/admin-hero-slide-editor-legacy-reset.css'), ENT_QUOTES)
-            . '">';
         $html .= '<script nonce="' . htmlspecialchars(SecurityHeaders::nonce(), ENT_QUOTES)
             . '" src="' . htmlspecialchars(Asset::url('/assets/js/admin-notifications.js'), ENT_QUOTES)
             . '" defer></script>';

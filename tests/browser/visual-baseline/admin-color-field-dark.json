@@ -1,6 +1,6 @@
 {
   ".colorfield": {
-    "minWidth": "168px"
+    "minWidth": "200px"
   },
   ".colorfield > label": {
     "color": "rgb(241, 245, 249)",
@@ -16,13 +16,21 @@
     "color": "rgb(148, 163, 184)",
     "borderColor": "rgb(51, 65, 85)",
     "borderRadius": "3px",
-    "paddingLeft": "44px",
+    "paddingLeft": "46px",
     "fontFamily": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
   },
   ".colorfield__off": {
+    "display": "none",
     "color": "rgb(37, 99, 235)",
     "fontSize": "12px",
     "gap": "6px",
     "marginTop": "6px"
+  },
+  ".colorfield__reset": {
+    "display": "none",
+    "width": "28px",
+    "height": "28px",
+    "right": "6px",
+    "color": "rgb(148, 163, 184)"
   }
 }

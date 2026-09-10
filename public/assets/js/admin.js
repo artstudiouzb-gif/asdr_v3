@@ -75,11 +75,29 @@
             input.setAttribute('placeholder', '#17375E');
         });
 
+        // Тёмный пикер на тёмной панели. Прежде здесь спрашивалось имя
+        // цветовой темы (`dark_emerald`), а тем больше нет: тёмный вид —
+        // это настройка внешнего вида (`data-admin-appearance`), поэтому в
+        // тёмной панели пикер оставался белым прямоугольником.
+        var darkMedia = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+        function adminThemeMode() {
+            var appearance = document.documentElement.getAttribute('data-admin-appearance');
+            if (appearance === 'dark') { return 'dark'; }
+            if (appearance === 'light') { return 'light'; }
+            return darkMedia && darkMedia.matches ? 'dark' : 'light';
+        }
+
+        var swatches;
+        try { swatches = JSON.parse(document.body.getAttribute('data-color-swatches') || '[]'); } catch (e) { swatches = []; }
+        if (!Array.isArray(swatches) || swatches.length === 0) {
+            swatches = ['#17375e', '#214d84', '#5e7fa6', '#a8b7c9', '#6cb9b1', '#ffffff', '#000000'];
+        }
+
         if (window.Coloris) {
             window.Coloris({
                 el: '[data-coloris]',
                 theme: 'large',
-                themeMode: document.documentElement.getAttribute('data-admin-theme') === 'dark_emerald' ? 'dark' : 'light',
+                themeMode: adminThemeMode(),
                 format: 'hex',
                 formatToggle: false,
                 alpha: false,
@@ -88,10 +106,9 @@
                 closeButton: true,
                 closeLabel: 'Готово',
                 clearButton: false,
-                swatches: [
-                    '#17375e', '#214d84', '#5e7fa6', '#a8b7c9',
-                    '#6cb9b1', '#a8dad4', '#ffffff', '#0b1a30', '#000000'
-                ],
+                // Палитра самого сайта, а не зашитый набор синих тонов:
+                // образец даёт ровно тот цвет, что уже стоит на странице.
+                swatches: swatches,
                 a11y: {
                     open: 'Открыть выбор цвета',
                     close: 'Закрыть выбор цвета',
@@ -105,12 +122,26 @@
                     instruction: 'Выбор насыщенности и яркости. Используйте клавиши со стрелками.'
                 }
             });
+
+            // Внешний вид панели переключается на лету (предпросмотр в
+            // профиле, смена темы системы), а тема пикера задаётся при
+            // запуске — без пересборки он остался бы от прежнего вида.
+            var applyThemeMode = function () { window.Coloris({ themeMode: adminThemeMode() }); };
+            if (darkMedia && darkMedia.addEventListener) { darkMedia.addEventListener('change', applyThemeMode); }
+            if (window.MutationObserver) {
+                new MutationObserver(applyThemeMode).observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ['data-admin-appearance']
+                });
+            }
         }
 
         document.querySelectorAll('.colorfield').forEach(function (group) {
             var off = group.querySelector('.colorfield__off input[type="checkbox"]');
             var color = group.querySelector('[data-coloris]');
             if (!off || !color) { return; }
+            var reset = group.querySelector('[data-colorfield-reset]');
+            var offLabel = group.getAttribute('data-colorfield-default') || 'по умолчанию';
 
             // Поле остаётся рабочим и в состоянии «по умолчанию». Прежде оно
             // выключалось (disabled), и образец не открывался вовсе: редактор
@@ -120,6 +151,13 @@
             // читает галочку (<имя>_off) раньше значения.
             var syncing = false;
 
+            // Управление одно: образец плюс кнопка возврата. Подписанная
+            // галочка — это вариант без JavaScript, и пока она стояла рядом с
+            // полем, длинная подпись («Использовать общую настройку обложки»)
+            // вылезала за колонку и читалась как отдельная настройка.
+            group.classList.add('is-enhanced');
+            if (reset) { reset.hidden = false; }
+
             function syncDefaultState() {
                 syncing = true;
                 group.classList.toggle('is-default', off.checked);
@@ -127,13 +165,16 @@
                 if (off.checked) {
                     if (color.value) { color.dataset.colorfieldValue = color.value; }
                     color.value = '';
-                    color.placeholder = 'цвет темы';
+                    // Подпись состояния — в самом поле: «цвет темы» на месте
+                    // значения не говорил, какой именно цвет туда приедет.
+                    color.placeholder = offLabel;
                 } else if (!color.value) {
                     // Возврат к своему цвету без выбора: подставляем прежний,
                     // а на первый раз — умолчание поля из разметки.
                     color.value = color.dataset.colorfieldValue || color.defaultValue || '';
                 }
                 if (!off.checked) { color.placeholder = '#17375E'; }
+                if (reset) { reset.hidden = off.checked; }
                 color.dispatchEvent(new Event('input', { bubbles: true }));
                 syncing = false;
             }
@@ -146,6 +187,13 @@
                 off.checked = false;
                 syncDefaultState();
             });
+
+            if (reset) {
+                reset.addEventListener('click', function () {
+                    off.checked = true;
+                    syncDefaultState();
+                });
+            }
 
             off.addEventListener('change', syncDefaultState);
             syncDefaultState();

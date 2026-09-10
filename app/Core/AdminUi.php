@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Models\Language;
+use App\Models\Setting;
 
 /**
  * Хелперы разметки админки. Пока — единое поле выбора изображения с превью и
@@ -335,10 +336,20 @@ final class AdminUi
     }
 
     /**
-     * Поле выбора цвета с галочкой «по умолчанию». Значение читается
-     * контроллером через BlockController::color() — при включённой галочке
-     * $name_off цвет сбрасывается. JavaScript дополнительно блокирует поле,
-     * а без JavaScript работает нативный input[type=color].
+     * Поле выбора цвета: образец, значение и возврат к умолчанию.
+     *
+     * Значение необязательно — пустое означает «как в теме» (или «как у
+     * обложки»), и это состояние объявляется галочкой `<имя>_off`, которую
+     * сервер читает раньше самого цвета (`BlockDataInput::optionalColor`).
+     * Галочка остаётся в разметке как рабочий вариант без JavaScript, но с
+     * ним поле показывает **один** элемент управления вместо двух: образец
+     * плюс кнопка возврата. Прежде рядом с полем стояла подписанная галочка,
+     * и на длинной подписи вроде «Использовать общую настройку обложки» она
+     * вылезала за колонку и читалась как отдельная настройка.
+     *
+     * В состоянии «по умолчанию» образец показывает сам цвет умолчания
+     * приглушённым, а не прозрачную шашку: шашка означает «прозрачный», то
+     * есть другое значение (прозрачности у поля нет вовсе — `alpha: false`).
      */
     public static function colorField(string $name, ?string $value, string $label, string $defaultHex = '#173a63', string $offLabel = 'По умолчанию'): string
     {
@@ -346,19 +357,61 @@ final class AdminUi
         $val = ($value !== null && $value !== '') ? $value : $defaultHex;
         $off = ($value === null || $value === '');
 
-        // Состояние «по умолчанию» — часть поля, а не галочка сбоку: раньше
-        // при включённой галочке образец продолжал показывать посторонний цвет,
-        // и было не понять, что именно уйдёт на сайт.
-        $html = '<div class="form-field colorfield' . ($off ? ' is-default' : '') . '" data-colorfield>';
+        $html = '<div class="form-field colorfield' . ($off ? ' is-default' : '') . '" data-colorfield'
+            . ' data-colorfield-default="' . $esc($offLabel) . '"'
+            . ' style="--colorfield-swatch: ' . $esc($defaultHex) . '">';
         $html .= '<label for="' . $esc($name) . '">' . $esc($label) . '</label>';
         $html .= '<div class="colorfield__control">';
         $html .= '<input type="color" id="' . $esc($name) . '" name="' . $esc($name) . '" value="' . $esc($val) . '">';
+        // Кнопка приходит скрытой и раскрывается скриптом: без JavaScript
+        // нажимать было бы не на что, а состояние переключает сама галочка.
+        $html .= '<button type="button" class="colorfield__reset" data-colorfield-reset hidden'
+            . ' aria-label="' . $esc('Вернуть значение по умолчанию: ' . $offLabel) . '"'
+            . ' title="' . $esc('Вернуть значение по умолчанию: ' . $offLabel) . '">'
+            . self::icon('arrow-back-up', 14, 'colorfield__reset-icon') . '</button>';
         $html .= '</div>';
         $html .= '<label class="colorfield__off"><input type="checkbox" name="' . $esc($name) . '_off" value="1"'
             . ($off ? ' checked' : '') . '><span>' . $esc($offLabel) . '</span></label>';
         $html .= '</div>';
 
         return $html;
+    }
+
+    /**
+     * Готовые образцы для выбора цвета: палитра самого сайта.
+     *
+     * Прежде в пикере лежал зашитый список синих и бирюзовых тонов, к сайту
+     * отношения не имевший: редактор, подбирая цвет секции, каждый раз
+     * набирал HEX руками или брал «похожий». Берём то, чем сайт уже покрашен
+     * — основной цвет и акцент из «Дизайна» плюс семантические тона темы, —
+     * поэтому образец даёт ровно тот цвет, что стоит рядом на странице.
+     *
+     * @return list<string>
+     */
+    public static function colorSwatches(): array
+    {
+        $colors = DesignSettings::semanticColors();
+        $swatches = [
+            (string) Setting::get('color_primary', '#0F2B46'),
+            (string) Setting::get('color_accent', '#009BBE'),
+            $colors['text_main'],
+            $colors['text_muted'],
+            $colors['border_color'],
+            $colors['bg_primary'],
+            $colors['bg_surface'],
+            '#ffffff',
+            '#000000',
+        ];
+
+        $seen = [];
+        foreach ($swatches as $hex) {
+            $hex = strtolower(trim($hex));
+            if ($hex !== '' && !in_array($hex, $seen, true)) {
+                $seen[] = $hex;
+            }
+        }
+
+        return $seen;
     }
 
     /**

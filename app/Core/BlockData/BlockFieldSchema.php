@@ -389,44 +389,53 @@ final class BlockFieldSchema
             ],
             'counters' => [
                 'title' => Field::text('Заголовок, показываемый на сайте')->named('title_field'),
+                'variant' => Field::enum('Вид блока', [
+                    'row' => 'Полоса с разделителями',
+                    'cards' => 'Отдельные карточки',
+                ], 'row')
+                    ->group('Вид блока'),
                 'panel' => Field::enum('Подложка блока', [
                     'card' => 'Карточка — фон, рамка и тень',
                     'none' => 'Без подложки — показатели прямо на фоне секции',
-                ], 'card', 'Без подложки блок годится и для одного показателя: остаётся иконка с числом, а фон берётся от секции.'),
-                'card_bg' => Field::color(
-                    'Цвет карточки (фон)',
-                    '#ffffff',
-                    'Работает при подложке «Карточка» и в виде «Отдельные карточки»: без подложки фон берётся от секции.'
-                ),
-                'text_color' => Field::color(
-                    'Цвет текста и цифр',
-                    '#173a63',
-                    'Оставьте «по умолчанию», чтобы карточка была белой с тёмным текстом. Для тёмной карточки выберите тёмный фон и светлый текст.'
-                ),
-                'icon_size' => Field::int('Размер иконок, px', 16, 64, 28),
+                ], 'card', 'Без подложки блок годится и для одного показателя: остаётся иконка с числом, а фон берётся от секции.')
+                    ->group('Вид блока'),
+                'value_size' => Field::enum('Размер чисел', [
+                    'normal' => 'Обычный',
+                    'large' => 'Крупный',
+                ], 'normal')
+                    ->group('Вид блока'),
+                'text_align' => Field::enum('Выравнивание содержимого', [
+                    'left' => 'Слева',
+                    'center' => 'По центру',
+                    'right' => 'Справа',
+                ], 'left', 'Выравнивание применяется к паре «иконка + текст» целиком: к числу и подписи.')
+                    ->group('Вид блока'),
+                'icon_size' => Field::int('Размер иконок, px', 16, 64, 28)
+                    ->group('Иконки'),
                 'icon_bg' => Field::enum('Фон иконок', [
                     'on' => 'С подложкой',
                     'off' => 'Без подложки',
-                ], 'on'),
+                ], 'on')
+                    ->group('Иконки'),
                 'icon_position' => Field::enum('Положение иконки', [
                     'left' => 'Слева от текста',
                     'right' => 'Справа от текста',
                     'top' => 'Сверху',
                     'center' => 'Сверху по центру',
-                ], 'left'),
-                'text_align' => Field::enum('Выравнивание содержимого', [
-                    'left' => 'Слева',
-                    'center' => 'По центру',
-                    'right' => 'Справа',
-                ], 'left', 'Размер, фон и расположение применяются только к иконкам этого блока; выравнивание — к числу и подписи.'),
-                'variant' => Field::enum('Вид блока', [
-                    'row' => 'Полоса с разделителями',
-                    'cards' => 'Отдельные карточки',
-                ], 'row'),
-                'value_size' => Field::enum('Размер чисел', [
-                    'normal' => 'Обычный',
-                    'large' => 'Крупный',
-                ], 'normal'),
+                ], 'left', 'Размер, фон и расположение применяются только к иконкам этого блока.')
+                    ->group('Иконки'),
+                'card_bg' => Field::color(
+                    'Цвет карточки (фон)',
+                    '#ffffff',
+                    'Работает при подложке «Карточка» и в виде «Отдельные карточки»: без подложки фон берётся от секции.'
+                )
+                    ->group('Цвета'),
+                'text_color' => Field::color(
+                    'Цвет текста и цифр',
+                    '#173a63',
+                    'Оставьте «по умолчанию», чтобы карточка была белой с тёмным текстом. Для тёмной карточки выберите тёмный фон и светлый текст.'
+                )
+                    ->group('Цвета'),
             ],
             'collage' => [
                 'title' => Field::text('Заголовок, показываемый на сайте')->named('title_field'),
@@ -548,58 +557,79 @@ final class BlockFieldSchema
             ],
             'cards_grid' => [
                 'title' => Field::text('Заголовок, показываемый на сайте')->named('title_field'),
-                'all_text' => Field::text('Ссылка «Все …» — текст', '', '', 'Все направления'),
-                'all_url' => Field::url('Ссылка «Все …» — URL'),
                 'source' => Field::enum('Источник данных', [
                     'manual' => 'Ручной список (ниже)',
                     'projects' => 'Из раздела «Проекты»',
-                ], 'manual', 'Автоматический источник использует записи с отметкой «Показать на главной».'),
-                'limit' => Field::int('Сколько карточек показывать', 2, 24, 6),
+                ], 'manual', 'Автоматический источник использует записи с отметкой «Показать на главной».')
+                    ->group('Содержимое'),
+                'limit' => Field::int('Сколько карточек показывать', 2, 24, 6)
+                    ->group('Содержимое'),
+                'all_text' => Field::text('Ссылка «Все …» — текст', '', '', 'Все направления')
+                    ->group('Содержимое'),
+                'all_url' => Field::url('Ссылка «Все …» — URL')
+                    ->group('Содержимое'),
                 'variant' => Field::enum('Вариант карточек', [
                     'icon' => 'Иконка, заголовок и текст',
                     'compact' => 'Компактные категории',
                     'image' => 'Карточки с фотографией',
                     'image_below' => 'Фото сверху, заголовок и текст под ним',
-                ], 'icon', 'Один набор данных можно показать как карточки с иконками, категории или карточки с фотографиями.'),
+                ], 'icon', 'Один набор данных можно показать как карточки с иконками, категории или карточки с фотографиями.')
+                    ->group('Вид и раскладка'),
                 'layout' => Field::enum('Раскладка', [
                     'auto' => 'Авто: сетка, а если карточек больше, чем колонок — слайдер',
                     'grid' => 'Сетка: переносить карточки рядами',
                     'slider' => 'Слайдер: прокрутка вбок со стрелками',
-                ], 'auto', 'Стрелки и точки появляются, только когда карточки действительно не помещаются: без прокрутки управлять нечем.'),
+                ], 'auto', 'Стрелки и точки появляются, только когда карточки действительно не помещаются: без прокрутки управлять нечем.')
+                    ->group('Вид и раскладка'),
                 'columns' => Field::intChoice(
                     'Колонок',
                     [2, 3, 4, 5],
                     5,
                     'Число колонок сетки и одновременно число карточек в кадре слайдера. У «Компактных категорий» плитки мелкие и укладываются по ширине сами — там колонки задают только кадр слайдера. Ниже 1000px число колонок подбирается автоматически.'
-                ),
+                )
+                    ->group('Вид и раскладка'),
                 'card_style' => Field::enum('Стиль карточек', [
                     'old' => 'Классический — карточка с рамкой и тенью',
                     'new' => 'Редакционный — линия сверху, без подложки',
                 ], 'old', 'Только для этого блока: остальные карточки сайта остаются прежними.')
-                    ->onlyWhen('variant', ['icon']),
+                    ->onlyWhen('variant', ['icon'])
+                    ->group('Карточка с иконкой'),
                 'icon_size' => Field::int('Размер иконок, px', 16, 64, 22)
-                    ->onlyWhen('variant', ['icon']),
+                    ->onlyWhen('variant', ['icon'])
+                    ->group('Карточка с иконкой'),
                 'icon_bg' => Field::enum('Фон иконок', [
                     'on' => 'С подложкой',
                     'off' => 'Без подложки',
                 ], 'on', 'Без подложки иконка остаётся акцентной и при наведении.')
-                    ->onlyWhen('variant', ['icon']),
+                    ->onlyWhen('variant', ['icon'])
+                    ->group('Карточка с иконкой'),
                 'icon_position' => Field::enum('Положение иконки', [
                     'top' => 'Сверху',
                     'left' => 'Слева от текста',
                     'right' => 'Справа от текста',
                     'center' => 'Сверху по центру',
                 ], 'top', 'Слева и справа — рядом с текстом; по центру — над заголовком.')
-                    ->onlyWhen('variant', ['icon']),
+                    ->onlyWhen('variant', ['icon'])
+                    ->group('Карточка с иконкой'),
                 'text_align' => Field::enum('Выравнивание текста', [
                     'left' => 'Слева',
                     'center' => 'По центру',
                     'right' => 'Справа',
                 ], 'left', 'Размер, фон и положение применяются к иконкам этого блока; выравнивание — к заголовку и описанию карточки.')
-                    ->onlyWhen('variant', ['icon']),
-                'card_bg' => Field::color('Цвет карточек (фон)', '#ffffff'),
-                'text_color' => Field::color('Цвет текста и иконок', '#173a63'),
-                'image_position' => Field::mediaPosition(),
+                    ->onlyWhen('variant', ['icon'])
+                    ->group('Карточка с иконкой'),
+                'card_bg' => Field::color('Цвет карточек (фон)', '#ffffff')
+                    ->group('Цвета'),
+                'text_color' => Field::color('Цвет текста и иконок', '#173a63')
+                    ->group('Цвета'),
+                // Кадрирование относится только к вариантам с фотографией:
+                // у карточки с иконкой кадра нет вовсе, и настройка там ничего
+                // не меняла — шаблон читает её в ветке `image`/`image_below`.
+                // Группы у неё нет намеренно: заголовок «Цвета» над скрытым
+                // кадрированием обещал бы настройку, которой на этом варианте
+                // не существует.
+                'image_position' => Field::mediaPosition()
+                    ->onlyWhen('variant', ['image', 'image_below']),
             ],
             'media_gallery' => [
                 'title' => Field::text('Заголовок, показываемый на сайте')->named('title_field'),
@@ -990,26 +1020,122 @@ final class BlockFieldSchema
      */
     public static function formHtml(string $type, array $data, array $only = []): string
     {
-        $html = '';
+        $rows = [];
         $colorRun = '';
+        $colorGroup = '';
+
         foreach (self::fields($type) as $key => $field) {
             if ($only !== [] && !in_array($key, $only, true)) {
                 continue;
             }
             // Соседние настройки цвета встают в один ряд — так они свёрстаны в
-            // остальной админке, и пара «фон / текст» читается как пара.
+            // остальной админке, и пара «фон / текст» читается как пара. Ряд
+            // закрывается на первом же поле другого вида или другой группы.
             if ($field->kind === 'color') {
+                if ($colorRun !== '' && $colorGroup !== $field->group) {
+                    $rows[] = self::colorRow($colorRun, $colorGroup);
+                    $colorRun = '';
+                }
+                $colorGroup = $field->group;
                 $colorRun .= self::fieldHtml($key, $field, $data);
                 continue;
             }
             if ($colorRun !== '') {
-                $html .= '<div class="colorfield-row">' . $colorRun . '</div>';
+                $rows[] = self::colorRow($colorRun, $colorGroup);
                 $colorRun = '';
+                $colorGroup = '';
             }
-            $html .= self::fieldHtml($key, $field, $data);
+            $rows[] = ['group' => $field->group, 'when' => $field->when, 'html' => self::fieldHtml($key, $field, $data)];
+        }
+        if ($colorRun !== '') {
+            $rows[] = self::colorRow($colorRun, $colorGroup);
         }
 
-        return $colorRun !== '' ? $html . '<div class="colorfield-row">' . $colorRun . '</div>' : $html;
+        return $rows === [] ? '' : '<div class="bf-fields">' . self::groupedHtml($rows) . '</div>';
+    }
+
+    /**
+     * Ряд полей цвета: своя строка внутри сетки формы.
+     *
+     * @return array{group:string, when:array{field:string, values:list<string>}|null, html:string}
+     */
+    private static function colorRow(string $html, string $group): array
+    {
+        return ['group' => $group, 'when' => null, 'html' => '<div class="colorfield-row">' . $html . '</div>'];
+    }
+
+    /**
+     * Соседние поля одной группы — одним блоком с заголовком.
+     *
+     * Условие показа поднимается на саму группу, когда оно одинаково у всех её
+     * полей: иначе при другом варианте блока от группы оставалась бы рамка с
+     * заголовком и пустотой внутри — ровно тот вид, который читается как
+     * поломка (та же причина, по которой виджет «Меню раздела» не печатает
+     * `<aside>` без содержимого).
+     *
+     * @param list<array{group:string, when:array{field:string, values:list<string>}|null, html:string}> $rows
+     */
+    private static function groupedHtml(array $rows): string
+    {
+        $esc = static fn (string $s): string => htmlspecialchars($s, ENT_QUOTES);
+        $html = '';
+        $index = 0;
+        $count = count($rows);
+        while ($index < $count) {
+            $group = $rows[$index]['group'];
+            if ($group === '') {
+                $html .= $rows[$index]['html'];
+                $index++;
+                continue;
+            }
+
+            $body = '';
+            $when = $rows[$index]['when'];
+            $sameWhen = true;
+            while ($index < $count && $rows[$index]['group'] === $group) {
+                $sameWhen = $sameWhen && $rows[$index]['when'] === $when;
+                $body .= $rows[$index]['html'];
+                $index++;
+            }
+
+            $attr = '';
+            if ($sameWhen && $when !== null) {
+                $attr = ' data-field-when="' . $esc($when['field'])
+                    . '" data-field-value="' . $esc(implode(',', $when['values'])) . '"';
+                // Условие уехало на группу — снимаем его с самих полей, иначе
+                // скрытие считалось бы дважды и осталось бы у поля навсегда,
+                // если группа однажды перестанет его нести.
+                $body = str_replace(
+                    ' data-field-when="' . $esc($when['field']) . '" data-field-value="' . $esc(implode(',', $when['values'])) . '"',
+                    '',
+                    $body
+                );
+            }
+
+            $html .= '<fieldset class="bf-group"' . $attr . '><legend>' . $esc($group) . '</legend>'
+                . '<div class="bf-group__fields">' . $body . '</div></fieldset>';
+        }
+
+        return $html;
+    }
+
+    /**
+     * Ширина поля в сетке формы: длинные подписи вариантов в половине колонки
+     * обрезаются, поэтому такой список занимает строку целиком. Порог — не
+     * вкусовое число, а мера: в колонке ~430px помещается около сорока знаков.
+     */
+    private static function fieldSpan(Field $field): string
+    {
+        if (in_array($field->kind, ['textarea', 'richtext', 'media', 'media_position', 'icon'], true)) {
+            return ' bf-field--full';
+        }
+        foreach ($field->options as $option) {
+            if (mb_strlen($option) > 38) {
+                return ' bf-field--full';
+            }
+        }
+
+        return '';
     }
 
     /** @param array<string, mixed> $data */
@@ -1023,6 +1149,7 @@ final class BlockFieldSchema
             : ' data-field-when="' . $esc($field->when['field']) . '" data-field-value="' . $esc(implode(',', $field->when['values'])) . '"';
         $hint = $field->hint !== '' ? '<span class="form-hint">' . $esc($field->hint) . '</span>' : '';
         $label = '<label for="' . $id . '">' . $esc($field->label) . '</label>';
+        $span = self::fieldSpan($field);
 
         // Готовые виджеты админки приносят собственный `.form-field`, поэтому
         // условие показа вешается обёрткой снаружи, а не атрибутом внутри.
@@ -1040,7 +1167,15 @@ final class BlockFieldSchema
                 default => AdminUi::colorField($name, (string) ($data[$key] ?? ''), $field->label, $field->swatch),
             };
 
-            return $when === '' ? $widget : '<div' . $when . '>' . $widget . '</div>';
+            // Поле цвета раскладывает своя строка (`.colorfield-row`), и
+            // лишняя обёртка вокруг него разорвала бы её ряд.
+            if ($field->kind === 'color') {
+                return $when === '' ? $widget : '<div' . $when . '>' . $widget . '</div>';
+            }
+
+            // Готовый виджет уже несёт свой `.form-field`, поэтому ширину
+            // задаёт обёртка: класс на чужом элементе разъехался бы с ним.
+            return '<div class="bf-field' . $span . '"' . $when . '>' . $widget . '</div>';
         }
 
         if ($field->kind === 'bool') {
@@ -1048,7 +1183,7 @@ final class BlockFieldSchema
             // остальные флажки формы блока.
             $checked = array_key_exists($key, $data) ? !empty($data[$key]) : (bool) $field->default;
 
-            return '<div class="form-field form-field--checkbox"' . $when . '>'
+            return '<div class="form-field form-field--checkbox' . $span . '"' . $when . '>'
                 . '<input type="checkbox" id="' . $id . '" name="' . $esc($name) . '" value="1"' . ($checked ? ' checked' : '') . '>'
                 . '<label for="' . $id . '">' . $esc($field->label) . '</label>' . $hint . '</div>';
         }
@@ -1069,7 +1204,7 @@ final class BlockFieldSchema
                 . ($field->placeholder !== '' ? ' placeholder="' . $esc($field->placeholder) . '"' : '') . '>',
         };
 
-        return '<div class="form-field"' . $when . '>' . $label . $control . $hint . '</div>';
+        return '<div class="form-field' . $span . '"' . $when . '>' . $label . $control . $hint . '</div>';
     }
 
     /**
