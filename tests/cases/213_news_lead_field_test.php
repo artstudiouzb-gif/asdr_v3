@@ -59,6 +59,8 @@ test('Полный лид хранится, а карточки использу
     $latest = (string) file_get_contents(APP_ROOT . '/templates/blocks/news_latest.php');
     $feature = (string) file_get_contents(APP_ROOT . '/templates/blocks/news_feature.php');
     $listing = (string) file_get_contents(APP_ROOT . '/app/Views/site/_news_list.php');
+    // Разметка ритмической карточки — одна на ленту /news и на мозаику блока.
+    $card = (string) file_get_contents(APP_ROOT . '/app/Views/site/_news_rhythm_card.php');
 
     assert_contains("excerpt((string) \$item['excerpt'], 180)", $latest);
     assert_contains("excerpt((string) \$featured['excerpt'], 260)", $feature);
@@ -66,11 +68,11 @@ test('Полный лид хранится, а карточки использу
     assert_not_contains('newslist-lead__excerpt', $listing, 'лента /news не дублирует лид описанием');
     // Анонс есть у обоих крупных видов ритма — в компактную карточку он не
     // помещается, а обрезанный до строки ничего не сообщает.
-    assert_contains("\$excerpt = \$isHero || \$isWide ? trim((string) (\$item['excerpt'] ?? '')) : '';", $listing, 'анонс — только у крупных карточек');
+    assert_contains("\$cardExcerpt = \$isHero || \$isWide ? trim((string) (\$card['excerpt'] ?? '')) : '';", $card, 'анонс — только у крупных карточек');
     // Класс карточки — это её слот из ритма: один источник правды вместо
     // трёх условий в шаблоне (App\Core\NewsFeedRhythm::slot()).
-    assert_contains('relnews-card relnews-card--<?= $slot ?>', $listing, 'вид карточки задаёт ритм');
-    assert_contains('NewsFeedRhythm::SLOT_WIDE', $listing, 'широкая карточка отличается от обложки');
+    assert_contains('relnews-card relnews-card--<?= $slot ?>', $card, 'вид карточки задаёт ритм');
+    assert_contains('NewsFeedRhythm::SLOT_WIDE', $card, 'широкая карточка отличается от обложки');
     // «Читать подробнее» в ленте нет вовсе: карточка сама является ссылкой,
     // диктору надпись была скрыта (aria-hidden), то есть не сообщала ничего и
     // ему, а на четырнадцати карточках страницы рисовала лишнюю строку.

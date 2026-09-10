@@ -262,7 +262,13 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero { pad
     overflow: hidden;
 }
 .relnews-card__excerpt { margin-top: 0; }
-.relnews-card:hover .relnews-card__title { color: var(--gov-teal); }
+/* Крупные карточки ленты исключены: их заголовок лежит на фотографии и
+   красится `--newshero-fg`, а тот считается по контрасту с подложкой, цвет и
+   плотность которой настраиваются. Акцентный бирюзовый на тёмной подложке ещё
+   проходит (замерено 5.2:1), а на светлой даёт 2.6:1 при норме 4.5:1 — то
+   есть настройка вуали молча ломала бы заголовок на наведении. О наведении
+   там говорит акцентная рамка поверх кадра. */
+.relnews-card:not(.relnews-card--hero):not(.relnews-card--wide):hover .relnews-card__title { color: var(--gov-teal); }
 
 /* --- Предыдущая / следующая --- */
 .newsdetail-adjacent { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border-top: 1px solid var(--gov-border); padding-top: clamp(24px, 3vw, 40px); }

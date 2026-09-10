@@ -889,8 +889,11 @@ final class BlockRenderer
         if ($limit <= 0) {
             $limit = 6;
         }
+        // Мозаика набирается ритмом: шесть карточек и восемь ячеек сетки,
+        // поэтому число задано ритмом, а не литералом — иначе ряд оборвался бы
+        // на середине композиции (App\Core\NewsFeedRhythm).
         if ((string) ($data['variant'] ?? 'cards') === 'mosaic') {
-            $limit = 7;
+            $limit = \App\Core\NewsFeedRhythm::BLOCK_SIZE;
         }
         $lang = Locale::current();
         $category = (int) ($data['category'] ?? 0);
