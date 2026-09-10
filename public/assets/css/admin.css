@@ -5657,6 +5657,15 @@ body.auth-page {
     margin-bottom: 24px;
 }
 
+/* Пара связанных коротких полей рядом (градиент «от/до», цвет и шаг узора) —
+   без базового правила класс только схлопывался в одну колонку на мобильном,
+   а на десктопе сам не строил сетку. */
+.form-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 20px;
+}
+
 /* Form Fields & Input Wrappers with Icons */
 .install-input-wrap {
     position: relative;
