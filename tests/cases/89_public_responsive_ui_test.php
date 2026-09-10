@@ -6,7 +6,7 @@ test('public cards expose consistent keyboard and pointer states', function (): 
     $css = theme_css();
 
     assert_true(is_string($css));
-    assert_contains('.news-card__link, .newsfeat-lead, .newsfeat-mini', $css);
+    assert_contains('.news-card__link,', $css);
     assert_contains(':focus-visible', $css);
     assert_contains('@media (hover: hover) and (pointer: fine)', $css);
     assert_contains('@media (prefers-reduced-motion: reduce)', $css);

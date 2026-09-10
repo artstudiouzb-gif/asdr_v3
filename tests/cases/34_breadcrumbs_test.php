@@ -24,11 +24,18 @@ test('Хлебные крошки публичных шаблонов перев
 test('Ведущая новость на главной — цельная плитка с текстом на обложке', function () {
     $css = theme_css();
     assert_true($css !== false, 'CSS гос-темы доступен');
-    // Текст лежит на обложке: рамка позиционирует затемняющую подложку.
-    assert_contains('.newsfeat-lead__frame { position: relative;', (string) $css);
-    assert_contains('.newsfeat-lead__over {', (string) $css);
-    // Плитка тянется на высоту правой колонки — колонки заканчиваются вровень.
-    assert_contains('.newsfeat-grid { align-items: stretch; }', (string) $css);
+    // Ведущая новость — обложка ритма (App\Core\NewsFeedRhythm): кадр лежит
+    // подложкой всей карточки, текст поверх него. Прежнее семейство мозаики
+    // (newsfeat-lead и соседи) удалено вместе со своей разметкой.
+    assert_true(
+        (bool) preg_match(
+            '/\.relnews-card--hero \.news-cover,\s*\n\.relnews-card--wide \.news-cover \{ position: absolute; inset: 0;/',
+            (string) $css
+        ),
+        'кадр крупной карточки — подложка, а не элемент потока'
+    );
+    // Плитка занимает две ячейки сетки — ряд заканчивается вровень.
+    assert_contains('grid-column: span 2;', (string) $css);
 });
 
 test('Метка на карточке новости выводится только когда заполнена', function () {

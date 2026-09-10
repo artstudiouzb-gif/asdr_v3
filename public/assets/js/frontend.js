@@ -1548,7 +1548,7 @@
         'use strict';
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
         if (!('IntersectionObserver' in window)) { return; }
-        var GRIDS = '.imgcards-grid, .newsfeat-grid, .mediagallery-grid, .albums-grid, .persons-grid, .cards-grid, .cat-grid, .block-news__grid, .block-advantages__grid, .block-counters__grid, .docslist-grid, .docslist-acts, .contact-cards, .block-partners__grid, .block-team__grid, .block-projects__grid, .block-faq__list, .stages, .timeline-list, .featband, .media-list, .newsdocs-news, .newsdocs-docs';
+        var GRIDS = '.imgcards-grid, .newslist-grid, .mediagallery-grid, .albums-grid, .persons-grid, .cards-grid, .cat-grid, .block-news__grid, .block-advantages__grid, .block-counters__grid, .docslist-grid, .docslist-acts, .contact-cards, .block-partners__grid, .block-team__grid, .block-projects__grid, .block-faq__list, .stages, .timeline-list, .featband, .media-list, .newsdocs-news, .newsdocs-docs';
         var sections = Array.prototype.slice.call(document.querySelectorAll('[data-reveal-items]'));
         if (!sections.length) { return; }
         var grids = document.querySelectorAll('[data-reveal-items] ' + GRIDS.split(', ').join(', [data-reveal-items] '));

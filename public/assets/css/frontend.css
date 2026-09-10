@@ -1,8 +1,7 @@
-* { box-sizing: border-box; }
-
-/* Семантическая дизайн-система: светлая тема по умолчанию.
+* { box-sizing: border-box; }/* Семантическая дизайн-система: светлая тема по умолчанию.
    --color-primary/--color-accent/--font-family задаются внешним
    content-addressed CSS из настроек CMS. */
+
 :root {
     --bg-primary: #ffffff;
     --bg-surface: #f4f5f7;
@@ -20,24 +19,21 @@
     --space-small: clamp(20px, 3vw, 32px);
     --space-premium: clamp(48px, 6vw, 80px);
     --space-max: clamp(64px, 8vw, 110px);
-}
-
-/* Тёмная тема: явное переключение через data-theme="dark". */
-/* Тёмная гамма одна на весь фронт: базовые переменные повторяют ступени темы
+}/* Тёмная тема: явное переключение через data-theme="dark". *//* Тёмная гамма одна на весь фронт: базовые переменные повторяют ступени темы
    (--gov-bg / --gov-surface / --gov-border из gov-theme.css). Раньше база была
    нейтрально-серой (#14161c), а карточки темы — синими: на одной странице
    встречались два разных тона, и это читалось как грязь. */
+
 :root[data-theme="dark"] {
     --bg-primary: #1a2230;
     --bg-surface: #273143;
     --text-main: #f2f6fa;
     --text-muted: #adb8c7;
     --border-color: #3f4d64;
-}
-
-/* Нативные контролы (поля ввода, скроллбары, выпадающие списки) браузер
+}/* Нативные контролы (поля ввода, скроллбары, выпадающие списки) браузер
    красит по системному режиму, если не сказать иначе. Сайт со светлой темой
    в тёмном режиме телефона получал тёмные поля и полосы прокрутки. */
+
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] { color-scheme: dark; }
 :root[data-theme="auto"] { color-scheme: light dark; }
@@ -65,22 +61,20 @@ body {
     transition: background-color .3s cubic-bezier(0.16, 1, 0.3, 1), color .3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-img { max-width: 100%; display: block; height: auto; }
-
-/* Инлайн-спрайт иконок (Icon::injectSprite) стоит первым элементом body.
+img { max-width: 100%; display: block; height: auto; }/* Инлайн-спрайт иконок (Icon::injectSprite) стоит первым элементом body.
    Как обычный inline-элемент он создавал бы пустую строку под админ-баром —
    выносим его из потока. */
-.tabler-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 
-/* Доступность (задача 122): видимый фокус на всех интерактивных элементах. */
+.tabler-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }/* Доступность (задача 122): видимый фокус на всех интерактивных элементах. */
+
 a:focus-visible, button:focus-visible, input:focus-visible,
 select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible,
 summary:focus-visible {
     outline: 3px solid var(--gov-teal);
     outline-offset: 2px;
     border-radius: 3px;
-}
-/* Ссылка «пропустить к содержимому» для клавиатуры/скринридеров. */
+}/* Ссылка «пропустить к содержимому» для клавиатуры/скринридеров. */
+
 .skip-link {
     position: absolute; left: -999px; top: 0; z-index: 10000;
     background: var(--bg-surface); color: var(--text-main); padding: 10px 16px; border-radius: 0 0 8px 0;
@@ -91,16 +85,16 @@ summary:focus-visible {
 .site-header__zone { display: flex; align-items: center; gap: var(--header-elements-gap, 18px); }
 .site-header__zone--left { justify-content: flex-start; }
 .site-header__zone--center { justify-content: center; flex: 1; }
-.site-header__zone--right { justify-content: flex-end; margin-left: auto; }
-/* Когда логотип по центру, левая и правая зоны делят пространство поровну */
+.site-header__zone--right { justify-content: flex-end; margin-left: auto; }/* Когда логотип по центру, левая и правая зоны делят пространство поровну */
+
 .site-header--logo-center .site-header__zone--left,
 .site-header--logo-center .site-header__zone--right { flex: 1; }
 .site-header--logo-center .site-header__zone--right { margin-left: 0; }
 
 .site-menu__link { position: relative; text-decoration: none; color: var(--gov-navy); font-weight: 600; padding: 10px 4px; background: transparent; background-color: transparent; transition: color 0.2s ease; }
-.site-menu__link:hover { color: var(--gov-teal-text); background: transparent !important; background-color: transparent !important; }
-/* Контрастный вариант акцента, а не сам акцент: сырой #009bbe на белой
+.site-menu__link:hover { color: var(--gov-teal-text); background: transparent !important; background-color: transparent !important; }/* Контрастный вариант акцента, а не сам акцент: сырой #009bbe на белой
    шапке даёт 3.26:1 при норме 4.5:1 (ловил axe). */
+
 .site-menu__link.is-active { color: var(--gov-teal-text) !important; font-weight: 700; background: transparent !important; background-color: transparent !important; }
 .site-menu__link::after {
     content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
@@ -109,9 +103,8 @@ summary:focus-visible {
 }
 .site-menu__link:hover::after, .site-menu__link.is-active::after {
     transform: scaleX(1);
-}
+}/* Выпадающее подменю (задача 3, группа 3) */
 
-/* Выпадающее подменю (задача 3, группа 3) */
 .site-menu__item { position: relative; }
 .site-menu__item--has-children > .site-menu__link { display: inline-flex; align-items: center; gap: 4px; }
 .site-menu__toggle { background: none; border: 0; cursor: pointer; font-size: 0.8em; color: inherit; padding: 0 2px; line-height: 1; }
@@ -132,8 +125,8 @@ summary:focus-visible {
     .site-menu__item--has-children:focus-within > .site-submenu {
         opacity: 1; visibility: visible; transform: translateY(0);
     }
-}
-/* Явное раскрытие по клику/тапу (мобильные): JS ставит .is-open на пункт. */
+}/* Явное раскрытие по клику/тапу (мобильные): JS ставит .is-open на пункт. */
+
 .site-menu__item.is-open > .site-submenu {
     opacity: 1; visibility: visible; transform: translateY(0);
 }
@@ -161,10 +154,8 @@ summary:focus-visible {
     width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: var(--step-0); line-height: 1;
 }
 
-@media (max-width: 720px) {
-}
-
 /* Раскладка с сайдбаром */
+
 .layout { max-width: 1140px; margin: 0 auto; padding: 20px; display: grid; gap: 30px; }
 .layout--left { grid-template-columns: 300px 1fr; }
 .layout--right { grid-template-columns: 1fr 300px; }
@@ -184,11 +175,10 @@ summary:focus-visible {
 .widget-contacts__line { margin: 6px 0; }
 .widget-contacts__social { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 .widget-social-link { font-size: var(--step--3); text-decoration: none; color: var(--gov-teal); font-weight: 600; }
-.widget-empty { color: var(--text-muted); font-size: var(--step--2); }
-
-/* --- Виджет «Меню раздела» ---
+.widget-empty { color: var(--text-muted); font-size: var(--step--2); }/* --- Виджет «Меню раздела» ---
    Текущая страница отмечена и цветом, и жирностью, и полосой слева: одного
    цвета мало — в чёрно-белом режиме отличия не осталось бы. */
+
 .widget-secmenu__parent {
     display: block;
     margin-bottom: 10px;
@@ -230,10 +220,10 @@ summary:focus-visible {
     font-size: var(--step-2);
     text-decoration: none;
     color: var(--gov-navy);
-}
-/* Явная высота (не только max-height): SVG без собственных размеров
+}/* Явная высота (не только max-height): SVG без собственных размеров
    (width="100%") получает определённую высоту и вычисляет ширину из viewBox,
    иначе схлопывается в 0. max-width страхует от переполнения по горизонтали. */
+
 .site-header__logo img {
     width: var(--header-logo-width, 240px);
     height: var(--header-logo-height, 48px);
@@ -246,41 +236,39 @@ summary:focus-visible {
        и читается как случайный отступ, хотя «Позиционирование логотипа»
        стоит «Слева». Прижимаем картинку к началу строки. */
     object-position: left center;
-}
-/* «По центру» в конструкторе шапки: там центрируется вся зона, и картинка
+}/* «По центру» в конструкторе шапки: там центрируется вся зона, и картинка
    внутри своего бокса тоже возвращается в центр — иначе выбор редактора
    выполнялся бы наполовину. */
+
 .site-header--logo-center .site-header__logo img { object-position: center; }
 
 .site-content { max-width: 1140px; margin: 0 auto; padding: 20px; }
-.site-footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: var(--step--2); }
-
-/* Система «воздуха»: базовый отступ блока = плотность из настроек дизайна
+.site-footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: var(--step--2); }/* Система «воздуха»: базовый отступ блока = плотность из настроек дизайна
    (--section-pad), с откатом на пресет. Классы --space-* переопределяют. */
+
 .cms-block { margin: 0; padding: var(--section-pad, var(--space-premium)) 0; }
 .cms-block--space-none { padding: 0; }
 .cms-block--space-small { padding: var(--space-small) 0; }
 .cms-block--space-premium { padding: var(--space-premium) 0; }
-.cms-block--space-max { padding: var(--space-max) 0; }
-/* Соседние секции без собственного фона не удваивают вертикальный ритм:
+.cms-block--space-max { padding: var(--space-max) 0; }/* Соседние секции без собственного фона не удваивают вертикальный ритм:
    нижний отступ одного блока и верхний следующего давали между секциями
    почти 160px пустоты. Блоки с фоном (cms-block--bg) сохраняют свои поля —
    иначе цветная подложка липнет к тексту. */
+
 .cms-block:not(.cms-block--bg):not(.cms-block--surface-card)
     + .cms-block:not(.cms-block--bg):not(.cms-block--surface-card) { padding-top: 0; }
 /* Условия показа по устройству. Порог 768px совпадает с основным мобильным
    брейкпоинтом темы; ограничение решается стилями, потому что кэш страницы
    общий для всех посетителей. */
 @media (max-width: 768px) { .cms-block--only-desktop { display: none; } }
-@media (min-width: 769px) { .cms-block--only-mobile { display: none; } }
+@media (min-width: 769px) { .cms-block--only-mobile { display: none; } }/* Микро-анимации появления при скролле (Intersection Observer, группа 4.2). */
 
-/* Микро-анимации появления при скролле (Intersection Observer, группа 4.2). */
 [data-reveal] { opacity: 0; transition: opacity .75s cubic-bezier(0.215, 0.61, 0.355, 1), transform .75s cubic-bezier(0.215, 0.61, 0.355, 1); }
 [data-reveal-type="slide-up"] { transform: translateY(28px); }
 [data-reveal-type="slide-left"] { transform: translateX(-32px); }
 [data-reveal-type="slide-right"] { transform: translateX(32px); }
-[data-reveal-type="zoom-in"] { transform: scale(.94); }
-/* fade — только прозрачность (transform не нужен). */
+[data-reveal-type="zoom-in"] { transform: scale(.94); }/* fade — только прозрачность (transform не нужен). */
+
 [data-reveal].is-visible { opacity: 1; transform: none; }
 /* Появление — прогрессивное улучшение: при отключённом JavaScript блок
    обязан остаться видимым, иначе часть страницы просто исчезает. */
@@ -289,16 +277,14 @@ summary:focus-visible {
 }
 @media (prefers-reduced-motion: reduce) {
     [data-reveal] { opacity: 1 !important; transform: none !important; transition: none; }
-}
-
-/* Мягкий каскад появления карточек в сетках. Класс .anim-card навешивает
-   САМ JS — без JS (или при reduced-motion) карточки просто видны. */
-/* Появление карточки описано ключевыми кадрами, а не переходом. Переход тут
+}/* Мягкий каскад появления карточек в сетках. Класс .anim-card навешивает
+   САМ JS — без JS (или при reduced-motion) карточки просто видны. *//* Появление карточки описано ключевыми кадрами, а не переходом. Переход тут
    не работает: у карточек темы (.feature-card, .news-card, …) объявлен свой
    `transition`, а тема грузится после базы и заменяет список целиком — opacity
    в нём нет, и каскад просто не проявлялся. Заливка `backwards` держит
    начальное состояние во время задержки и отпускает трансформацию после
    показа, поэтому собственный ховер карточки остаётся своим. */
+
 .anim-card {
     opacity: 0;
     --card-reveal-shift: 18px;
@@ -317,9 +303,11 @@ summary:focus-visible {
     opacity: 1;
     transform: none;
 }
-/* У новостного блока крупные колонки проявляются почти на месте: так движение
-   читается как мягкое появление, а не как резкий прыжок всего макета. */
-.newsfeat-grid > .anim-card {
+/* У новостного блока крупные карточки проявляются почти на месте: так движение
+   читается как мягкое появление, а не как резкий прыжок всего макета.
+   Сетка называется .newslist-grid — та же, что у ленты /news: мозаика перешла
+   на неё вместе с ритмом, и прежний .newsfeat-grid остался без разметки. */
+.newslist-grid > .anim-card {
     --card-reveal-shift: 8px;
     --card-reveal-scale: .995;
     --card-reveal-duration: .85s;
@@ -340,13 +328,11 @@ summary:focus-visible {
     border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
-}
-
-/* Колонки задаёт шаблон блока (--adv-cols) по числу карточек, чтобы в
+}/* Колонки задаёт шаблон блока (--adv-cols) по числу карточек, чтобы в
    последнем ряду не оставалась одна карточка. auto-fit оставлен запасным
-   вариантом на случай, если переменная не пришла. */
-/* Дорожки и ширину карточки считает App\Core\GridBalance: последний ряд
+   вариантом на случай, если переменная не пришла. *//* Дорожки и ширину карточки считает App\Core\GridBalance: последний ряд
    растягивается на всю ширину, пустых ячеек справа не остаётся. */
+
 .block-advantages__grid { display: grid; grid-template-columns: repeat(var(--grid-track, 3), minmax(0, 1fr)); gap: 24px; }
 .block-advantages__item { grid-column: span var(--grid-span, 1); }
 @media (max-width: 900px) {
@@ -421,14 +407,14 @@ summary:focus-visible {
 .block-slider { position: relative; overflow: hidden; border-radius: var(--radius, 12px); }
 .block-slider__slide { display: none; }
 .block-slider__slide.is-active { display: block; }
-.block-slider__link { display: block; color: inherit; text-decoration: none; }
-/* Единая пропорция кадра: без неё слайды разной высоты дёргали страницу
+.block-slider__link { display: block; color: inherit; text-decoration: none; }/* Единая пропорция кадра: без неё слайды разной высоты дёргали страницу
    при каждом переключении. «auto» оставляет исходные размеры снимка. */
+
 .block-slider--ratio-21-9 { --slider-ratio: 21 / 9; }
 .block-slider--ratio-16-9 { --slider-ratio: 16 / 9; }
-.block-slider--ratio-4-3 { --slider-ratio: 4 / 3; }
-/* Вертикальные форматы: карточки для соцсетей приходят в 4:5, 1:1 и 9:16, а
+.block-slider--ratio-4-3 { --slider-ratio: 4 / 3; }/* Вертикальные форматы: карточки для соцсетей приходят в 4:5, 1:1 и 9:16, а
    при широкой пропорции object-fit: cover срезает у них верх и низ. */
+
 .block-slider--ratio-1-1 { --slider-ratio: 1 / 1; }
 .block-slider--ratio-4-5 { --slider-ratio: 4 / 5; }
 .block-slider--ratio-9-16 { --slider-ratio: 9 / 16; }
@@ -473,11 +459,11 @@ summary:focus-visible {
     cursor: pointer;
     pointer-events: auto;
     transition: width .2s ease, border-radius .2s ease, background-color .2s ease;
-}
-/* Точка нарисована мелкой намеренно — попадать по ней нужно всё равно.
+}/* Точка нарисована мелкой намеренно — попадать по ней нужно всё равно.
    Область нажатия расширяется прозрачным ::after, как у иконочных кнопок
    шапки и стрелок обложки. Здесь 24px, а не 44px: при 44px области соседних
    точек перекрылись бы, и нажатие уходило бы не на тот слайд. */
+
 .block-slider__dot::after {
     content: '';
     position: absolute;
@@ -565,10 +551,10 @@ summary:focus-visible {
     background-color: var(--bg-surface, #fff);
     color: var(--text-main, #222);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-/* Флажок и радиокнопка — не текстовые поля: правило выше растягивало их на
+}/* Флажок и радиокнопка — не текстовые поля: правило выше растягивало их на
    всю строку, из-за чего галочка согласия уезжала от своей подписи к
    противоположному краю формы. */
+
 .block-form__field input[type="checkbox"],
 .block-form__field input[type="radio"] {
     width: auto;
@@ -589,9 +575,8 @@ summary:focus-visible {
     cursor: pointer;
     font-weight: 600;
 }
-.block-form__submit.is-loading { opacity: .7; cursor: progress; }
+.block-form__submit.is-loading { opacity: .7; cursor: progress; }/* AJAX-состояния публичной формы (задача 67.1) */
 
-/* AJAX-состояния публичной формы (задача 67.1) */
 .block-form__field.is-error input,
 .block-form__field.is-error textarea { border-color: var(--gov-teal); }
 .block-form__error { color: var(--gov-teal); font-size: var(--step--3); }
@@ -609,15 +594,13 @@ summary:focus-visible {
 
 .news-list__item { display: flex; gap: 20px; margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px solid var(--border-color); }
 .news-list__body h2 { margin: 6px 0; }
-.news-list__body time { font-size: var(--step--3); color: var(--text-muted); }
+.news-list__body time { font-size: var(--step--3); color: var(--text-muted); }/* Обложка в списке новостей: адаптивная, с фокальной точкой */
 
-/* Обложка в списке новостей: адаптивная, с фокальной точкой */
 .news-list__cover { position: relative; display: block; width: 220px; flex-shrink: 0; border-radius: 8px; overflow: hidden; aspect-ratio: 16 / 10; }
 .news-list__cover picture, .news-list__img { display: block; width: 100%; height: 100%; }
 .news-list__img { object-fit: cover; }
-@media (max-width: 560px) { .news-list__item { flex-direction: column; } .news-list__cover { width: 100%; } }
+@media (max-width: 560px) { .news-list__item { flex-direction: column; } .news-list__cover { width: 100%; } }/* Значок Play на видео-обложках */
 
-/* Значок Play на видео-обложках */
 .news-list__play, .news-video__play {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: 64px; height: 64px; border-radius: 50%; border: none; cursor: pointer;
@@ -631,15 +614,13 @@ summary:focus-visible {
 
 .news-single time { display: block; font-size: var(--step--3); color: var(--text-muted); margin-bottom: 16px; }
 .news-single__cover { border-radius: var(--radius, 12px); overflow: hidden; margin-bottom: 20px; }
-.news-single__cover-img { width: 100%; max-height: 520px; object-fit: cover; }
+.news-single__cover-img { width: 100%; max-height: 520px; object-fit: cover; }/* Раскладка «изображение сбоку» */
 
-/* Раскладка «изображение сбоку» */
 .news-side { display: grid; grid-template-columns: 320px 1fr; gap: 28px; align-items: start; }
 .news-side__media { border-radius: var(--radius, 12px); overflow: hidden; position: sticky; top: 20px; }
 .news-side__img { width: 100%; object-fit: cover; }
-@media (max-width: 720px) { .news-side { grid-template-columns: 1fr; } .news-side__media { position: static; } }
+@media (max-width: 720px) { .news-side { grid-template-columns: 1fr; } .news-side__media { position: static; } }/* Слайдер галереи новости */
 
-/* Слайдер галереи новости */
 .news-slider { position: relative; border-radius: var(--radius, 12px); overflow: hidden; margin-bottom: 24px; aspect-ratio: 16 / 9; background: var(--bg-surface); }
 .news-slider__slide { position: absolute; inset: 0; opacity: 0; transition: opacity .4s ease; }
 .news-slider__slide.is-active { opacity: 1; }
@@ -651,9 +632,8 @@ summary:focus-visible {
     background: rgba(0,0,0,.45); color: #fff; font-size: var(--step-4); line-height: 1;
 }
 .news-slider__nav--prev { left: 12px; }
-.news-slider__nav--next { right: 12px; }
+.news-slider__nav--next { right: 12px; }/* Ленивый YouTube-плеер */
 
-/* Ленивый YouTube-плеер */
 .news-video { position: relative; border-radius: var(--radius, 12px); overflow: hidden; margin-bottom: 24px; aspect-ratio: 16 / 9; background: #000; cursor: pointer; }
 .news-video__thumb { width: 100%; height: 100%; object-fit: cover; }
 .news-video__iframe { width: 100%; height: 100%; border: 0; display: block; }
@@ -667,14 +647,13 @@ summary:focus-visible {
     background: rgba(5,16,31,.78); color: #fff; font: inherit; font-weight: 700; cursor: pointer;
 }
 .news-video__replay:hover { background: rgba(5,16,31,.94); }
-.news-video__replay:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.news-video__replay:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }/* Скелетон-заглушки (до загрузки медиа) */
 
-/* Скелетон-заглушки (до загрузки медиа) */
-.skeleton { position: relative; background: var(--bg-surface); }
-/* Перелив подмешивается к цвету текста, а не берётся белым: белый на 18%
+.skeleton { position: relative; background: var(--bg-surface); }/* Перелив подмешивается к цвету текста, а не берётся белым: белый на 18%
    поверх светлой поверхности (#f4f5f7) даёт #f8f9fa — заглушку не было видно
    вовсе, и приём считался несуществующим. Подмешивание само тянет перелив в
    нужную сторону: тёмный на светлой теме, светлый на тёмной. */
+
 .skeleton::before {
     content: ''; position: absolute; inset: 0; z-index: 1;
     background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--text-main, #0f172a) 12%, transparent), transparent);
@@ -682,24 +661,23 @@ summary:focus-visible {
 }
 .skeleton > * { position: relative; z-index: 0; }
 @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-@media (prefers-reduced-motion: reduce) { .skeleton::before { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .skeleton::before { animation: none; } }/* --- Печатные стили (задача 63.2): чистый документ с логотипом и canonical --- */
 
-/* --- Печатные стили (задача 63.2): чистый документ с логотипом и canonical --- */
 .print-only { display: none; }
-@media print {
-    /* Скрываем всё «служебное»: шапку, сайдбары, футер, переключатель темы,
+@media print {/* Скрываем всё «служебное»: шапку, сайдбары, футер, переключатель темы,
        соцкнопки, CTA, cookie-баннер, кнопки шеринга, слайдер-навигацию. */
+    
     .site-header, .layout__sidebar, .site-footer, .site-theme-toggle,
     .site-social, .site-cta, .site-lang-switcher, .site-menu,
     .cookie-banner, .share-buttons, .news-slider__nav, .news-video__play,
     .news-single__back, .newsdetail-share, .catdetail__download,
-    .catdetail__back, .no-print { display: none !important; }
-
-    /* Страница новости: печатаем саму статью, а не всё, что под ней.
+    .catdetail__back, .no-print { display: none !important; }/* Страница новости: печатаем саму статью, а не всё, что под ней.
        Служебные блоки помечены классом no-print прямо в шаблоне (подписка,
        похожие новости, соседние, кнопки «Поделиться») — так пометка переживает
        переименование CSS-классов при следующем редизайне. Здесь добиваем то,
        что относится к интерактиву внутри самой статьи. */
+
+    
     .crumbs, .content-crumbs,
     .newsdetail-gallery__nav, .newsdetail-gallery__thumbs, .newsdetail-gallery__counter,
     .newsdetail-toc, .newsdetail-photos .newsdetail__btn,
@@ -712,20 +690,18 @@ summary:focus-visible {
     a { color: #000 !important; text-decoration: none; }
     .site-content, .layout { max-width: none; margin: 0; padding: 0; display: block; }
     .cms-block, .cms-block[data-reveal] { opacity: 1 !important; transform: none !important; padding: 12px 0 !important; }
-    img, picture { max-width: 100% !important; }
+    img, picture { max-width: 100% !important; }/* Печатная «шапка»: логотип и адрес страницы. */
 
-    /* Печатная «шапка»: логотип и адрес страницы. */
+    
     .print-only { display: block !important; }
     .print-header { margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #000; }
     .print-header img { max-height: 48px; }
     .print-header .print-name { font-size: var(--step-2); font-weight: 700; }
-    .print-footer { margin-top: 18px; padding-top: 10px; border-top: 1px solid #000; font-size: var(--step--4); color: #000; }
-    /* Раскрываем ссылки после текста, где это уместно. */
+    .print-footer { margin-top: 18px; padding-top: 10px; border-top: 1px solid #000; font-size: var(--step--4); color: #000; }/* Раскрываем ссылки после текста, где это уместно. */
+    
     .news-single__content a[href^="http"]::after { content: " (" attr(href) ")"; font-size: var(--step--4); }
-}
+}/* Cookie-Consent баннер (задача 116) */
 
-
-/* Cookie-Consent баннер (задача 116) */
 .cookie-banner {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 9998;
     display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
@@ -738,9 +714,8 @@ summary:focus-visible {
     padding: 9px 18px; border-radius: var(--btn-radius, 8px); cursor: pointer; font-weight: 600; border: 1px solid var(--border-color);
 }
 .cookie-banner__accept { background: var(--gov-teal); color: #fff; border-color: transparent; }
-.cookie-banner__decline { background: transparent; color: var(--text-main); }
+.cookie-banner__decline { background: transparent; color: var(--text-main); }/* Лайтбокс для блоков галереи */
 
-/* Лайтбокс для блоков галереи */
 .cms-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.88); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
 .cms-lightbox.is-open { display: flex; }
 .cms-lightbox__stage { display: flex; align-items: center; justify-content: center; max-width: 100%; }
@@ -752,29 +727,27 @@ summary:focus-visible {
 .cms-lightbox__nav--prev { left: 14px; }
 .cms-lightbox__nav--next { right: 14px; }
 .cms-lightbox__caption { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; color: rgba(255,255,255,.85); font-size: var(--step--1); padding: 0 60px; }
-.cms-lightbox__caption[hidden] { display: none; }
+.cms-lightbox__caption[hidden] { display: none; }/* Полоса предпросмотра (группа 5.2) */
 
-/* Полоса предпросмотра (группа 5.2) */
 .preview-bar {
     position: sticky; top: 0; z-index: 9999; text-align: center;
     background: #b45309; color: #fff; padding: 8px 16px; font-weight: 600; font-size: var(--step--2);
 }
-body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
+body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок «Колонки» (группа 4.1) */
 
-/* Блок «Колонки» (группа 4.1) */
 .cms-columns { display: grid; }
 .cms-columns--2 { grid-template-columns: repeat(2, 1fr); }
 .cms-columns--3 { grid-template-columns: repeat(3, 1fr); }
 .cms-columns--4 { grid-template-columns: repeat(4, 1fr); }
 .cms-columns--gap-small { gap: 12px; }
 .cms-columns--gap-medium { gap: 28px; }
-.cms-columns--gap-large { gap: 48px; }
-/* Выравнивание содержимого по высоте. Умолчание — растяжение (колонки одной
+.cms-columns--gap-large { gap: 48px; }/* Выравнивание содержимого по высоте. Умолчание — растяжение (колонки одной
    высоты), поэтому у него класса нет: он и есть поведение сетки. */
+
 .cms-columns--valign-top { align-items: start; }
 .cms-columns--valign-center { align-items: center; }
-.cms-columns--valign-bottom { align-items: end; }
-/* Вложенные блоки не добавляют собственный вертикальный «воздух». */
+.cms-columns--valign-bottom { align-items: end; }/* Вложенные блоки не добавляют собственный вертикальный «воздух». */
+
 .cms-columns__col > .cms-block { padding-top: 0; padding-bottom: 0; }
 @media (max-width: 720px) { .cms-columns--2, .cms-columns--3, .cms-columns--4 { grid-template-columns: 1fr; } }
 /* Обратный порядок на телефоне: пара «фото слева, текст справа» на узком
@@ -786,9 +759,8 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
     .cms-columns--mobile-reverse .cms-columns__col:nth-child(2) { order: 3; }
     .cms-columns--mobile-reverse .cms-columns__col:nth-child(3) { order: 2; }
     .cms-columns--mobile-reverse .cms-columns__col:nth-child(4) { order: 1; }
-}
+}/* Новые блоки (группа 4): отзывы, счётчики, команда, проекты */
 
-/* Новые блоки (группа 4): отзывы, счётчики, команда, проекты */
 .block-testimonials__title, .block-counters__title, .block-team__title, .block-projects__title {
     text-align: center; margin: 0 0 28px;
 }
@@ -845,9 +817,9 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
 }
 .testimonial__name { display: block; font-weight: 700; color: var(--gov-title); }
 .testimonial__role { display: block; color: var(--text-muted); font-size: var(--step--2); }
-.testimonial__company { color: var(--text-muted); font-size: var(--step--2); }
-/* Вариант «сетка»: отзывы стоят рядами, а не едут полосой. Карточка теряет
+.testimonial__company { color: var(--text-muted); font-size: var(--step--2); }/* Вариант «сетка»: отзывы стоят рядами, а не едут полосой. Карточка теряет
    flex-basis полосы, иначе в сетке она осталась бы фиксированной ширины. */
+
 .block-testimonials__grid { display: grid; grid-template-columns: repeat(var(--grid-track, 3), minmax(0, 1fr)); gap: 24px; }
 .block-testimonials__grid > .testimonial { grid-column: span var(--grid-span, 1); flex: none; scroll-snap-align: none; }
 @media (max-width: 900px) {
@@ -856,16 +828,16 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
 }
 @media (max-width: 720px) {
     .block-testimonials__grid { grid-template-columns: minmax(0, 1fr); }
-}
-/* Оценка: пять значков, набранные — акцентом, остальные приглушены. Заливку
+}/* Оценка: пять значков, набранные — акцентом, остальные приглушены. Заливку
    не используем: у символа спрайта fill="none" стоит на самом <symbol> и
    перебивает наследование внутрь <use>, поэтому звёзды различаются цветом. */
+
 .testimonial__rating { display: flex; justify-content: center; gap: 3px; margin-bottom: 12px; }
 .testimonial__star { display: inline-flex; color: color-mix(in srgb, var(--text-muted, #6b7280) 45%, transparent); }
 .testimonial__star.is-on { color: var(--gov-teal); }
 
-.block-team__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
-/* Проекты: колонки задаёт редактор, последний ряд дотягивает GridBalance. */
+.block-team__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }/* Проекты: колонки задаёт редактор, последний ряд дотягивает GridBalance. */
+
 .block-projects__grid { display: grid; grid-template-columns: repeat(var(--grid-track, 3), minmax(0, 1fr)); gap: 24px; }
 .block-projects__grid > .project-card { grid-column: span var(--grid-span, 1); }
 @media (max-width: 900px) {
@@ -886,9 +858,9 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
 .project-card:hover .project-card__cover { transform: scale(1.05); }
 .project-card__title { font-weight: 700; padding: 12px 14px 0; transition: color 0.3s ease; }
 .project-card:hover .project-card__title { color: var(--gov-teal); }
-.project-card__desc { padding: 6px 14px 14px; margin: 0; color: var(--text-muted); font-size: var(--step--2); }
-/* Список: фото слева, текст справа. Место под длинный анонс — ради него
+.project-card__desc { padding: 6px 14px 14px; margin: 0; color: var(--text-muted); font-size: var(--step--2); }/* Список: фото слева, текст справа. Место под длинный анонс — ради него
    вариант и нужен. */
+
 .block-projects--list .block-projects__grid { grid-template-columns: minmax(0, 1fr); }
 .block-projects--list .project-card {
     display: grid;
@@ -901,9 +873,8 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
 @media (max-width: 720px) {
     .block-projects--list .project-card { grid-template-columns: minmax(0, 1fr); }
     .block-projects--list .project-card__cover { aspect-ratio: 16/10; }
-}
+}/* Полоса: карточки одной ширины, листаются свайпом и стрелками. */
 
-/* Полоса: карточки одной ширины, листаются свайпом и стрелками. */
 .block-projects--carousel .block-projects__grid {
     display: flex;
     grid-template-columns: none;
@@ -919,10 +890,9 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
     .block-projects--carousel .project-card { flex: 0 0 85%; }
 }
 
-.block-team__empty, .block-projects__empty { text-align: center; color: var(--text-muted); }
-
-/* Обложка: картинка поверх фона (эмблема, логотип программы, иллюстрация).
+.block-team__empty, .block-projects__empty { text-align: center; color: var(--text-muted); }/* Обложка: картинка поверх фона (эмблема, логотип программы, иллюстрация).
    Позиция задаётся относительно текста, размер — высотой картинки. */
+
 .block-hero__inner--art { display: flex; gap: clamp(16px, 3vw, 40px); }
 .block-hero__inner--art-above { flex-direction: column; align-items: flex-start; }
 .block-hero__inner--art-left,
@@ -938,22 +908,18 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
 @media (max-width: 720px) {
     .block-hero__inner--art { flex-direction: column; align-items: flex-start; }
     .block-hero__inner--art-large .block-hero__art-img { max-height: 140px; }
-}
-
-
-/* Команда по подразделениям: сектор — заголовок с якорем, отделы и группы
+}/* Команда по подразделениям: сектор — заголовок с якорем, отделы и группы
    внутри сектора — подзаголовок со своей сеткой карточек. */
+
 .block-team__group + .block-team__group { margin-top: 40px; }
 .block-team__group-title { margin: 0 0 18px; font-size: var(--step-2); }
 .block-team__group:target .block-team__group-title { color: var(--gov-teal); }
 .block-team__unit { margin-top: 26px; }
-.block-team__unit-title { margin: 0 0 14px; font-size: var(--step-0); font-weight: 700; color: var(--text-muted); }
+.block-team__unit-title { margin: 0 0 14px; font-size: var(--step-0); font-weight: 700; color: var(--text-muted); }/* SVG-иконка в блоке преимуществ (группа 4.3) */
 
-/* SVG-иконка в блоке преимуществ (группа 4.3) */
 .block-advantages__icon--svg svg { width: 48px; height: 48px; display: block; margin: 0 auto; }
-.block-advantages__icon--svg svg [fill]:not([fill="none"]) { fill: currentColor; }
+.block-advantages__icon--svg svg [fill]:not([fill="none"]) { fill: currentColor; }/* FAQ / аккордеон (группа 6) */
 
-/* FAQ / аккордеон (группа 6) */
 .faq-item:hover {
     border-color: color-mix(in srgb, var(--gov-teal) 35%, var(--gov-border));
     box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
@@ -976,11 +942,9 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
 }
 @media (prefers-reduced-motion: reduce) {
     .faq-item[open] .faq-item__a { animation: none; }
-}
-
-/* --- Каталог пользовательских типов контента (Документы/Вакансии/Тендеры) --- */
-/* Страницы фотоальбомов: ширина как у остальных списков сайта, а не
+}/* --- Каталог пользовательских типов контента (Документы/Вакансии/Тендеры) --- *//* Страницы фотоальбомов: ширина как у остальных списков сайта, а не
    узкая статейная колонка — иначе сетка карточек выглядела обрезанной. */
+
 .content-list { max-width: var(--container-max, 1440px); margin: 0 auto; padding: 24px 20px 56px; }
 .content-list__head { margin-bottom: 24px; }
 .content-list__head h1 { margin: 0 0 8px; }
@@ -1017,14 +981,12 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
 .content-detail__row--image dd img { max-width: 320px; height: auto; border-radius: var(--radius-sm, 8px); }
 @media (max-width: 640px) {
     .content-detail__row { grid-template-columns: 1fr; gap: 4px; }
-}
-
-/* --- Поиск по сайту --- */
-/* Свёрткой поля поиска заведует обёртка `.site-search-wrap` (классы
+}/* --- Поиск по сайту --- *//* Свёрткой поля поиска заведует обёртка `.site-search-wrap` (классы
    `is-expanded`/`is-open` из gov-theme.css). Прежний механизм жил здесь:
    поле держали в `width: 0; opacity: 0`, а раскрывал класс `.is-active`.
    Его никто не ставит с тех пор, как появилась обёртка, зато gov-theme
    приходилось гасить эти правила через `!important`. Убрано вместе с ними. */
+
 .site-search {
     display: inline-flex;
     align-items: center;
@@ -1064,9 +1026,8 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
 .site-search-results__link { display: block; font-size: var(--step-1); font-weight: 600; text-decoration: none; color: var(--gov-navy); }
 .site-search-results__link:hover { color: var(--gov-teal); }
 .site-search-results__excerpt { margin: 6px 0 0; color: var(--text-muted); font-size: var(--step--1); }
-@media (max-width: 640px) { .site-search { display: none; } }
+@media (max-width: 640px) { .site-search { display: none; } }/* --- Каталог: хлебные крошки, тулбар, статусы, пагинация --- */
 
-/* --- Каталог: хлебные крошки, тулбар, статусы, пагинация --- */
 .content-crumbs { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--step--2); color: var(--text-muted); margin-bottom: 16px; }
 .content-crumbs a { color: var(--gov-teal); text-decoration: none; }
 .content-crumbs span { color: var(--text-muted); }
@@ -1080,14 +1041,13 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
 .content-badge { font-size: var(--step--4); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; padding: 2px 9px; border-radius: 999px; }
 .content-badge--active { background: #e6f4ea; color: #1c7c3b; }
 .content-badge--archived { background: #eef0f3; color: #66707c; }
-.content-card--archived { opacity: .72; }
+.content-card--archived { opacity: .72; }/* --- Блок «Последние новости» (для главной и любых страниц) --- */
 
-/* --- Блок «Последние новости» (для главной и любых страниц) --- */
 .block-news__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
 .block-news__all { color: var(--gov-teal); text-decoration: none; font-weight: 600; white-space: nowrap; }
-.block-news__empty { color: var(--text-muted); }
-/* Число колонок и растяжка последнего ряда приходят из GridBalance:
+.block-news__empty { color: var(--text-muted); }/* Число колонок и растяжка последнего ряда приходят из GridBalance:
    три новости в сетке auto-fill расползались по ширине неравномерно. */
+
 .block-news__grid { display: grid; grid-template-columns: repeat(var(--grid-track, 3), minmax(0, 1fr)); gap: 22px; }
 .block-news__grid > .news-card { grid-column: span var(--grid-span, 1); }
 @media (max-width: 900px) {
@@ -1102,14 +1062,13 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
 .news-card__body { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; }
 .news-card__title { font-weight: 600; font-size: var(--step-1); color: var(--gov-navy); line-height: 1.35; }
 .news-card:hover .news-card__title { color: var(--gov-teal); }
-.news-card__excerpt { color: var(--text-muted); font-size: var(--step--1); line-height: var(--base-line-height, 1.5); }
-
-/* ============================================================================
+.news-card__excerpt { color: var(--text-muted); font-size: var(--step--1); line-height: var(--base-line-height, 1.5); }/* ============================================================================
    Тема-билдер: применение переменных дизайна + современная отделка фронтенда.
    Переменные --container-max/--radius/--card-gap/--section-pad/--btn-radius
    задаются в <head> из настроек дизайна (DesignSettings). Значения ниже —
    безопасные дефолты на случай отсутствия настроек.
    ========================================================================== */
+
 :root {
     --container-max: 1440px;
     --radius: 12px; /* совпадает с гос-темой: один радиус на весь сайт */
@@ -1122,47 +1081,36 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }
     --shadow-md: 0 6px 22px rgba(16,24,40,.08);
     --shadow-lg: 0 18px 48px rgba(16,24,40,.12);
 }
-:root[data-theme="dark"] { --surface: #273143; }
+:root[data-theme="dark"] { --surface: #273143; }/* Ширина контейнеров из настроек */
 
-/* Ширина контейнеров из настроек */
-.site-header__inner, .site-content, .layout { max-width: var(--container-max); }
+.site-header__inner, .site-content, .layout { max-width: var(--container-max); }/* Скругления карточек/полей */
 
-/* Скругления карточек/полей */
 .content-card, .news-card, .site-search-results__item,
 .block-cta, .block-form, .block-testimonials__item, .widget,
-.content-detail, .block-slider { border-radius: var(--radius); }
+.content-detail, .block-slider { border-radius: var(--radius); }/* Форма кнопок */
 
-/* Форма кнопок */
 .site-cta, .content-toolbar button, .site-search-page__form button,
-.content-detail__download, .block-cta a, .block-news__all { border-radius: var(--btn-radius); }
+.content-detail__download, .block-cta a, .block-news__all { border-radius: var(--btn-radius); }/* Отступ между карточками в сетках */
 
-/* Отступ между карточками в сетках */
-.block-news__grid, .block-projects__grid, .site-search-results { gap: var(--card-gap); }
-
-/* Базовый вертикальный ритм секций задаётся выше в .cms-block через
+.block-news__grid, .block-projects__grid, .site-search-results { gap: var(--card-gap); }/* Базовый вертикальный ритм секций задаётся выше в .cms-block через
    --section-pad (плотность из настроек дизайна); здесь не дублируем, чтобы не
-   перекрывать per-block классы --space-*. */
+   перекрывать per-block классы --space-*. *//* --- Каталог: макеты из настроек дизайна --- */
 
-/* --- Каталог: макеты из настроек дизайна --- */
 body.design-catalog-cards_lg .content-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
 body.design-catalog-cards_sm .content-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
 body.design-catalog-cards_sm .content-card { padding: 16px 18px; }
-body.design-catalog-list .content-cards { display: flex; flex-direction: column; }
+body.design-catalog-list .content-cards { display: flex; flex-direction: column; }/* --- Современная отделка --- */
 
-
-/* --- Современная отделка --- */
 .site-header { border-bottom: 1px solid var(--border-color); }
 .site-menu__link { font-weight: 500; letter-spacing: .01em; transition: color .15s; }
 .site-cta { font-weight: 600; box-shadow: var(--shadow-sm); transition: transform .15s, box-shadow .15s; }
-.site-cta:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.site-cta:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }/* Hero (CTA-блок) — крупный современный вид */
 
-/* Hero (CTA-блок) — крупный современный вид */
 .block-cta { background: linear-gradient(135deg, color-mix(in srgb, var(--gov-navy) 6%, var(--surface)) , var(--surface)); border: 1px solid var(--border-color); padding: clamp(36px, 6vw, 72px); }
 .block-cta h2 { font-size: var(--font-size-h2, var(--step-8)); line-height: 1.15; letter-spacing: -.02em; margin-top: 0; }
 .block-cta a { display: inline-block; padding: 13px 30px; background: var(--gov-teal); color: #fff; text-decoration: none; font-weight: 600; margin-top: 8px; box-shadow: var(--shadow-sm); transition: transform .15s, box-shadow .15s; }
-.block-cta a:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.block-cta a:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }/* Колонки быстрых ссылок — компактные карточки с ховером */
 
-/* Колонки быстрых ссылок — компактные карточки с ховером */
 .cms-columns__col .cms-block--cta .block-cta {
     height: 100%; text-align: left; padding: clamp(22px, 2.4vw, 34px);
     display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
@@ -1173,16 +1121,15 @@ body.design-catalog-list .content-cards { display: flex; flex-direction: column;
 .cms-columns__col .cms-block--cta .block-cta a { margin-top: auto; }
 .cms-columns__col .cms-block--cta .block-cta:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
 
-h1, h2 { letter-spacing: -.015em; }
+h1, h2 { letter-spacing: -.015em; }/* --- Блок «Партнёры» (логотипы) --- */
 
-/* --- Блок «Партнёры» (логотипы) --- */
-.block-partners__title { text-align: center; margin: 0 0 28px; }
-/* Логотипы не растягиваются на всю ширину: при двух партнёрах ряд
+.block-partners__title { text-align: center; margin: 0 0 28px; }/* Логотипы не растягиваются на всю ширину: при двух партнёрах ряд
    центрируется, а не липнет к левому краю с пустотой справа. */
-.block-partners__grid { display: grid; grid-template-columns: repeat(var(--partners-cols, auto-fit), minmax(0, 200px)); gap: var(--card-gap, 24px); align-items: center; justify-content: center; }
-/* Высота логотипа: у партнёров разные пропорции, и без общей высоты ряд
+
+.block-partners__grid { display: grid; grid-template-columns: repeat(var(--partners-cols, auto-fit), minmax(0, 200px)); gap: var(--card-gap, 24px); align-items: center; justify-content: center; }/* Высота логотипа: у партнёров разные пропорции, и без общей высоты ряд
    получался рваным. Обесцвечивание снимается при наведении — так пёстрые
    логотипы не спорят с оформлением страницы, но остаются узнаваемыми. */
+
 .block-partners--logo-small .block-partners__logo { max-height: 36px; }
 .block-partners--logo-medium .block-partners__logo { max-height: 52px; }
 .block-partners--logo-large .block-partners__logo { max-height: 72px; }
@@ -1194,13 +1141,13 @@ h1, h2 { letter-spacing: -.015em; }
 }
 @media (max-width: 900px) {
     .block-partners__grid { grid-template-columns: repeat(auto-fit, minmax(140px, 200px)); }
-}
-/* --- Вариант «бегущая строка» ---
+}/* --- Вариант «бегущая строка» ---
    Набор логотипов выведен дважды, дорожка едет ровно на половину своей ширины
    — в этот момент копия оказывается там, где был оригинал, и шва не видно.
    Половина считается точно только с отступом после последнего логотипа: без
    него в шве не хватало бы одного промежутка. Ширина промежутка та же, что у
    ряда: лента и сетка не должны выглядеть по-разному свёрстанными. */
+
 .block-partners__marquee { overflow-x: auto; scrollbar-width: none; }
 .block-partners__marquee::-webkit-scrollbar { display: none; }
 .block-partners__marquee-track {
@@ -1210,9 +1157,9 @@ h1, h2 { letter-spacing: -.015em; }
     padding-inline-end: var(--card-gap, 24px);
     width: max-content;
     animation: block-partners-marquee var(--partners-marquee-time, 40s) linear infinite;
-}
-/* Под курсором и при фокусе внутри лента стоит: иначе логотип не поймать
+}/* Под курсором и при фокусе внутри лента стоит: иначе логотип не поймать
    мышью, а с клавиатуры не прочитать название. */
+
 .block-partners__marquee:hover .block-partners__marquee-track,
 .block-partners__marquee:focus-within .block-partners__marquee-track { animation-play-state: paused; }
 .block-partners--marquee .block-partners__item { flex: none; width: 200px; justify-content: center; }
@@ -1278,11 +1225,10 @@ h1, h2 { letter-spacing: -.015em; }
     filter: grayscale(0); 
     opacity: 1; 
     transform: scale(1.04); 
-}
-/* Партнёр без логотипа: название текстом вместо битой картинки. */
-.block-partners__name { font-weight: 600; font-size: var(--step--1); text-align: center; color: var(--text-main); }
+}/* Партнёр без логотипа: название текстом вместо битой картинки. */
 
-/* --- Блок «Баннер» --- */
+.block-partners__name { font-weight: 600; font-size: var(--step--1); text-align: center; color: var(--text-main); }/* --- Блок «Баннер» --- */
+
 .block-banner { 
     border-radius: var(--radius, 14px); overflow: hidden; background: var(--bg-surface); 
     transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
@@ -1305,23 +1251,20 @@ h1, h2 { letter-spacing: -.015em; }
 .block-banner__button:hover { 
     transform: translateY(-2px) scale(1.02); 
     box-shadow: 0 8px 20px rgba(230, 57, 70, 0.25); 
-}
+}/* --- Стиль карточек и положение сайдбара (настройки дизайна) --- */
 
-/* --- Стиль карточек и положение сайдбара (настройки дизайна) --- */
 .content-card, .news-card, .site-search-results__item, .block-partners__item {
     box-shadow: var(--card-shadow, none);
-}
-/* Плоские карточки — опираемся на обводку, тень убрана. */
+}/* Плоские карточки — опираемся на обводку, тень убрана. */
+
 body.design-cards-flat .content-card,
 body.design-cards-flat .news-card,
 body.design-cards-flat .site-search-results__item,
-body.design-cards-flat .block-partners__item { border: 1px solid var(--border-color); }
+body.design-cards-flat .block-partners__item { border: 1px solid var(--border-color); }/* Плавающий сайдбар — липнет при прокрутке; неподвижный — обычный поток. */
 
-/* Плавающий сайдбар — липнет при прокрутке; неподвижный — обычный поток. */
 body.design-sidebar-floating .layout__sidebar { position: sticky; top: 20px; align-self: start; }
-@media (max-width: 900px) { body.design-sidebar-floating .layout__sidebar { position: static; } }
+@media (max-width: 900px) { body.design-sidebar-floating .layout__sidebar { position: static; } }/* --- Тип поиска: в строке vs выпадающий (настройки дизайна) --- */
 
-/* --- Тип поиска: в строке vs выпадающий (настройки дизайна) --- */
 .site-search-toggle { display: none; background: transparent; border: 1px solid currentColor; color: inherit; border-radius: 50%; width: 38px; height: 38px; cursor: pointer; align-items: center; justify-content: center; }
 body.design-search-inline .site-search-toggle { display: none; }
 body.design-search-inline .site-search { display: inline-flex; }
@@ -1393,9 +1336,8 @@ body.site-search-open { overflow: hidden; }
 }
 @media (prefers-reduced-motion: reduce) {
     .site-search-overlay, .site-search-overlay__form { transition: none; }
-}
+}/* --- Шаблон детальной страницы каталога (настройки дизайна) --- */
 
-/* --- Шаблон детальной страницы каталога (настройки дизайна) --- */
 .content-detail__grid { display: block; }
 .content-detail__empty { color: var(--text-muted); }
 body.design-detail-sidebar .content-detail__grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; align-items: start; }
@@ -1405,12 +1347,11 @@ body.design-detail-sidebar .content-detail__aside {
 }
 body.design-detail-sidebar .content-detail__aside .content-detail__row { grid-template-columns: 1fr; gap: 2px; padding: 10px 0; }
 body.design-detail-sidebar .content-detail__aside .content-detail__row dt { color: var(--text-muted); font-size: var(--step--2); }
-@media (max-width: 900px) { body.design-detail-sidebar .content-detail__grid { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { body.design-detail-sidebar .content-detail__grid { grid-template-columns: 1fr; } }/* --- Футер колонками --- */
 
-/* --- Футер колонками --- */
-.site-footer--columns { background: var(--bg-surface); color: var(--text-main); border-top: 1px solid var(--border-color); padding: 0; text-align: left; font-size: var(--step--1); }
-/* Колонки растягиваются по фактическому количеству: жёсткая сетка в три
+.site-footer--columns { background: var(--bg-surface); color: var(--text-main); border-top: 1px solid var(--border-color); padding: 0; text-align: left; font-size: var(--step--1); }/* Колонки растягиваются по фактическому количеству: жёсткая сетка в три
    колонки оставляла пустую треть, когда в подвале настроены две. */
+
 .site-footer__inner { max-width: var(--container-max, 1440px); margin: 0 auto; padding: 48px 20px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 40px; }
 .site-footer__name { font-weight: 700; font-size: var(--step-2); margin-bottom: 12px; color: var(--gov-navy); }
 .site-footer__heading { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: var(--step--3); color: var(--text-muted); margin-bottom: 14px; }
@@ -1422,16 +1363,16 @@ body.design-detail-sidebar .content-detail__aside .content-detail__row dt { colo
 .site-footer__col--menu a { text-decoration: none; color: var(--text-main); }
 .site-footer__col--menu a:hover { color: var(--gov-teal); }
 .site-footer__social { display: flex; gap: 8px; flex-wrap: wrap; margin: 0; }
-.site-footer__social-link { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--gov-navy); color: #fff; text-decoration: none; font-weight: 700; }
-/* Контакты подвала: иконка + значение. Список, а не абзацы — это перечень
+.site-footer__social-link { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--gov-navy); color: #fff; text-decoration: none; font-weight: 700; }/* Контакты подвала: иконка + значение. Список, а не абзацы — это перечень
    однотипных строк, и диктор объявляет их числом. */
+
 .footer-contacts { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .footer-contacts__item { display: grid; grid-template-columns: 22px 1fr; align-items: start; gap: 10px; color: var(--text-muted); }
 .footer-contacts__icon { display: inline-flex; align-items: center; justify-content: center; height: 22px; opacity: .7; }
 .footer-contacts__value { color: inherit; text-decoration: none; }
-a.footer-contacts__value:hover { color: var(--gov-teal); text-decoration: underline; text-underline-offset: 3px; }
-/* Подпись под знаком («Логотип и описание») и произвольный HTML колонки:
+a.footer-contacts__value:hover { color: var(--gov-teal); text-decoration: underline; text-underline-offset: 3px; }/* Подпись под знаком («Логотип и описание») и произвольный HTML колонки:
    без своих правил они выходили с цветами страницы, а подвал тёмный. */
+
 .site-footer__about, .site-footer__text { color: var(--text-muted); }
 .site-footer__about > :first-child, .site-footer__text > :first-child { margin-top: 0; }
 .site-footer__about > :last-child, .site-footer__text > :last-child { margin-bottom: 0; }
@@ -1464,9 +1405,9 @@ a.footer-contacts__value:hover { color: var(--gov-teal); text-decoration: underl
 }
 .site-footer__bottom-col--right {
     justify-content: flex-end;
-}
-/* Ссылки нижней строки: служебные страницы справа от копирайта. Переносятся
+}/* Ссылки нижней строки: служебные страницы справа от копирайта. Переносятся
    по словам — на узком экране их подписи не обязаны уместиться в один ряд. */
+
 .site-footer__bottom-links {
     display: flex;
     flex-wrap: wrap;
@@ -1505,16 +1446,15 @@ a.footer-contacts__value:hover { color: var(--gov-teal); text-decoration: underl
    пустыми дорожками: auto-fit укладывает столько, сколько влезло, а не поровну.
    Ниже 1000px раскладываем сеткой 2×2. */
 @media (max-width: 1000px) { .site-footer__inner { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 720px) { .site-footer__inner { grid-template-columns: 1fr; gap: 28px; } }
+@media (max-width: 720px) { .site-footer__inner { grid-template-columns: 1fr; gap: 28px; } }/* --- Мобильная версия (настройки дизайна): бургер-меню и мобильная шапка --- */
 
-/* --- Мобильная версия (настройки дизайна): бургер-меню и мобильная шапка --- */
 .site-burger { display: none; flex-direction: column; justify-content: center; gap: 5px; width: 42px; height: 42px; padding: 9px; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; }
 body.mobile-menu-open .site-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 body.mobile-menu-open .site-burger span:nth-child(2) { opacity: 0; }
 body.mobile-menu-open .site-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-@media (max-width: 720px) {
-    /* Режим «Бургер-меню»: меню скрыто, раскрывается панелью под шапкой. */
+@media (max-width: 720px) {/* Режим «Бургер-меню»: меню скрыто, раскрывается панелью под шапкой. */
+    
     body.design-mmenu-burger .site-burger { display: flex; }
     body.design-mmenu-burger .site-menu {
         display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 55;
@@ -1522,10 +1462,10 @@ body.mobile-menu-open .site-burger span:nth-child(3) { transform: translateY(-7p
         background: var(--bg-primary); border-bottom: 1px solid var(--border-color);
         box-shadow: var(--shadow-lg);
     }
-    body.design-mmenu-burger.mobile-menu-open .site-menu { display: flex; }
-    /* Меню внутри off-canvas панели живёт по своим правилам. Раскрывающая
+    body.design-mmenu-burger.mobile-menu-open .site-menu { display: flex; }/* Меню внутри off-canvas панели живёт по своим правилам. Раскрывающая
        панель бургер-режима позиционируется от шапки (top: 100%), и в drawer
        это выносило пункты за нижний край панели. */
+    
     body.design-mmenu-burger .site-drawer .site-menu {
         display: flex; position: static;
         padding: 0; background: transparent;
@@ -1535,9 +1475,8 @@ body.mobile-menu-open .site-burger span:nth-child(3) { transform: translateY(-7p
     body.design-mmenu-burger .site-menu__link { display: block; padding: 12px 8px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
     body.design-mmenu-burger .site-menu__item { width: 100%; }
     body.design-mmenu-burger .site-header { position: relative; }
-}
+}/* --- Календарь мероприятий --- */
 
-/* --- Календарь мероприятий --- */
 .calendar__nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0 14px; }
 .calendar__label { font-size: var(--step-2); }
 .calendar__scroll { overflow-x: auto; }
@@ -1558,29 +1497,27 @@ body.mobile-menu-open .site-burger span:nth-child(3) { transform: translateY(-7p
 @media (max-width: 640px) {
     .calendar__cell { height: 72px; padding: 4px; }
     .calendar__event { font-size: var(--step--4); padding: 2px 4px; }
-}
+}/* --- Фотоальбомы --- */
 
-/* --- Фотоальбомы --- */
 .albums-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; margin-top: 18px; }
 .album-card { display: flex; flex-direction: column; border: 1px solid var(--border, #e5e7eb); border-radius: var(--radius, 12px); overflow: hidden; text-decoration: none; color: inherit; background: var(--surface, #fff); transition: transform .18s ease, box-shadow .18s ease; }
-.album-card:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(16, 24, 40, .12); }
-/* Пропорция, а не фиксированная высота: с `height: 170px` обложка держала одну
+.album-card:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(16, 24, 40, .12); }/* Пропорция, а не фиксированная высота: с `height: 170px` обложка держала одну
    высоту на всех ширинах, и на широком экране карточка превращалась в узкую
    полосу (2.6:1 при 1440px). Тема задаёт тем же карточкам `aspect-ratio`, но
    явная высота её отменяла — при заданных обоих измерениях пропорция не
    применяется. 16/10 — та же пропорция, что у новостных карточек. */
+
 .album-card__cover { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; }
-.album-card__cover--empty { background: color-mix(in srgb, var(--gov-navy) 12%, transparent); }
-/* Заголовок карточки — h2 (после h1 страницы), поэтому размер и отступы
+.album-card__cover--empty { background: color-mix(in srgb, var(--gov-navy) 12%, transparent); }/* Заголовок карточки — h2 (после h1 страницы), поэтому размер и отступы
    задаём классом: с уровнем заголовка внешний вид меняться не должен. */
+
 .album-card__meta { font-size: var(--step--3); color: var(--text-muted); }
 .album-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 18px; }
 .album-photo { margin: 0; }
 .album-photo img { width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius, 10px); display: block; transition: opacity .15s ease; }
 .album-photo a:hover img { opacity: .85; }
-.album-photo figcaption { font-size: var(--step--3); color: var(--text-muted); margin-top: 6px; }
+.album-photo figcaption { font-size: var(--step--3); color: var(--text-muted); margin-top: 6px; }/* --- Блок подписки на дайджест --- */
 
-/* --- Блок подписки на дайджест --- */
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .form-honeypot {
     position: absolute;
@@ -1628,10 +1565,10 @@ body.mobile-menu-open .site-burger span:nth-child(3) { transform: translateY(-7p
 }
 .subscribe-block__title { margin: 0 0 8px; }
 .subscribe-block__text { margin: 0 0 18px; color: var(--text-muted); }
-.subscribe-block__note { margin: 14px 0 0; color: var(--text-muted); font-size: var(--step--2); }
-/* Варианты оформления. «Полоса» — во всю ширину раздела, «карточка» — узкий
+.subscribe-block__note { margin: 14px 0 0; color: var(--text-muted); font-size: var(--step--2); }/* Варианты оформления. «Полоса» — во всю ширину раздела, «карточка» — узкий
    блок по центру (прежний вид), «на фоне» — поверх изображения с затемнением,
    чтобы текст читался на любом снимке. */
+
 .subscribe-block--band { max-width: none; }
 .subscribe-block--image {
     max-width: none;
@@ -1679,13 +1616,12 @@ body.mobile-menu-open .site-burger span:nth-child(3) { transform: translateY(-7p
     line-height: var(--base-line-height, 1.45);
     text-align: left;
 }
-.subscribe-block__consent input { flex: 0 0 auto; margin-top: 3px; }
-
-/* ============================================================
+.subscribe-block__consent input { flex: 0 0 auto; margin-top: 3px; }/* ============================================================
    DESIGN 2.0 — качественный дефолтный облик (слой поверх базы).
    Всё выводится из --color-primary/--color-accent через color-mix,
    поэтому работает с любой палитрой тема-билдера.
    ============================================================ */
+
 :root {
     --ink: color-mix(in srgb, var(--gov-navy) 88%, #0b1020);
     --tint-2: color-mix(in srgb, var(--gov-navy) 3%, var(--bg-primary));
@@ -1693,11 +1629,11 @@ body.mobile-menu-open .site-burger span:nth-child(3) { transform: translateY(-7p
     --shadow-primary: 0 14px 40px color-mix(in srgb, var(--gov-navy) 16%, transparent);
 }
 /* Плавная прокрутка только при отсутствии prefers-reduced-motion (WCAG). */
-@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
-/* Якорь не должен уезжать под закреплённую шапку: браузер останавливает
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }/* Якорь не должен уезжать под закреплённую шапку: браузер останавливает
    прокрутку на этом отступе выше цели, иначе заголовок раздела оказывается
    прямо за шапкой и выглядит как промах. Высоту меряет frontend.js (макетов
    шапки четыре, константой их не покрыть), 5rem — запас, когда JS отключён. */
+
 html:has(.site-header--sticky) { scroll-padding-top: calc(var(--scroll-offset, 5rem) + 24px); }
 
 /* Бесшовный переход между страницами (View Transitions).
@@ -1708,23 +1644,22 @@ html:has(.site-header--sticky) { scroll-padding-top: calc(var(--scroll-offset, 5
    меняется только содержимое между ними.
    SPA для этого не нужен: приём чисто декларативный, работает на обычной
    навигации, а браузер без поддержки просто переходит по ссылке как раньше. */
-@view-transition { navigation: auto; }
-/* Имя обязано быть уникальным на странице: два элемента с одним именем
+@view-transition { navigation: auto; }/* Имя обязано быть уникальным на странице: два элемента с одним именем
    отменяют переход целиком, поэтому берём то, что заведомо в одном экземпляре.
    Подвал имени намеренно не получает: он стоит внизу и на короткой странице
    виден, а на длинной — нет. Снимок поехал бы от видимого положения к
    заэкранному, и переход выглядел бы как уезжающий вниз подвал. Верх страницы
    такой разницы не знает — шапка на месте всегда. */
+
 .site-topbar { view-transition-name: site-topbar; }
-.site-header { view-transition-name: site-header; }
-/* Шапка не переезжает. По умолчанию браузер везёт снимок от старого положения
+.site-header { view-transition-name: site-header; }/* Шапка не переезжает. По умолчанию браузер везёт снимок от старого положения
    к новому, а шапка у нас не липкая: уходя с прокрутки, её старое положение —
    выше экрана, и она **влетала бы сверху**, оставляя верх страницы пустым.
    Снимаем перенос: снимок сразу стоит на новом месте, а старая и новая шапки
    в нём переливаются одна в другую — активный пункт меню меняется без рывка. */
+
 ::view-transition-group(site-header),
-::view-transition-group(site-topbar) { animation: none; }
-/* И не переливается. Вид шапки зависит от страницы: на обложке она прозрачная
+::view-transition-group(site-topbar) { animation: none; }/* И не переливается. Вид шапки зависит от страницы: на обложке она прозрачная
    со светлым набором, на остальных — сплошная. Перелив двух таких снимков
    держал **белую полосу поверх уже тёмной обложки** — ровно то, что читается
    как мигание при переходе на главную. Шапка не контент, который должен
@@ -1732,13 +1667,14 @@ html:has(.site-header--sticky) { scroll-padding-top: calc(var(--scroll-offset, 5
    встаёт сразу, а старая не показывается вовсе. Белый набор при этом читается
    и на светлом: под прозрачной шапкой всегда есть затемняющая подложка
    (--hdr-scrim), она едет вместе со снимком. */
+
 ::view-transition-old(site-header),
 ::view-transition-old(site-topbar) { animation: none; opacity: 0; }
 ::view-transition-new(site-header),
 ::view-transition-new(site-topbar) { animation: none; opacity: 1; }
 
-::selection { background: color-mix(in srgb, var(--gov-navy) 82%, #000); color: #fff; }
-/* Заголовочная гарнитура (Montserrat) — крупный корпоративный характер. */
+::selection { background: color-mix(in srgb, var(--gov-navy) 82%, #000); color: #fff; }/* Заголовочная гарнитура (Montserrat) — крупный корпоративный характер. */
+
 h1, h2, h3, h4, h5, h6,
 .site-header__logo, .block-cta h2, .news-index__title,
 .block-news__title, .content-list__head h1, .site-footer__name {
@@ -1750,9 +1686,8 @@ h2 { font-size: var(--font-size-h2, var(--step-6)); line-height: var(--heading-l
 h3 { font-size: var(--font-size-h3, var(--step-4)); line-height: var(--heading-line-height, 1.35); margin: 1.4rem 0 0.8rem; }
 h4 { font-size: var(--font-size-h4, var(--step-2)); line-height: var(--heading-line-height, 1.35); margin: 1.2rem 0 0.6rem; }
 h5 { font-size: var(--font-size-h5, var(--step-0)); line-height: var(--heading-line-height, 1.35); margin: 1rem 0 0.5rem; }
-h6 { font-size: var(--font-size-h6, var(--step--1)); line-height: var(--heading-line-height, 1.35); margin: 1rem 0 0.5rem; }
+h6 { font-size: var(--font-size-h6, var(--step--1)); line-height: var(--heading-line-height, 1.35); margin: 1rem 0 0.5rem; }/* Унификация размеров всех заголовков блоков на главной и внутренних страницах */
 
-/* Унификация размеров всех заголовков блоков на главной и внутренних страницах */
 .block-news__title,
 .block-categories__title,
 .block-contact-cards__title,
@@ -1766,9 +1701,8 @@ h6 { font-size: var(--font-size-h6, var(--step--1)); line-height: var(--heading-
     letter-spacing: var(--heading-letter-spacing, -.02em);
 }
 h1, .news-index__title, .content-list__head h1 { font-weight: 800; }
-p { line-height: var(--base-line-height, 1.6); }
+p { line-height: var(--base-line-height, 1.6); }/* --- Шапка: глубина, аккуратные ссылки меню --- */
 
-/* --- Шапка: глубина, аккуратные ссылки меню --- */
 .site-header { position: relative; z-index: 40; }
 .site-menu__link {
     position: relative; padding: 8px 2px; border-radius: var(--radius-sm, 6px);
@@ -1780,9 +1714,8 @@ p { line-height: var(--base-line-height, 1.6); }
 }
 .site-menu__link:hover::after, .site-menu__link:focus-visible::after { right: 0; }
 .site-lang-switcher__item { padding: 4px 8px; border-radius: var(--radius-sm, 8px); transition: background .15s ease; }
-.site-lang-switcher__item:hover { background: rgba(255, 255, 255, .12); }
+.site-lang-switcher__item:hover { background: rgba(255, 255, 255, .12); }/* --- Hero: первый CTA-блок страницы превращается в полотно --- */
 
-/* --- Hero: первый CTA-блок страницы превращается в полотно --- */
 .site-content > section.cms-block--cta:first-of-type .block-cta,
 .page-blocks > section.cms-block--cta:first-of-type .block-cta {
     position: relative; overflow: hidden; isolation: isolate;
@@ -1794,8 +1727,8 @@ p { line-height: var(--base-line-height, 1.6); }
         radial-gradient(900px 420px at 105% 130%, color-mix(in srgb, var(--gov-teal) 38%, transparent), transparent 60%),
         linear-gradient(118deg, var(--ink) 0%, color-mix(in srgb, var(--gov-navy) 88%, #000) 58%, color-mix(in srgb, var(--gov-navy) 60%, var(--gov-teal)) 100%);
     box-shadow: var(--shadow-primary);
-}
-/* Тонкая декоративная сетка поверх градиента. */
+}/* Тонкая декоративная сетка поверх градиента. */
+
 .site-content > section.cms-block--cta:first-of-type .block-cta::before,
 .page-blocks > section.cms-block--cta:first-of-type .block-cta::before {
     content: ''; position: absolute; inset: 0; z-index: -1; opacity: .5;
@@ -1823,16 +1756,14 @@ p { line-height: var(--base-line-height, 1.6); }
 .site-content > section.cms-block--cta:first-of-type .block-cta .block-cta__button:hover,
 .page-blocks > section.cms-block--cta:first-of-type .block-cta .block-cta__button:hover {
     transform: translateY(-2px); box-shadow: 0 16px 34px rgba(5, 10, 30, .4);
-}
+}/* --- Кнопки: единый характер --- */
 
-/* --- Кнопки: единый характер --- */
 .block-cta__button, .block-banner__button, .subscribe-block__form .btn--primary,
 .content-detail__download, .site-search__submit {
     transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
 }
-.block-cta__button:hover { transform: translateY(-1px); box-shadow: 0 10px 24px color-mix(in srgb, var(--gov-teal) 35%, transparent); }
+.block-cta__button:hover { transform: translateY(-1px); box-shadow: 0 10px 24px color-mix(in srgb, var(--gov-teal) 35%, transparent); }/* --- Карточки-разделы (CTA в колонках): акцентная кромка и стрелка --- */
 
-/* --- Карточки-разделы (CTA в колонках): акцентная кромка и стрелка --- */
 .cms-columns__col .cms-block--cta .block-cta {
     position: relative; overflow: hidden;
     border: 1px solid var(--border-color);
@@ -1857,18 +1788,16 @@ p { line-height: var(--base-line-height, 1.6); }
 .cms-columns__col .cms-block--cta .block-cta:hover .block-cta__button {
     background: var(--gov-navy); color: #fff;
 }
-.cms-columns__col .cms-block--cta .block-cta:hover .block-cta__button::after { transform: translateX(3px); }
+.cms-columns__col .cms-block--cta .block-cta:hover .block-cta__button::after { transform: translateX(3px); }/* --- Заголовки лент (новости и др.): линия-акцент --- */
 
-/* --- Заголовки лент (новости и др.): линия-акцент --- */
 .block-news__head { align-items: baseline; border-bottom: 1px solid var(--border-color); padding-bottom: 14px; margin-bottom: 26px; position: relative; }
 .block-news__head::after {
     content: ''; position: absolute; left: 0; bottom: -1px; width: 64px; height: 3px; border-radius: 2px;
     background: linear-gradient(90deg, var(--gov-navy), var(--gov-teal));
 }
 .block-news__title { font-size: var(--font-size-h2, var(--step-6)); margin: 0; }
-.block-news__all { font-weight: 600; }
+.block-news__all { font-weight: 600; }/* --- Карточки новостей: плейсхолдер обложки, дата-чип --- */
 
-/* --- Карточки новостей: плейсхолдер обложки, дата-чип --- */
 .news-card { border-radius: var(--radius, 14px); }
 .news-card__cover--empty {
     display: block; aspect-ratio: 16 / 9; position: relative;
@@ -1888,9 +1817,8 @@ p { line-height: var(--base-line-height, 1.6); }
     background: color-mix(in srgb, var(--gov-navy) 8%, transparent);
     color: var(--gov-navy); font-weight: 600; font-size: var(--step--4);
 }
-.news-card:hover { box-shadow: var(--shadow-primary); transform: translateY(-4px); }
+.news-card:hover { box-shadow: var(--shadow-primary); transform: translateY(-4px); }/* --- Футер: глубокий, структурный --- */
 
-/* --- Футер: глубокий, структурный --- */
 .site-footer--columns {
     background:
         radial-gradient(700px 260px at 90% -60%, color-mix(in srgb, var(--gov-teal) 24%, transparent), transparent 70%),
@@ -1910,12 +1838,12 @@ p { line-height: var(--base-line-height, 1.6); }
     content: ''; position: absolute; left: 0; bottom: 0; width: 36px; height: 2px; border-radius: 2px;
     background: var(--gov-teal);
 }
-.site-footer--columns .site-footer__line { margin: 0 0 8px; color: rgba(255, 255, 255, .72); }
-/* Меню в две дорожки — только если колонка достаточно широка: жёсткое
+.site-footer--columns .site-footer__line { margin: 0 0 8px; color: rgba(255, 255, 255, .72); }/* Меню в две дорожки — только если колонка достаточно широка: жёсткое
    `columns: 2` рвало пять пунктов на 140-пиксельные полуколонки и в четырёх
    колонках подвала читалось как ещё одна колонка. Пара «не больше двух,
    каждая от 220px» решает это без брейкпоинта: ширина дорожки зависит от
    числа колонок подвала, а не от ширины экрана. */
+
 .site-footer--columns .site-footer__col--menu ul { columns: 2 220px; column-gap: 28px; margin: 0; padding: 0; list-style: none; }
 .site-footer--columns .site-footer__col--menu li { margin-bottom: 10px; break-inside: avoid; }
 /* Ниже 720px подвал в одну колонку, и дорожка меню становится во всю ширину
@@ -1932,15 +1860,13 @@ p { line-height: var(--base-line-height, 1.6); }
     background: rgba(255, 255, 255, .1); font-weight: 700;
     transition: background .15s ease, transform .15s ease;
 }
-.site-footer__social-link:hover { background: var(--gov-teal); transform: translateY(-2px); text-decoration: none; }
+.site-footer__social-link:hover { background: var(--gov-teal); transform: translateY(-2px); text-decoration: none; }/* --- Каталог/контент: карточки и хлебные крошки --- */
 
-/* --- Каталог/контент: карточки и хлебные крошки --- */
 .content-crumbs { font-size: var(--step--2); color: var(--text-muted); }
 .content-list__head h1 { font-size: var(--font-size-h1, var(--step-8)); margin-bottom: 6px; }
 .content-list__lead { color: var(--text-muted); max-width: 640px; }
-.content-card:hover { box-shadow: var(--shadow-primary); }
+.content-card:hover { box-shadow: var(--shadow-primary); }/* --- Блок подписки: в тон герою --- */
 
-/* --- Блок подписки: в тон герою --- */
 .subscribe-block {
     border: 0; color: #fff;
     background:
@@ -1949,21 +1875,16 @@ p { line-height: var(--base-line-height, 1.6); }
     box-shadow: var(--shadow-primary);
 }
 .subscribe-block__text { color: rgba(255, 255, 255, .8); }
-.subscribe-block__form input[type=email] { border: 0; }
+.subscribe-block__form input[type=email] { border: 0; }/* --- Тёмная тема: полутона подстраиваются --- */
 
-/* --- Тёмная тема: полутона подстраиваются --- */
 :root[data-theme="dark"] {
     --tint-2: color-mix(in srgb, var(--gov-navy) 10%, var(--bg-primary));
     --tint-6: color-mix(in srgb, var(--gov-navy) 16%, var(--bg-primary));
-}
-
-/* ==========================================================================
+}/* ==========================================================================
    ФИНАЛЬНАЯ ПОЛИРОВКА ФРОНТА
-   ========================================================================== */
-
-/* --- Навигационная полоса под шапкой (паттерн официального портала) --- */
-/* Верхний ряд остаётся под логотип + утилиты; меню — отдельной строкой во всю
+   ========================================================================== *//* --- Навигационная полоса под шапкой (паттерн официального портала) --- *//* Верхний ряд остаётся под логотип + утилиты; меню — отдельной строкой во всю
    ширину, поэтому оно не теснится и не переносится вперемешку с поиском. */
+
 .site-header--has-nav .site-header__inner { padding-bottom: 14px; }
 .site-nav__inner {
     max-width: var(--container-max, 1440px);
@@ -1988,9 +1909,8 @@ p { line-height: var(--base-line-height, 1.6); }
     .site-header--has-nav .site-header__inner { padding-bottom: 20px; }
     body.design-mmenu-burger .site-nav { border-top: 0; }
     body.design-mmenu-burger .site-nav__inner { padding: 0; }
-}
+}/* --- Страница новостей: единый карточный грид (как на главной) --- */
 
-/* --- Страница новостей: единый карточный грид (как на главной) --- */
 .news-index__head { border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 28px; position: relative; }
 .news-index__head::after {
     content: ''; position: absolute; left: 0; bottom: -1px; width: 64px; height: 3px; border-radius: 2px;
@@ -2003,8 +1923,8 @@ p { line-height: var(--base-line-height, 1.6); }
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: var(--card-gap, 24px);
-}
-/* Карточка новости: превью-обложка, «Читать →», бейдж видео. */
+}/* Карточка новости: превью-обложка, «Читать →», бейдж видео. */
+
 .news-card__body { flex: 1; }
 .news-card__more {
     margin-top: auto; padding-top: 6px; font-weight: 600; font-size: var(--step--2);
@@ -2021,9 +1941,8 @@ p { line-height: var(--base-line-height, 1.6); }
 .news-card__play::after {
     content: ''; position: absolute; top: 50%; left: 54%; transform: translate(-50%, -50%);
     border-style: solid; border-width: 9px 0 9px 15px; border-color: transparent transparent transparent #fff;
-}
+}/* --- Детальная новость: читаемая колонка, дата-чип, возврат --- */
 
-/* --- Детальная новость: читаемая колонка, дата-чип, возврат --- */
 .news-single { max-width: 760px; }
 .news-single h1 { font-size: var(--font-size-h1, var(--step-8)); margin: 0 0 14px; }
 .news-single > time,
@@ -2041,15 +1960,12 @@ p { line-height: var(--base-line-height, 1.6); }
     font-weight: 600; text-decoration: none;
     color: var(--gov-teal);
 }
-.news-single__back a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.news-single__back a:hover { text-decoration: underline; text-underline-offset: 3px; }/* --- Hero: не разрастается сверх меры на больших экранах --- */
 
-/* --- Hero: не разрастается сверх меры на больших экранах --- */
 .site-content > section.cms-block--cta:first-of-type .block-cta,
 .page-blocks > section.cms-block--cta:first-of-type .block-cta {
     padding-block: clamp(52px, 7vw, 92px);
-}
-
-/* ==========================================================================
+}/* ==========================================================================
    ТЁМНАЯ ТЕМА: контраст текста, привязанного к брендовому --color-primary
    --------------------------------------------------------------------------
    Множество элементов (логотип, меню, заголовки карточек, чипы дат) красятся
@@ -2058,6 +1974,7 @@ p { line-height: var(--base-line-height, 1.6); }
    тему-зависимый --text-main; акцентные подложки чипов делаем светлее.
    Пресеты «accent»/«dark» шапки имеют бОльшую специфичность и остаются белыми.
    ========================================================================== */
+
 :root[data-theme="dark"] .site-header__logo,
 :root[data-theme="dark"] .site-menu__link,
 :root[data-theme="dark"] .site-lang-switcher__item.is-active,
@@ -2071,16 +1988,16 @@ p { line-height: var(--base-line-height, 1.6); }
 :root[data-theme="dark"] .site-footer__name,
 :root[data-theme="dark"] .cms-columns__col .cms-block--cta .block-cta h2 {
     color: var(--text-main);
-}
-/* Чипы дат: на тёмном фоне светлая акцентная подложка + светлый текст. */
+}/* Чипы дат: на тёмном фоне светлая акцентная подложка + светлый текст. */
+
 :root[data-theme="dark"] .news-card__date,
 :root[data-theme="dark"] .news-single > time,
 :root[data-theme="dark"] .news-single--side > time,
 :root[data-theme="dark"] .calendar__list time {
     background: color-mix(in srgb, var(--gov-teal) 22%, transparent);
     color: var(--text-main);
-}
-/* Кнопка карточки-раздела в тёмной теме: читаемая, на подложке акцента. */
+}/* Кнопка карточки-раздела в тёмной теме: читаемая, на подложке акцента. */
+
 :root[data-theme="dark"] .cms-columns__col .cms-block--cta .block-cta .block-cta__button {
     background: color-mix(in srgb, var(--gov-teal) 24%, transparent);
     color: var(--text-main);
@@ -2098,54 +2015,49 @@ p { line-height: var(--base-line-height, 1.6); }
         background: color-mix(in srgb, var(--gov-teal) 22%, transparent);
         color: var(--text-main);
     }
-}
-
-/* ==========================================================================
+}/* ==========================================================================
    МЕНЮ: SVG-иконки и разделители пунктов
-   ========================================================================== */
-/* Наборы утилит для десктопа и мобильного (конструктор — раздельные раскладки). */
+   ========================================================================== *//* Наборы утилит для десктопа и мобильного (конструктор — раздельные раскладки). */
+
 .hdr-util { display: inline-flex; align-items: center; gap: var(--header-elements-gap, 18px); }
 .hdr-util--mobile { display: none; }
 @media (max-width: 720px) {
     .hdr-util--desktop { display: none; }
     .hdr-util--mobile { display: inline-flex; }
-}
+}/* Разделитель-спейсер между элементами верхнего ряда шапки. */
 
-/* Разделитель-спейсер между элементами верхнего ряда шапки. */
 .site-header__divider { display: inline-block; width: 1px; height: 22px; align-self: center; background: color-mix(in srgb, currentColor 28%, transparent); }
-.site-header__zone .site-header__divider { margin: 0 2px; }
-/* Гибкий отступ: растягивается и расталкивает соседние элементы в зоне. */
-.site-header__spacer { flex: 1 1 auto; min-width: 12px; align-self: stretch; }
-/* Пробел: фиксированный горизонтальный зазор между элементами. */
+.site-header__zone .site-header__divider { margin: 0 2px; }/* Гибкий отступ: растягивается и расталкивает соседние элементы в зоне. */
+
+.site-header__spacer { flex: 1 1 auto; min-width: 12px; align-self: stretch; }/* Пробел: фиксированный горизонтальный зазор между элементами. */
+
 .site-header__space { display: inline-block; flex: 0 0 auto; width: 24px; align-self: center; }
 
 .site-menu__link, .site-submenu__link { display: inline-flex; align-items: center; gap: 8px; }
 .site-menu__icon { display: inline-flex; align-items: center; }
 .site-menu__icon svg { width: 18px; height: 18px; display: block; }
-.site-menu__text { display: inline-block; }
-/* Разделитель в горизонтальном меню — тонкая вертикальная черта. */
+.site-menu__text { display: inline-block; }/* Разделитель в горизонтальном меню — тонкая вертикальная черта. */
+
 .site-menu__divider {
     align-self: center;
     width: var(--menu-divider-width, 1px);
     height: var(--menu-divider-height, 18px);
     margin: 0 8px;
     background: var(--menu-divider-color, color-mix(in srgb, currentColor 35%, transparent));
-}
-
-/* Настройки «Разделители меню» применяются только при включенной опции (.site-menu--with-item-dividers).
-   Псевдоэлемент позиционируется на правой границе каждого пункта (кроме последнего). */
-.site-menu--with-item-dividers > .site-menu__link:not(:last-child)::before,
-/* Priority-контейнер «Ещё» технически остаётся последним дочерним элементом,
+}/* Настройки «Разделители меню» применяются только при включенной опции (.site-menu--with-item-dividers).
+   Псевдоэлемент позиционируется на правой границе каждого пункта (кроме последнего). *//* Priority-контейнер «Ещё» технически остаётся последним дочерним элементом,
    поэтому фактически последний пункт меню нельзя определять через :last-child. */
+
+.site-menu--with-item-dividers > .site-menu__link:not(:last-child)::before,
+
 [data-priority-menu].site-menu--with-item-dividers > .site-menu__link:has(+ [data-priority-overflow])::before,
 [data-priority-menu].site-menu--with-item-dividers > .site-menu__item:has(+ [data-priority-overflow])::before {
     content: none !important;
 }
 [data-priority-menu] > .site-menu__divider:has(+ [data-priority-overflow]) {
     display: none;
-}
+}/* Разделители НЕ должны окрашиваться в активный цвет (teal) при наведении на пункт меню */
 
-/* Разделители НЕ должны окрашиваться в активный цвет (teal) при наведении на пункт меню */
 .site-menu--with-item-dividers > .site-menu__link:hover::before,
 .site-menu--with-item-dividers > .site-menu__link:focus-visible::before,
 .site-menu--with-item-dividers > .site-menu__link.is-active::before,
@@ -2162,18 +2074,16 @@ p { line-height: var(--base-line-height, 1.6); }
 .site-header--transparent:not(.is-scrolled) .site-menu--with-item-dividers > .site-menu__link:not(:last-child)::before,
 .site-header--transparent:not(.is-scrolled) .site-menu--with-item-dividers > .site-menu__item:not(:last-child)::before {
     background: var(--menu-divider-color-transparent, rgba(var(--hdr-veil, 255, 255, 255), 0.45)) !important;
-}
+}/* Ручной разделитель уже рисует линию сам, поэтому следующему пункту дубликат не нужен. */
 
-/* Ручной разделитель уже рисует линию сам, поэтому следующему пункту дубликат не нужен. */
 .site-menu > .site-menu__divider + .site-menu__link::before,
 .site-menu > .site-menu__divider + .site-menu__item::before { content: none; }
 
 @media (max-width: 720px) {
     .site-menu > .site-menu__link:not(:first-child)::before,
     .site-menu > .site-menu__item:not(:first-child)::before { content: none; }
-}
+}/* Мобильная навигация: бургер скрыт на десктопе и открывает общий drawer. */
 
-/* Мобильная навигация: бургер скрыт на десктопе и открывает общий drawer. */
 .site-burger { display: none; }
 
 .site-drawer {
@@ -2247,10 +2157,9 @@ body.mobile-menu-open .site-drawer__panel { transform: translateX(0); }
 .site-drawer .site-menu__divider {
     width: 100%; height: 1px; margin: 8px 0;
     background: var(--border-color);
-}
-
-/* Priority navigation: на desktop основное меню остаётся горизонтальным,
+}/* Priority navigation: на desktop основное меню остаётся горизонтальным,
    а непоместившиеся последние пункты переходят в «Ещё». */
+
 .site-menu__overflow {
     position: relative;
     flex: 0 0 auto;
@@ -2424,10 +2333,10 @@ body.mobile-menu-open .site-drawer__panel { transform: translateX(0); }
     .site-topbar__zone:has([data-priority-menu]),
     .site-nav__inner:has([data-priority-menu]) {
         min-width: 0;
-    }
-    /* Зона с desktop-навигацией должна получать всё свободное место строки.
+    }/* Зона с desktop-навигацией должна получать всё свободное место строки.
        Иначе её ширина вычисляется по содержимому, и priority-menu ошибочно
        переносит пункты в «Ещё» даже на широком экране. */
+    
     .site-header__inner:has([data-priority-menu]) > .site-header__zone:has([data-priority-menu]),
     .site-topbar__inner:has([data-priority-menu]) > .site-topbar__zone:has([data-priority-menu]) {
         flex: 1 1 0;
@@ -2466,19 +2375,18 @@ body.mobile-menu-open .site-drawer__panel { transform: translateX(0); }
 /* На мобильных устройствах навигация открывается через drawer. */
 @media (max-width: 720px) {
     [data-priority-overflow] { display: none; }
-    .site-header .site-burger { display: inline-flex; }
-    /* В выпадающем мобильном меню пункты — блочные, но с отступом под иконку. */
-    body.design-mmenu-burger .site-menu__link { display: flex; align-items: center; gap: 8px; }
-    /* Разделитель в любом вертикальном мобильном меню — горизонтальная черта. */
+    .site-header .site-burger { display: inline-flex; }/* В выпадающем мобильном меню пункты — блочные, но с отступом под иконку. */
+    
+    body.design-mmenu-burger .site-menu__link { display: flex; align-items: center; gap: 8px; }/* Разделитель в любом вертикальном мобильном меню — горизонтальная черта. */
+    
     body.design-mmenu-burger .site-menu__divider {
         width: 100%; height: 1px; margin: 6px 0;
         background: color-mix(in srgb, var(--text-main) 18%, transparent);
     }
-}
-
-/* ==========================================================================
+}/* ==========================================================================
    БЛОК «Контактные карточки» (модульный блок конструктора) + полоса статистики
    ========================================================================== */
+
 .block-contact-cards__title { font-size: var(--font-size-h2, var(--step-6)); margin: 0 0 22px; }
 .block-contact-cards__empty { color: var(--text-muted); }
 .contact-cards {
@@ -2504,16 +2412,16 @@ body.mobile-menu-open .site-drawer__panel { transform: translateX(0); }
 .contact-card:hover .contact-card__title {
     color: var(--gov-teal);
 }
-.contact-card__line { margin: 2px 0; color: var(--text-muted); }
-/* Мини-иконка у строки контакта: подбирается по содержимому строки. Иконка
+.contact-card__line { margin: 2px 0; color: var(--text-muted); }/* Мини-иконка у строки контакта: подбирается по содержимому строки. Иконка
    не переносится вместе с текстом — она в своей колонке. */
+
 .contact-card__line--icon { display: flex; align-items: flex-start; gap: 8px; }
 .contact-card__line-icon { flex: none; display: inline-flex; margin-top: 2px; color: var(--gov-teal); }
-.contact-card__line-text { min-width: 0; }
-/* Своя картинка вместо иконки Tabler: размер тот же, что у значка темы. */
-.contact-card__icon-img { width: var(--feature-card-icon-size, 22px); height: var(--feature-card-icon-size, 22px); object-fit: contain; }
-/* Кликабельные номер и почта внутри строки контакта: подчёркивание появляется
+.contact-card__line-text { min-width: 0; }/* Своя картинка вместо иконки Tabler: размер тот же, что у значка темы. */
+
+.contact-card__icon-img { width: var(--feature-card-icon-size, 22px); height: var(--feature-card-icon-size, 22px); object-fit: contain; }/* Кликабельные номер и почта внутри строки контакта: подчёркивание появляется
    при наведении, чтобы строка не выглядела сплошной ссылкой. */
+
 .contact-link { color: inherit; text-decoration: none; border-bottom: 1px dotted currentColor; }
 .contact-link:hover, .contact-link:focus-visible { color: var(--gov-teal); border-bottom-style: solid; }
 .contact-card__link { 
@@ -2524,20 +2432,17 @@ body.mobile-menu-open .site-drawer__panel { transform: translateX(0); }
     color: var(--gov-teal);
     transform: translateX(4px); 
 }
-:root[data-theme="dark"] .contact-card__title { color: var(--text-main); }
-
-/* ==========================================================================
+:root[data-theme="dark"] .contact-card__title { color: var(--text-main); }/* ==========================================================================
    БЛОКИ ГОС-СТРАНИЦ: hero (титул+фото), сетка категорий, медиаматериалы
-   ========================================================================== */
-/* Герой: текст слева на фоне, фото справа с плавным перетеканием в фон. */
+   ========================================================================== *//* Герой: текст слева на фоне, фото справа с плавным перетеканием в фон. */
+
 .block-hero { position: relative; overflow: hidden; border-radius: var(--radius, 16px); background: var(--bg-primary); }
 .block-hero--image { min-height: clamp(280px, 34vw, 440px); display: flex; align-items: center; }
 .block-hero__media { position: absolute; inset: 0 0 0 38%; display: block; overflow: hidden; background-size: cover; background-position: center; }
-.block-hero__image { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
-/* Responsive <picture> не создаёт дополнительный layout-box: существующие
+.block-hero__image { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }/* Responsive <picture> не создаёт дополнительный layout-box: существующие
    grid/flex/absolute стили продолжают применяться к самому <img>. */
-.media-picture { display: contents; }
-/* `display: contents` растворяет обёртку, и в сетке или флексе её место
+
+.media-picture { display: contents; }/* `display: contents` растворяет обёртку, и в сетке или флексе её место
    занимают ДЕТИ — не только <img>, но и <source>. Рисует <source> ничего, а
    ячейку занимает: все следующие элементы сдвигаются на одну, и последний
    уезжает на вторую строку. Так ломалась пара «предыдущая/следующая» на
@@ -2547,6 +2452,7 @@ body.mobile-menu-open .site-drawer__panel { transform: translateX(0); }
    На выбор формата правило не влияет: <picture> выбирает источник в алгоритме
    загрузки изображения, а не в раскладке (проверено — currentSrc остаётся
    webp). */
+
 source { display: none; }
 .block-hero__media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--bg-primary) 6%, color-mix(in srgb, var(--bg-primary) 55%, transparent) 42%, transparent 66%); }
 .block-hero__inner { position: relative; width: 100%; }
@@ -2561,9 +2467,9 @@ source { display: none; }
     padding: 13px 28px; border-radius: var(--btn-radius, 10px);
     background: var(--gov-navy); color: #fff; text-decoration: none; font-weight: 600;
     transition: transform .15s ease, box-shadow .15s ease;
-}
-/* Иконка кнопки: из библиотеки Tabler (наследует цвет текста) или своя
+}/* Иконка кнопки: из библиотеки Tabler (наследует цвет текста) или своя
    картинка/SVG из медиабиблиотеки (показывается как есть). */
+
 .block-hero__button-icon { display: inline-flex; flex: 0 0 auto; align-items: center; }
 .block-hero__button-icon svg { display: block; }
 img.block-hero__button-icon { width: 20px; height: 20px; object-fit: contain; }
@@ -2598,13 +2504,12 @@ img.block-hero__button-icon { width: 20px; height: 20px; object-fit: contain; }
     .block-hero__media { inset: 0; opacity: .16; }
     .block-hero__media::after { background: none; }
     .block-hero--image { min-height: 0; padding: 8px 0; }
-}
+}/* Сетка категорий: плитки с иконкой; первая — активная (акцент). */
 
-/* Сетка категорий: плитки с иконкой; первая — активная (акцент). */
-.block-categories__title { font-size: var(--font-size-h2, var(--step-6)); margin: 0 0 20px; }
-/* Шапка появляется только в режиме слайдера: стрелкам нужно место рядом с
+.block-categories__title { font-size: var(--font-size-h2, var(--step-6)); margin: 0 0 20px; }/* Шапка появляется только в режиме слайдера: стрелкам нужно место рядом с
    заголовком. Нижний отступ переезжает на неё — иначе он сложился бы с
    отступом заголовка и оторвал управление от полосы. */
+
 .block-categories__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 0 0 20px; }
 .block-categories__head .block-categories__title { margin: 0; }
 .block-categories__empty { color: var(--text-muted); }
@@ -2631,9 +2536,8 @@ img.block-hero__button-icon { width: 20px; height: 20px; object-fit: contain; }
 .cat-tile.is-active .cat-tile__icon { background-color: var(--gov-teal); color: #fff; }
 .cat-tile__label { font-weight: 600; font-size: var(--step--1); }
 
-.media-list { display: flex; flex-direction: column; }
+.media-list { display: flex; flex-direction: column; }/* --- Улучшенное оформление кнопок-утилит (Поиск, Тема, Версия для слабовидящих) --- */
 
-/* --- Улучшенное оформление кнопок-утилит (Поиск, Тема, Версия для слабовидящих) --- */
 .site-search-toggle,
 .site-theme-toggle,
 .a11y-toggle {
@@ -2660,9 +2564,8 @@ img.block-hero__button-icon { width: 20px; height: 20px; object-fit: contain; }
     /* Цвет идёт из --hdr-fg: на светлом кадре обложки шапка переключается на
        тёмный набор целиком, и белые иконки на нём были бы не видны. */
     color: var(--hdr-fg, #fff) !important;
-}
+}/* Ховер для светлых кнопок (становится темным/акцентным с серым фоном) */
 
-/* Ховер для светлых кнопок (становится темным/акцентным с серым фоном) */
 .site-search-toggle:hover,
 .site-theme-toggle:hover,
 .a11y-toggle:hover {
@@ -2676,9 +2579,8 @@ img.block-hero__button-icon { width: 20px; height: 20px; object-fit: contain; }
     background: rgba(var(--hdr-veil, 255, 255, 255), 0.15) !important;
     color: var(--hdr-fg, #fff) !important;
     transform: scale(1.1) !important;
-}
+}/* Все иконки строго одинакового размера */
 
-/* Все иконки строго одинакового размера */
 .site-search-toggle svg,
 .site-theme-toggle svg,
 .a11y-toggle svg {
@@ -2691,15 +2593,14 @@ img.block-hero__button-icon { width: 20px; height: 20px; object-fit: contain; }
     display: block !important;
     margin: 0 !important;
     stroke-width: 2 !important;
-}
-/* Скрываем текстовую подпись кнопки a11y в шапке/топбаре */
+}/* Скрываем текстовую подпись кнопки a11y в шапке/топбаре */
+
 .site-header .a11y-toggle span,
 .site-topbar .a11y-toggle span {
     display: none !important;
-}
-
-/* Заметка о незаполненном блоке — только в предпросмотре админки.
+}/* Заметка о незаполненном блоке — только в предпросмотре админки.
    На сайте такие блоки не выводятся вовсе, поэтому посетитель её не увидит. */
+
 .cms-block--empty-notice { padding: 10px 0; }
 .cms-empty-notice {
     display: flex;
@@ -2716,17 +2617,16 @@ img.block-hero__button-icon { width: 20px; height: 20px; object-fit: contain; }
 }
 .cms-empty-notice strong { font-weight: 700; }
 .cms-empty-notice span { color: var(--text-muted, #666); }
-.cms-empty-notice__edit { margin-left: auto; font-weight: 600; white-space: nowrap; }
+.cms-empty-notice__edit { margin-left: auto; font-weight: 600; white-space: nowrap; }/* --- Интерактивный Spotlight-блик при наведении --- */
 
-/* --- Интерактивный Spotlight-блик при наведении --- */
 .cat-tile, .contact-card, .project-card, .team-card, .feature-card, .news-card, .person-card, .album-card, .doc-card, .act-card, .catcard, .testimonial, .block-advantages__item, .mediacard, .imgcard, .faq-item,
 .btn, .block-cta__button, .btn-cta, .block-hero__button, .timeline-card__button, .timeline-cta__button,
 .a11y-toggle, .site-theme-toggle, .site-search-toggle {
     position: relative;
     /* Без overflow: hidden — halo рисуется inset:0 и за кнопку не выходит, а
        обрезка мешала расширить цель для касания до 44px псевдоэлементом. */
-}
-/* Линейные блоки используют собственные точки: их halo должен выходить за границы строки. */
+}/* Линейные блоки используют собственные точки: их halo должен выходить за границы строки. */
+
 .stage, .timeline-item {
     overflow: visible;
 }
@@ -2747,12 +2647,11 @@ img.block-hero__button-icon { width: 20px; height: 20px; object-fit: contain; }
 .btn:hover::before, .block-cta__button:hover::before, .btn-cta:hover::before, .block-hero__button:hover::before, .timeline-card__button:hover::before, .timeline-cta__button:hover::before,
 .a11y-toggle:hover::before, .site-theme-toggle:hover::before, .site-search-toggle:hover::before {
     opacity: 1;
-}
-
-/* Полям ввода прожектор не полагается: в форме важна разборчивость поля, а не
+}/* Полям ввода прожектор не полагается: в форме важна разборчивость поля, а не
    украшение, и градиент под курсором заставлял браузер перерисовывать фон
    поля на каждое движение мыши. Переход по рамке и тени оставлен — он
    показывает фокус. Карточки и кнопки прожектор сохраняют. */
+
 input[type="text"], input[type="email"], input[type="password"], input[type="search"], textarea, select {
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
@@ -2768,8 +2667,8 @@ input[type="text"], input[type="email"], input[type="password"], input[type="sea
     .site-theme-toggle::before, .site-search-toggle::before {
         display: none;
     }
-}
-/* Предложение открыть материал на доступном языке без скрытого fallback. */
+}/* Предложение открыть материал на доступном языке без скрытого fallback. */
+
 .translation-notice {
     display: grid;
     min-height: clamp(420px, 62vh, 680px);
@@ -2846,9 +2745,8 @@ input[type="text"], input[type="email"], input[type="password"], input[type="sea
     color: var(--gov-navy);
     font-weight: 600;
     text-underline-offset: 4px;
-}
+}/* generated:inline-utilities:start */
 
-/* generated:inline-utilities:start */
 .u-inline-8d74c20df9{margin-top:32px;}
 .u-inline-1654353117{display:inline;margin:0;}
 .u-inline-a223f6dc36{display:inline-flex;align-items:center;gap:5px;}
@@ -2874,16 +2772,14 @@ input[type="text"], input[type="email"], input[type="password"], input[type="sea
     left: -9999px;
 }
 
-
 .clipboard-copy-proxy {
     position: fixed;
     left: -9999px;
     width: 1px;
     height: 1px;
     opacity: 0;
-}
+}/* Единые пресеты кадрирования медиа в блоках. */
 
-/* Единые пресеты кадрирования медиа в блоках. */
 .media-position--left-top { object-position: left top; background-position: left top; }
 .media-position--center-top { object-position: center top; background-position: center top; }
 .media-position--right-top { object-position: right top; background-position: right top; }
@@ -2904,9 +2800,8 @@ input[type="text"], input[type="email"], input[type="password"], input[type="sea
     .media-position-mobile--left-bottom { object-position: left bottom; background-position: left bottom; }
     .media-position-mobile--center-bottom { object-position: center bottom; background-position: center bottom; }
     .media-position-mobile--right-bottom { object-position: right bottom; background-position: right bottom; }
-}
+}/* Поиск по документам и FAQ. */
 
-/* Поиск по документам и FAQ. */
 .document-tools,
 .faq-tools {
     display: flex;
@@ -2955,7 +2850,6 @@ input[type="text"], input[type="email"], input[type="password"], input[type="sea
 .doc-card[hidden], .faq-item[hidden] { display: none; }
 .doc-card__action { font-size: var(--step--4); color: var(--gov-teal-text); }
 
-
 .faq-item__category {
     flex: 0 0 auto;
     padding: 4px 9px;
@@ -2964,9 +2858,8 @@ input[type="text"], input[type="email"], input[type="password"], input[type="sea
     color: var(--gov-teal-text);
     font-size: var(--step--4);
     font-weight: 700;
-}
+}/* Карта загружается только после осознанного действия пользователя. */
 
-/* Карта загружается только после осознанного действия пользователя. */
 .block-map__embed { position: absolute; inset: 0; }
 .block-map__load {
     position: absolute;
@@ -3007,10 +2900,8 @@ button.block-map__card-link { border: 0; padding: 0; background: none; font: inh
     .block-map__card { max-width: calc(100% - 24px); }
     .block-textimage--image-left .textimage__info,
     .block-textimage--image-left .textimage__visual { order: initial; }
-}
+}/* generated:embedded-styles:start */
 
-
-/* generated:embedded-styles:start */
 .app-admin-bar {
     position: fixed;
     top: 0;

@@ -4,17 +4,15 @@
  * homepage card chrome. News content styling stays local to this file, while
  * projects, news cards and media cards reuse the same frame/shadow/spotlight
  * language without changing their inner layouts.
- */
+ *//* Section heading */
 
-/* Section heading */
 .block-newsfeat--mosaic .section-head {
     align-items: flex-end;
     margin-bottom: clamp(22px, 2.4vw, 34px);
-}
-
-/* Акцент у заголовка секции один на весь сайт — вертикальная полоска слева
+}/* Акцент у заголовка секции один на весь сайт — вертикальная полоска слева
    (public-layout-polish.css). Своё подчёркивание снизу давало здесь два
    акцента сразу, и мозаика выбивалась из остальных блоков. */
+
 .block-newsfeat--mosaic .section-head__title {
     letter-spacing: -.025em;
 }
@@ -33,146 +31,6 @@
     text-decoration: none;
 }
 
-/* Featured story: only the content overlay changes. */
-.block-newsfeat--mosaic .newsfeat-lead__frame {
-    background: var(--gov-navy);
-}
-
-.block-newsfeat--mosaic .newsfeat-lead__over {
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-start;
-    gap: clamp(8px, .8vw, 12px);
-    padding: 22px;
-    border: 0;
-    border-radius: 0;
-    background:
-        linear-gradient(to top,
-            rgba(5, 28, 55, .98) 0%,
-            rgba(5, 31, 61, .93) 25%,
-            rgba(6, 35, 67, .70) 48%,
-            rgba(6, 35, 67, .22) 70%,
-            rgba(6, 35, 67, 0) 86%);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-}
-
-.block-newsfeat--mosaic .newsfeat-lead__over::after {
-    content: "";
-    position: absolute;
-    inset-inline-end: clamp(18px, 2vw, 30px);
-    bottom: clamp(16px, 2vw, 28px);
-    width: clamp(72px, 8vw, 112px);
-    aspect-ratio: 1;
-    opacity: .05;
-    pointer-events: none;
-    background: currentColor;
-    -webkit-mask: var(--gov-emblem) center / contain no-repeat;
-    mask: var(--gov-emblem) center / contain no-repeat;
-}
-
-.block-newsfeat--mosaic .newsfeat-lead .news-meta,
-.block-newsfeat--mosaic .newsfeat-lead__title,
-.block-newsfeat--mosaic .newsfeat-lead .card-more {
-    position: relative;
-    z-index: 1;
-}
-
-.block-newsfeat--mosaic .newsfeat-lead__title {
-    max-width: 94%;
-    color: #fff;
-    font-size: var(--font-size-h2, var(--step-6));
-    line-height: 1.18;
-    letter-spacing: -.03em;
-    text-wrap: balance;
-    font-weight: 760;
-    overflow-wrap: anywhere;
-}
-
-.block-newsfeat--mosaic .newsfeat-lead .news-meta {
-    gap: 9px;
-    color: rgba(255, 255, 255, .88);
-}
-
-.block-newsfeat--mosaic .newsfeat-lead .news-category--on-media,
-.block-newsfeat--mosaic .newsfeat-lead .newsfeat__date--on-media {
-    color: rgba(255, 255, 255, .9);
-}
-
-/* Keep the homepage mosaic compact without changing the actual CMS content. */
-.block-newsfeat--mosaic .newsfeat-lead__excerpt,
-.block-newsfeat--mosaic .newsfeat-mini__excerpt,
-.block-newsfeat--mosaic .newsfeat-text__excerpt {
-    display: none;
-}
-
-.block-newsfeat--mosaic .newsfeat-lead .card-more {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    margin-top: 4px;
-    padding: 0;
-    border: 0;
-    color: #fff;
-    font-weight: 700;
-}
-
-/* Secondary card typography/content only. */
-.block-newsfeat--mosaic .newsfeat-mini__title {
-    color: var(--gov-title);
-    font-size: var(--font-size-card-title, var(--step-0));
-    line-height: 1.38;
-    letter-spacing: -.012em;
-    font-weight: 720;
-    overflow-wrap: anywhere;
-}
-
-.block-newsfeat--mosaic .newsfeat-mini .card-more {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: auto;
-    padding-top: 2px;
-    border: 0;
-    color: var(--gov-teal-text);
-    font-weight: 700;
-}
-
-.block-newsfeat--mosaic .newsfeat-text .news-meta {
-    gap: 8px;
-}
-
-.block-newsfeat--mosaic .newsfeat-text__title {
-    color: var(--gov-title);
-    font-size: var(--font-size-card-title, var(--step-0));
-    line-height: 1.42;
-    letter-spacing: -.01em;
-    font-weight: 700;
-    overflow-wrap: anywhere;
-}
-
-.block-newsfeat--mosaic .newsfeat-text__arrow {
-    margin-top: auto;
-    width: auto;
-    height: auto;
-    display: inline-flex;
-    align-items: center;
-    align-self: flex-start;
-    color: var(--gov-teal-text);
-    background: transparent;
-    border-radius: 0;
-    font-size: var(--step-1);
-    line-height: 1;
-}
-
-@media (max-width: 560px) {
-    .block-newsfeat--mosaic .newsfeat-lead__over {
-        padding: 14px;
-    }
-}
-
 /* --------------------------------------------------------------------------
  * News index content hierarchy
  *
@@ -180,6 +38,7 @@
  * shares the homepage photo-card typography. The lead remains editorially
  * stronger without turning into a second hero.
  * -------------------------------------------------------------------------- */
+
 .newslist-lead {
     grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
     gap: 0;
@@ -220,10 +79,10 @@
     font-weight: 600;
     line-height: 1.3;
     font-variant-numeric: tabular-nums lining-nums;
-}
-/* Цвет вынесен отдельным правилом с тем же исключением, что у заголовка: на
+}/* Цвет вынесен отдельным правилом с тем же исключением, что у заголовка: на
    крупной карточке дата лежит поверх фотографии и обязана оставаться белой,
    а приглушённый `--gov-muted` отсюда перебивал бы белый из темы. */
+
 .newslist-lead .newslist__date,
 .newslist-grid .relnews-card:not(.relnews-card--hero):not(.relnews-card--wide) .relnews-card__date {
     color: var(--gov-muted);
@@ -252,14 +111,13 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     overflow: hidden;
-}
-
-/* Крупные карточки (обложка и широкая) исключены намеренно. Эта часть темы
+}/* Крупные карточки (обложка и широкая) исключены намеренно. Эта часть темы
    подключается ПОСЛЕ общего бандла, поэтому при равном весе (0,2,0) её
    правило побеждало `.relnews-card--hero .relnews-card__title {color:#fff}`
    и красило заголовок поверх фотографии в тёмный `--gov-title`: на кадре он
    пропадал совсем. Заодно отсюда уезжали кегль крупной карточки и обрезка в
    три строки. Правило адресовано компактным карточкам — им и оставлено. */
+
 .newslist-grid .relnews-card:not(.relnews-card--hero):not(.relnews-card--wide) .relnews-card__title {
     color: var(--gov-title);
     font-size: var(--font-size-card-title, var(--step-0));
@@ -334,21 +192,17 @@
     .newslist-lead__body {
         padding: var(--space-s);
     }
-}
-
-/* --------------------------------------------------------------------------
+}/* --------------------------------------------------------------------------
  * Feature-card interaction inheritance
  *
  * Do not redesign `feature-card`. Copy its existing Directions-card shell to
  * the other homepage card families: same border, 3px accent edge, shadow,
  * configurable hover elevation, timing and 220px mouse-following spotlight.
  * -------------------------------------------------------------------------- */
+
 :is(
     .project-card.project-card,
     .mediacard.mediacard,
-    .block-newsfeat--mosaic .newsfeat-lead,
-    .block-newsfeat--mosaic .newsfeat-mini,
-    .block-newsfeat--mosaic .newsfeat-text,
     .newslist-lead,
     .newslist-grid .relnews-card,
     .news-column
@@ -369,9 +223,7 @@
         border-color .46s ease,
         border-bottom-color .46s ease,
         background-color .46s ease;
-}
-
-/* У крупных карточек ленты рамки нет: кадр занимает карточку целиком, и
+}/* У крупных карточек ленты рамки нет: кадр занимает карточку целиком, и
    светлая рамка в 1px читалась на фотографии белым волосом. Нижняя черта
    приходит прозрачной (3px, она же индикатор наведения), а фон карточки
    белый — сквозь неё был виден он, и снизу полоса выходила заметно толще,
@@ -381,14 +233,14 @@
    Переопределение стоит здесь, а не в теме: рамку задаёт правило выше, а
    этот файл — вынесенная часть темы и грузится после общего бандла, поэтому
    правило из gov-theme.css проиграло бы ему при любом весе. */
-.newslist-grid .relnews-card--hero,
-.newslist-grid .relnews-card--wide { border-width: 0; }
 
-/* Акцент при наведении остаётся, но рисуется отдельным слоем поверх кадра и
+.newslist-grid .relnews-card--hero,
+.newslist-grid .relnews-card--wide { border-width: 0; }/* Акцент при наведении остаётся, но рисуется отдельным слоем поверх кадра и
    повторяет прежнюю геометрию рамки (1px по краям, 3px снизу). Слоем, а не
    `box-shadow`, чтобы не переписывать тень наведения — она приходит из
    --elevation-hover, и вторая её копия разъехалась бы с первой. `::before` у
    карточки занят прожектором, поэтому здесь `::after`. */
+
 .newslist-grid .relnews-card--hero::after,
 .newslist-grid .relnews-card--wide::after {
     content: '';
@@ -410,9 +262,6 @@
 :is(
     .project-card.project-card,
     .mediacard.mediacard,
-    .block-newsfeat--mosaic .newsfeat-lead,
-    .block-newsfeat--mosaic .newsfeat-mini,
-    .block-newsfeat--mosaic .newsfeat-text,
     .newslist-lead,
     .newslist-grid .relnews-card,
     .news-column
@@ -436,9 +285,6 @@
     :is(
         .project-card.project-card,
         .mediacard.mediacard,
-        .block-newsfeat--mosaic .newsfeat-lead,
-        .block-newsfeat--mosaic .newsfeat-mini,
-        .block-newsfeat--mosaic .newsfeat-text,
         .newslist-lead,
         .newslist-grid .relnews-card,
         .news-column
@@ -453,9 +299,6 @@
     :is(
         .project-card.project-card,
         .mediacard.mediacard,
-        .block-newsfeat--mosaic .newsfeat-lead,
-        .block-newsfeat--mosaic .newsfeat-mini,
-        .block-newsfeat--mosaic .newsfeat-text,
         .newslist-lead,
         .newslist-grid .relnews-card,
         .news-column
@@ -468,9 +311,6 @@
     :is(
         .project-card.project-card,
         .mediacard.mediacard,
-        .block-newsfeat--mosaic .newsfeat-lead,
-        .block-newsfeat--mosaic .newsfeat-mini,
-        .block-newsfeat--mosaic .newsfeat-text,
         .newslist-lead,
         .newslist-grid .relnews-card,
         .news-column
@@ -478,9 +318,6 @@
     :is(
         .project-card.project-card,
         .mediacard.mediacard,
-        .block-newsfeat--mosaic .newsfeat-lead,
-        .block-newsfeat--mosaic .newsfeat-mini,
-        .block-newsfeat--mosaic .newsfeat-text,
         .newslist-lead,
         .newslist-grid .relnews-card,
         .news-column
@@ -491,18 +328,15 @@
     :is(
         .project-card.project-card,
         .mediacard.mediacard,
-        .block-newsfeat--mosaic .newsfeat-lead,
-        .block-newsfeat--mosaic .newsfeat-mini,
-        .block-newsfeat--mosaic .newsfeat-text,
         .newslist-lead,
         .newslist-grid .relnews-card,
         .news-column
     ):hover {
         transform: none;
     }
-}
-/* Equal columns: the requested track count is stable even on the last row.
+}/* Equal columns: the requested track count is stable even on the last row.
    Content determines card height; titles are never clipped. */
+
 .news-columns { display: grid; grid-template-columns: repeat(var(--news-columns, 3), minmax(0, 1fr)); gap: clamp(16px, 2vw, 24px); }
 .news-columns--1 { --news-columns: 1; }
 .news-columns--2 { --news-columns: 2; }
