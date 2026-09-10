@@ -715,8 +715,8 @@ document.addEventListener('click', function(e) {
 });
 </script>
 
-<div class="form-actions form-actions--sticky">
-    <div class="form-actions-left">
+<div class="form-actions form-actions--sticky news-save-bar">
+    <div class="news-save-bar__meta">
         <?php $nStatus = $news['status'] ?? 'draft'; ?>
         <span class="badge badge--<?= $nStatus === 'published' ? 'success' : 'draft' ?> u-inline-ec08abfabe">
             <span class="publication-status-dot publication-status-dot--<?= $nStatus === 'published' ? 'published' : 'draft' ?>"></span>
@@ -729,7 +729,10 @@ document.addEventListener('click', function(e) {
             </span>
         <?php endif; ?>
 
-        <?php if (!empty(\App\Core\SocialSettings::readyNetworks())): ?>
+    </div>
+
+    <?php if (!empty(\App\Core\SocialSettings::readyNetworks())): ?>
+        <div class="news-save-bar__distribution" aria-label="Публикация в соцсетях">
             <label class="news-social-toggle" title="Отправить публикацию в привязанные каналы (Telegram и др.) только при явном подтверждении">
                 <input type="checkbox" name="publish_to_social" value="1" form="news_edit_form">
                 <span class="news-social-toggle__icon"><?= \App\Core\AdminUi::icon('send', 15) ?></span>
@@ -748,8 +751,8 @@ document.addEventListener('click', function(e) {
                     <?= \App\Core\AdminUi::icon('eye', 14) ?>Пост в Telegram
                 </a>
             <?php endif; ?>
-        <?php endif; ?>
-    </div>
+        </div>
+    <?php endif; ?>
 
     <div class="form-actions-right">
         <?php if ($nStatus !== 'published'): ?>

@@ -82,7 +82,8 @@ test('Защищённые файлы не открываются редакто
     $chunkedController = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/ChunkedUploadController.php');
 
     assert_contains("RbacGuard::can('manage_protected_files')", $download, 'Скачивание проверяет отдельное право');
-    assert_contains('FileEntry::filtered($_GET, $canManageProtected)', $fileController, 'Редактор не получает токены защищённых файлов');
+    assert_contains('FileEntry::filtered($filters, $canManageProtected', $fileController, 'Редактор не получает токены защищённых файлов');
+    assert_contains('FileEntry::filteredCount($filters, $canManageProtected)', $fileController, 'Счётчик применяет то же ограничение доступа');
     assert_contains("requirePermission('manage_protected_files')", $fileController, 'Операции с защищёнными файлами требуют права');
     assert_contains("RbacGuard::can('manage_protected_files')", $chunkedController, 'Чанковая загрузка проверяет право');
 });

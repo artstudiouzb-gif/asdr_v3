@@ -40,6 +40,9 @@ test('редактор слайда использует отдельную чи
     assert_contains('@media (max-width: 760px)', $css, 'редактор имеет мобильную раскладку');
     assert_contains('.slide-action-panel__header', $css, 'настройки кнопок оформлены самостоятельными панелями');
     assert_contains('[data-hero-dependent-group][hidden]', $css, 'пустые группы зависимых полей не занимают место');
+    assert_contains('appearance: none;', $css, 'галочки действий оформлены единым переключателем');
+    assert_contains('grid-template-columns: 42px minmax(0, 1fr) auto auto', $css, 'части поля иконки собраны в один контрол');
+    assert_contains('gap: 0;', $css, 'части поля иконки не выглядят случайными отдельными кнопками');
 
     // Поле цвета живёт по своим размерам: общее правило полей задавало ему
     // отступ 10px, и значение уезжало под образец слева.
@@ -50,6 +53,10 @@ test('редактор слайда использует отдельную чи
     assert_contains('class="slide-action-stack"', $form, 'кнопки и ссылка со слайда разделены по смыслу');
     assert_contains('data-hero-dependent-group', $form, 'условные поля остаются внутри своей группы');
     assert_contains('#forma или /page#forma', $form, 'формат якорных ссылок объяснён непосредственно в поле');
+
+    $list = (string) file_get_contents(APP_ROOT . '/app/Views/admin/heroes/index.php');
+    assert_contains('hero-list-table__actions', $list, 'у списка обложек есть подписанная колонка действий');
+    assert_contains('hero-list-actions', $list, 'действия строки собраны в одну группу');
 
     assert_contains('function dependentGroups()', $script, 'пустые группы скрываются после пересчёта зависимых полей');
     assert_contains('function emptySections()', $script, 'секция без единого видимого поля прячется целиком');

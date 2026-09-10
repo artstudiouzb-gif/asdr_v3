@@ -12,10 +12,14 @@ require __DIR__ . '/../layout/header.php';
 /** @var array $items */
 /** @var array $availableDates */
 /** @var bool $canManageProtected */
-$selectedType = (string) ($_GET['type'] ?? '');
-$selectedDate = (string) ($_GET['date'] ?? '');
-$selectedSort = (string) ($_GET['sort'] ?? 'date_desc');
-$searchQuery = (string) ($_GET['q'] ?? '');
+/** @var array{q:string,type:string,date:string,sort:string,per_page:int,page:int} $filters */
+/** @var array<string, mixed> $filterParams */
+/** @var int $total */
+/** @var int $pages */
+$selectedType = $filters['type'];
+$selectedDate = $filters['date'];
+$selectedSort = $filters['sort'];
+$searchQuery = $filters['q'];
 ?>
 <div class="media-lib">
     <!-- Драг-н-Дроп зона для загрузки файлов -->
@@ -93,6 +97,15 @@ $searchQuery = (string) ($_GET['q'] ?? '');
                 <option value="name_asc" <?= $selectedSort === 'name_asc' ? 'selected' : '' ?>>По имени (А-Я)</option>
                 <option value="size_desc" <?= $selectedSort === 'size_desc' ? 'selected' : '' ?>>Крупные</option>
             </select>
+
+            <label class="media-toolbar__per-page">
+                <span>На странице</span>
+                <select name="per_page" data-autosubmit>
+                    <?php foreach ([24, 48, 96] as $size): ?>
+                        <option value="<?= $size ?>" <?= $filters['per_page'] === $size ? 'selected' : '' ?>><?= $size ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
 
             <!-- Переключатель режима: Список / Сетка -->
             <button type="button" class="btn btn--small is-active u-inline-d1df8577ab" id="view_mode_grid" title="Сетка">
@@ -225,6 +238,14 @@ $searchQuery = (string) ($_GET['q'] ?? '');
             </tbody>
         </table>
     </div>
+
+    <?= \App\Core\View::renderPartial('admin/layout/pagination', [
+        'paginationPath' => '/admin/files',
+        'filterParams' => $filterParams,
+        'page' => $filters['page'],
+        'pages' => $pages,
+        'total' => $total,
+    ]) ?>
 </div>
 
 <!-- Модальная инспекционная панель свойств медиафайла -->
