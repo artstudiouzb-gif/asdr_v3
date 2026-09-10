@@ -212,6 +212,7 @@ final class AdminUi
             'performance' => 'gauge',
             'database' => 'database',
             'health' => 'heartbeat',
+            'logs' => 'alert-triangle',
             'audit' => 'history',
             'update' => 'cloud-download',
         ][$name] ?? $name;

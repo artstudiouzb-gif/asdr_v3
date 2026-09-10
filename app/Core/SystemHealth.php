@@ -301,6 +301,20 @@ final class SystemHealth
             );
         }
 
+        // Журнал держится отдельным разделом, но молчащий о себе журнал —
+        // это тот же тихий отказ: за неделю владелец дважды скачивал файл и
+        // отдавал его инженеру, чтобы узнать, что у него на сайте. Число за
+        // сутки, а не за всё время: важно, что происходит сейчас.
+        $errors = LogReader::countSince('error');
+        $checks[] = self::check(
+            'errors_24h',
+            'Ошибки за сутки',
+            $errors === 0 ? self::OK : ($errors >= 50 ? self::FAIL : self::WARN),
+            $errors === 0 ? 'ни одной' : 'записей: ' . $errors,
+            $errors === 0 ? '' : 'Разбор — в разделе «Журнал ошибок»: одинаковые записи там сведены, и видно, что повторяется.',
+            time()
+        );
+
         $ping = trim((string) getenv('MONITORING_HEARTBEAT_URL'));
         $checks[] = self::check(
             'heartbeat_ping',
