@@ -371,6 +371,42 @@
         background-color .46s ease;
 }
 
+/* У крупных карточек ленты рамки нет: кадр занимает карточку целиком, и
+   светлая рамка в 1px читалась на фотографии белым волосом. Нижняя черта
+   приходит прозрачной (3px, она же индикатор наведения), а фон карточки
+   белый — сквозь неё был виден он, и снизу полоса выходила заметно толще,
+   чем по бокам. Закрыть полосу кадром нельзя: `overflow` обрезает потомков
+   по внутреннему краю, до рамки они не достают.
+
+   Переопределение стоит здесь, а не в теме: рамку задаёт правило выше, а
+   этот файл — вынесенная часть темы и грузится после общего бандла, поэтому
+   правило из gov-theme.css проиграло бы ему при любом весе. */
+.newslist-grid .relnews-card--hero,
+.newslist-grid .relnews-card--wide { border-width: 0; }
+
+/* Акцент при наведении остаётся, но рисуется отдельным слоем поверх кадра и
+   повторяет прежнюю геометрию рамки (1px по краям, 3px снизу). Слоем, а не
+   `box-shadow`, чтобы не переписывать тень наведения — она приходит из
+   --elevation-hover, и вторая её копия разъехалась бы с первой. `::before` у
+   карточки занят прожектором, поэтому здесь `::after`. */
+.newslist-grid .relnews-card--hero::after,
+.newslist-grid .relnews-card--wide::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid var(--gov-teal);
+    border-bottom-width: 3px;
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
+    z-index: 2;
+}
+@media (hover: hover) and (pointer: fine) {
+    .newslist-grid .relnews-card--hero:hover::after,
+    .newslist-grid .relnews-card--wide:hover::after { opacity: 1; }
+}
+
 :is(
     .project-card.project-card,
     .mediacard.mediacard,

@@ -66,7 +66,13 @@
             transform: translateY(var(--feature-card-hover-lift, -4px));
             border-color: var(--gov-teal);
         }
-        .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card, .newsfeat-mini, .newsfeat-text):hover :is(.news-column__title, .news-card__title, .newslist-lead__title, .relnews-card__title, .newsfeat-mini__title, .newsfeat-text__title) {
+        /* Крупные карточки ленты исключены: их заголовок лежит на фотографии
+           и красится `--newshero-fg`, а тот считается по контрасту с
+           подложкой, цвет и плотность которой настраиваются. Бирюзовый на
+           тёмной подложке ещё проходит (замерено 5.2:1), а на светлой даёт
+           2.6:1 при норме 4.5:1 — настройка вуали молча ломала бы заголовок
+           на наведении. О наведении там говорит акцентная рамка поверх кадра. */
+        .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card:not(.relnews-card--hero):not(.relnews-card--wide), .newsfeat-mini, .newsfeat-text):hover :is(.news-column__title, .news-card__title, .newslist-lead__title, .relnews-card__title, .newsfeat-mini__title, .newsfeat-text__title) {
             color: var(--gov-teal);
             text-decoration: none;
         }
