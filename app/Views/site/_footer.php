@@ -309,5 +309,9 @@ $pageJsUrls = \App\Core\CustomAssetHelper::resolveJsUrls((string) $page['custom_
 <script src="<?= htmlspecialchars($pageJsUrl, ENT_QUOTES) ?>" defer></script>
 <?php endforeach; ?>
 <?php endif; ?>
+<?php // Упреждающая загрузка внутренних страниц (Speculation Rules). Печатается
+      // последней: правила касаются ссылок всей страницы, а не окружения. Без
+      // nonce намеренно — см. App\Core\SpeculationRules. ?>
+<?= \App\Core\SpeculationRules::scriptHtml() ?>
 </body>
 </html>

@@ -36,6 +36,7 @@ final class HtmlFormatter
 {
     private const INDENT = '  ';
 
+
     /**
      * Элементы, вокруг которых пробел незначим (блочные боксы и содержимое
      * <head>). Строчных здесь нет намеренно: a, span, img, svg, button, label,
@@ -260,7 +261,11 @@ final class HtmlFormatter
                 // существующего пробела у границы блока.
                 $break = $rightBlock && $out !== '' && ctype_space(substr($out, -1));
             } elseif ($isText) {
-                $break = $leftBlock && ($pendingWs || preg_match('/^\s/', $token['html']) === 1);
+                // Проверка одного символа регуляркой — самая дорогая строка
+                // горячего цикла: она выполняется для каждого текстового узла
+                // страницы. ctype_space описывает тот же набор символов, что и
+                // \s в PCRE.
+                $break = $leftBlock && ($pendingWs || ctype_space($token['html'][0] ?? ''));
             } else {
                 $break = $leftBlock || $rightBlock;
             }
@@ -296,6 +301,13 @@ final class HtmlFormatter
     {
         if ($break) {
             $text = ltrim($text);
+        }
+
+        // Выравнивать нечего, если внутри узла нет перевода строки, — а таких
+        // узлов на странице большинство. Регулярка ниже без «\n» не совпадает
+        // ни с чем, то есть делает ту же работу, но платно.
+        if (!str_contains($text, "\n")) {
+            return $text;
         }
 
         return (string) preg_replace(

@@ -596,8 +596,10 @@ if (\App\Core\Session::hasCookie()
     }
 }
 
-if ($requestMethod === 'GET' && !str_starts_with($guardPath, '/admin') && !str_starts_with($guardPath, '/install') && !str_starts_with($guardPath, '/api')) {
-    header('Link: </assets/css/public.min.css>; rel=preload; as=style', false);
-}
+// Ранняя подсказка о критических ресурсах. Печатается ДО маршрутизации: пока
+// собирается страница, браузер (или прокси, умеющий 103 Early Hints) уже
+// тянет таблицу стилей и шрифт. Адреса берутся оттуда же, откуда их печатает
+// разметка, — иначе preload не засчитывается и файл качается дважды.
+\App\Core\EarlyHints::send();
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
