@@ -168,7 +168,7 @@ test('редакционные размеры используют переме�
 test('заголовки карточек новостей настраиваются отдельно от остальных карточек', function (): void {
     $cards = DesignSettings::TYPO_SIZES['fs_card_title'][1];
     $news = DesignSettings::TYPO_SIZES['fs_news_title'][1];
-    foreach (['.news-card__title', '.relnews-card__title', '.adjnews__title', '.newsfeat-mini__title', '.widget-latest-news__title'] as $selector) {
+    foreach (['.news-card__title', '.relnews-card__title', '.adjnews__title', '.widget-latest-news__title'] as $selector) {
         assert_contains($selector, $news, "{$selector}: заголовок новости должен слушать свою настройку");
         assert_not_contains($selector, $cards, "{$selector}: заголовок новости не должен слушать размер карточек");
     }

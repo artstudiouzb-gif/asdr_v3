@@ -57,7 +57,7 @@ test('Новости в колонках (.news-column) и карточки но
     );
 
     // На главной странице новостные карточки имеют hover-подъём и тень
-    assert_contains('.site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card, .newsfeat-lead, .newsfeat-mini):hover', $homeCss);
+    assert_contains('.site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card):hover', $homeCss);
     assert_contains('box-shadow: 0 16px 36px rgba(37, 99, 235, .12);', $homeCss);
     assert_contains('transform: translateY(var(--feature-card-hover-lift, -4px));', $homeCss);
 });

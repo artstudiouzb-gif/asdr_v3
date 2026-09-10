@@ -55,11 +55,14 @@ test('Счётчики без стекла и поворота, новости �
     $iconCss = substr($govCss, $iconStart, $iconEnd - $iconStart);
     assert_true(!str_contains($iconCss, 'rotate('), 'Иконки счётчиков не должны поворачиваться');
 
-    assert_contains('.newsfeat-grid > .anim-card', $frontendCss);
+    // Сетка новостного блока — .newslist-grid, та же, что у ленты /news:
+    // мозаика перешла на неё вместе с ритмом, и прежний .newsfeat-grid остался
+    // без разметки. Имя обязано совпадать со списком GRIDS во frontend.js,
+    // иначе карточки не получат .anim-card и появление выключится молча.
+    assert_contains('.newslist-grid > .anim-card', $frontendCss);
     assert_contains('--card-reveal-shift: 8px', $frontendCss);
     assert_contains('--card-reveal-scale: .995', $frontendCss);
-    assert_contains(':where(.newsfeat-lead, .newsfeat-mini, .newsfeat-text):hover', $govCss);
-    assert_contains('transform: translateY(-1px)', $govCss);
+    assert_contains('.newslist-grid,', (string) file_get_contents(APP_ROOT . '/public/assets/js/frontend.js'));
 });
 
 test('Медиакарточки наследуют hover feature-card и сохраняют zoom обложки', function (): void {
