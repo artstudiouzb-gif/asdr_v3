@@ -5155,6 +5155,20 @@ details.design-manual[open] > summary::before { transform: rotate(90deg); }
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-accent, #0f2756) 15%, transparent);
 }
 
+.media-toolbar__per-page {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.media-toolbar__per-page span {
+    color: var(--admin-muted, #64748b);
+    font-size: var(--admin-fs-sm);
+}
+
+.media-toolbar__per-page select { min-width: 72px; }
+
 /* Кнопка выбора режима просмотра (Список / Сетка) */
 #view_mode_list.is-active, #view_mode_grid.is-active {
     background: var(--admin-accent, #173a63) !important;
@@ -7613,6 +7627,67 @@ select {
     background: #fee2e2;
     border-color: #ef4444;
     color: #b91c1c;
+}
+
+/* Список обложек: действия образуют одну подписанную колонку и не плавают
+   посередине широкой ячейки. */
+.hero-list-table__actions { text-align: right; white-space: nowrap; }
+.hero-list-actions { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.hero-list-actions form { margin: 0; }
+
+/* Панель новости состоит из трёх задач: состояние, распространение и
+   сохранение. Обёртки не дают общим правилам order переставлять кнопку
+   предпросмотра перед статусом, а дату — перед собственной подписью. */
+.form-actions--sticky.news-save-bar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 18px;
+}
+.news-save-bar > *,
+.news-save-bar__meta > *,
+.news-save-bar__meta .badge > *,
+.news-save-bar__distribution > *,
+.news-save-bar__distribution .news-schedule > *,
+.news-save-bar .form-actions-right > * { order: initial; }
+.news-save-bar__meta,
+.news-save-bar__distribution,
+.news-save-bar .form-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.news-save-bar__meta { padding-right: 16px; border-right: 1px solid var(--admin-border); }
+.news-save-bar__distribution { flex-wrap: wrap; }
+.news-save-bar .form-actions-right { justify-content: flex-end; margin: 0; }
+.news-save-bar .news-schedule {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--admin-btn-h);
+    padding: 4px 8px;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-sm);
+    background: var(--admin-surface);
+}
+.news-save-bar .news-schedule input[type="datetime-local"] {
+    min-width: 178px;
+    height: 32px;
+    border: 0;
+    background: transparent;
+}
+
+@media (max-width: 1280px) {
+    .form-actions--sticky.news-save-bar { grid-template-columns: minmax(0, 1fr) auto; }
+    .news-save-bar__distribution { grid-column: 1 / -1; grid-row: 2; }
+}
+
+@media (max-width: 760px) {
+    .form-actions--sticky.news-save-bar { grid-template-columns: 1fr; max-height: 58vh; overflow-y: auto; }
+    .news-save-bar__meta { padding-right: 0; border-right: 0; }
+    .news-save-bar__distribution { grid-column: 1; grid-row: auto; }
+    .news-save-bar .form-actions-right { justify-content: stretch; flex-wrap: wrap; }
+    .news-save-bar .form-actions-right .btn { flex: 1 1 auto; }
 }
 
 /* 3. Индикация активных фильтров */

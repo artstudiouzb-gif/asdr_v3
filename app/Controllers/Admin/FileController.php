@@ -20,10 +20,36 @@ final class FileController
     {
         Auth::requireLogin();
         $canManageProtected = RbacGuard::can('manage_protected_files');
+        $type = trim((string) ($_GET['type'] ?? ''));
+        $date = trim((string) ($_GET['date'] ?? ''));
+        $sort = trim((string) ($_GET['sort'] ?? 'date_desc'));
+        $perPage = (int) ($_GET['per_page'] ?? 48);
+        $filters = [
+            'q' => mb_substr(trim((string) ($_GET['q'] ?? '')), 0, 120),
+            'type' => in_array($type, ['', 'image', 'video', 'document'], true) ? $type : '',
+            'date' => preg_match('/^\d{4}-\d{2}$/', $date) === 1 ? $date : '',
+            'sort' => in_array($sort, ['date_desc', 'date_asc', 'size_desc', 'name_asc'], true) ? $sort : 'date_desc',
+            'per_page' => in_array($perPage, [24, 48, 96], true) ? $perPage : 48,
+            'page' => max(1, min(100000, (int) ($_GET['page'] ?? 1))),
+        ];
+        $total = FileEntry::filteredCount($filters, $canManageProtected);
+        $pages = max(1, (int) ceil($total / $filters['per_page']));
+        $filters['page'] = min($filters['page'], $pages);
+        $offset = ($filters['page'] - 1) * $filters['per_page'];
+        $filterParams = array_filter($filters, static fn (mixed $value, string $key): bool => match ($key) {
+            'page' => (int) $value > 1,
+            'per_page' => (int) $value !== 48,
+            default => $value !== '',
+        }, ARRAY_FILTER_USE_BOTH);
+
         View::render('admin/files/index', [
-            'items' => FileEntry::filtered($_GET, $canManageProtected),
+            'items' => FileEntry::filtered($filters, $canManageProtected, $filters['per_page'], $offset),
             'availableDates' => FileEntry::availableDates(),
             'canManageProtected' => $canManageProtected,
+            'filters' => $filters,
+            'filterParams' => $filterParams,
+            'total' => $total,
+            'pages' => $pages,
         ]);
     }
 

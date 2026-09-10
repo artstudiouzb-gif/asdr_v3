@@ -47,7 +47,7 @@ $statusLabels = [
         <thead>
             <tr>
                 <th>Название</th><th>Слайдов</th><th>Статус</th><th>Показ</th>
-                <th>Приоритет</th><th>Пресет</th><th></th>
+                <th>Приоритет</th><th>Пресет</th><th class="hero-list-table__actions">Действия</th>
             </tr>
         </thead>
         <tbody>
@@ -83,16 +83,18 @@ $statusLabels = [
                     <td class="u-inline-a9efa5449f">
                         <?= htmlspecialchars(HeroPresets::labels()[(string) $item['preset']] ?? '—', ENT_QUOTES) ?>
                     </td>
-                    <td>
-                        <form class="u-inline-0cd28ce9ba" method="post" action="/admin/heroes/<?= $heroId ?>/duplicate">
-                            <?= Csrf::field() ?>
-                            <button type="submit" class="btn btn--small">Дублировать</button>
-                        </form>
-                        <form class="u-inline-0cd28ce9ba" method="post" action="/admin/heroes/<?= $heroId ?>/delete"
-                              data-confirm="Удалить обложку «<?= htmlspecialchars((string) $item['name'], ENT_QUOTES) ?>»? Блоки, где она стоит, перестанут её показывать.">
-                            <?= Csrf::field() ?>
-                            <button type="submit" class="btn btn--small btn--danger"><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
-                        </form>
+                    <td class="hero-list-table__actions">
+                        <div class="hero-list-actions">
+                            <form class="u-inline-0cd28ce9ba" method="post" action="/admin/heroes/<?= $heroId ?>/duplicate">
+                                <?= Csrf::field() ?>
+                                <button type="submit" class="btn btn--small">Дублировать</button>
+                            </form>
+                            <form class="u-inline-0cd28ce9ba" method="post" action="/admin/heroes/<?= $heroId ?>/delete"
+                                  data-confirm="Удалить обложку «<?= htmlspecialchars((string) $item['name'], ENT_QUOTES) ?>»? Блоки, где она стоит, перестанут её показывать.">
+                                <?= Csrf::field() ?>
+                                <button type="submit" class="btn btn--small btn--danger"><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             <?php endforeach; ?>

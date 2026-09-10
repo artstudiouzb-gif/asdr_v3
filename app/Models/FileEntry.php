@@ -136,37 +136,16 @@ final class FileEntry
         return $counts;
     }
 
-    public static function filtered(array $params, bool $includeProtected = true): array
+    /** @param array<string, mixed> $params */
+    public static function filtered(
+        array $params,
+        bool $includeProtected = true,
+        int $limit = 0,
+        int $offset = 0
+    ): array
     {
-        $q = trim((string) ($params['q'] ?? ''));
-        $type = trim((string) ($params['type'] ?? ''));
         $sort = trim((string) ($params['sort'] ?? 'date_desc'));
-        $date = trim((string) ($params['date'] ?? ''));
-
-        $sql = 'SELECT * FROM files WHERE 1=1';
-        $bind = [];
-
-        if (!$includeProtected) {
-            $sql .= " AND access_type = 'public'";
-        }
-
-        if ($q !== '') {
-            $sql .= ' AND original_name LIKE :q';
-            $bind[':q'] = '%' . $q . '%';
-        }
-
-        if ($type === 'image') {
-            $sql .= " AND mime_type LIKE 'image/%'";
-        } elseif ($type === 'video') {
-            $sql .= " AND mime_type LIKE 'video/%'";
-        } elseif ($type === 'document') {
-            $sql .= " AND mime_type NOT LIKE 'image/%' AND mime_type NOT LIKE 'video/%'";
-        }
-
-        if ($date !== '' && preg_match('/^\d{4}-\d{2}$/', $date)) {
-            $sql .= " AND DATE_FORMAT(created_at, '%Y-%m') = :date";
-            $bind[':date'] = $date;
-        }
+        [$where, $bind] = self::filteredWhere($params, $includeProtected);
 
         $orderBy = match ($sort) {
             'date_asc' => 'created_at ASC',
@@ -177,12 +156,72 @@ final class FileEntry
             default => 'created_at DESC',
         };
 
-        $sql .= ' ORDER BY ' . $orderBy;
+        $sql = 'SELECT * FROM files' . $where . ' ORDER BY ' . $orderBy;
+        if ($limit > 0) {
+            $sql .= ' LIMIT :limit OFFSET :offset';
+        }
 
         $stmt = Database::pdo()->prepare($sql);
-        $stmt->execute($bind);
+        foreach ($bind as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        if ($limit > 0) {
+            $stmt->bindValue(':limit', max(1, min(200, $limit)), \PDO::PARAM_INT);
+            $stmt->bindValue(':offset', max(0, $offset), \PDO::PARAM_INT);
+        }
+        $stmt->execute();
 
         return $stmt->fetchAll();
+    }
+
+    /** @param array<string, mixed> $params */
+    public static function filteredCount(array $params, bool $includeProtected = true): int
+    {
+        [$where, $bind] = self::filteredWhere($params, $includeProtected);
+        $stmt = Database::pdo()->prepare('SELECT COUNT(*) FROM files' . $where);
+        $stmt->execute($bind);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     * @return array{0:string,1:array<string,string>}
+     */
+    private static function filteredWhere(array $params, bool $includeProtected): array
+    {
+        $q = trim((string) ($params['q'] ?? ''));
+        $type = trim((string) ($params['type'] ?? ''));
+        $date = trim((string) ($params['date'] ?? ''));
+        $where = ' WHERE 1=1';
+        $bind = [];
+
+        if (!$includeProtected) {
+            $where .= " AND access_type = 'public'";
+        }
+        if ($q !== '') {
+            $where .= ' AND original_name LIKE :q';
+            $bind[':q'] = '%' . $q . '%';
+        }
+        if ($type === 'image') {
+            $where .= " AND mime_type LIKE 'image/%'";
+        } elseif ($type === 'video') {
+            $where .= " AND mime_type LIKE 'video/%'";
+        } elseif ($type === 'document') {
+            $where .= " AND mime_type NOT LIKE 'image/%' AND mime_type NOT LIKE 'video/%'";
+        }
+
+        // Диапазон DATETIME не зависит от collation соединения и использует
+        // индекс created_at. DATE_FORMAT(...)=:date сравнивал две строки с
+        // разными collations на production и падал с MySQL 1267.
+        $month = \DateTimeImmutable::createFromFormat('!Y-m', $date);
+        if ($month !== false && $month->format('Y-m') === $date) {
+            $where .= ' AND created_at >= :date_from AND created_at < :date_to';
+            $bind[':date_from'] = $month->format('Y-m-d H:i:s');
+            $bind[':date_to'] = $month->modify('+1 month')->format('Y-m-d H:i:s');
+        }
+
+        return [$where, $bind];
     }
 
     public static function availableDates(): array

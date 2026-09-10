@@ -85,3 +85,37 @@ test('Счётчики медиабиблиотеки раскладывают �
 
     $pdo->exec("DELETE FROM files WHERE original_name LIKE 'counttest-%'");
 });
+
+test('Страница медиафайлов фильтрует месяц диапазоном и имеет пагинацию (БД)', function (): void {
+    ensure_test_db();
+    $pdo = \App\Core\Database::pdo();
+    $pdo->exec("DELETE FROM files WHERE original_name LIKE 'pagefilter-%'");
+
+    $insert = $pdo->prepare(
+        "INSERT INTO files (original_name, stored_name, mime_type, size, access_type, created_at)
+         VALUES (?, ?, 'image/jpeg', 1024, 'public', ?)"
+    );
+
+    try {
+        $insert->execute(['pagefilter-september-a.jpg', 'pagefilter-a', '2026-09-02 10:00:00']);
+        $insert->execute(['pagefilter-september-b.jpg', 'pagefilter-b', '2026-09-28 10:00:00']);
+        $insert->execute(['pagefilter-august.jpg', 'pagefilter-c', '2026-08-31 10:00:00']);
+
+        $filters = ['q' => 'pagefilter-', 'date' => '2026-09', 'sort' => 'date_asc'];
+        assert_same(2, FileEntry::filteredCount($filters), 'В сентябрь попадают только две записи');
+
+        $firstPage = FileEntry::filtered($filters, true, 1, 0);
+        $secondPage = FileEntry::filtered($filters, true, 1, 1);
+        assert_same('pagefilter-september-a.jpg', $firstPage[0]['original_name'] ?? null);
+        assert_same('pagefilter-september-b.jpg', $secondPage[0]['original_name'] ?? null);
+
+        $model = (string) file_get_contents(APP_ROOT . '/app/Models/FileEntry.php');
+        $view = (string) file_get_contents(APP_ROOT . '/app/Views/admin/files/index.php');
+        assert_not_contains("DATE_FORMAT(created_at, '%Y-%m') = :date", $model, 'Фильтр не сравнивает строки с разными collations');
+        assert_contains('created_at >= :date_from AND created_at < :date_to', $model, 'Месяц задаётся индексируемым диапазоном DATETIME');
+        assert_contains("renderPartial('admin/layout/pagination'", $view, 'Под списком выводится общая пагинация админки');
+        assert_contains('name="per_page"', $view, 'Можно выбрать размер страницы');
+    } finally {
+        $pdo->exec("DELETE FROM files WHERE original_name LIKE 'pagefilter-%'");
+    }
+});

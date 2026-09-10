@@ -70,4 +70,10 @@ test('Предпросмотр поста доступен из формы но�
 
     $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/news/form.php');
     assert_contains('/social-preview', $form);
+    assert_contains('news-save-bar__meta', $form, 'статус отделён от управления распространением');
+    assert_contains('news-save-bar__distribution', $form, 'соцсети, расписание и предпросмотр остаются одной задачей');
+
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/admin.css');
+    assert_contains('.form-actions--sticky.news-save-bar', $css, 'панель новости имеет собственную устойчивую раскладку');
+    assert_contains('.news-save-bar__distribution .news-schedule > *', $css, 'подпись даты не переставляется после поля');
 });
