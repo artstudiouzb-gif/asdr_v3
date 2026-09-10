@@ -46,8 +46,11 @@ $select = static function (string $name, string $label, array $options, string $
 
 $checkbox = static function (string $name, string $label, bool $checked, string $hint = '', string $colClass = 'col-12') use ($esc): string {
     $html = '<div class="form-field form-field--checkbox ' . $esc($colClass) . '">'
-        . '<input type="checkbox" id="slide_' . $name . '" name="' . $name . '" value="1"' . ($checked ? ' checked' : '') . '>'
-        . '<label for="slide_' . $name . '">' . $esc($label) . '</label>';
+        . '<input class="slide-switch__input" type="checkbox" id="slide_' . $name . '" name="' . $name . '" value="1"' . ($checked ? ' checked' : '') . '>'
+        . '<label class="slide-switch" for="slide_' . $name . '">'
+        . '<span class="slide-switch__track" aria-hidden="true"></span>'
+        . '<span class="slide-switch__text">' . $esc($label) . '</span>'
+        . '</label>';
     if ($hint !== '') {
         $html .= '<span class="form-hint">' . $esc($hint) . '</span>';
     }
