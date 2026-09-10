@@ -254,6 +254,22 @@ foreach ($options as $key => $opt) {
                         <input type="number" id="design_shadow_strength" name="shadow_strength" min="0" max="300" step="5" value="<?= (int) \App\Core\DesignSettings::shadowStrength() ?>" data-design-preview-field>
                         <small class="form-hint">100 — как в теме, 0 — тени нет вовсе (то же, что «Плоские»), 300 — предел: дальше тень перестаёт быть тенью.</small>
                     </div>
+                    <?php $veil = \App\Core\DesignSettings::newsVeil(); ?>
+                    <div class="form-field">
+                        <label for="design_veil_color">Цвет подложки на фото новостей</label>
+                        <input type="color" id="design_veil_color" name="veil_color" value="<?= htmlspecialchars(\App\Core\DesignSettings::veilColor(), ENT_QUOTES) ?>" data-design-preview-field>
+                        <small class="form-hint">Переменные: <code>--newshero-veil-rgb</code>, <code>--newshero-fg</code><br>Крупные карточки ленты и мозаики показывают заголовок поверх фотографии, и читается он благодаря подложке. Цвет заголовка задавать не нужно — он считается по контрасту: на светлой подложке станет тёмным.</small>
+                    </div>
+                    <div class="form-field">
+                        <label for="design_veil_strength">Плотность подложки, %</label>
+                        <input type="number" id="design_veil_strength" name="veil_strength" min="40" max="113" step="1" value="<?= (int) \App\Core\DesignSettings::veilStrength() ?>" data-design-preview-field>
+                        <small class="form-hint">
+                            100 — как в теме. Меньше — фотография видна лучше, но подложка затем и нужна, чтобы заголовок читался на <em>любом</em> кадре, поэтому ниже 40&nbsp;% опуститься нельзя.
+                            Сейчас: заголовок <?= htmlspecialchars($veil['fg'], ENT_QUOTES) ?>, контраст <?= htmlspecialchars(number_format($veil['ratio'], 2), ENT_QUOTES) ?>:1 при норме 4.5:1<?php if ($veil['raised']): ?>
+                                <br><strong>Плотность поднята до <?= (int) round($veil['alpha'] * 100 / \App\Core\DesignSettings::VEIL_ALPHA_BASE) ?>&nbsp;%</strong>: на выбранной заголовок не проходил 4.5:1.
+                            <?php endif; ?>
+                        </small>
+                    </div>
                     <?php foreach ([
                         'space_small' => 'Малый отступ (space-small)',
                         'space_premium' => 'Премиальный отступ (space-premium)',

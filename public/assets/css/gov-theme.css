@@ -3321,12 +3321,12 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg,
-        rgba(6, 14, 28, 0) 46%,
-        rgba(6, 14, 28, .012) 57%,
-        rgba(6, 14, 28, .045) 68%,
-        rgba(6, 14, 28, .10) 79%,
-        rgba(6, 14, 28, .165) 90%,
-        rgba(6, 14, 28, .22) 100%);
+        rgba(var(--newshero-veil-rgb, 6, 14, 28), 0) 46%,
+        rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * .014)) 57%,
+        rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * .051)) 68%,
+        rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * .114)) 79%,
+        rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * .188)) 90%,
+        rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * .25)) 100%);
 }
 /* Текст обложки лежит на **своей** подложке, а не на градиенте во всю
    карточку: подложка ровно такой высоты, какой вышел текст, поэтому белые
@@ -3384,19 +3384,19 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
        плотность идёт до низа. */
     background:
         linear-gradient(180deg,
-            rgba(6, 14, 28, 0) 0,
-            rgba(6, 14, 28, .005) calc(var(--newshero-fade) * .10),
-            rgba(6, 14, 28, .032) calc(var(--newshero-fade) * .20),
-            rgba(6, 14, 28, .085) calc(var(--newshero-fade) * .30),
-            rgba(6, 14, 28, .165) calc(var(--newshero-fade) * .40),
-            rgba(6, 14, 28, .30) calc(var(--newshero-fade) * .50),
-            rgba(6, 14, 28, .442) calc(var(--newshero-fade) * .60),
-            rgba(6, 14, 28, .593) calc(var(--newshero-fade) * .70),
-            rgba(6, 14, 28, .732) calc(var(--newshero-fade) * .80),
-            rgba(6, 14, 28, .838) calc(var(--newshero-fade) * .90),
-            rgba(6, 14, 28, .869) calc(var(--newshero-fade) * .95),
-            rgba(6, 14, 28, .88) var(--newshero-fade),
-            rgba(6, 14, 28, .88) 100%);
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), 0) 0,
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 0.006)) calc(var(--newshero-fade) * .10),
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 0.036)) calc(var(--newshero-fade) * .20),
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 0.097)) calc(var(--newshero-fade) * .30),
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 0.188)) calc(var(--newshero-fade) * .40),
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 0.341)) calc(var(--newshero-fade) * .50),
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 0.502)) calc(var(--newshero-fade) * .60),
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 0.674)) calc(var(--newshero-fade) * .70),
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 0.832)) calc(var(--newshero-fade) * .80),
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 0.952)) calc(var(--newshero-fade) * .90),
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 0.988)) calc(var(--newshero-fade) * .95),
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 1)) var(--newshero-fade),
+            rgba(var(--newshero-veil-rgb, 6, 14, 28), calc(var(--newshero-veil-alpha, .88) * 1)) 100%);
 }
 /* Цвет объявлен на самой карточке: внутри есть и заголовок, и дата, и анонс,
    у каждого свой токен, и перечислять их по отдельности значило бы забыть
@@ -3408,7 +3408,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .relnews-card--hero .relnews-card__date,
 .relnews-card--wide .relnews-card__date,
 .relnews-card--hero .news-category,
-.relnews-card--wide .news-category { color: #fff; }
+.relnews-card--wide .news-category { color: var(--newshero-fg, #fff); }
 /* Заголовок обложки ограничен тремя строками: подложка растёт вместе с
    текстом, и длинный заголовок с анонсом закрасил бы фотографию целиком. */
 .relnews-card--hero .relnews-card__title,
@@ -3423,7 +3423,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
    строка добавляла к вуали ещё четверть высоты кадра. */
 .relnews-card--hero .relnews-card__excerpt,
 .relnews-card--wide .relnews-card__excerpt {
-    color: rgba(255, 255, 255, .86);
+    color: color-mix(in srgb, var(--newshero-fg, #fff) 86%, transparent);
     font-size: var(--step--1);
     line-height: var(--base-line-height, 1.6);
     display: -webkit-box;
@@ -3432,9 +3432,9 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     overflow: hidden;
 }
 .relnews-card--hero .news-category,
-.relnews-card--wide .news-category { border-color: rgba(255, 255, 255, .5); }
+.relnews-card--wide .news-category { border-color: color-mix(in srgb, var(--newshero-fg, #fff) 50%, transparent); }
 .relnews-card--hero:hover .relnews-card__title,
-.relnews-card--wide:hover .relnews-card__title { color: #fff; }
+.relnews-card--wide:hover .relnews-card__title { color: var(--newshero-fg, #fff); }
 
 /* Дата с иконкой: значок и число — одна строка, а не два соседних элемента. */
 .relnews-card__date { display: inline-flex; align-items: center; gap: 6px; }
