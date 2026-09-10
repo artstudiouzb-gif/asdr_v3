@@ -132,24 +132,6 @@ $existingPoll = !empty($news['id']) ? \App\Models\NewsPoll::findByNews((int) $ne
                         жёсткого лимита нет.
                         <span data-lead-count></span>
                     </span>
-                    <div class="lead-previews" data-lead-previews>
-                        <div class="lead-previews__tabs" role="tablist" aria-label="Предпросмотр лида">
-                            <button type="button" class="lead-previews__tab is-active" data-lead-preview-tab="card" role="tab" aria-selected="true">Карточка</button>
-                            <button type="button" class="lead-previews__tab" data-lead-preview-tab="telegram" role="tab" aria-selected="false">Telegram</button>
-                            <button type="button" class="lead-previews__tab" data-lead-preview-tab="seo" role="tab" aria-selected="false">SEO</button>
-                        </div>
-                        <div class="lead-previews__panel" data-lead-preview-panel="card" role="tabpanel">
-                            <strong data-lead-preview-title>Заголовок новости</strong>
-                            <span data-lead-preview-card>Здесь появится текст карточки.</span>
-                        </div>
-                        <div class="lead-previews__panel" data-lead-preview-panel="telegram" role="tabpanel" hidden>
-                            <div data-lead-preview-telegram>Здесь появится форматированный лид Telegram.</div>
-                        </div>
-                        <div class="lead-previews__panel" data-lead-preview-panel="seo" role="tabpanel" hidden>
-                            <strong data-lead-preview-seo-title>Заголовок новости</strong>
-                            <span data-lead-preview-seo>Здесь появится описание для поисковика.</span>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="form-field u-inline-79a1c5a5db">
@@ -355,6 +337,32 @@ $existingPoll = !empty($news['id']) ? \App\Models\NewsPoll::findByNews((int) $ne
                 </div>
 
                 <?= \App\Core\AdminUi::seoPreviewBox($news ?? []) ?>
+            </div>
+
+            <!-- Блок 7: итоговый вид анонса. Предпросмотр расположен после
+                 текста и SEO, чтобы не разрывать последовательность создания
+                 самой новости. -->
+            <div class="form-card">
+                <?= \App\Core\AdminUi::cardHeader('7. Предпросмотр публикации', 'eye') ?>
+                <span class="form-hint">Проверьте, как заголовок и лид будут выглядеть в карточке сайта, Telegram и поисковой выдаче.</span>
+                <div class="lead-previews" data-lead-previews>
+                    <div class="lead-previews__tabs" role="tablist" aria-label="Предпросмотр публикации">
+                        <button type="button" class="lead-previews__tab is-active" data-lead-preview-tab="card" role="tab" aria-selected="true">Карточка</button>
+                        <button type="button" class="lead-previews__tab" data-lead-preview-tab="telegram" role="tab" aria-selected="false">Telegram</button>
+                        <button type="button" class="lead-previews__tab" data-lead-preview-tab="seo" role="tab" aria-selected="false">SEO</button>
+                    </div>
+                    <div class="lead-previews__panel" data-lead-preview-panel="card" role="tabpanel">
+                        <strong data-lead-preview-title>Заголовок новости</strong>
+                        <span data-lead-preview-card>Здесь появится текст карточки.</span>
+                    </div>
+                    <div class="lead-previews__panel" data-lead-preview-panel="telegram" role="tabpanel" hidden>
+                        <div data-lead-preview-telegram>Здесь появится форматированный лид Telegram.</div>
+                    </div>
+                    <div class="lead-previews__panel" data-lead-preview-panel="seo" role="tabpanel" hidden>
+                        <strong data-lead-preview-seo-title>Заголовок новости</strong>
+                        <span data-lead-preview-seo>Здесь появится описание для поисковика.</span>
+                    </div>
+                </div>
             </div>
         </div>
 
