@@ -10,9 +10,12 @@ use App\Core\Cache;
 use App\Core\Csrf;
 use App\Core\Flash;
 use App\Core\View;
+use App\Models\Goal;
 use App\Models\News;
 use App\Models\Page;
+use App\Models\PhotoAlbum;
 use App\Models\Project;
+use App\Models\TeamMember;
 
 /**
  * Массовые операции над списками (задача 91) и дублирование (задача 80):
@@ -24,7 +27,168 @@ final class BulkController
         'news' => News::class,
         'pages' => Page::class,
         'projects' => Project::class,
+        'goals' => Goal::class,
+        'team' => TeamMember::class,
+        'albums' => PhotoAlbum::class,
     ];
+
+    /**
+     * Набор действий объявлен один раз и для каждого типа свой — подпись,
+     * которую видит редактор, и то, что действие реально делает, берутся из
+     * одной записи. Второй список в шаблоне разъехался бы с этим молча (тот
+     * же случай, ради которого настройка блока объявляется один раз в схеме
+     * полей). У «Целей» нет `draft`/`published` — только `is_active`
+     * («показывать в карусели»), поэтому там «Включить»/«Выключить», а не
+     * «Опубликовать»/«Снять с публикации»: называть чужое состояние своим
+     * именем — врать подписью. Дублирования нет ни у goals, ни у team, ни у
+     * albums — методов `duplicate()` у этих моделей никогда не было.
+     * Удаление у News/Page/Project мягкое (уходит в корзину, `deleted_at`), у
+     * Goal/TeamMember/PhotoAlbum — настоящее (`DELETE FROM`), поэтому подпись
+     * у них честно «Удалить»: назвать необратимое действие «В корзину»
+     * значило бы пообещать восстановление, которого не будет.
+     *
+     * @return array<string, array{label: string, run: callable(int): bool}>
+     */
+    private static function actions(string $type): array
+    {
+        switch ($type) {
+            case 'news':
+            case 'pages':
+            case 'projects':
+                $model = self::MAP[$type];
+
+                return [
+                    'publish' => [
+                        'label' => 'Опубликовать',
+                        'run' => static function (int $id) use ($model): bool {
+                            $model::setStatus($id, 'published');
+
+                            return true;
+                        },
+                    ],
+                    'unpublish' => [
+                        'label' => 'Снять с публикации',
+                        'run' => static function (int $id) use ($model): bool {
+                            $model::setStatus($id, 'draft');
+
+                            return true;
+                        },
+                    ],
+                    'duplicate' => [
+                        'label' => 'Дублировать',
+                        'run' => static fn (int $id): bool => $model::duplicate($id) !== null,
+                    ],
+                    'trash' => [
+                        'label' => 'В корзину',
+                        'run' => static function (int $id) use ($model): bool {
+                            $model::delete($id);
+
+                            return true;
+                        },
+                    ],
+                ];
+
+            case 'team':
+                return [
+                    'publish' => [
+                        'label' => 'Опубликовать',
+                        'run' => static function (int $id): bool {
+                            TeamMember::setStatus($id, 'published');
+
+                            return true;
+                        },
+                    ],
+                    'unpublish' => [
+                        'label' => 'Снять с публикации',
+                        'run' => static function (int $id): bool {
+                            TeamMember::setStatus($id, 'draft');
+
+                            return true;
+                        },
+                    ],
+                    'delete' => [
+                        'label' => 'Удалить',
+                        'run' => static function (int $id): bool {
+                            TeamMember::delete($id);
+
+                            return true;
+                        },
+                    ],
+                ];
+
+            case 'albums':
+                return [
+                    'publish' => [
+                        'label' => 'Опубликовать',
+                        'run' => static function (int $id): bool {
+                            PhotoAlbum::setPublished($id, true);
+
+                            return true;
+                        },
+                    ],
+                    'unpublish' => [
+                        'label' => 'Снять с публикации',
+                        'run' => static function (int $id): bool {
+                            PhotoAlbum::setPublished($id, false);
+
+                            return true;
+                        },
+                    ],
+                    'delete' => [
+                        'label' => 'Удалить',
+                        'run' => static function (int $id): bool {
+                            PhotoAlbum::delete($id);
+
+                            return true;
+                        },
+                    ],
+                ];
+
+            case 'goals':
+                return [
+                    'activate' => [
+                        'label' => 'Включить',
+                        'run' => static function (int $id): bool {
+                            Goal::setActive($id, true);
+
+                            return true;
+                        },
+                    ],
+                    'deactivate' => [
+                        'label' => 'Выключить',
+                        'run' => static function (int $id): bool {
+                            Goal::setActive($id, false);
+
+                            return true;
+                        },
+                    ],
+                    'delete' => [
+                        'label' => 'Удалить',
+                        'run' => static function (int $id): bool {
+                            Goal::delete($id);
+
+                            return true;
+                        },
+                    ],
+                ];
+
+            default:
+                return [];
+        }
+    }
+
+    /**
+     * Подписи действий для выпадающего списка вьюхи, в том порядке, в каком
+     * их выполнит `handle()`. Вьюха не заводит свой список опций — она
+     * спрашивает этот, иначе список в форме и обработчик рано или поздно
+     * разъедутся молча.
+     *
+     * @return array<string, string>
+     */
+    public static function labels(string $type): array
+    {
+        return array_map(static fn (array $a): string => $a['label'], self::actions($type));
+    }
 
     /** @param array<string, string> $params */
     public function handle(array $params): void
@@ -38,8 +202,7 @@ final class BulkController
             View::render('errors/404');
             return;
         }
-        /** @var class-string $model */
-        $model = self::MAP[$type];
+        $actions = self::actions($type);
 
         $ids = array_values(array_filter(array_map('intval', (array) ($_POST['ids'] ?? []))));
         $action = (string) ($_POST['bulk_action'] ?? '');
@@ -50,29 +213,15 @@ final class BulkController
             $this->back($returnPath);
         }
 
+        if (!isset($actions[$action])) {
+            Flash::error('Неизвестное действие.');
+            $this->back($returnPath);
+        }
+
         $done = 0;
         foreach ($ids as $id) {
-            switch ($action) {
-                case 'publish':
-                    $model::setStatus($id, 'published');
-                    $done++;
-                    break;
-                case 'unpublish':
-                    $model::setStatus($id, 'draft');
-                    $done++;
-                    break;
-                case 'trash':
-                    $model::delete($id);
-                    $done++;
-                    break;
-                case 'duplicate':
-                    if ($model::duplicate($id) !== null) {
-                        $done++;
-                    }
-                    break;
-                default:
-                    Flash::error('Неизвестное действие.');
-                    $this->back($returnPath);
+            if (($actions[$action]['run'])($id)) {
+                $done++;
             }
         }
 

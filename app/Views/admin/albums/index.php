@@ -31,13 +31,26 @@ $langMap = \App\Models\PhotoAlbum::availableLangsForIds(array_map(static fn ($i)
 <?php if (empty($items)): ?>
     <p class="form-hint">Альбомов пока нет.</p>
 <?php else: ?>
+    <form id="bulkform" method="post" action="/admin/bulk/albums" class="bulk-bar" data-bulk-form>
+        <?= Csrf::field() ?>
+        <input type="hidden" name="return_query" value="">
+        <select name="bulk_action" required aria-label="Действие с выбранными">
+            <option value="">С выбранными…</option>
+            <?php foreach (\App\Controllers\Admin\BulkController::labels('albums') as $key => $label): ?>
+                <option value="<?= htmlspecialchars($key, ENT_QUOTES) ?>"><?= htmlspecialchars($label, ENT_QUOTES) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit" class="btn">Применить</button>
+        <span class="bulk-bar__count" data-bulk-count>0 выбрано</span>
+    </form>
     <table class="data-table">
         <thead>
-            <tr><th>Название</th><th>Адрес</th><th>Языки</th><th>Фото</th><th>Статус</th><th>Создан</th><th></th></tr>
+            <tr><th class="u-inline-5aec6ffae3"><input type="checkbox" data-select-all form="bulkform" aria-label="Выбрать все"></th><th>Название</th><th>Адрес</th><th>Языки</th><th>Фото</th><th>Статус</th><th>Создан</th><th></th></tr>
         </thead>
         <tbody>
             <?php foreach ($items as $item): ?>
                 <tr>
+                    <td><input type="checkbox" name="ids[]" value="<?= (int) $item['id'] ?>" form="bulkform" data-bulk-item aria-label="Выбрать альбом"></td>
                     <td><?= htmlspecialchars((string) $item['title'], ENT_QUOTES) ?></td>
                     <td><code class="u-inline-e71ae94b55">/albums/<?= htmlspecialchars((string) $item['slug'], ENT_QUOTES) ?></code></td>
                     <td class="u-inline-a9efa5449f"><?= \App\Core\View::renderPartial('admin/layout/lang_badges', [

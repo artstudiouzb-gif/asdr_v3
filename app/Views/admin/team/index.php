@@ -12,9 +12,23 @@ require __DIR__ . '/../layout/header.php';
 $langs = Language::active();
 ?>
 
+<form id="bulkform" method="post" action="/admin/bulk/team" class="bulk-bar" data-bulk-form>
+    <?= Csrf::field() ?>
+    <input type="hidden" name="return_query" value="">
+    <select name="bulk_action" required aria-label="Действие с выбранными">
+        <option value="">С выбранными…</option>
+        <?php foreach (\App\Controllers\Admin\BulkController::labels('team') as $key => $label): ?>
+            <option value="<?= htmlspecialchars($key, ENT_QUOTES) ?>"><?= htmlspecialchars($label, ENT_QUOTES) ?></option>
+        <?php endforeach; ?>
+    </select>
+    <button type="submit" class="btn">Применить</button>
+    <span class="bulk-bar__count" data-bulk-count>0 выбрано</span>
+</form>
+
 <table class="data-table">
     <thead>
         <tr>
+            <th class="u-inline-5aec6ffae3"><input type="checkbox" data-select-all form="bulkform" aria-label="Выбрать все"></th>
             <th>Имя</th>
             <th>Должность</th>
             <th>Подразделение</th>
@@ -25,7 +39,7 @@ $langs = Language::active();
     </thead>
     <tbody>
         <?php if (empty($items)): ?>
-            <tr><td colspan="5" class="data-table__empty">Сотрудников пока нет.<br><a href="/admin/team/create" class="btn btn--small"><?= \App\Core\AdminUi::icon('plus') ?>Добавить первого сотрудника</a></td></tr>
+            <tr><td colspan="7" class="data-table__empty">Сотрудников пока нет.<br><a href="/admin/team/create" class="btn btn--small"><?= \App\Core\AdminUi::icon('plus') ?>Добавить первого сотрудника</a></td></tr>
         <?php endif; ?>
         <?php
         // Языки контента для всех строк одним запросом (без N+1).
@@ -34,6 +48,7 @@ $langs = Language::active();
         ?>
         <?php foreach ($items as $item): ?>
             <tr>
+                <td><input type="checkbox" name="ids[]" value="<?= (int) $item['id'] ?>" form="bulkform" data-bulk-item aria-label="Выбрать сотрудника"></td>
                 <td><?= htmlspecialchars($item['name'], ENT_QUOTES) ?></td>
                 <td><?= htmlspecialchars($item['position'] ?? '', ENT_QUOTES) ?></td>
                 <td>
