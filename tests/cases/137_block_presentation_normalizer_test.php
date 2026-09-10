@@ -6,6 +6,7 @@ use App\Core\BlockData\BlockPresentationNormalizer;
 
 test('Block presentation normalizer: формирует прежние значения по умолчанию', function (): void {
     assert_same([
+        '_anchor' => '',
         '_spacing' => 'premium',
         '_reveal' => ['enabled' => false, 'type' => 'fade'],
         '_bg' => 'none',
@@ -30,6 +31,7 @@ test('Block presentation normalizer: формирует прежние знач�
 
 test('Block presentation normalizer: сохраняет допустимые настройки', function (): void {
     assert_same([
+        '_anchor' => 'forma',
         '_spacing' => 'max',
         '_reveal' => ['enabled' => true, 'type' => 'slide-up'],
         '_bg' => 'navy',
@@ -46,6 +48,7 @@ test('Block presentation normalizer: сохраняет допустимые н�
         '_bg_card_scheme' => 'auto',
         '_bg_light_text' => true,
     ], BlockPresentationNormalizer::normalize([
+        'anchor' => '#Forma',
         'spacing' => 'max',
         // Пресет navy с собственным цветом текста: до исправления настройка
         // до него не доходила — выход по «preset» стоял раньше.
@@ -61,6 +64,14 @@ test('Block presentation normalizer: сохраняет допустимые н�
         'visible_device' => 'mobile',
         'unrelated' => 'не попадает в результат',
     ]));
+});
+
+test('Block presentation normalizer: безопасно нормализует якорь секции', function (): void {
+    assert_same('forma-zayavki', BlockPresentationNormalizer::normalize([
+        'anchor' => '  #Forma zayavki  ',
+    ])['_anchor']);
+    assert_same('', BlockPresentationNormalizer::normalize(['anchor' => '#block-123'])['_anchor']);
+    assert_same('', BlockPresentationNormalizer::normalize(['anchor' => '###'])['_anchor']);
 });
 
 test('Block presentation normalizer: ограничивает неизвестные значения', function (): void {

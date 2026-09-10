@@ -6348,7 +6348,9 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 /* Якорь не должен уезжать под закреплённую полосу оглавления. Высоту шапки
    здесь не учитываем: её держит scroll-padding-top у html — один отступ на все
    якоря сайта, а не константа у каждого вида цели. */
-.cms-block[id] { scroll-margin-top: var(--anchornav-top, 0px); }
+.cms-block[id],
+.cms-block__anchor { scroll-margin-top: var(--anchornav-top, 0px); }
+.cms-block__anchor { display: block; inline-size: 0; block-size: 0; }
 
 /* ==========================================================================
    Карточка правового акта

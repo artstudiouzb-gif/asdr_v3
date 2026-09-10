@@ -30,6 +30,18 @@ test('BlockRenderer: пустой data подставляет дефолты', f
     assert_contains('cms-block--space-premium', $result['html']);
 });
 
+test('BlockRenderer: выводит пользовательский якорь и сохраняет технический id', function () {
+    $result = BlockRenderer::render([
+        'id' => 31,
+        'type' => 'text',
+        'data' => json_encode(['title' => 'Форма', 'content' => '<p>x</p>', '_anchor' => 'forma']),
+        'custom_css' => '',
+    ]);
+
+    assert_contains('id="block-31"', $result['html']);
+    assert_contains('<span id="forma" class="cms-block__anchor" aria-hidden="true"></span>', $result['html']);
+});
+
 test('BlockRenderer: неизвестный тип не роняет рендер', function () {
     $result = BlockRenderer::render([
         'id' => 1,
