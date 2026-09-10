@@ -59,4 +59,29 @@ final class LogController
         header('Location: /admin/logs?channel=' . urlencode($channel));
         exit;
     }
+
+    /** Удаляет из файлового журнала только записи старше выбранного срока. */
+    public function purge(): void
+    {
+        Auth::requireSuperAdmin();
+        Csrf::verifyRequest();
+
+        $channel = (string) ($_POST['channel'] ?? '');
+        $days = (int) ($_POST['days'] ?? 0);
+        if (!isset(LogReader::CHANNELS[$channel]) || !in_array($days, [7, 30, 90], true)) {
+            Flash::error('Не удалось определить журнал или срок хранения.');
+            header('Location: /admin/logs');
+            exit;
+        }
+
+        $removed = LogReader::purgeOlderThan($channel, $days);
+        if ($removed === null) {
+            Flash::error('Не удалось удалить старые записи: проверьте права на storage/logs.');
+        } else {
+            Flash::success('Удалено старых записей: ' . $removed . '.');
+        }
+
+        header('Location: /admin/logs?channel=' . urlencode($channel));
+        exit;
+    }
 }
