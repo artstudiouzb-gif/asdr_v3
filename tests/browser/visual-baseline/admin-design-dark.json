@@ -1,8 +1,8 @@
 {
   ".admin-tab-btn": {
-    "backgroundColor": "color(srgb 0.106667 0.273725 0.286274)",
-    "color": "rgb(16, 185, 129)",
-    "borderColor": "rgb(16, 185, 129)",
+    "backgroundColor": "rgba(59, 130, 246, 0.12)",
+    "color": "rgb(37, 99, 235)",
+    "borderColor": "rgb(37, 99, 235)",
     "borderRadius": "3px 3px 0px 0px",
     "fontSize": "14px",
     "padding": "10px 18px"
@@ -14,12 +14,12 @@
     "padding": "14px 12px"
   },
   ".design-card__label": {
-    "color": "rgb(248, 250, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "13px",
     "fontWeight": "500"
   },
   ".design-opt__label": {
-    "color": "rgb(248, 250, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "13px",
     "fontWeight": "400"
   },

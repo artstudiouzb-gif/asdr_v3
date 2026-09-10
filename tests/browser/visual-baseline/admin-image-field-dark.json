@@ -6,7 +6,7 @@
     "padding": "12px 14px"
   },
   ".image-field > label": {
-    "color": "rgb(248, 250, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "13px",
     "fontWeight": "600",
     "marginBottom": "9px"
@@ -21,10 +21,10 @@
     "height": "84px",
     "borderColor": "rgb(51, 65, 85)",
     "borderRadius": "3px",
-    "backgroundColor": "rgb(30, 41, 59)"
+    "backgroundColor": "rgb(250, 251, 252)"
   },
   ".image-field__name": {
-    "color": "rgb(248, 250, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "13px",
     "fontWeight": "500"
   },

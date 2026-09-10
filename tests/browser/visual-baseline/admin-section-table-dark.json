@@ -1,7 +1,7 @@
 {
   "table.table th": {
-    "backgroundColor": "rgb(30, 41, 59)",
-    "color": "rgb(248, 250, 252)",
+    "backgroundColor": "rgb(250, 251, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "12px",
     "fontWeight": "600",
     "letterSpacing": "0.36px",
@@ -10,13 +10,13 @@
     "borderBottomColor": "rgb(51, 65, 85)"
   },
   "table.table td": {
-    "color": "rgb(248, 250, 252)",
+    "color": "rgb(241, 245, 249)",
     "fontSize": "13px",
     "lineHeight": "19.5px",
     "padding": "6px 10px",
     "borderBottomColor": "color(srgb 0.2 0.254902 0.333333 / 0.55)"
   },
   ".table--striped tbody tr:nth-child(even)": {
-    "backgroundColor": "rgb(30, 41, 59)"
+    "backgroundColor": "rgb(250, 251, 252)"
   }
 }
