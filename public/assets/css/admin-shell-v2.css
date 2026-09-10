@@ -24,35 +24,6 @@
     --admin-shell-border: #e3e8f0;
 }
 
-html[data-admin-theme="wp_classic"] {
-    --admin-sidebar-bg: #202930;
-    --admin-sidebar-text: #f0f0f1;
-    --admin-sidebar-muted: #aeb8c1;
-}
-
-html[data-admin-theme="navy_teal"] {
-    --admin-sidebar-bg: #13233f;
-    --admin-sidebar-active-bg: rgba(13, 148, 136, .28);
-    --admin-sidebar-active-border: #2dd4bf;
-}
-
-html[data-admin-theme="royal_purple"] {
-    --admin-sidebar-bg: #211d4d;
-    --admin-sidebar-active-bg: rgba(124, 58, 237, .3);
-    --admin-sidebar-active-border: #a78bfa;
-}
-
-html[data-admin-theme="dark_emerald"] {
-    --admin-shell-bg: #0f172a;
-    --admin-topbar-bg: rgba(15, 23, 42, .96);
-    --admin-topbar-text: #f8fafc;
-    --admin-topbar-muted: #94a3b8;
-    --admin-shell-border: #334155;
-    --admin-sidebar-bg: #07111f;
-    --admin-sidebar-text: #f8fafc;
-    --admin-sidebar-muted: #7f91a8;
-}
-
 body.admin-body {
     background: var(--admin-shell-bg);
 }
@@ -131,16 +102,6 @@ body.admin-body {
     border-color: #dce3ed;
 }
 
-[data-admin-theme="dark_emerald"] .admin-search__input {
-    color: #f8fafc;
-    background: #111c2d;
-    border-color: #334155;
-}
-
-[data-admin-theme="dark_emerald"] .admin-search__input:focus {
-    background: #172033;
-}
-
 .admin-tools {
     gap: 8px;
 }
@@ -170,17 +131,6 @@ body.admin-body {
 .admin-tbtn--primary:hover {
     color: #ffffff;
     background: var(--admin-accent-hover);
-}
-
-[data-admin-theme="dark_emerald"] .admin-tbtn {
-    color: #f8fafc;
-    background: #172033;
-    border-color: #334155;
-}
-
-[data-admin-theme="dark_emerald"] .admin-tbtn--primary {
-    background: var(--admin-accent);
-    border-color: var(--admin-accent);
 }
 
 .admin-user__btn {

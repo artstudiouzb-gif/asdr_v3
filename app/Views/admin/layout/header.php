@@ -114,12 +114,19 @@ $navRoleLabel = (string) ($navUser['role'] ?? 'editor') === 'admin' ? t('Адм�
 $activeLangs = \App\Models\Language::active();
 $currentLang = \App\Core\Locale::current();
 $navUserId = (int) ($navUser['id'] ?? 0);
-$navAdminTheme = $_SESSION['admin_theme'] ?? (\App\Models\Setting::get('admin_theme_user_' . $navUserId, 'default'));
+// Тема осталась одна, поэтому значение постоянное: атрибут сохранён, потому
+// что на нём висят объявления токенов панели. Тёмный вид выбирается отдельно.
+$navAdminTheme = 'default';
+$navAdminAppearance = $_SESSION['admin_appearance']
+    ?? (\App\Models\Setting::get('admin_appearance_user_' . $navUserId, 'system'));
+if (!in_array($navAdminAppearance, ['system', 'light', 'dark'], true)) {
+    $navAdminAppearance = 'system';
+}
 $navBrandHost = (string) (parse_url((string) \App\Core\Config::get('app.url', ''), PHP_URL_HOST) ?: '');
 $navBrandSubtitle = $navBrandHost !== '' ? $navBrandHost : t('Панель управления');
 ?>
 <!DOCTYPE html>
-<html lang="<?= htmlspecialchars($currentLang, ENT_QUOTES) ?>" data-theme="light" data-admin-theme="<?= htmlspecialchars((string) $navAdminTheme, ENT_QUOTES) ?>">
+<html lang="<?= htmlspecialchars($currentLang, ENT_QUOTES) ?>" data-theme="light" data-admin-theme="<?= htmlspecialchars((string) $navAdminTheme, ENT_QUOTES) ?>" data-admin-appearance="<?= htmlspecialchars((string) $navAdminAppearance, ENT_QUOTES) ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">

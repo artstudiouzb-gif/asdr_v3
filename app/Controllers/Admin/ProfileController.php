@@ -380,17 +380,21 @@ final class ProfileController
         Csrf::verifyRequest();
 
         $userId = (int) Auth::id();
-        $theme = trim((string) ($_POST['admin_theme'] ?? 'default'));
-        $validThemes = ['default', 'wp_classic', 'navy_teal', 'royal_purple', 'dark_emerald'];
 
-        if (!in_array($theme, $validThemes, true)) {
-            $theme = 'default';
+        // Цветовых тем было пять: четыре светлых варианта одного и того же и
+        // одна тёмная. Тёмный вид при этом приходил ещё и сам по себе, от
+        // тёмной темы операционной системы, — два механизма спорили, и
+        // выбранная тема перекрашивалась чужими цветами. Остался один выбор
+        // из трёх значений, он же единственный источник тёмного вида.
+        $appearance = trim((string) ($_POST['admin_appearance'] ?? 'system'));
+        if (!in_array($appearance, ['system', 'light', 'dark'], true)) {
+            $appearance = 'system';
         }
 
-        \App\Models\Setting::set('admin_theme_user_' . $userId, $theme);
-        $_SESSION['admin_theme'] = $theme;
+        \App\Models\Setting::set('admin_appearance_user_' . $userId, $appearance);
+        $_SESSION['admin_appearance'] = $appearance;
 
-        Flash::success('Цветовая схема админ-панели успешно сохранена.');
+        Flash::success('Внешний вид панели сохранён.');
         header('Location: /admin/profile');
         exit;
     }

@@ -3956,11 +3956,14 @@
             return;
         }
 
-        var themePreview = event.target.closest('[data-admin-theme-preview]');
-        if (themePreview) {
+        // Примерка внешнего вида до сохранения: пять цветовых тем сведены к
+        // одной, а выбор «как в системе / светлая / тёмная» остался — и его
+        // так же полезно увидеть, не сохраняя.
+        var appearancePreview = event.target.closest('[data-admin-appearance-preview]');
+        if (appearancePreview) {
             document.documentElement.setAttribute(
-                'data-admin-theme',
-                themePreview.getAttribute('data-admin-theme-preview')
+                'data-admin-appearance',
+                appearancePreview.getAttribute('data-admin-appearance-preview')
             );
         }
     });
