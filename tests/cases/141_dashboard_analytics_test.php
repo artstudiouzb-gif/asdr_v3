@@ -57,6 +57,8 @@ test('Дашборд читает состояние из SystemHealth и не �
     assert_not_contains('chartData', $controller, 'график заявок за 7 дней убран');
     assert_not_contains('dash-chart', $view, 'разметка графика убрана вместе с данными');
     assert_contains('/admin/health', $view, 'с дашборда должен быть путь ко всем проверкам');
+    assert_contains('SystemHealth::solution(', $view, 'каждая проблема получает единый следующий шаг');
+    assert_contains('dash-status__action', $view, 'следующий шаг виден кнопкой в самой строке');
 });
 
 /*

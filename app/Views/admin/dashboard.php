@@ -55,6 +55,10 @@ $statCard = static function (
  */
 $attentionRow = static function (array $check) use ($esc): string {
     $fail = ($check['state'] ?? '') === \App\Core\SystemHealth::FAIL;
+    $id = (string) ($check['id'] ?? 'unknown');
+    $anchor = 'health-' . preg_replace('/[^a-z0-9_-]+/i', '-', $id);
+    $solution = \App\Core\SystemHealth::solution($id);
+    $href = $solution['href'] !== '' ? $solution['href'] : '/admin/health#' . $anchor;
 
     return '<div class="dash-status__row dash-status__row--' . ($fail ? 'fail' : 'warn') . '">'
         . '<span class="dash-status__icon" aria-hidden="true">'
@@ -65,7 +69,10 @@ $attentionRow = static function (array $check) use ($esc): string {
         . (($check['hint'] ?? '') !== ''
             ? '<span class="dash-status__hint">' . $esc($check['hint']) . '</span>'
             : '')
-        . '</span></div>';
+        . '</span>'
+        . '<a class="btn btn--small dash-status__action" href="' . $esc($href) . '">'
+        . AdminUi::icon('arrow-right', 14) . ' ' . $esc($solution['label']) . '</a>'
+        . '</div>';
 };
 ?>
 <div class="dash-page">

@@ -112,6 +112,14 @@ test('Факт состояния называет и ответ, и что с �
     assert_same('меньше минуты', SystemHealth::age(30), 'возраст пишется словами');
     assert_same('2 ч', SystemHealth::age(7200));
     assert_same('3 дн', SystemHealth::age(3 * 86400));
+
+    $errors = SystemHealth::solution('errors_24h');
+    assert_same('/admin/audit/errors', $errors['href'], 'ошибка ведёт прямо в журнал');
+    assert_true($errors['instruction'] !== '', 'у проверки есть конкретный следующий шаг');
+
+    $worker = SystemHealth::solution('worker:mail');
+    assert_contains('mail_worker.php', $worker['instruction'], 'cron называет нужный воркер');
+    assert_same('', $worker['href'], 'CMS не притворяется, что умеет менять cron хостинга');
 });
 
 test('Раздел объявлен в панели целиком: маршрут, пункт меню и иконка', function (): void {
@@ -129,6 +137,11 @@ test('Раздел объявлен в панели целиком: маршру
     // Раздел называет версии, пути и причины отказов — это не для редактора.
     $controller = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/HealthController.php');
     assert_contains('requireSuperAdmin', $controller, 'раздел доступен только супер-админу');
+
+    $view = (string) file_get_contents(APP_ROOT . '/app/Views/admin/health/index.php');
+    assert_contains("require __DIR__ . '/../layout/header.php'", $view, 'раздел открыт внутри оболочки админки');
+    assert_contains("require __DIR__ . '/../layout/footer.php'", $view, 'оболочка админки закрыта полностью');
+    assert_contains('Как исправить', $view, 'проблемная строка показывает решение');
 });
 
 /** @return array{ok_at:?int, fail_at:?int, error:string} */
