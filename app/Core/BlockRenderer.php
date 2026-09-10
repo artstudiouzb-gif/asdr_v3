@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Core\BlockData\BlockFieldSchema;
+use App\Core\BlockData\BlockPresentationNormalizer;
 use App\Models\FormDef;
 
 final class BlockRenderer
@@ -317,9 +318,15 @@ final class BlockRenderer
             }
         }
 
+        $anchor = BlockPresentationNormalizer::normalizeAnchor((string) ($data['_anchor'] ?? ''));
+        $anchorHtml = $anchor !== ''
+            ? '<span id="' . htmlspecialchars($anchor, ENT_QUOTES) . '" class="cms-block__anchor" aria-hidden="true"></span>' . "\n"
+            : '';
+
         $wrapped = "<section\n    "
             . implode("\n    ", $sectionAttributes)
             . "\n>\n"
+            . $anchorHtml
             . self::watermark($data, $watermark)
             . trim($html)
             . "\n</section>";
