@@ -4,7 +4,7 @@
     "borderColor": "rgb(51, 65, 85)"
   },
   ".data-table th": {
-    "backgroundColor": "rgb(250, 251, 252)",
+    "backgroundColor": "rgb(39, 52, 73)",
     "color": "rgb(241, 245, 249)",
     "fontSize": "12px",
     "fontWeight": "600",
@@ -44,7 +44,7 @@
     "height": "38px"
   },
   ".bulk-bar": {
-    "backgroundColor": "rgb(250, 251, 252)",
+    "backgroundColor": "rgb(39, 52, 73)",
     "borderColor": "rgb(51, 65, 85)",
     "padding": "10px 16px"
   },

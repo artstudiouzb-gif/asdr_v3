@@ -612,7 +612,7 @@ function quality_budgets(): array
             'why' => 'слой «Enterprise Scale» перебивает компоненты; разбирается семьями: '
                 . 'правило переносится в компонент, потом снимается !important, '
                 . 'а срез вычисленных стилей доказывает, что вид не поехал',
-            'ceiling' => static fn (): int => 295,
+            'ceiling' => static fn (): int => 273,
             'measure' => static function (): array {
                 $files = admin_css_files();
 

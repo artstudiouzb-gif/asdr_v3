@@ -53,6 +53,22 @@
                 if (fields.length === 0) { return; }
                 group.hidden = fields.every(function (item) { return item.hidden; });
             });
+            emptySections();
+        }
+
+        // Секция, у которой скрылись все поля, прячется целиком вместе со
+        // ссылкой на неё в навигации. Рамка с одним заголовком читается как
+        // поломка: при фоне «Только цвет обложки» карточка «На телефоне»
+        // оставалась пустой — заголовок, подпись и ничего больше.
+        function emptySections() {
+            form.querySelectorAll('.settings-card[id]').forEach(function (card) {
+                var visible = Array.from(card.querySelectorAll('input, select, textarea')).some(function (control) {
+                    return !control.closest('[hidden]');
+                });
+                card.hidden = !visible;
+                var link = document.querySelector('.settings-jump-nav a[href="#' + card.id + '"]');
+                if (link) { link.hidden = !visible; }
+            });
         }
         function refresh() {
             if (form.dataset.heroEditor === 'cover') {
