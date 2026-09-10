@@ -74,7 +74,7 @@ test('CSP: разметка медиабиблиотеки использует 
 
     assert_contains('data-file-pick="media_file_input"', $view);
     assert_contains('data-close-target="media_modal"', $view);
-    assert_same(3, substr_count($view, 'data-autosubmit'), 'фильтры типа, даты и сортировки');
+    assert_same(4, substr_count($view, 'data-autosubmit'), 'фильтры типа, даты, сортировки и размера страницы');
     // Форма загрузки осталась обычной multipart-формой.
     assert_contains('action="/admin/files/upload" enctype="multipart/form-data"', $view);
 });

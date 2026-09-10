@@ -136,6 +136,7 @@ final class FileEntry
         return $counts;
     }
 
+    /** @param array<string, mixed> $params */
     public static function filtered(
         array $params,
         bool $includeProtected = true,
@@ -173,6 +174,7 @@ final class FileEntry
         return $stmt->fetchAll();
     }
 
+    /** @param array<string, mixed> $params */
     public static function filteredCount(array $params, bool $includeProtected = true): int
     {
         [$where, $bind] = self::filteredWhere($params, $includeProtected);
@@ -182,7 +184,10 @@ final class FileEntry
         return (int) $stmt->fetchColumn();
     }
 
-    /** @return array{0:string,1:array<string,string>} */
+    /**
+     * @param array<string, mixed> $params
+     * @return array{0:string,1:array<string,string>}
+     */
     private static function filteredWhere(array $params, bool $includeProtected): array
     {
         $q = trim((string) ($params['q'] ?? ''));
