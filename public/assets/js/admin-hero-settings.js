@@ -47,6 +47,13 @@
                 to.setCustomValidity('');
             }
         }
+        function dependentGroups() {
+            form.querySelectorAll('[data-hero-dependent-group]').forEach(function (group) {
+                var fields = Array.from(group.querySelectorAll('[data-hero-dependent]'));
+                if (fields.length === 0) { return; }
+                group.hidden = fields.every(function (item) { return item.hidden; });
+            });
+        }
         function refresh() {
             if (form.dataset.heroEditor === 'cover') {
                 show('published_from,published_to', value('status') === 'scheduled');
@@ -95,6 +102,7 @@
                 show('overlay_direction', overlay === 'gradient');
                 schedule('_visible_from', '_visible_to', false);
             }
+            dependentGroups();
         }
         form.addEventListener('input', refresh);
         form.addEventListener('change', refresh);

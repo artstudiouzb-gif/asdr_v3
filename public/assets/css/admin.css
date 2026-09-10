@@ -2206,6 +2206,103 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 .repeater-row__remove { align-self: flex-end; }
 .repeater-actions { margin-bottom: 20px; }
 
+/* Редактор контентных блоков: повторяемые элементы — компактные карточки,
+   а не длинные вертикальные анкеты. Стили ограничены этим экраном, чтобы не
+   менять конструкторы шапки, подвала и форм с их собственной раскладкой. */
+.block-editor-card {
+    width: min(100%, 1480px);
+    margin: 18px auto 0;
+}
+.block-editor-form > .form-field,
+.block-editor-form > .colorfield-row {
+    width: min(100%, 880px);
+}
+.block-editor-form [data-repeater] {
+    display: grid;
+    gap: 14px;
+    margin-top: 8px;
+}
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 16px 18px;
+    margin: 0;
+    padding: 18px;
+    border-color: color-mix(in srgb, var(--admin-border) 88%, var(--admin-text) 12%);
+    background: var(--admin-surface);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .035);
+}
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) > * {
+    min-width: 0;
+    grid-column: span 6;
+}
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) > .menu-panel__eyebrow,
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) > .colorfield-row,
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) > [data-collage-fields],
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) > .repeater-row__actions {
+    grid-column: 1 / -1;
+}
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) > .menu-panel__eyebrow {
+    margin: -2px 0 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--admin-border);
+}
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) .form-field,
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) .image-field {
+    margin: 0;
+}
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) input[type="text"],
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) input[type="url"],
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) input[type="number"],
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) select,
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) textarea {
+    width: 100%;
+    max-width: none;
+}
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) > .tabler-icon-field,
+.block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) > .image-field {
+    padding: 14px;
+    background: var(--admin-surface-soft);
+}
+.block-editor-form .repeater-row__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    padding-top: 2px;
+}
+.block-editor-form .repeater-row__actions [data-repeater-move] {
+    width: 38px;
+    min-width: 38px;
+    padding-inline: 0;
+}
+.block-editor-form .repeater-row__actions .repeater-row__remove {
+    align-self: center;
+    margin-left: 5px;
+}
+.block-editor-form .repeater-actions {
+    margin: 12px 0 2px;
+}
+@media (max-width: 900px) {
+    .block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) > * {
+        grid-column: 1 / -1;
+    }
+}
+@media (max-width: 560px) {
+    .block-editor-card { padding: 16px; }
+    .block-editor-form .repeater-row:not(.fb-card):not(.widget-slot-row) {
+        gap: 14px;
+        padding: 14px;
+    }
+    .block-editor-form .repeater-row__actions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+    .block-editor-form .repeater-row__actions .repeater-row__remove {
+        margin-left: auto;
+    }
+}
+
 .bio-widget-slots { display: grid; gap: 20px; padding-top: 8px; }
 .bio-widget-slots > h3, .bio-widget-slot > h4 { margin: 0; }
 .bio-widget-slot { display: grid; gap: 10px; padding: 16px; border: 1px solid var(--admin-border); border-radius: 3px; background: var(--admin-bg-soft, #f8fafc); }

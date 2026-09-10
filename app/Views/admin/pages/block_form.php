@@ -21,8 +21,8 @@ $backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . url
 <a href="<?= htmlspecialchars($backUrl, ENT_QUOTES) ?>" class="btn btn--small u-inline-79a1c5a5db">&larr; Назад к странице</a>
 <a href="/admin/blocks/<?= (int) $block['id'] ?>/revisions" class="btn btn--small u-inline-79a1c5a5db">История изменений</a>
 
-<div class="form-card">
-    <form method="post" action="/admin/blocks/<?= (int) $block['id'] ?>/edit" class="form-grid" data-content-draft="block:<?= (int) $block['id'] ?>" data-record-updated="<?= htmlspecialchars((string) ($block['updated_at'] ?? ''), ENT_QUOTES) ?>">
+<div class="form-card block-editor-card">
+    <form method="post" action="/admin/blocks/<?= (int) $block['id'] ?>/edit" class="form-grid block-editor-form" data-content-draft="block:<?= (int) $block['id'] ?>" data-record-updated="<?= htmlspecialchars((string) ($block['updated_at'] ?? ''), ENT_QUOTES) ?>">
         <?= Csrf::field() ?>
         <input type="hidden" name="expected_lock_version" value="<?= (int) ($block['lock_version'] ?? 1) ?>">
 

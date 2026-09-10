@@ -655,6 +655,51 @@
         return fragment;
     }
 
+    // В редакторе блоков кнопки сортировки и удаления относятся ко всей
+    // карточке, а не к отдельным полям. Собираем их в одну компактную панель:
+    // иначе flex-репитер растягивал каждую кнопку в самостоятельную строку.
+    function arrangeBlockRepeaterRow(row) {
+        if (!row || !row.closest('.block-editor-form') || row.classList.contains('fb-card')
+            || row.classList.contains('widget-slot-row') || row.querySelector(':scope > .repeater-row__actions')) {
+            return;
+        }
+        var buttons = Array.from(row.querySelectorAll(':scope > [data-repeater-move], :scope > [data-repeater-remove]'));
+        if (buttons.length === 0) { return; }
+        var actions = document.createElement('div');
+        actions.className = 'repeater-row__actions';
+        buttons.forEach(function (button) { actions.appendChild(button); });
+        row.appendChild(actions);
+    }
+
+    function arrangeBlockRepeaterRows(root) {
+        var scope = root && root.querySelectorAll ? root : document;
+        scope.querySelectorAll('.block-editor-form .repeater-row').forEach(arrangeBlockRepeaterRow);
+        if (scope.matches && scope.matches('.block-editor-form .repeater-row')) {
+            arrangeBlockRepeaterRow(scope);
+        }
+    }
+
+    function initBlockRepeaterLayout() {
+        var editor = document.querySelector('.block-editor-form');
+        if (!editor) { return; }
+        arrangeBlockRepeaterRows(editor);
+        if (window.MutationObserver) {
+            new MutationObserver(function (records) {
+                records.forEach(function (record) {
+                    Array.from(record.addedNodes).forEach(function (node) {
+                        if (node.nodeType === Node.ELEMENT_NODE) { arrangeBlockRepeaterRows(node); }
+                    });
+                });
+            }).observe(editor, { childList: true, subtree: true });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBlockRepeaterLayout);
+    } else {
+        initBlockRepeaterLayout();
+    }
+
     document.addEventListener('click', function (event) {
         const copyBtn = event.target.closest('[data-copy-link], [data-copy-text]');
         if (copyBtn) {
@@ -695,6 +740,7 @@
             // разбор разметки, на котором данные становятся HTML.
             wrapper.appendChild(instantiateRepeaterTemplate(template, index));
             container.appendChild(wrapper);
+            arrangeBlockRepeaterRow(wrapper);
             if (window.__enhanceIconFields) { window.__enhanceIconFields(wrapper); }
             return;
         }
