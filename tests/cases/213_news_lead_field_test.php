@@ -42,6 +42,11 @@ test('Форма даёт компактный редактор и три чес
     assert_contains('data-lead-preview-tab="card"', $form);
     assert_contains('data-lead-preview-tab="telegram"', $form);
     assert_contains('data-lead-preview-tab="seo"', $form);
+    assert_contains('7. Предпросмотр публикации', $form);
+    assert_true(
+        strpos($form, 'data-lead-previews') > strpos($form, '6. SEO Оптимизация'),
+        'предпросмотр расположен после заполнения текста и SEO'
+    );
     assert_contains("var isLead = textarea.hasAttribute('data-lead-editor')", $editor);
     assert_contains("len < 180", $admin);
     assert_contains("len > 360", $admin);
