@@ -102,6 +102,32 @@ $size = static function (mixed $bytes): string {
                 <input type="checkbox" id="perf_pretty_html" name="perf_pretty_html" value="1" <?= $on('perf_pretty_html', '1') ? 'checked' : '' ?>>
                 <label for="perf_pretty_html">Форматировать исходный код публичных страниц</label>
             </div>
+            <div class="form-field">
+                <label for="perf_speculation">Упреждающая загрузка внутренних страниц</label>
+                <select id="perf_speculation" name="perf_speculation">
+                    <?php $speculation = $settings['perf_speculation'] ?? 'prefetch'; ?>
+                    <option value="off" <?= $speculation === 'off' ? 'selected' : '' ?>>Выключена</option>
+                    <option value="prefetch" <?= $speculation === 'prefetch' ? 'selected' : '' ?>>Префетч по наведению</option>
+                    <option value="prerender" <?= $speculation === 'prerender' ? 'selected' : '' ?>>Префетч по наведению и пререндер по нажатию</option>
+                </select>
+                <span class="form-hint">
+                    Браузер начинает загружать страницу до нажатия на ссылку, поэтому переход
+                    происходит без ожидания. Префетч — это один дополнительный запрос;
+                    пререндер вдобавок отрисовывает страницу заранее, поэтому включается
+                    только по нажатию кнопки мыши. Служебные адреса, файлы и переключатели
+                    языка не упреждаются. Если сервер тесен по ресурсам, оставьте префетч.
+                </span>
+            </div>
+            <div class="form-field form-field--checkbox">
+                <input type="checkbox" id="perf_early_hints" name="perf_early_hints" value="1" <?= $on('perf_early_hints', '1') ? 'checked' : '' ?>>
+                <label for="perf_early_hints">Ранняя подсказка о критических ресурсах (Link: preload)</label>
+            </div>
+            <p class="form-hint">
+                Заголовок называет браузеру таблицу стилей и файл шрифта до того, как он
+                дочитает разметку. Cloudflare с включённым «Early Hints» (и Apache с
+                <code>H2EarlyHints on</code>) превращает эту подсказку в ответ 103 и
+                отправляет её ещё до того, как страница собрана.
+            </p>
             <p class="form-hint">
                 «Просмотр кода страницы» показывает разметку с отступами и переносами.
                 Двигаются только незначимые пробелы — рядом со строчными элементами

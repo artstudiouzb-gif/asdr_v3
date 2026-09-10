@@ -23,13 +23,11 @@ if ($logo === '') {
     $logo = (string) Setting::get('logo_url', '');
 }
 // Выбранные семейства нужны для точечного preload локальных файлов шрифтов;
-// сами CSS-переменные публикует SiteThemeCss.
-// Стеки берём из SiteThemeCss — там же, откуда они попадают в CSS страницы.
-// Иначе шапка предзагружает файлы одного семейства, а текст набирается другим:
-// так сайт качал PT Sans и PT Serif, которыми ничего не набрано.
-$fontStacks = \App\Core\SiteThemeCss::fontStacks();
-$font = $fontStacks['body'];
-$fontHeading = $fontStacks['heading'];
+// сами CSS-переменные публикует SiteThemeCss. Стеки читает
+// FrontendAssets::bundledFontPreloads() — там же, откуда они попадают в CSS
+// страницы. Иначе шапка предзагружает файлы одного семейства, а текст
+// набирается другим: так сайт качал PT Sans и PT Serif, которыми ничего не
+// набрано.
 $extraHeadCss = $extraHeadCss ?? '';
 
 // --- Дизайн-система: тема и локальный шрифт ---
@@ -712,33 +710,10 @@ if (is_array($cdnParts) && in_array($cdnParts['scheme'] ?? '', ['http', 'https']
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="apple-mobile-web-app-title" content="<?= htmlspecialchars($pwaShortName, ENT_QUOTES) ?>">
 <?php endif; ?>
-<?php // Preload только реально выбранных семейств: лишние preload конкурируют с CSS/LCP. ?>
-<?php
-$fontPreloads = [];
-foreach ([(string) $font, (string) $fontHeading] as $selectedFont) {
-    // Только семейства из поставки: путь к файлу здесь захардкожен, а у
-    // скачанных на сервер шрифтов он свой (/uploads/public/fonts/<slug>/…).
-    // Порядок важен: «Noto Serif» содержит «Noto S», поэтому имена
-    // проверяются целиком и совпадение прерывает перебор.
-    foreach ([
-        'Noto Serif' => '/assets/fonts/noto-serif/noto-serif-var-cyrillic.woff2',
-        'Noto Sans' => '/assets/fonts/noto-sans/noto-sans-var-cyrillic.woff2',
-    ] as $family => $fontFile) {
-        // Совпадать должно начало стека: семейство, которым реально набран
-        // текст. Иначе запасное начертание («Inter Fallback») или дальний
-        // элемент стека тянул бы за собой лишний preload.
-        if (stripos(ltrim($selectedFont, " '\""), $family) === 0) {
-            $fontPreloads[$fontFile] = true;
-            break;
-        }
-    }
-}
-?>
-<?php // Адрес — БЕЗ ?v=: в @font-face файл указан относительным путём без версии,
-      // а preload с другим адресом браузер за тот же ресурс не считает и качает
-      // файл вторым запросом. Версионировать шрифты и не нужно: имя файла меняется
-      // вместе с содержимым (npm run sync:fonts). ?>
-<?php foreach (array_keys($fontPreloads) as $fontFile): ?>
+<?php // Preload только реально выбранных семейств: лишние preload конкурируют
+      // с CSS/LCP. Список общий с заголовками ранней подсказки (Link:), см.
+      // FrontendAssets::bundledFontPreloads(). ?>
+<?php foreach (\App\Core\FrontendAssets::bundledFontPreloads() as $fontFile): ?>
 <link rel="preload" href="<?= htmlspecialchars($fontFile, ENT_QUOTES) ?>" as="font" type="font/woff2" crossorigin>
 <?php endforeach; ?>
 <?php foreach (\App\Core\LocalGoogleFonts::stylesheetsForSelected() as $fontStylesheet): ?>

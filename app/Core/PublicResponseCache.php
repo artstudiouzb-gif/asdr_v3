@@ -247,6 +247,20 @@ final class PublicResponseCache
         return in_array(strtolower(ltrim($trimmed, '/')), array_map('strtolower', $activeCodes), true);
     }
 
+    /**
+     * Приватные и служебные пути: их ответ зависит от сессии, ставит cookie
+     * или отдаёт файл. Список читает и `SpeculationRules` — упреждать такие
+     * адреса нельзя ровно по тем же причинам, по которым их нельзя класть в
+     * общий кеш, и второй такой список разъехался бы с этим при первой
+     * правке.
+     *
+     * @return list<string>
+     */
+    public static function privatePaths(): array
+    {
+        return self::PRIVATE_PATHS;
+    }
+
     private static function isPrivatePath(string $path): bool
     {
         foreach (self::PRIVATE_PATHS as $privatePath) {
@@ -332,7 +346,10 @@ final class PublicResponseCache
             return;
         }
 
-        Cache::put(self::staleKey(self::requestPath()), $html, self::STALE_TTL);
+        // Запись только при изменении: страница отдаётся сотни раз подряд
+        // одной и той же, а снимок — это десятки килобайт на каждый такой
+        // ответ. Сверка отпечатка стоит чтения шестнадцати байт.
+        Cache::putIfChanged(self::staleKey(self::requestPath()), $html, self::STALE_TTL);
     }
 
     /**

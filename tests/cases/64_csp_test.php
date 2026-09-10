@@ -25,9 +25,13 @@ test('adminCsp: без внешних CDN (TinyMCE самохостится), un
     assert_contains("frame-ancestors 'self'", $csp);
 });
 
+// 'inline-speculation-rules' в script-src допускает ровно один вид инлайна —
+// <script type="speculationrules"> — и ничего исполняемого. Nonce для правил
+// упреждающей загрузки не годится: он меняется каждый запрос, а ETag страницы
+// считается от готового тела, и «304» перестал бы совпадать когда-либо.
 test('publicCsp: базовая политика разрешает YouTube API и официальный Telegram widget', function () {
     $csp = SecurityHeaders::publicCsp('n0nce', []);
-    assert_contains("script-src 'self' 'nonce-n0nce' https://www.youtube.com https://telegram.org; ", $csp);
+    assert_contains("script-src 'self' 'nonce-n0nce' 'inline-speculation-rules' https://www.youtube.com https://telegram.org; ", $csp);
     assert_contains('https://www.youtube.com', $csp, 'разрешён официальный IFrame API для своего финального экрана');
     assert_contains('https://telegram.org', $csp, 'разрешён официальный виджет публикации Telegram');
     assert_true(!str_contains($csp, 'googletagmanager'), 'GA-хостов нет без настройки');
@@ -51,7 +55,7 @@ test('publicCsp: разрешает только известный источн
     $csp = SecurityHeaders::publicCsp('counter', [
         'counter_scripts' => ['https://mc.yandex.ru', 'https://example.test'],
     ]);
-    assert_contains("script-src 'self' 'nonce-counter' https://www.youtube.com https://telegram.org https://mc.yandex.ru", $csp);
+    assert_contains("script-src 'self' 'nonce-counter' 'inline-speculation-rules' https://www.youtube.com https://telegram.org https://mc.yandex.ru", $csp);
     assert_not_contains('example.test', $csp);
 });
 
@@ -61,7 +65,7 @@ test('publicCsp: хосты добавляются по включённым н�
     assert_not_contains('fonts.gstatic.com', $csp, 'локальным шрифтам внешний font-src не нужен');
     assert_contains('https://www.googletagmanager.com', $csp);
     assert_contains('https://mc.yandex.ru', $csp);
-    assert_contains("script-src 'self' 'nonce-x' https://www.youtube.com https://telegram.org https://www.googletagmanager.com https://mc.yandex.ru", $csp);
+    assert_contains("script-src 'self' 'nonce-x' 'inline-speculation-rules' https://www.youtube.com https://telegram.org https://www.googletagmanager.com https://mc.yandex.ru", $csp);
 });
 
 test('injectScriptNonce: добавляет nonce только тегам без него', function () {

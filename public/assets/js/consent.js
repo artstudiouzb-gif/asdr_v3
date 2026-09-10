@@ -72,15 +72,23 @@
         document.body.appendChild(bar);
     }
 
-    if (!cfg.required) {
-        // Согласие не требуется — грузим счётчики сразу.
-        runAnalytics();
-        return;
-    }
-    if (hasConsent()) {
-        runAnalytics();
-    } else {
-        document.addEventListener('DOMContentLoaded', showBanner);
-        if (document.readyState !== 'loading') { showBanner(); }
-    }
+    // Пререндер выполняет страницу до того, как посетитель нажал ссылку, а
+    // бывает, что он не нажмёт её вовсе. Счётчик, запущенный там, посчитал бы
+    // визит, которого не было, — поэтому и активация счётчиков, и баннер
+    // согласия ждут показа документа. Без пререндера ожидания нет.
+    var start = function () {
+        if (!cfg.required) {
+            // Согласие не требуется — грузим счётчики сразу.
+            runAnalytics();
+            return;
+        }
+        if (hasConsent()) {
+            runAnalytics();
+        } else {
+            document.addEventListener('DOMContentLoaded', showBanner);
+            if (document.readyState !== 'loading') { showBanner(); }
+        }
+    };
+
+    if (window.asdrWhenActivated) { window.asdrWhenActivated(start); } else { start(); }
 })();
