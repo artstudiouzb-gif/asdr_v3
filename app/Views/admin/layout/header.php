@@ -62,6 +62,7 @@ if ($navIsSuper) {
     ];
     $navSystem = [
         'health' => ['/admin/health', t('Состояние системы')],
+        'logs' => ['/admin/logs', t('Журнал ошибок')],
         'languages' => ['/admin/languages', t('Языки')],
         'content_types' => ['/admin/content-types', t('Типы контента')],
         'telegram' => ['/admin/telegram', 'Telegram'],
