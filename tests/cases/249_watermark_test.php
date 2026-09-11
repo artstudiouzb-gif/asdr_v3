@@ -105,11 +105,13 @@ test('Разметка надписи: молчит у диктора и не п
             '_watermark_x' => 'right',
             '_watermark_y' => 'top',
             '_watermark_opacity' => 9,
+            '_fullwidth' => true,
         ], JSON_UNESCAPED_UNICODE),
     ]);
     $html = (string) $rendered['html'];
 
     assert_contains('cms-block--has-watermark', $html);
+    assert_contains('cms-block--fullwidth', $html);
     assert_contains('cms-block__watermark--x-right', $html);
     assert_contains('cms-block__watermark--y-top', $html);
     // Диктор не должен читать декорацию посреди содержимого секции.
@@ -127,6 +129,11 @@ test('Разметка надписи: молчит у диктора и не п
     $theme = (string) file_get_contents(APP_ROOT . '/public/assets/css/gov-theme.css');
     assert_contains('.cms-block--has-watermark', $theme);
     assert_contains('overflow-x: clip', $theme);
+    assert_contains(
+        ".cms-block--fullwidth.cms-block--has-watermark {\n    overflow-x: visible;\n}",
+        $theme,
+        'фоновая надпись не должна обрезать полноширинную подложку секции'
+    );
     assert_contains('pointer-events: none', $theme);
     assert_contains('.cms-block--has-watermark > *:not(.cms-block__watermark)', $theme);
 
