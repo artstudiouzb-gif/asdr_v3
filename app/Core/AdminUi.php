@@ -356,6 +356,12 @@ final class AdminUi
         $esc = static fn (string $s): string => htmlspecialchars($s, ENT_QUOTES);
         $val = ($value !== null && $value !== '') ? $value : $defaultHex;
         $off = ($value === null || $value === '');
+        // Для поля репитера `items[0][color]` флаг должен попасть в тот же
+        // массив как `items[0][color_off]`. Суффикс после закрывающей скобки
+        // (`items[0][color]_off`) PHP разбирает не как соседний ключ.
+        $offName = str_ends_with($name, ']')
+            ? substr($name, 0, -1) . '_off]'
+            : $name . '_off';
 
         $html = '<div class="form-field colorfield' . ($off ? ' is-default' : '') . '" data-colorfield'
             . ' data-colorfield-default="' . $esc($offLabel) . '"'
@@ -370,7 +376,7 @@ final class AdminUi
             . ' title="' . $esc('Вернуть значение по умолчанию: ' . $offLabel) . '">'
             . self::icon('arrow-back-up', 14, 'colorfield__reset-icon') . '</button>';
         $html .= '</div>';
-        $html .= '<label class="colorfield__off"><input type="checkbox" name="' . $esc($name) . '_off" value="1"'
+        $html .= '<label class="colorfield__off"><input type="checkbox" name="' . $esc($offName) . '" value="1"'
             . ($off ? ' checked' : '') . '><span>' . $esc($offLabel) . '</span></label>';
         $html .= '</div>';
 
