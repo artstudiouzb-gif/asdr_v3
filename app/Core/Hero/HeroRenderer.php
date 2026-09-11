@@ -425,7 +425,10 @@ final class HeroRenderer
         // строки и не переживает смену темы.
         $icon = (string) $d[$key . '_icon'];
         $iconHtml = $icon !== ''
-            ? '<span class="hero__cta-icon" aria-hidden="true">' . Icon::render($icon, 20) . '</span>'
+            // Та же зона 46px, что у кнопки обычного Hero: значок почти
+            // заполняет высоту кнопки 50px, а не выглядит отдельной мелкой
+            // пиктограммой со своим размером.
+            ? '<span class="hero__cta-icon" aria-hidden="true">' . Icon::render($icon, 46, '', 2) . '</span>'
             : '';
 
         return '<a class="hero__cta hero__cta--' . htmlspecialchars((string) $d[$key . '_style'], ENT_QUOTES)

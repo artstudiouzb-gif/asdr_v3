@@ -356,14 +356,66 @@
 .hero__cta {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 22px;
-    border-radius: var(--radius-pill);
-    font-size: var(--step-0);
-    font-weight: 600;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 24px;
+    height: 50px;
+    min-height: 50px;
+    max-height: 50px;
+    box-sizing: border-box;
+    border-radius: var(--btn-radius, var(--radius-pill));
+    font-size: var(--step--3);
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
     text-decoration: none;
-    border: 2px solid transparent;
-    transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: background-color .3s cubic-bezier(.165, .84, .44, 1),
+        color .2s ease, border-color .2s ease,
+        transform .3s cubic-bezier(.165, .84, .44, 1), box-shadow .3s ease;
+}
+
+.hero__cta:not(.hero__cta--link):hover {
+    transform: translateY(-2px);
+    /* Та же тень уже используется кнопкой обычного Hero: новая ступень в
+       палитре теней ради идентичного поведения не нужна. */
+    box-shadow: 0 8px 20px rgba(22, 64, 110, .3);
+}
+
+/* Обычный Hero использует кнопку высотой 50px и зону иконки 46px. Обложка
+   из отдельного модуля повторяет ту же геометрию: значок встаёт вплотную по
+   высоте, а левый отступ освобождает ему место. */
+.hero__cta--with-icon:not(.hero__cta--link) { padding-left: 4px; }
+.hero__cta-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    margin-right: 6px;
+    flex: none;
+}
+.hero__cta-icon svg { display: block; width: 46px; height: 46px; }
+
+/* Полоса блеска совпадает по ритму с кнопкой обычного Hero. Ссылочный стиль
+   намеренно исключён: у него нет поверхности, по которой проходит блик. */
+.hero__cta:not(.hero__cta--link)::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 -150%;
+    width: 50%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,.35), transparent);
+    transform: skewX(-25deg);
+    animation: hero-cta-shimmer 6s infinite ease-in-out;
+    pointer-events: none;
+}
+@keyframes hero-cta-shimmer {
+    0% { transform: translateX(0) skewX(-25deg); }
+    30%, 100% { transform: translateX(600%) skewX(-25deg); }
 }
 
 /* Цвет текста на заливке акцентом считает тема (--on-accent): белый читается
@@ -377,8 +429,22 @@
 .hero__cta--ghost:hover { background: color-mix(in srgb, var(--hero-fg) 14%, transparent); }
 /* Ссылке цвет задаёт слайд (--hero-link); не задан — цвет текста кадра.
    Подчёркивание идёт currentColor, поэтому второго объявления не нужно. */
-.hero__cta--link { padding-inline: 0; color: var(--hero-link, var(--hero-fg)); text-decoration: underline; }
-.hero__cta-icon { display: inline-flex; flex: none; }
+.hero__cta--link {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    padding-inline: 0;
+    overflow: visible;
+    color: var(--hero-link, var(--hero-fg));
+    text-decoration: underline;
+}
+.hero__cta--link .hero__cta-icon {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    margin-right: 0;
+}
+.hero__cta--link .hero__cta-icon svg { width: 20px; height: 20px; }
 
 /* --- Навигация --- */
 /* Внешний слой — только положение: ширина колонки сайта и отступ от низа.
@@ -621,6 +687,8 @@
  */
 @media (prefers-reduced-motion: reduce) {
     .hero { --hero-motion: 0; --hero-kenburns: none; }
+    .hero__cta { transition: none; }
+    .hero__cta::after { content: none; animation: none; }
 }
 
 /* Тумблер «остановка анимаций» из панели настроек отображения — тот же

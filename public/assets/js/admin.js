@@ -61,19 +61,23 @@
     // До DOMContentLoaded он превращается в текстовое HEX-поле и подключается
     // к локально размещённому Coloris.
     (function () {
-        var colorInputs = document.querySelectorAll('input[type="color"]');
-        if (!colorInputs.length) { return; }
+        function prepareColorInputs(root) {
+            (root || document).querySelectorAll('input[type="color"]').forEach(function (input) {
+                input.type = 'text';
+                input.setAttribute('data-coloris', '');
+                input.setAttribute('inputmode', 'text');
+                input.setAttribute('autocomplete', 'off');
+                input.setAttribute('spellcheck', 'false');
+                input.setAttribute('maxlength', '7');
+                input.setAttribute('pattern', '#[0-9a-fA-F]{6}');
+                input.setAttribute('placeholder', '#17375E');
+            });
+        }
 
-        colorInputs.forEach(function (input) {
-            input.type = 'text';
-            input.setAttribute('data-coloris', '');
-            input.setAttribute('inputmode', 'text');
-            input.setAttribute('autocomplete', 'off');
-            input.setAttribute('spellcheck', 'false');
-            input.setAttribute('maxlength', '7');
-            input.setAttribute('pattern', '#[0-9a-fA-F]{6}');
-            input.setAttribute('placeholder', '#17375E');
-        });
+        // Сначала помечаем существующие поля: Coloris получает готовый
+        // селектор. Поля из <template> появятся позже и пройдут тот же путь
+        // через публичный enhancer после добавления строки репитера.
+        prepareColorInputs(document);
 
         // Тёмный пикер на тёмной панели. Прежде здесь спрашивалось имя
         // цветовой темы (`dark_emerald`), а тем больше нет: тёмный вид —
@@ -136,12 +140,17 @@
             }
         }
 
-        document.querySelectorAll('.colorfield').forEach(function (group) {
-            var off = group.querySelector('.colorfield__off input[type="checkbox"]');
-            var color = group.querySelector('[data-coloris]');
-            if (!off || !color) { return; }
-            var reset = group.querySelector('[data-colorfield-reset]');
-            var offLabel = group.getAttribute('data-colorfield-default') || 'по умолчанию';
+        function enhanceColorFields(root) {
+            var scope = root || document;
+            prepareColorInputs(scope);
+            scope.querySelectorAll('.colorfield').forEach(function (group) {
+                if (group.dataset.colorfieldEnhanced === '1') { return; }
+                var off = group.querySelector('.colorfield__off input[type="checkbox"]');
+                var color = group.querySelector('[data-coloris]');
+                if (!off || !color) { return; }
+                group.dataset.colorfieldEnhanced = '1';
+                var reset = group.querySelector('[data-colorfield-reset]');
+                var offLabel = group.getAttribute('data-colorfield-default') || 'по умолчанию';
 
             // Поле остаётся рабочим и в состоянии «по умолчанию». Прежде оно
             // выключалось (disabled), и образец не открывался вовсе: редактор
@@ -196,8 +205,12 @@
             }
 
             off.addEventListener('change', syncDefaultState);
-            syncDefaultState();
-        });
+                syncDefaultState();
+            });
+        }
+
+        window.__enhanceColorFields = enhanceColorFields;
+        enhanceColorFields(document);
     })();
 
     // Универсальная функция копирования в буфер обмена (работает по HTTPS и HTTP с фаллбэком)
@@ -790,6 +803,7 @@
             container.appendChild(wrapper);
             arrangeBlockRepeaterRow(wrapper);
             if (window.__enhanceIconFields) { window.__enhanceIconFields(wrapper); }
+            if (window.__enhanceColorFields) { window.__enhanceColorFields(wrapper); }
             return;
         }
 
