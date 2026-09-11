@@ -10,6 +10,7 @@ use App\Core\Cache;
 use App\Core\ConcurrencyException;
 use App\Core\Csrf;
 use App\Core\Database;
+use App\Core\BlockOwner;
 use App\Core\Flash;
 use App\Core\Slug;
 use App\Core\View;
@@ -152,19 +153,22 @@ final class PageController
         $id = (int) $params['id'];
         $fromLang = (string) ($_POST['from_lang'] ?? Language::defaultCode());
         $toLang = (string) ($_POST['to_lang'] ?? $this->resolveBlockLang());
-        if (!Page::findById($id)) {
+        $owner = Page::findById($id);
+        if (!$owner) {
             http_response_code(404);
             View::render('errors/404');
             return;
         }
+        // Возврат — в раздел владельца: конструктор общий, а формы у страницы
+        // и у проекта разные.
         if (!Language::isActive($fromLang) || !Language::isActive($toLang)) {
             Flash::error('Выбран некорректный язык блоков.');
-            header('Location: /admin/pages/' . $id . '/edit');
+            header('Location: ' . BlockOwner::editUrlFor($owner));
             exit;
         }
         if ($fromLang === $toLang) {
             Flash::error('Исходный и целевой языки должны отличаться.');
-            header('Location: /admin/pages/' . $id . '/edit?block_lang=' . urlencode($toLang));
+            header('Location: ' . BlockOwner::editUrlFor($owner, $toLang));
             exit;
         }
 
@@ -172,7 +176,7 @@ final class PageController
         Cache::clearPageCache($id);
         Flash::success("Скопировано {$count} блоков с языка " . strtoupper($fromLang) . " на язык " . strtoupper($toLang) . ". Теперь вы можете отредактировать тексты.");
 
-        header('Location: /admin/pages/' . $id . '/edit?block_lang=' . urlencode($toLang));
+        header('Location: ' . BlockOwner::editUrlFor($owner, $toLang));
         exit;
     }
 

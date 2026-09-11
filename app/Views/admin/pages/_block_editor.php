@@ -55,7 +55,7 @@ foreach ($blocks as $b) {
             <?php foreach ($blockLanguages as $blockLanguage): ?>
                 <?php $code = (string) $blockLanguage['code']; ?>
                 <a class="btn btn--small<?= $code === $blockLang ? ' btn--primary' : ' btn--secondary' ?>"
-                   href="/admin/pages/<?= (int) $page['id'] ?>/edit?block_lang=<?= urlencode($code) ?>"
+                   href="<?= htmlspecialchars(\App\Core\BlockOwner::editUrlFor($page, $code), ENT_QUOTES) ?>"
                    <?= $code === $blockLang ? 'aria-current="true"' : '' ?>>
                     <?= strtoupper(htmlspecialchars($code, ENT_QUOTES)) ?>
                 </a>

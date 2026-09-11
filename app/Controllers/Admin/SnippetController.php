@@ -254,9 +254,10 @@ final class SnippetController
         exit;
     }
 
+    /** Возврат в форму владельца: у проекта она своя, страница отдаёт 404. */
     private function back(int $pageId, string $lang): never
     {
-        header('Location: /admin/pages/' . $pageId . '/edit?block_lang=' . urlencode($lang));
+        header('Location: ' . \App\Core\BlockOwner::editUrl($pageId, $lang));
         exit;
     }
 }
