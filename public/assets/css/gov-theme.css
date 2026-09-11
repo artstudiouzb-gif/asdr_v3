@@ -6532,6 +6532,10 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 @media (max-width: 1000px) { .icon-text__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 720px) { .icon-text__grid { grid-template-columns: 1fr; } }
 .icon-text__card {
+    /* Прожектор под курсором — это ::before с inset: 0, поэтому карточке нужен
+       свой контекст позиционирования: без него подсветка считалась бы от
+       секции и растеклась бы на весь блок. */
+    position: relative;
     display: flex;
     align-items: flex-start;
     gap: 16px;

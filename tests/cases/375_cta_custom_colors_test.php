@@ -99,6 +99,42 @@ test('Тема слушает классы-признаки, а не инлай�
     );
 });
 
+test('Прожектор под курсором рисуется там же, где считаются координаты', function () {
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/frontend.css');
+    $js = (string) file_get_contents(APP_ROOT . '/public/assets/js/frontend.js');
+
+    // Три списка в CSS (само свечение, показ по наведению и отключение на
+    // касании) описывают один приём и обязаны совпадать: пропуск в любом из
+    // них — это либо подсветка, которая не гаснет на телефоне, либо карточка
+    // с подготовленным ::before, которое никогда не показывается.
+    $list = static function (string $pattern) use ($css): array {
+        assert_true((bool) preg_match($pattern, $css, $m), 'список прожектора найден');
+        preg_match_all('/[.\w -]*?\.[\w-]+(?=:(?:hover)?:?:before)/', $m[1], $all);
+
+        return array_values(array_unique(array_map(
+            static fn (string $selector): string => trim(str_replace(':hover', '', $selector)),
+            $all[0]
+        )));
+    };
+
+    $paint = $list('/((?:[^{}]*::before,\s*)+[^{}]*::before)\s*\{[^{}]*radial-gradient\(220px circle at var\(--mouse-x/');
+    $hover = $list('/((?:[^{}]*:hover::before,\s*)+[^{}]*:hover::before)\s*\{\s*opacity: 1;/');
+
+    assert_same($paint, $hover, 'свечение и его показ описаны одним набором');
+    assert_contains('.icon-text__card::before', $css, 'карточка «Иконки и текста» получает свечение');
+    assert_contains('.icon-text__card:hover::before', $css, 'и показывает его по наведению');
+
+    // Координаты курсора ставит JS: селектор, которого нет в его списке, дал бы
+    // свечение, навсегда застывшее в левом верхнем углу карточки.
+    assert_contains('.block-icon-text--cards .icon-text__card', $js, 'координаты считаются и для неё');
+
+    // ::before с inset: 0 требует своего контекста позиционирования.
+    assert_true(
+        (bool) preg_match('/\.icon-text__card \{[^}]*position: relative/s', \theme_css()),
+        'у карточки свой контекст позиционирования'
+    );
+});
+
 test('«Иконка и текст» участвует в появлении карточек по очереди', function () {
     $js = (string) file_get_contents(APP_ROOT . '/public/assets/js/frontend.js');
     $markup = (string) file_get_contents(APP_ROOT . '/templates/blocks/icon_text.php');
