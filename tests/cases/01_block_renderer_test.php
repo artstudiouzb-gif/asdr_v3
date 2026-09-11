@@ -100,6 +100,7 @@ test('BlockRenderer: cards_grid применяет размер и отключ�
             'icon_position' => 'right',
             'text_align' => 'center',
             'card_style' => 'new',
+            'card_gap' => 44,
             'items' => [['icon_svg' => 'target', 'title' => 'Направление']],
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
         'custom_css' => '',
@@ -111,6 +112,7 @@ test('BlockRenderer: cards_grid применяет размер и отключ�
     assert_contains('feature-card feature-card--has-icon', $result['html']);
     assert_contains('feature-card__content', $result['html']);
     assert_contains('--feature-card-icon-size:38px', $result['css']);
+    assert_contains('.block-cards--style-new .cards-grid{gap:44px;}', $result['css']);
     assert_contains('font-size:var(--font-size-meta,.75rem)', $result['css']);
     assert_contains('letter-spacing:var(--meta-letter-spacing,.12em)', $result['css']);
     assert_contains('font-size:var(--font-size-h3,clamp(18px,1.35vw,21px))', $result['css']);

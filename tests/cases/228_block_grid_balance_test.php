@@ -136,10 +136,12 @@ test('Контент блоков не зажат мерой строки в ch'
     assert_contains('.newsdetail-phero__title', $css);
 });
 
-test('Этапы: сплошной полосы во всю ширину нет — линия кончается на последней точке', function () {
+test('Этапы: сплошной полосы нет, после последней точки остаётся пунктирное продолжение', function () {
     $css = theme_css();
     // Полоса .stages::before тянулась от left:0 до right:0 и продолжалась
     // за последнюю точку хвостом на всю пустую часть ряда.
     assert_not_contains('.stages::before', $css);
     assert_contains('.stage:not(:last-child)::before', $css);
+    assert_contains('.stage:last-child:not(.stage--done)::before', $css);
+    assert_contains('border-top: 2px dashed', $css);
 });
