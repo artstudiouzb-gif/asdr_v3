@@ -66,6 +66,7 @@ desktop.ini
 # а не локальная настройка машины, и они должны переживать смену окружения.
 !/.claude/skills/
 !/.claude/commands/
+!/.claude/agents/
 !/.claude/hooks/
 !/.claude/settings.json
 /.antigravity/
