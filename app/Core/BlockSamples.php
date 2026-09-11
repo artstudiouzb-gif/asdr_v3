@@ -139,11 +139,6 @@ final class BlockSamples
             'person_cards' => ['title' => 'Руководство', 'items' => [
                 $person('Директор'), $person('Заместитель директора'),
             ]],
-            'timeline' => ['title' => 'Хронология', 'description' => '<p>Краткое описание ключевых событий.</p>', 'items' => [
-                ['year' => '2024', 'text' => 'Событие или этап — замените своим описанием.', 'status' => 'done'],
-                ['year' => '2025', 'text' => 'Следующий этап.', 'status' => 'done'],
-                ['year' => '2026', 'text' => 'Текущий этап.', 'status' => 'active'],
-            ]],
             'icon_text' => [
                 'title' => 'Полезные телефоны',
                 'description' => '',

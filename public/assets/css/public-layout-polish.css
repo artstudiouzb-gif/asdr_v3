@@ -646,6 +646,18 @@
     .cards-track > * { flex: 0 0 85%; }
 }
 
+/* Лента этапов считает колонки по своей настройке (--stages-count), а в
+   половине ряда пять этапов не помещаются ни на каком экране — тот же случай,
+   что у сеток карточек выше. Полосы прокрутки это не касается: там ширину
+   карточки задаёт flex, а не дорожки сетки. */
+@container cms-col (max-width: 720px) {
+    .stages:not(.stages--carousel) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@container cms-col (max-width: 480px) {
+    .stages:not(.stages--carousel) { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* ========================================================================
    Senior Editorial Design System Refinements
    (Optical tracking, tactile hover, WCAG 2.1 focus)

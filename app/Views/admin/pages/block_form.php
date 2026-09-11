@@ -1349,56 +1349,6 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             </div>
         <?php endif; ?>
 
-        <?php if ($type === 'timeline'): ?>
-            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('timeline', $data) ?>
-            <?php
-            // Статус события: у записей, заведённых до его появления, все
-            // события считаются пройденными, кроме последнего.
-            $timelineItems = is_array($data['items'] ?? null) ? $data['items'] : [];
-            $timelineHasStatuses = false;
-            foreach ($timelineItems as $timelineItem) {
-                if (in_array($timelineItem['status'] ?? '', ['done', 'active', 'planned'], true)) {
-                    $timelineHasStatuses = true;
-                    break;
-                }
-            }
-            $timelineLastIndex = count($timelineItems) - 1;
-            ?>
-            <div>
-                <label>События (год + описание + статус)</label>
-                <div data-repeater="items">
-                    <?php foreach ($timelineItems as $i => $item): ?>
-                        <?php
-                        $timelineStatus = in_array($item['status'] ?? '', ['done', 'active', 'planned'], true)
-                            ? (string) $item['status']
-                            : (!$timelineHasStatuses ? ($i === $timelineLastIndex ? 'active' : 'done') : 'planned');
-                        ?>
-                        <div class="repeater-row">
-                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
-                            <div class="form-field"><label>Год</label><input type="text" name="items[<?= $i ?>][year]" value="<?= htmlspecialchars($item['year'] ?? '', ENT_QUOTES) ?>" placeholder="2023+"></div>
-                            <div class="form-field"><label>Текст</label><textarea name="items[<?= $i ?>][text]"><?= htmlspecialchars($item['text'] ?? '', ENT_QUOTES) ?></textarea></div>
-                            <div class="form-field"><label>Статус</label><select name="items[<?= $i ?>][status]">
-                                <?php foreach (['done' => 'Завершён', 'active' => 'В процессе', 'planned' => 'Запланирован'] as $statusValue => $statusLabel): ?>
-                                    <option value="<?= $statusValue ?>" <?= $timelineStatus === $statusValue ? 'selected' : '' ?>><?= $statusLabel ?></option>
-                                <?php endforeach; ?>
-                            </select></div>
-                            <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
-                            <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
-                            <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <template data-repeater-template="items">
-                    <div class="form-field"><label>Год</label><input type="text" name="items[__INDEX__][year]"></div>
-                    <div class="form-field"><label>Текст</label><textarea name="items[__INDEX__][text]"></textarea></div>
-                    <div class="form-field"><label>Статус</label><select name="items[__INDEX__][status]"><option value="done">Завершён</option><option value="active">В процессе</option><option value="planned" selected>Запланирован</option></select></div>
-                    <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
-                    <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
-                    <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
-                </template>
-                <div class="repeater-actions"><button type="button" class="btn btn--small" data-repeater-add="items"><?= \App\Core\AdminUi::icon('plus') ?>Добавить событие</button></div>
-            </div>
-        <?php endif; ?>
 
         <?php if ($type === 'news_docs'): ?>
             <?= \App\Core\BlockData\BlockFieldSchema::formHtml('news_docs', $data) ?>
@@ -1694,30 +1644,52 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
 
         <?php if ($type === 'stages'): ?>
             <?= \App\Core\BlockData\BlockFieldSchema::formHtml('stages', $data) ?>
+            <?php
+            // Статус события: у записей, заведённых до его появления, статуса
+            // нет вовсе, и на сайте такие считаются пройденными, кроме
+            // последнего. Форма обязана показывать то же самое — иначе первое
+            // же сохранение старой хронологии переводит всю её в
+            // «Запланирован», причём молча.
+            $stageItems = is_array($data['items'] ?? null) ? $data['items'] : [];
+            $stageHasStatuses = false;
+            foreach ($stageItems as $stageItem) {
+                if (is_array($stageItem) && in_array($stageItem['status'] ?? '', ['done', 'active', 'planned'], true)) {
+                    $stageHasStatuses = true;
+                    break;
+                }
+            }
+            $stageLastIndex = count($stageItems) - 1;
+            ?>
             <div>
-                <label>Этапы</label>
+                <label>События</label>
+                <p class="form-hint">Год обязателен, остальное — по надобности: подпись («III этап»), заголовок и описание. В вертикальном списке достаточно года и описания.</p>
                 <div data-repeater="items">
-                    <?php foreach (($data['items'] ?? []) as $i => $item): ?>
+                    <?php foreach ($stageItems as $i => $item): ?>
+                        <?php
+                        $stageStatus = in_array($item['status'] ?? '', ['done', 'active', 'planned'], true)
+                            ? (string) $item['status']
+                            : (!$stageHasStatuses ? ($i === $stageLastIndex ? 'active' : 'done') : 'planned');
+                        ?>
                         <div class="repeater-row">
-                            <div class="form-field"><label>Годы</label><input type="text" name="items[<?= $i ?>][year]" value="<?= htmlspecialchars($item['year'] ?? '', ENT_QUOTES) ?>" placeholder="2026–2027"></div>
+                            <div class="form-field"><label>Год или период</label><input type="text" name="items[<?= $i ?>][year]" value="<?= htmlspecialchars($item['year'] ?? '', ENT_QUOTES) ?>" placeholder="2026–2027"></div>
                             <div class="form-field"><label>Подпись этапа</label><input type="text" name="items[<?= $i ?>][stage]" value="<?= htmlspecialchars($item['stage'] ?? '', ENT_QUOTES) ?>" placeholder="III этап"></div>
                             <div class="form-field"><label>Заголовок</label><input type="text" name="items[<?= $i ?>][title]" value="<?= htmlspecialchars($item['title'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field"><label>Текст</label><textarea name="items[<?= $i ?>][text]"><?= htmlspecialchars($item['text'] ?? '', ENT_QUOTES) ?></textarea></div>
                             <div class="form-field"><label>Статус</label><select name="items[<?= $i ?>][status]">
                                 <?php foreach (['done' => 'Завершён', 'active' => 'В процессе', 'planned' => 'Запланирован'] as $sv => $sl): ?>
-                                    <option value="<?= $sv ?>" <?= ($item['status'] ?? 'planned') === $sv ? 'selected' : '' ?>><?= $sl ?></option>
+                                    <option value="<?= $sv ?>" <?= $stageStatus === $sv ? 'selected' : '' ?>><?= $sl ?></option>
                                 <?php endforeach; ?>
                             </select></div>
                             <div class="form-field"><label>Свой текст статуса (необязательно)</label><input type="text" name="items[<?= $i ?>][status_text]" value="<?= htmlspecialchars($item['status_text'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field"><label>Ссылка с этапа (необязательно)</label><input type="text" name="items[<?= $i ?>][url]" value="<?= htmlspecialchars($item['url'] ?? '', ENT_QUOTES) ?>"></div>
                             <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
                             <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
-                            <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить этап</button>
+                            <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить событие</button>
                         </div>
                     <?php endforeach; ?>
                 </div>
                 <template data-repeater-template="items">
-                    <div class="form-field"><label>Годы</label><input type="text" name="items[__INDEX__][year]"></div>
+                    <div class="form-field"><label>Год или период</label><input type="text" name="items[__INDEX__][year]" placeholder="2026–2027"></div>
                     <div class="form-field"><label>Подпись этапа</label><input type="text" name="items[__INDEX__][stage]"></div>
                     <div class="form-field"><label>Заголовок</label><input type="text" name="items[__INDEX__][title]"></div>
                     <div class="form-field"><label>Текст</label><textarea name="items[__INDEX__][text]"></textarea></div>
@@ -1726,9 +1698,9 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     <div class="form-field"><label>Ссылка с этапа (необязательно)</label><input type="text" name="items[__INDEX__][url]"></div>
                     <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
                     <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
-                    <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить этап</button>
+                    <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить событие</button>
                 </template>
-                <div class="repeater-actions"><button type="button" class="btn btn--small" data-repeater-add="items"><?= \App\Core\AdminUi::icon('plus') ?>Добавить этап</button></div>
+                <div class="repeater-actions"><button type="button" class="btn btn--small" data-repeater-add="items"><?= \App\Core\AdminUi::icon('plus') ?>Добавить событие</button></div>
             </div>
         <?php endif; ?>
 
