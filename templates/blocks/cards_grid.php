@@ -29,6 +29,7 @@ $mediaClasses = MediaPosition::classes($data['image_position'] ?? null, $data['i
 $cardBg = (string) $data['card_bg'];
 $textColor = (string) $data['text_color'];
 $visualStyle = (string) $data['card_style'];
+$cardGap = (int) $data['card_gap'];
 $iconSize = (int) $data['icon_size'];
 $iconBackground = (string) $data['icon_bg'];
 $iconPosition = (string) $data['icon_position'];
@@ -53,7 +54,8 @@ $cardClasses = ($cardBg !== '' ? ' block-cards--custom-bg' : '')
 // .feature-card и остальные карточки сайта остаются нетронутыми.
 if ($variant === 'icon' && $visualStyle === 'new') {
     $cardClasses .= ' block-cards--style-new';
-    $templateCss .= $scope . ' .block-cards--style-new .cards-grid{gap:clamp(20px,2.4vw,36px);}';
+    $resolvedCardGap = $cardGap > 0 ? $cardGap . 'px' : 'clamp(20px,2.4vw,36px)';
+    $templateCss .= $scope . ' .block-cards--style-new .cards-grid{gap:' . $resolvedCardGap . ';}';
     $templateCss .= $scope . ' .block-cards--style-new .feature-card{background:var(--card-bg,transparent);border:0;border-top:1px solid rgba(23,58,99,.16);border-radius:0;box-shadow:none;min-height:0;padding:26px 0 30px;transform:none;overflow:visible;transition:border-color .18s ease,color .18s ease,background-color .18s ease;}';
     $templateCss .= $scope . ' .block-cards--style-new .feature-card::before{display:none;}';
     $templateCss .= $scope . ' .block-cards--style-new .feature-card:hover{background:var(--card-bg,transparent);border-top-color:var(--gov-accent,#17999b);box-shadow:none;transform:none;}';
