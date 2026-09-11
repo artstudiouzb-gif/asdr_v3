@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Locale;
+use App\Core\PageHero;
 use App\Models\Project;
 
 /** @var array $project */
@@ -14,12 +15,29 @@ $ogImage = trim((string) ($project['cover_image'] ?? ''));
 $extraHeadCss = $blockCss ?? '';
 require __DIR__ . '/_header.php';
 
+// Первый блок бывает шапкой сам: обложка несёт h1, лид и собственную
+// композицию во всю ширину. Тогда паспорт записи — метка, заголовок, анонс и
+// обложка-картинка — не печатается, иначе на странице два заголовка подряд, а
+// сама обложка уезжает вторым экраном. Правило общее со страницей — PageHero.
+$firstIsHero = PageHero::isHero($content);
+$firstOwnsHeading = PageHero::ownsHeading($content);
+
 $crumbs = [
     ['label' => t('Главная'), 'url' => Locale::url('/')],
     ['label' => t('Проекты'), 'url' => Locale::url('projects')],
     ['label' => (string) $project['title']],
 ];
+if ($firstIsHero) {
+    $crumbsClass = PageHero::ON_HERO_CLASS;
+}
+ob_start();
 require __DIR__ . '/_crumbs.php';
+$crumbsHtml = (string) ob_get_clean();
+unset($crumbsClass);
+if ($firstIsHero) {
+    [$content, $crumbsHtml] = PageHero::withCrumbs($content, $crumbsHtml);
+}
+echo $crumbsHtml;
 
 $cover = trim((string) ($project['cover_image'] ?? ''));
 $others = array_values(array_filter(
@@ -27,19 +45,21 @@ $others = array_values(array_filter(
     fn (array $p) => (int) $p['id'] !== (int) $project['id']
 ));
 ?>
-<article class="projdetail">
-    <div class="projdetail-head<?= $cover === '' ? ' projdetail-head--no-media' : '' ?>">
-        <div class="projdetail-head__info">
-            <span class="newsdetail__badge"><?= htmlspecialchars(t('Проект'), ENT_QUOTES) ?></span>
-            <h1 class="projdetail__title"><?= htmlspecialchars((string) $project['title'], ENT_QUOTES) ?></h1>
+<article class="projdetail<?= $firstIsHero ? ' projdetail--hero' : '' ?>">
+    <?php if (!$firstOwnsHeading): ?>
+        <div class="projdetail-head<?= $cover === '' ? ' projdetail-head--no-media' : '' ?>">
+            <div class="projdetail-head__info">
+                <span class="newsdetail__badge"><?= htmlspecialchars(t('Проект'), ENT_QUOTES) ?></span>
+                <h1 class="projdetail__title"><?= htmlspecialchars((string) $project['title'], ENT_QUOTES) ?></h1>
+            </div>
+            <?php if ($cover !== ''): ?>
+                <?= \App\Core\Media::picture($cover, (string) $project['title'], null, null, 'projdetail__media', false, '(max-width: 900px) 100vw, 55vw') ?>
+            <?php endif; ?>
         </div>
-        <?php if ($cover !== ''): ?>
-            <?= \App\Core\Media::picture($cover, (string) $project['title'], null, null, 'projdetail__media', false, '(max-width: 900px) 100vw, 55vw') ?>
+        <?php $lead = trim((string) ($project['description'] ?? '')); ?>
+        <?php if ($lead !== ''): ?>
+            <p class="projdetail__lead"><?= htmlspecialchars($lead, ENT_QUOTES) ?></p>
         <?php endif; ?>
-    </div>
-    <?php $lead = trim((string) ($project['description'] ?? '')); ?>
-    <?php if ($lead !== ''): ?>
-        <p class="projdetail__lead"><?= htmlspecialchars($lead, ENT_QUOTES) ?></p>
     <?php endif; ?>
     <?php if (trim($content) !== ''): ?>
         <div class="projdetail__content"><?= $content ?></div>
