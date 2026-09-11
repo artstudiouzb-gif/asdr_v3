@@ -1537,7 +1537,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
     border: none !important;
 }
 .block-hero__button:hover, .block-cta a:hover, .content-detail__download:hover, .site-search__submit:hover,
-.block-cta__button:hover, .btn-cta:hover, .btn:hover {
+.block-cta:not(.block-cta--custom-btn) .block-cta__button:hover, .btn-cta:hover, .btn:hover {
     background: linear-gradient(to bottom, color-mix(in srgb, var(--gov-navy) 95%, #fff) 0%, var(--gov-navy) 100%) !important;
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(19,42,92,.25) !important;
@@ -1546,7 +1546,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
    сливалась с фоном (контраст 1:1 при норме 3:1 для элементов управления).
    Пользовательский цвет кнопки (--cta-btn) остаётся за автором. */
 
-.block-cta:not([style*="--cta-btn"]) .block-cta__button,
+.block-cta:not(.block-cta--custom-btn) .block-cta__button,
 .subscribe-block .btn,
 .subscribe-block input[type="submit"] {
     background: #fff !important;
@@ -1563,7 +1563,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
     font-weight: 700;
     cursor: pointer;
 }
-.block-cta:not([style*="--cta-btn"]) .block-cta__button:hover,
+.block-cta:not(.block-cta--custom-btn) .block-cta__button:hover,
 .subscribe-block .btn:hover {
     background: color-mix(in srgb, #fff 90%, var(--gov-teal)) !important;
     color: var(--gov-navy) !important;
@@ -5007,18 +5007,24 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
     .gcal-list__media { flex-basis: 78px; height: 60px; }
 }/* ============================================================================
    Настраиваемые цвета блоков (CTA, баннер, направления, CTA-полоса).
-   Переменные --*-bg/-text/-btn задаются инлайн из конструктора; применяются
-   только когда цвет выбран (иначе — оформление по умолчанию/тема).
+   Переменные --*-bg/-text/-btn приезжают в scoped CSS блока, а включает
+   правило класс-признак `--custom-*` на самом элементе. Прежде признаком был
+   инлайн-стиль (`[style*="--cta-bg"]`), но инлайн-стили в блоках запрещены
+   тестами и переменные давно уезжают в scoped CSS — то есть ни фон, ни цвет
+   текста, ни цвет кнопки не действовали, хотя поля в форме сохранялись.
    ============================================================================ *//* CTA */
 
-.block-cta[style*="--cta-bg"] { background: var(--cta-bg); }
-.block-cta[style*="--cta-text"] h2, .block-cta[style*="--cta-text"] p { color: var(--cta-text); }
-.block-cta[style*="--cta-btn"] a, .block-cta[style*="--cta-btn"] .block-cta__button { background: var(--cta-btn) !important; }/* Баннер (тёмный и светлый варианты) */
+.block-cta--custom-bg { background: var(--cta-bg); }
+.block-cta--custom-text h2, .block-cta--custom-text p { color: var(--cta-text); }
+.block-cta--custom-btn a, .block-cta--custom-btn .block-cta__button { background: var(--cta-btn) !important; }/* Подпись кнопки считается по контрасту с её заливкой: на светлой кнопке
+   белый текст не читается. */
 
-.block-banner[style*="--banner-bg"] { background-color: var(--banner-bg); }
-.block-banner[style*="--banner-text"] .block-banner__title,
-.block-banner[style*="--banner-text"] .block-banner__text { color: var(--banner-text); }
-.block-banner[style*="--banner-btn"] .block-banner__button { background: var(--banner-btn); }/* Направления (cards_grid) */
+.block-cta--custom-btn .block-cta__button { color: var(--cta-btn-fg, #fff); }/* Баннер (тёмный и светлый варианты) */
+
+.block-banner--custom-bg { background-color: var(--banner-bg); }
+.block-banner--custom-text .block-banner__title,
+.block-banner--custom-text .block-banner__text { color: var(--banner-text); }
+.block-banner--custom-btn .block-banner__button { background: var(--banner-btn); color: var(--banner-btn-fg, #fff); }/* Направления (cards_grid) */
 
 .block-cards--custom-bg .feature-card {
     background: color-mix(in srgb, var(--card-bg) 68%, transparent);
@@ -5034,11 +5040,11 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
 .block-cards--custom-text .feature-card__icon { color: var(--cards-text); }
 .block-cards--custom-text .feature-card:hover .feature-card__title { color: var(--gov-teal); }/* CTA-полоса */
 
-.block-ctaband[style*="--ctaband-bg"] { background: var(--ctaband-bg); }
-.block-ctaband[style*="--ctaband-text"] .ctaband__title { color: var(--ctaband-text); }
-.block-ctaband[style*="--ctaband-text"] .ctaband__text { color: var(--ctaband-text); opacity: .85; }
-.block-ctaband[style*="--ctaband-text"] .ctaband__icon { color: var(--ctaband-text); border-color: color-mix(in srgb, var(--ctaband-text) 45%, transparent); }
-.block-ctaband[style*="--ctaband-btn"] .ctaband__button { background: var(--ctaband-btn); }/* ============================================================================
+.block-ctaband--custom-bg { background: var(--ctaband-bg); }
+.block-ctaband--custom-text .ctaband__title { color: var(--ctaband-text); }
+.block-ctaband--custom-text .ctaband__text { color: var(--ctaband-text); opacity: .85; }
+.block-ctaband--custom-text .ctaband__icon { color: var(--ctaband-text); border-color: color-mix(in srgb, var(--ctaband-text) 45%, transparent); }
+.block-ctaband--custom-btn .ctaband__button { background: var(--ctaband-btn); color: var(--ctaband-btn-fg, #fff); }/* ============================================================================
    8. СЛУЖЕБНЫЕ БЛОКИ, САЙДБАРЫ И ФОРМЫ (Forms, Footer, Captchas, Touch targets)
    ============================================================================ *//* --- Подписка / футер: глубокий navy без градиента --- */
 
