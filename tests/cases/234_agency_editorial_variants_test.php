@@ -109,15 +109,19 @@ test('Иконки cards_grid настраиваются в редакторе �
     // дорисовывал скрипт в подвале админки по id «cards_variant», которого у
     // схемной формы нет, и редактор не видел их ни разу.
     $fields = \App\Core\BlockData\BlockFieldSchema::fields('cards_grid');
-    foreach (['card_style', 'icon_size', 'icon_bg', 'icon_position', 'text_align'] as $key) {
+    foreach (['card_style', 'card_gap', 'icon_size', 'icon_bg', 'icon_position', 'text_align'] as $key) {
         assert_true(isset($fields[$key]), "cards_grid: настройка {$key} не описана схемой");
+    }
+    assert_same(['field' => 'card_style', 'values' => ['new']], $fields['card_gap']->when);
+    foreach (['card_style', 'icon_size', 'icon_bg', 'icon_position', 'text_align'] as $key) {
         assert_same(['field' => 'variant', 'values' => ['icon']], $fields[$key]->when, "cards_grid: {$key} показывается не только у варианта с иконками");
     }
+    assert_same(0, $fields['card_gap']->default);
     assert_same(22, $fields['icon_size']->default);
     assert_same('top', $fields['icon_position']->default);
 
     $editor = block_editor_markup();
-    foreach (['icon_size', 'icon_bg', 'icon_position'] as $key) {
+    foreach (['card_gap', 'icon_size', 'icon_bg', 'icon_position'] as $key) {
         assert_contains('id="bf_' . $key . '"', $editor, "cards_grid: поля {$key} нет в форме блока");
     }
     assert_contains('Справа от текста', $editor);
