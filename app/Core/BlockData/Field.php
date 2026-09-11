@@ -33,6 +33,10 @@ final class Field
      *        условие применимости: поле показывается только при этом варианте
      * @param string $group подпись группы полей в форме; соседние поля с
      *        одной подписью редактор видит одним блоком настроек
+     * @param array<string, array{0: string, 1: string}> $variants значение
+     *        `enum` => [схема миниатюры (`App\Core\VariantPreview`), короткое
+     *        пояснение]. Непустой список превращает выпадающий список в плитки
+     *        с рисунком раскладки и подписью.
      */
     private function __construct(
         public readonly string $kind,
@@ -47,6 +51,7 @@ final class Field
         public readonly ?array $when = null,
         public readonly string $swatch = '',
         public readonly string $group = '',
+        public readonly array $variants = [],
     ) {
     }
 
@@ -211,9 +216,38 @@ final class Field
         return $this->with(group: $title);
     }
 
-    /** @param array{field:string, values:list<string>}|null $when */
-    private function with(string $input = '', ?array $when = null, ?string $hint = null, ?string $group = null): self
+    /**
+     * Варианты отображения: рисунок раскладки и пояснение к каждому значению.
+     *
+     * Поле перестаёт быть выпадающим списком и рисуется плитками. Рисунок и
+     * пояснение объявляются **здесь же, у поля, одним списком**: два списка
+     * рядом («значение → картинка» и «значение → текст») разъехались бы при
+     * первом же новом варианте, и плитка осталась бы либо без рисунка, либо
+     * без подписи — то есть ровно без того, ради чего затевалась.
+     *
+     * Пояснение отвечает на вопрос «чем это отличается от соседнего», а не
+     * пересказывает название: «Карточки» и «Карточки с нумерацией» иначе
+     * подписаны одинаково. Сторож (тест 376) требует и рисунок, и пояснение у
+     * каждого значения и проверяет, что схема известна `VariantPreview`.
+     *
+     * @param array<string, array{0: string, 1: string}> $variants значение => [схема, пояснение]
+     */
+    public function variants(array $variants): self
     {
+        return $this->with(variants: $variants);
+    }
+
+    /**
+     * @param array{field:string, values:list<string>}|null $when
+     * @param array<string, array{0: string, 1: string}>|null $variants
+     */
+    private function with(
+        string $input = '',
+        ?array $when = null,
+        ?string $hint = null,
+        ?string $group = null,
+        ?array $variants = null
+    ): self {
         return new self(
             $this->kind,
             $this->label,
@@ -227,6 +261,7 @@ final class Field
             $when ?? $this->when,
             $this->swatch,
             $group ?? $this->group,
+            $variants ?? $this->variants,
         );
     }
 }

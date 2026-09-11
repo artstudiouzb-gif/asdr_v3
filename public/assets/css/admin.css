@@ -2282,6 +2282,99 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 .bf-fields input[type="number"],
 .bf-fields select,
 .bf-fields textarea { max-width: none; }
+/* Вариант отображения — плитки с рисунком раскладки.
+   Выпадающий список отвечал на вопрос «как это будет выглядеть» словом:
+   чтобы отличить «Мозаику» от «Колонок», редактор сохранял блок и открывал
+   страницу, то есть проверял выбор публикацией. Управление одно —
+   радиокнопки: без JavaScript выбор работает так же.
+   Выбранную плитку показывает один признак — цвет рамки и подложка. Рамка
+   есть у всех и в покое прозрачная: добавлять её только выбранной значит
+   двигать соседей на полтора пикселя (тот же приём, что в панели настроек
+   отображения на сайте). */
+.variant-field {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+.variant-field__legend {
+    padding: 0;
+    margin-bottom: 8px;
+    color: var(--admin-text);
+    font-size: var(--admin-fs-sm);
+    font-weight: var(--admin-fw-medium);
+}
+.variant-field__grid {
+    display: grid;
+    /* Верхняя граница дорожки нужна: при двух вариантах плитка растягивалась
+       на пол-экрана, и схема раскладки превращалась в плакат. */
+    grid-template-columns: repeat(auto-fit, minmax(150px, 210px));
+    justify-content: start;
+    gap: 10px;
+}
+.variant-card__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+.variant-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px;
+    border: 1px solid transparent;
+    border-radius: var(--admin-radius-sm);
+    background: var(--admin-surface-soft);
+    color: var(--admin-muted);
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+.variant-card__thumb {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    background: var(--admin-surface);
+    padding: 4px;
+}
+.variant-card__name {
+    color: var(--admin-text);
+    font-size: var(--admin-fs-sm);
+    font-weight: var(--admin-fw-semibold);
+    line-height: 1.25;
+}
+.variant-card__note {
+    font-size: var(--admin-fs-xs);
+    line-height: 1.35;
+}
+.variant-card:hover { border-color: var(--admin-border); }
+.variant-card__input:checked + .variant-card {
+    border-color: var(--admin-accent);
+    background: var(--admin-accent-soft);
+    color: var(--admin-text);
+}
+.variant-card__input:checked + .variant-card .variant-card__thumb { color: var(--admin-accent); }
+.variant-card__input:focus-visible + .variant-card {
+    outline: 2px solid var(--admin-accent);
+    outline-offset: 2px;
+}
+/* Текст только для диктора: набор прямоугольников ему не говорит ничего. */
+.variant-card .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
 /* Группа настроек: заголовок отделяет «Содержимое» от «Вида» и от «Карточки
    с иконкой», и настройка ищется по смыслу, а не перебором подписей. */
 .bf-group {

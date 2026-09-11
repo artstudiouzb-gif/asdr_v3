@@ -73,15 +73,31 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
         <?php endif; ?>
 
         <?php if ($type === 'text'): ?>
-            <div class="form-field">
-                <label for="text_variant">Вариант отображения</label>
-                <select id="text_variant" name="variant">
-                    <?php foreach (['default' => 'Обычный текст', 'section' => 'Вступление к разделу', 'intro' => 'Вводный блок с принципами', 'system' => 'Текст + системный список', 'spotlight' => 'Текст + акцентная цитата'] as $value => $label): ?>
-                        <option value="<?= $value ?>" <?= ($data['variant'] ?? 'default') === $value ? 'selected' : '' ?>><?= $label ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <span class="form-hint">Специальные варианты остаются обычными системными блоками и адаптируются автоматически.</span>
-            </div>
+            <?php // «Текст» — один из четырёх типов, оставшихся вне схемы полей,
+                  // поэтому вариант здесь объявлен вручную. Виджет тот же, что у
+                  // схемных блоков: второй способ показать тот же выбор
+                  // разъехался бы с первым при первой правке. ?>
+            <?= \App\Core\AdminUi::variantField(
+                'variant',
+                (string) ($data['variant'] ?? 'default'),
+                [
+                    'default' => 'Обычный текст',
+                    'section' => 'Вступление к разделу',
+                    'intro' => 'С принципами',
+                    'system' => 'С системным списком',
+                    'spotlight' => 'С акцентной цитатой',
+                ],
+                [
+                    'default' => ['text:5', 'Сплошной текст с заголовком — обычная статья'],
+                    'section' => ['text:3+frame', 'Короткий лид перед разделом, крупнее основного текста'],
+                    'intro' => ['grid:3+icon+plain', 'Текст, под ним ряд принципов с иконками'],
+                    'system' => ['list:4+dot', 'Текст и список с маркерами-значками сбоку'],
+                    'spotlight' => ['quote', 'Текст и карточка цитаты рядом'],
+                ],
+                'Вариант отображения',
+                'Специальные варианты остаются обычными системными блоками и адаптируются автоматически.',
+                'text_variant'
+            ) ?>
             <div class="form-field">
                 <label for="content">Текст</label>
                 <textarea class="u-inline-9bef318bc9" id="content" name="content" data-wysiwyg><?= htmlspecialchars($data['content'] ?? '', ENT_QUOTES) ?></textarea>
@@ -347,13 +363,17 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     <span class="form-hint">Сначала создайте форму в разделе «Формы».</span>
                 <?php endif; ?>
             </div>
-            <div class="form-field">
-                <label for="form_layout">Макет формы</label>
-                <select id="form_layout" name="layout">
-                    <option value="1col" <?= ($data['layout'] ?? '1col') === '1col' ? 'selected' : '' ?>>В одну колонку</option>
-                    <option value="2col" <?= ($data['layout'] ?? '1col') === '2col' ? 'selected' : '' ?>>В две колонки (сетка)</option>
-                </select>
-            </div>
+            <?php // «Форма» тоже вне схемы полей — виджет общий с остальными. ?>
+            <?= \App\Core\AdminUi::variantField(
+                'layout',
+                (string) ($data['layout'] ?? '1col'),
+                ['1col' => 'В одну колонку', '2col' => 'В две колонки'],
+                [
+                    '1col' => ['list:4+frame', 'Поля идут друг под другом — привычно и работает на любом экране'],
+                    '2col' => ['grid:2+frame', 'Короткие поля встают парами — форма занимает вдвое меньше высоты'],
+                ],
+                'Макет формы'
+            ) ?>
         <?php endif; ?>
 
         <?php if ($type === 'columns'): ?>
