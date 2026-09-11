@@ -17,7 +17,7 @@ test('Редакционные варианты страницы Агентст�
     assert_true(array_key_exists('media_video', $defaults['text']));
     assert_true(array_key_exists('media_youtube', $defaults['text']));
     assert_true(array_key_exists('variant', $defaults['stages']));
-    foreach (['advantages', 'stages'] as $type) {
+    foreach (['cards_grid', 'stages'] as $type) {
         assert_true(array_key_exists('description', $defaults[$type]), "{$type}: нет описания раздела");
     }
     assert_true(array_key_exists('career_title', $defaults['bio_education']));
@@ -27,7 +27,9 @@ test('Редакционные варианты страницы Агентст�
     // Редактор — это форма плюс поля, которые рисует схема: у типов со схемой
     // варианты объявлены там, а не в разметке формы.
     $editor = block_editor_markup();
-    foreach (['intro', 'system', 'spotlight', 'indexed', 'history', 'acts-editorial', 'media_image', 'media_video', 'media_youtube'] as $variant) {
+    // «indexed» больше не вариант: нумерация карточек стала настройкой, потому
+    // что вариант ничего не менял — номер печатался во всех.
+    foreach (['intro', 'system', 'spotlight', 'history', 'acts-editorial', 'media_image', 'media_video', 'media_youtube'] as $variant) {
         assert_contains($variant, $editor, "вариант {$variant} недоступен в редакторе");
     }
     $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/pages/block_form.php');
@@ -70,7 +72,7 @@ test('Миграция включает варианты без замены р�
 test('Редакционные стили не меняют шапку и подвал', function (): void {
     $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public-editorial-pages.css');
     assert_contains('.block-text--system', $css);
-    assert_contains('.block-advantages__grid', $css);
+    assert_contains('.cards-grid', $css);
     assert_contains('.block-stages--history', $css);
     assert_contains('.block-docslist--acts-editorial', $css);
     assert_contains('.block-stages--history .stage::after', $css, 'в истории должна быть отключена дублирующая линия');
@@ -93,12 +95,12 @@ test('Преимущества, этапы и таймлайн имеют соб
     // Пояснение одно и то же у всех трёх — у двух оно приходит из схемы, у
     // таймлайна пока из рукописной ветки формы.
     assert_contains('отдельный текстовый блок не нужен', $editor);
-    foreach (['advantages', 'stages'] as $type) {
+    foreach (['cards_grid', 'stages'] as $type) {
         $fields = \App\Core\BlockData\BlockFieldSchema::fields($type);
         assert_true(isset($fields['description']), "{$type}: описание не описано схемой");
     }
 
-    foreach (['advantages', 'stages'] as $type) {
+    foreach (['cards_grid', 'stages'] as $type) {
         $template = (string) file_get_contents(APP_ROOT . '/templates/blocks/' . $type . '.php');
         assert_contains("\$data['description']", $template, "{$type}: описание не выводится");
     }
@@ -134,7 +136,7 @@ test('Иконки cards_grid настраиваются в редакторе �
 
 test('Заголовки редакционных разделов используют единый акцентный маркер', function (): void {
     $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public-editorial-pages.css');
-    foreach (['block-text__title', 'block-advantages__title', 'section-head__title', 'block-timeline__title'] as $selector) {
+    foreach (['block-text__title', 'section-head__title', 'block-timeline__title'] as $selector) {
         assert_contains($selector . '::before', $css, "{$selector}: нет общего маркера");
     }
     assert_contains('font-size: var(--font-size-h2', $css);
@@ -200,14 +202,19 @@ test('Профиль руководителя использует адапти�
     }
 });
 
-test('Преимущества, контакты и правовые акты используют один feature-card', function (): void {
-    $advantages = (string) file_get_contents(APP_ROOT . '/templates/blocks/advantages.php');
+test('Карточки, контакты и правовые акты используют один feature-card', function (): void {
+    // «Преимущества» печатали ту же карточку из тех же полей, что «Карточки», —
+    // и разъехались с ними настройками и оформлением. Теперь блок один, а
+    // копия его правил (включая анимацию иконки, которую тема всё равно гасила)
+    // ушла вместе с типом.
+    $cards = (string) file_get_contents(APP_ROOT . '/templates/blocks/cards_grid.php');
     $contacts = (string) file_get_contents(APP_ROOT . '/templates/blocks/contact_cards.php');
     $acts = (string) file_get_contents(APP_ROOT . '/templates/blocks/partials/act_card.php');
-    assert_contains('feature-card block-advantages__item', $advantages);
+    assert_false(is_file(APP_ROOT . '/templates/blocks/advantages.php'), 'шаблона «Преимуществ» не осталось');
+    assert_contains('feature-card__icon', $cards);
     assert_contains('feature-card contact-card', $contacts);
     assert_contains('feature-card act-card', $acts);
-    assert_contains('feature-card__num block-advantages__index', $advantages);
+    assert_contains('feature-card__num', $cards);
     assert_contains('feature-card__num', $contacts);
     assert_contains('feature-card__title act-card__number', $acts);
     assert_contains('<p class="feature-card__text act-card__desc">', $acts);
@@ -219,7 +226,6 @@ test('Преимущества, контакты и правовые акты и
     assert_not_contains('.act-card__desc', $cardTitleSelectors);
 
     $css = theme_css();
-    assert_contains('.feature-card.block-advantages__item', $css);
     assert_contains('.feature-card.contact-card', $css);
     assert_contains('.feature-card.act-card', $css);
     assert_contains('.feature-card.act-card .act-card__desc', $css);
@@ -228,11 +234,12 @@ test('Преимущества, контакты и правовые акты и
 
     $editorial = (string) file_get_contents(APP_ROOT . '/public/assets/css/public-editorial-pages.css');
     assert_contains('.anim-card:not(.feature-card)', $editorial);
-    assert_not_contains('.feature-card.block-advantages__item:hover', $editorial);
     assert_contains('.block-docslist--acts-editorial .act-card__desc', $editorial);
 
+    // Мёртвых правил «карточка без класса feature-card» не осталось: класс
+    // висел на ней всегда, и такое правило не срабатывало ни разу.
     $layout = (string) file_get_contents(APP_ROOT . '/public/assets/css/public-layout-polish.css');
-    assert_contains('.block-advantages__item:not(.feature-card)', $layout);
+    assert_not_contains(':not(.feature-card) .block-advantages__icon', $layout);
 });
 
 test('Вводный блок Агентства имеет управляемую медиаколонку и безопасную заглушку', function (): void {

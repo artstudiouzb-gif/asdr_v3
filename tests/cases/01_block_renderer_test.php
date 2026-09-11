@@ -82,7 +82,10 @@ test('BlockRenderer: cards_grid без выбранного стиля ренд�
     ]);
 
     assert_contains('id="block-11"', $result['html']);
-    assert_contains('class="block-cards block-cards--icon-pos-top block-cards--text-align-left"', $result['html']);
+    // Нумерация включена по умолчанию: номер печатался всегда, и выключить его
+    // было нечем — настройка появилась в том же состоянии, чтобы вид собранных
+    // страниц не менялся.
+    assert_contains('class="block-cards block-cards--icon-pos-top block-cards--text-align-left block-cards--numbered"', $result['html']);
     assert_contains('feature-card__icon', $result['html']);
     assert_contains('#block-11 .feature-card__icon', $result['css']);
     assert_contains('--feature-card-icon-size:22px', $result['css']);

@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-use App\Core\BlockData\AdvantagesBlockNormalizer;
+use App\Core\BlockData\CardsGridBlockNormalizer;
 use App\Core\BlockData\ContactCardsBlockNormalizer;
 use App\Core\BlockData\FaqBlockNormalizer;
 use App\Core\BlockData\TestimonialsBlockNormalizer;
 use App\Core\BlockRenderer;
 
-test('Advantages normalizer: принимает ключ Tabler, типографит и пропускает пустые строки', function (): void {
-    $data = AdvantagesBlockNormalizer::normalize([
+test('Cards grid normalizer: принимает ключ Tabler, типографит и пропускает пустые строки', function (): void {
+    // Сюда переехали «Преимущества»: карточка, поля и правила у них были те же,
+    // а нормализатора было два — и расходились они молча.
+    $data = CardsGridBlockNormalizer::normalize([
         'title_field' => ' Преимущества ',
         'description' => '<p>Краткое <strong>описание</strong>.</p><script>alert(1)</script>',
         'items' => [
@@ -111,7 +113,7 @@ test('Contact cards normalizer и рендерер блокируют опасн
 test('Контроллер делегирует повторяющиеся блоки отдельным нормализаторам', function (): void {
     $controller = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/BlockController.php');
 
-    assert_contains('AdvantagesBlockNormalizer::normalize($_POST, $locale)', $controller);
+    assert_contains('CardsGridBlockNormalizer::normalize($_POST, $locale, $type)', $controller);
     assert_contains('TestimonialsBlockNormalizer::normalize($_POST, $locale)', $controller);
     assert_contains('FaqBlockNormalizer::normalize($_POST, $locale)', $controller);
     assert_contains('ContactCardsBlockNormalizer::normalize($_POST, $locale)', $controller);

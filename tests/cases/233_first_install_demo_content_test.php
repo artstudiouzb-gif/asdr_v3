@@ -29,7 +29,7 @@ test('Первая установка: цифры главной подтвер�
         };
 
         $expected = [
-            count($findAgencyBlock('advantages')['items'] ?? []),
+            count($findAgencyBlock('cards_grid')['items'] ?? []),
             count($findAgencyBlock('stages')['items'] ?? []),
             count($findAgencyBlock('docs_list')['items'] ?? []),
             count($agency['team'] ?? []),
@@ -62,7 +62,7 @@ test('Первая установка: направления главной с�
 
         $agencyTitles = [];
         foreach ($agency['pages']['o-nas'][$lang]['blocks'] ?? [] as $block) {
-            if (($block[0] ?? '') !== 'advantages') {
+            if (($block[0] ?? '') !== 'cards_grid') {
                 continue;
             }
             foreach ($block[2]['items'] ?? [] as $item) {
@@ -93,7 +93,7 @@ test('Первая установка: заголовки карточек и х
         foreach ($blocks as $block) {
             $type = (string) ($block[0] ?? '');
             $data = is_array($block[2] ?? null) ? $block[2] : [];
-            if (in_array($type, ['advantages', 'stages'], true)) {
+            if (in_array($type, ['cards_grid', 'stages'], true)) {
                 assert_true(trim((string) ($data['title'] ?? '')) !== '', "{$lang}/{$type}: нет заголовка");
                 assert_true(trim(strip_tags((string) ($data['description'] ?? ''))) !== '', "{$lang}/{$type}: нет описания");
             }

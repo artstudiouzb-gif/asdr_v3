@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Core\BlockData\AdvantagesBlockNormalizer;
+use App\Core\BlockData\CardsGridBlockNormalizer;
 use App\Core\BlockRenderer;
 
 // Настройки у блоков, которые умели только показать список в жёсткой сетке:
@@ -24,24 +24,24 @@ function midtier_block(string $type, array $data, int $id = 800): array
     return ['html' => (string) $rendered['html'], 'css' => (string) $rendered['css']];
 }
 
-test('Преимущества: колонки задаются вручную, ноль оставляет автоподбор', function () {
+test('Карточки: колонки задаются вручную, ноль оставляет автоподбор', function () {
     $items = [];
     for ($i = 1; $i <= 6; $i++) {
         $items[] = ['title' => 'Пункт ' . $i, 'text' => 'Описание'];
     }
 
-    $manual = midtier_block('advantages', ['variant' => 'grid', 'columns' => 3, 'items' => $items], 801);
-    assert_contains('--grid-track:3', $manual['css']);
+    $manual = midtier_block('cards_grid', ['variant' => 'icon', 'columns' => 3, 'items' => $items], 801);
+    assert_contains('--cards-cols:3', $manual['css']);
 
-    // Ноль — прежнее поведение: шесть карточек ложатся четвёркой без остатка
-    // в последнем ряду не остаётся одинокой карточки.
-    $auto = midtier_block('advantages', ['variant' => 'grid', 'columns' => 0, 'items' => $items], 802);
-    assert_not_contains('--grid-track:3', $auto['css']);
+    // Ноль — прежнее поведение «Преимуществ»: шесть карточек ложатся
+    // четвёркой, и в последнем ряду не остаётся одинокой карточки.
+    $auto = midtier_block('cards_grid', ['variant' => 'icon', 'columns' => 0, 'items' => $items], 802);
+    assert_contains('--cards-cols:4', $auto['css']);
 });
 
-test('Преимущества: карточка со ссылкой кликается целиком, опасный адрес отбрасывается', function () {
-    $block = midtier_block('advantages', [
-        'variant' => 'grid',
+test('Карточки: карточка со ссылкой кликается целиком, опасный адрес отбрасывается', function () {
+    $block = midtier_block('cards_grid', [
+        'variant' => 'icon',
         'all_text' => 'Все направления',
         'all_url' => '/directions',
         'items' => [
@@ -50,51 +50,54 @@ test('Преимущества: карточка со ссылкой клика�
         ],
     ], 803);
 
-    assert_contains('block-advantages__item--link', $block['html']);
+    // Карточка со ссылкой — сам элемент <a>, отдельной подписи «Подробнее» у
+    // неё нет: она повторяла бы заголовок и съедала высоту.
+    assert_contains('<a class="feature-card', $block['html']);
     assert_contains('href="/directions/one"', $block['html']);
     assert_contains('href="/directions"', $block['html'], 'ссылка «Все» выводится общей шапкой');
-    // Легаси-классы шапки сохранены: на них висят правила темы.
-    assert_contains('block-advantages__head', $block['html']);
 
-    $unsafe = midtier_block('advantages', [
-        'variant' => 'grid',
+    $unsafe = midtier_block('cards_grid', [
+        'variant' => 'icon',
         'items' => [['title' => 'Плохая', 'text' => 'Описание', 'url' => 'javascript:alert(1)']],
     ], 804);
     assert_not_contains('javascript:', $unsafe['html']);
-    assert_not_contains('block-advantages__item--link', $unsafe['html']);
+    assert_not_contains('<a class="feature-card', $unsafe['html']);
 });
 
-test('Преимущества: вариант «в одну строку» ставит заголовок рядом с иконкой', function () {
+test('Карточки: иконка в строке с заголовком ставит их на одну линию', function () {
+    // У «Преимуществ» это был отдельный вариант блока, хотя меняет он ровно
+    // положение иконки — и «слева» у «Карточек» кладёт её иначе: там заголовок
+    // уходит во вторую строку, под номер.
     $items = [['icon_svg' => 'star', 'title' => 'Первое', 'text' => 'Описание.']];
 
-    $inline = midtier_block('advantages', ['variant' => 'inline', 'items' => $items], 805);
-    assert_contains('block-advantages--inline', $inline['html']);
+    $inline = midtier_block('cards_grid', ['variant' => 'icon', 'icon_position' => 'inline', 'items' => $items], 805);
+    assert_contains('block-cards--icon-pos-inline', $inline['html']);
     // Заголовок внутри верхней строки, рядом с иконкой и номером.
     assert_true(
         (bool) preg_match('#feature-card__top.*?feature-card__title.*?feature-card__num.*?</div>#s', $inline['html']),
         'заголовок должен стоять в одной строке с иконкой и номером'
     );
 
-    // В обычном варианте заголовок остаётся под верхней строкой.
-    $grid = midtier_block('advantages', ['variant' => 'grid', 'items' => $items], 806);
-    assert_not_contains('block-advantages--inline', $grid['html']);
+    // При иконке сверху заголовок остаётся под верхней строкой.
+    $grid = midtier_block('cards_grid', ['variant' => 'icon', 'items' => $items], 806);
+    assert_not_contains('block-cards--icon-pos-inline', $grid['html']);
     assert_true(
         (bool) preg_match('#feature-card__num.*?</div>.*?feature-card__title#s', $grid['html']),
         'в варианте «карточки» заголовок идёт после верхней строки'
     );
 });
 
-test('Преимущества: нормализатор чистит колонки, ссылку блока и ссылку карточки', function () {
-    $data = AdvantagesBlockNormalizer::normalize([
-        'variant' => 'grid',
+test('Карточки: нормализатор чистит колонки, ссылку блока и ссылку карточки', function () {
+    $data = CardsGridBlockNormalizer::normalize([
+        'variant' => 'icon',
         'columns' => '77',
         'all_url' => 'javascript:alert(1)',
         'items' => [['title' => 'Пункт', 'text' => 'Текст', 'url' => 'javascript:alert(1)']],
     ]);
 
-    // Число вне списка колонок — подделанная форма: возвращаемся к умолчанию
-    // «автоматически по числу карточек», а не к ближайшему допустимому.
-    assert_same(0, $data['columns']);
+    // Число вне списка колонок — подделанная форма: возвращаемся к умолчанию,
+    // а не к ближайшему допустимому.
+    assert_same(5, $data['columns']);
     assert_same('', $data['all_url']);
     assert_same('', $data['items'][0]['url']);
 });
@@ -165,4 +168,62 @@ test('Профиль руководителя: сторона фото, соцс
     $plain = midtier_block('person_profile', ['name' => 'Петров П. П.'], 831);
     assert_contains('block-profile--photo-left', $plain['html']);
     assert_not_contains('profile__socials', $plain['html']);
+});
+
+test('«Преимущества» и «Карточки» — один тип: варианты стали настройками', function (): void {
+    // Два блока печатали одну и ту же карточку (`.feature-card` с тем же
+    // нутром) из одних и тех же полей — иконка, заголовок, текст, ссылка.
+    // Разошлись они настройками, и правка одного до второго не доходила:
+    // подложку иконки у «Карточек» давно сменили с синеватой на тон акцента, а
+    // у «Преимуществ» она такой и осталась (замерено вычисленными стилями).
+    assert_false(\App\Core\BlockTypeRegistry::has('advantages'), 'advantages больше не тип блока');
+    assert_false(is_file(APP_ROOT . '/templates/blocks/advantages.php'));
+    assert_false(is_file(APP_ROOT . '/app/Core/BlockData/AdvantagesBlockNormalizer.php'));
+
+    $fields = \App\Core\BlockData\BlockFieldSchema::fields('cards_grid');
+    // Всё, что было своим у «Преимуществ», стало настройкой приёмника.
+    assert_true(isset($fields['description']), 'описание раздела');
+    assert_true(isset($fields['numbering']), 'нумерация карточек');
+    assert_true(isset($fields['variant']->options['band']), 'компактная полоса');
+    assert_true(isset($fields['icon_position']->options['inline']), 'иконка в строке с заголовком');
+    assert_true(isset($fields['columns']->options[0]), 'автоподбор колонок');
+});
+
+test('Нумерация карточек — настоящая настройка, а не вариант без последствий', function (): void {
+    // Номер печатался во всех вариантах: правила, которое его прячет, в
+    // публичном CSS не было вовсе — то есть выбор «с нумерацией» / «без»
+    // не менял ничего. Настройка обязана менять вывод.
+    $items = [['icon_svg' => 'star', 'title' => 'Первое', 'text' => 'Описание']];
+    $on = midtier_block('cards_grid', ['variant' => 'icon', 'numbering' => true, 'items' => $items], 810);
+    $off = midtier_block('cards_grid', ['variant' => 'icon', 'numbering' => false, 'items' => $items], 811);
+
+    assert_contains('feature-card__num', $on['html']);
+    assert_not_contains('feature-card__num', $off['html']);
+    assert_contains('block-cards--numbered', $on['html']);
+});
+
+test('Блок прежнего типа читается как карточки и до миграции', function (): void {
+    $legacy = static fn (array $data): array => \App\Core\BlockTypeRegistry::canonicalData('advantages', $data);
+
+    assert_same('cards_grid', \App\Core\BlockTypeRegistry::canonicalType('advantages'));
+    // Нумерация включается всем: номер печатался всегда, и выключенная
+    // настройка поменяла бы вид уже собранных страниц.
+    assert_true($legacy(['variant' => 'grid'])['numbering']);
+    assert_same('icon', $legacy(['variant' => 'indexed'])['variant']);
+    // «В одну строку» — это положение иконки, и у «Карточек» оно своё:
+    // «слева» кладёт иконку слева от всего текста, а здесь она стоит на одной
+    // линии с заголовком.
+    assert_same('inline', $legacy(['variant' => 'inline'])['icon_position']);
+    assert_same('band', $legacy(['variant' => 'band'])['variant']);
+});
+
+test('Ссылка карточки проверяется на выводе, а не только в форме', function (): void {
+    // Данные приезжают не одной дорогой: кроме формы есть загруженный файл
+    // шаблона страницы и записи, сохранённые до появления проверки.
+    $out = midtier_block('cards_grid', [
+        'variant' => 'icon',
+        'items' => [['title' => 'Плохая', 'text' => 'Описание', 'url' => 'javascript:alert(1)']],
+    ], 812);
+
+    assert_not_contains('javascript:', $out['html']);
 });

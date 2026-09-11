@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Auth;
-use App\Core\BlockData\AdvantagesBlockNormalizer;
 use App\Core\BlockData\BlockFieldSchema;
 use App\Core\BlockData\BlockPresentationNormalizer;
 use App\Core\BlockData\ContactCardsBlockNormalizer;
@@ -496,8 +495,6 @@ final class BlockController
                 ];
             case 'cta':
                 return BlockFieldSchema::normalize('cta', $_POST, $locale);
-            case 'advantages':
-                return AdvantagesBlockNormalizer::normalize($_POST, $locale);
             case 'slider':
                 $slides = [];
                 foreach ((array) ($_POST['slides'] ?? []) as $slide) {
@@ -617,37 +614,7 @@ final class BlockController
                 return HeroBlockNormalizer::normalize($_POST, $locale);
             case 'cards_grid':
             case 'media_gallery':
-                $items = [];
-                foreach ((array) ($_POST['items'] ?? []) as $item) {
-                    $label = trim((string) ($item['title'] ?? $item['label'] ?? ''));
-                    $image = trim((string) ($item['image'] ?? ''));
-                    if ($image !== '' && !\App\Core\UrlGuard::isSafeMedia($image)) {
-                        $image = '';
-                    }
-                    if ($label === '' && ($type !== 'media_gallery' || $image === '')) {
-                        continue;
-                    }
-                    $url = trim((string) ($item['url'] ?? ''));
-                    if ($url !== '' && !\App\Core\UrlGuard::isSafeLink($url)) {
-                        $url = '';
-                    }
-                    $iconSvg = \App\Core\Icon::cleanName($item['icon_svg'] ?? '');
-                    $items[] = [
-                        'icon_svg' => $iconSvg,
-                        'image' => $image,
-                        'title' => TextProcessor::typographPlain($label, $locale),
-                        'text' => TextProcessor::typographPlain(trim((string) ($item['text'] ?? '')), $locale),
-                        'meta' => TextProcessor::typographPlain(trim((string) ($item['meta'] ?? '')), $locale),
-                        'kind' => ($item['kind'] ?? '') === 'photo' ? 'photo' : 'video',
-                        'url' => $url,
-                    ];
-                }
-                $collected = array_merge(
-                    $type === 'cards_grid'
-                        ? BlockFieldSchema::normalize('cards_grid', $_POST, $locale)
-                        : BlockFieldSchema::normalize('media_gallery', $_POST, $locale),
-                    ['items' => $items]
-                );
+                $collected = \App\Core\BlockData\CardsGridBlockNormalizer::normalize($_POST, $locale, $type);
                 // Проекты собираются с обложками, поэтому вариант без фото им
                 // не подходит; но выбор между текстом на фото и текстом под ним
                 // остаётся за редактором. Это зависимость одного поля от

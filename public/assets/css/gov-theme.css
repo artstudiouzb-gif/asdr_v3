@@ -180,7 +180,7 @@ input, select, textarea,
 [class*="card"], [class*="__button"], .btn, [role="button"], [tabindex]:not([tabindex="-1"]),
 
 .site-menu__item, .site-menu__item--has-children, .hdr-contact,
-.counter, .block-advantages__item, .timeline-item, .faq-item__q,
+.counter, .timeline-item, .faq-item__q,
 .adjnews, .newslist-lead, .newsdetail__meta-item, .stage {
     transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }/* Смена темы: переход навешивается на всё документ на время анимации и
@@ -1595,7 +1595,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
  * переменные себе, карточка — себе, и её поддерево видит уже свои значения.
  */
 
-:is(.act-card, .album-card, .block-advantages__item, .block-testimonials__item, .cat-tile,
+:is(.act-card, .album-card, .block-testimonials__item, .cat-tile,
     .catcard, .catdetail__card, .contact-card, .content-card, .doc-card, .faq-item,
     .feature-card, .leader-card, .mediacard, .news-card, .news-poll-card, .newsdetail-card,
     .newslist-lead, .person-card, .project-card, .relnews-card, .site-search-results__item,
@@ -1612,7 +1612,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
     color: var(--section-fg);
 }
 
-:root[data-theme="dark"] :is(.act-card, .album-card, .block-advantages__item, .block-testimonials__item, .cat-tile,
+:root[data-theme="dark"] :is(.act-card, .album-card, .block-testimonials__item, .cat-tile,
     .catcard, .catdetail__card, .contact-card, .content-card, .doc-card, .faq-item,
     .feature-card, .leader-card, .mediacard, .news-card, .news-poll-card, .newsdetail-card,
     .newslist-lead, .person-card, .project-card, .relnews-card, .site-search-results__item,
@@ -1633,7 +1633,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
    ============================================================================ *//* --- Карточки: классические, с мягкими контурами и микро-тенями --- */
 
 .news-card, .content-card, .contact-card, .cat-tile, .site-search-results__item,
-.block-testimonials__item, .testimonial, .team-card, .project-card, .person-card, .block-advantages__item, .album-card,
+.block-testimonials__item, .testimonial, .team-card, .project-card, .person-card, .album-card,
 .doc-card, .catcard, .catdetail__card, .widget--style-card {
     background: color-mix(in srgb, var(--gov-surface) 68%, transparent);
     backdrop-filter: blur(16px) saturate(180%);
@@ -1643,7 +1643,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
     transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s ease, background-color 0.35s ease;
 }
-.news-card:hover, .content-card:hover, .contact-card:hover, .cat-tile:hover, .team-card:hover, .project-card:hover, .person-card:hover, .block-advantages__item:hover, .album-card:hover,
+.news-card:hover, .content-card:hover, .contact-card:hover, .cat-tile:hover, .team-card:hover, .project-card:hover, .person-card:hover, .album-card:hover,
 .doc-card:hover, .catcard:hover, .catdetail__card:hover, .widget--style-card:hover {
     background: color-mix(in srgb, var(--gov-surface) 88%, transparent);
     box-shadow: 0 16px 36px rgba(19,42,92,.09);
@@ -3722,7 +3722,6 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
 .section-head__copy { flex: 1 1 520px; min-width: 0; }
 .section-head__title { font-size: var(--font-size-h2, var(--step-6)); margin: 0; font-weight: 700; letter-spacing: -0.02em; }
 .section-head__description,
-.block-advantages__description,
 .block-featband__description,
 .block-timeline__description {
     margin-top: 10px;
@@ -3731,14 +3730,12 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
     line-height: 1.65;
 }
 .section-head__description p,
-.block-advantages__description p,
 .block-featband__description p,
 .block-timeline__description p { margin: 0 0 8px; }
 .section-head__description p:last-child,
-.block-advantages__description p:last-child,
 .block-featband__description p:last-child,
 .block-timeline__description p:last-child { margin-bottom: 0; }
-.cms-block--bg-navy :is(.section-head__description, .block-advantages__description, .block-featband__description, .block-timeline__description) {
+.cms-block--bg-navy :is(.section-head__description, .block-featband__description, .block-timeline__description) {
     color: var(--section-muted-fg);
 }
 .section-head__all { color: var(--gov-teal-text); font-family: var(--font-family, 'Noto Sans', sans-serif); font-size: var(--step--2); font-weight: 700; text-decoration: none; white-space: nowrap; }/* Приоритетные направления — карточки иконка+заголовок+текст+стрелка. */
@@ -3777,13 +3774,16 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
    Заголовок тянется на всю свободную ширину, иначе space-between родителя
    отбрасывает его в середину строки. */
 
-.block-advantages--inline .feature-card__top,
+/* Иконка в строке с заголовком: карточка ниже, и в ряд их влезает больше.
+   Пришло из «Преимуществ», где это был отдельный вариант блока, хотя меняет
+   ровно положение иконки. Класс блока теперь общий с «Карточками». */
+.block-cards--icon-pos-inline .feature-card__top,
 .block-contact-cards--inline .feature-card__top { align-items: center; gap: 14px; margin-bottom: 8px; }
-.block-advantages--inline .feature-card__top .feature-card__title,
+.block-cards--icon-pos-inline .feature-card__top .feature-card__title,
 .block-contact-cards--inline .feature-card__top .feature-card__title { margin: 0; flex: 1 1 auto; min-width: 0; text-align: left; }
-.block-advantages--inline .feature-card__num,
+.block-cards--icon-pos-inline .feature-card__num,
 .block-contact-cards--inline .feature-card__num { margin-left: auto; }
-.block-advantages--inline .feature-card__spacer,
+.block-cards--icon-pos-inline .feature-card__spacer,
 .block-contact-cards--inline .feature-card__spacer { display: none; }
 .feature-card__num {
     font-family: var(--font-heading, 'Noto Serif', serif);
@@ -4201,7 +4201,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
    контраст. На тёмной секции делаем её непрозрачной: читаемость важнее
    эффекта. То же самое для своего тёмного фона — App\Core\SectionColors. */
 
-.cms-block--bg-navy :is(.act-card, .album-card, .block-advantages__item, .block-testimonials__item, .cat-tile,
+.cms-block--bg-navy :is(.act-card, .album-card, .block-testimonials__item, .cat-tile,
     .catcard, .catdetail__card, .contact-card, .content-card, .doc-card, .faq-item,
     .feature-card, .leader-card, .mediacard, .news-card, .news-poll-card, .newsdetail-card,
     .newslist-lead, .person-card, .project-card, .relnews-card, .site-search-results__item,
@@ -6370,27 +6370,10 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 .doc-card:hover .doc-card__dl { background: var(--gov-navy); color: #ffffff; transform: scale(1.06); }/* --- Наши преимущества (Advantages Block) --- */
 
 .advantages-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px; }
-.block-advantages__item {
-    display: flex; flex-direction: column; gap: 14px; padding: 26px 24px;
-    border: 1px solid var(--gov-border); border-radius: var(--radius, 14px);
-    background: var(--gov-surface); box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
-.block-advantages__item:hover {
-    transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--gov-teal) 35%, var(--gov-border));
-    box-shadow: 0 16px 36px -16px rgba(15, 23, 42, 0.12);
-}
-.block-advantages__icon {
-    display: grid; place-items: center; width: 50px; height: 50px;
-    border-radius: var(--radius-sm, 10px); background: color-mix(in srgb, var(--gov-teal) 14%, transparent);
-    color: var(--gov-teal-text); font-size: var(--step-3); font-weight: 700;
-}/* Заголовок блока — как у остальных секций: 1.1rem читался подписью, а не
-   названием раздела, и ломал иерархию страницы. */
-
-.block-advantages__head { margin-bottom: 26px; }
-.block-advantages__title { margin: 0; color: var(--section-title-fg); font-size: var(--font-size-h2, clamp(var(--step-4), 2.6vw, var(--step-6))); font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; }
-.block-advantages__text { color: var(--gov-muted, #475569); font-size: var(--step--1); line-height: var(--base-line-height, 1.55); margin: 0; }/* --- Контактные карточки / Отделы (Contact Cards Block) --- */
+/* Собственные правила «Преимуществ» удалены вместе с типом: карточку и её
+   шапку рисуют общие `.feature-card` и `.section-head`. Пока копия жила рядом,
+   она молча расходилась с оригиналом — подложка иконки у «Карточек» давно
+   берёт тон акцента, а здесь оставалась синеватой (замерено). *//* --- Контактные карточки / Отделы (Contact Cards Block) --- */
 
 .contact-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
 .contact-card {
@@ -6412,7 +6395,6 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
    Legacy type selectors remain for content fields only and must not fork the
    card shell, hover elevation or timing. */
 
-.feature-card.block-advantages__item,
 .feature-card.contact-card,
 .feature-card.act-card {
     display: flex;
@@ -6432,7 +6414,6 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
         background-color .46s ease;
 }
 
-.feature-card.block-advantages__item:hover,
 .feature-card.contact-card:hover,
 .feature-card.act-card:hover {
     transform: translateY(var(--feature-card-hover-lift, -4px));
@@ -6442,7 +6423,6 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     box-shadow: 0 16px 36px rgba(37, 99, 235, .12);
 }
 
-.feature-card .block-advantages__icon,
 .feature-card .contact-card__icon,
 .feature-card .act-card__editorial-icon {
     width: 44px;
@@ -6453,7 +6433,6 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     color: var(--gov-teal-text);
 }
 
-.feature-card:hover .block-advantages__icon,
 .feature-card:hover .contact-card__icon,
 .feature-card:hover .act-card__editorial-icon {
     transform: scale(1.06);
@@ -6461,12 +6440,6 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     color: #fff;
 }
 
-.feature-card.block-advantages__item:hover .block-advantages__icon,
-.feature-card.block-advantages__item:focus-within .block-advantages__icon {
-    animation: none;
-}
-
-.feature-card.block-advantages__item .feature-card__title,
 .feature-card.contact-card .feature-card__title,
 .feature-card.act-card .feature-card__title {
     margin: 0;
@@ -6477,7 +6450,6 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     line-height: 1.3;
 }
 
-.feature-card.block-advantages__item .feature-card__text,
 .feature-card.contact-card .feature-card__text,
 .feature-card.act-card .feature-card__text {
     margin: 0;

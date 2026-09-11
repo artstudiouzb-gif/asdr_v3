@@ -9,8 +9,12 @@ test('Главные CTA и преимущества используют дос
     assert_contains('.block-hero__button:not(.block-hero__button--ghost)::after', $css);
     assert_contains('animation: hero-button-sheen 6s ease-in-out infinite;', $css);
     assert_false(str_contains($css, 'animation: hero-button-sheen 4.2s'));
-    assert_contains('@keyframes advantages-icon-float', $css);
-    assert_contains('.block-advantages__item:focus-within .block-advantages__icon', $css);
+    // Анимации «плавающей иконки» больше нет: она жила у «Преимуществ», а тема
+    // гасила её тем же правилом, которым оформляла карточку
+    // (`.feature-card.block-advantages__item:hover .block-advantages__icon
+    // { animation: none }`) — то есть не срабатывала ни разу. Блок переехал в
+    // «Карточки», мёртвый приём уехал вместе с его копией правил.
+    assert_not_contains('advantages-icon-float', $css, 'анимация была погашена темой и не работала');
     assert_contains('@media (prefers-reduced-motion: reduce)', $css);
     assert_contains('.block-hero__button::after { content: none; animation: none; }', $css);
 });
