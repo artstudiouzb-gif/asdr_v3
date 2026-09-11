@@ -54,7 +54,6 @@ final class AdminUi
             'text' => 'document',
             'html' => 'code',
             'cta' => 'send',
-            'advantages' => 'check',
             'slider' => 'media',
             'form' => 'send',
             'columns' => 'columns',

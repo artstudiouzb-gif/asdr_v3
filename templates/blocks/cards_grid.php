@@ -16,6 +16,22 @@ $variant = (string) $data['variant'];
 // затемнением.
 $imageBelow = $variant === 'image_below';
 $columns = (int) $data['columns'];
+$description = trim(\App\Core\HtmlSanitizer::sanitizeText((string) ($data['description'] ?? '')));
+/*
+ * Ссылка карточки проверяется на выводе, а не только в форме. Данные приезжают
+ * не одной дорогой: кроме формы есть загруженный файл шаблона страницы и
+ * записи, сохранённые до появления проверки, — а `javascript:` в href это
+ * выполненный чужой код на публичной странице.
+ */
+$safeLink = static function (array $item): string {
+    $url = trim((string) ($item['url'] ?? ''));
+
+    return $url !== '' && \App\Core\UrlGuard::isSafeLink($url) ? $url : '';
+};
+// Нумерация была не настройкой, а вариантом, который ничего не менял: номер
+// печатался всегда, а правила, которое его прячет, в публичном CSS не было
+// вовсе — замерено на всех вариантах.
+$numbering = !empty($data['numbering']);
 // Раскладка. «Слайдер» доступен любому варианту; «авто» — прежнее поведение
 // карточек с фотографией: сетка, а когда карточек больше, чем колонок, полоса.
 // Порог считается по настройке «Колонок», а не по числу 4: в сетке и в кадре
@@ -41,7 +57,24 @@ $cardStyle = '--feature-card-icon-size:' . $iconSize . 'px;'
 $scope = '#block-' . (int) $blockId;
 // Число колонок принадлежит блоку, а не одному его варианту: сетку карточек с
 // фотографиями и кадр слайдера считает та же переменная.
+// Ноль — прежнее поведение «Преимуществ»: до пяти карточек идут одним рядом,
+// а дальше число колонок подбирается так, чтобы в последнем ряду не осталась
+// одинокая карточка (пятёрка ложится 3+2). Сетка с дырой справа читается как
+// незагрузившийся блок, а не как замысел.
+$autoColumns = $columns === 0;
+if ($autoColumns) {
+    $columns = $itemCount <= 5 && $itemCount > 0
+        ? $itemCount
+        : \App\Core\GridBalance::columnsFor(max(1, $itemCount));
+}
 $templateCss = $scope . '{--cards-cols:' . $columns . ';}';
+if ($autoColumns) {
+    // Ряд без дыр: хвостовые карточки растягиваются на свободные дорожки,
+    // иначе справа зияет пустая ячейка — она читается как незагрузившаяся
+    // карточка, а не как замысел. Пришло из «Преимуществ» вместе с их
+    // автоподбором колонок.
+    $templateCss .= \App\Core\GridBalance::css($blockId, '.cards-grid', '.feature-card', $itemCount, $columns);
+}
 $templateCss .= $scope . ' .block-cards{' . $cardStyle . '}';
 $templateCss .= $scope . ' .feature-card__icon{width:' . $iconBoxSize . 'px;height:' . $iconBoxSize . 'px;}';
 $cardClasses = ($cardBg !== '' ? ' block-cards--custom-bg' : '')
@@ -84,7 +117,7 @@ if ($variant === 'icon' && $visualStyle === 'new') {
         <?php else: ?>
             <div class="imgcards-grid<?= $desktopCarousel ? ' imgcards-grid--carousel' : ($carousel ? ' imgcards-grid--mobile-carousel' : '') ?>"<?= $carousel ? ' data-carousel-track tabindex="0" role="group" aria-label="' . htmlspecialchars(t('Карточки — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
                 <?php foreach ($items as $item): ?>
-                    <?php $url = trim((string) ($item['url'] ?? '')); $image = trim((string) ($item['image'] ?? '')); ?>
+                    <?php $url = $safeLink($item); $image = trim((string) ($item['image'] ?? '')); ?>
                     <?php if ($url !== ''): ?>
                     <a class="imgcard<?= $imageBelow ? ' imgcard--below' : '' ?>"<?= $carousel ? ' data-carousel-item' : '' ?> href="<?= htmlspecialchars($url, ENT_QUOTES) ?>">
                     <?php else: ?>
@@ -105,6 +138,36 @@ if ($variant === 'icon' && $visualStyle === 'new') {
             </div>
         <?php endif; ?>
     </div>
+<?php elseif ($variant === 'band'): ?>
+    <?php // Компактная полоса: сплошная тёмная лента вместо карточек. Пришла
+          // из «Преимуществ» вместе с их разметкой — правила темы висят на
+          // `.featband`, и переименование классов поехало бы видом на уже
+          // собранных страницах. ?>
+    <div class="block-featband">
+        <?= \App\Core\SectionHead::render([
+            'title' => $title,
+            'description' => $description,
+            'description_html' => true,
+            'all_text' => $allText,
+            'all_url' => $allUrl,
+            'class' => 'block-featband__head',
+            'title_class' => 'block-featband__title',
+            'description_class' => 'block-featband__description',
+        ]) ?>
+        <?php if ($items === []): ?>
+            <p class="block-featband__empty"><?= htmlspecialchars(t('Элементы ещё не добавлены.'), ENT_QUOTES) ?></p>
+        <?php else: ?>
+            <div class="featband">
+                <?php foreach ($items as $item): ?>
+                    <div class="featband__item">
+                        <?php if (!empty($item['icon_svg'])): ?><span class="featband__icon" aria-hidden="true"><?= Icon::render((string) $item['icon_svg'], 28) ?></span><?php endif; ?>
+                        <span class="featband__name"><?= htmlspecialchars((string) ($item['title'] ?? ''), ENT_QUOTES) ?></span>
+                        <?php if (!empty($item['text'])): ?><span class="featband__text"><?= htmlspecialchars((string) $item['text'], ENT_QUOTES) ?></span><?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
 <?php elseif ($variant === 'compact'): ?>
     <div class="block-categories"<?= $explicitSlider ? ' data-carousel' : '' ?>>
         <?php if ($title !== '' || $explicitSlider): ?>
@@ -118,7 +181,7 @@ if ($variant === 'icon' && $visualStyle === 'new') {
         <?php else: ?>
             <div class="cat-grid<?= $explicitSlider ? ' cards-track' : '' ?>"<?= $explicitSlider ? ' data-carousel-track tabindex="0" role="group" aria-label="' . htmlspecialchars(t('Категории — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
                 <?php foreach ($items as $index => $item): ?>
-                    <?php $url = trim((string) ($item['url'] ?? '')); ?>
+                    <?php $url = $safeLink($item); ?>
                     <?php if ($url !== ''): ?>
                     <a class="cat-tile<?= $index === 0 ? ' is-active' : '' ?>"<?= $explicitSlider ? ' data-carousel-item' : '' ?> href="<?= htmlspecialchars($url, ENT_QUOTES) ?>">
                     <?php else: ?>
@@ -132,22 +195,32 @@ if ($variant === 'icon' && $visualStyle === 'new') {
         <?php endif; ?>
     </div>
 <?php else: ?>
-    <div class="block-cards<?= $cardClasses ?>"<?= $explicitSlider ? ' data-carousel' : '' ?>>
-        <?php if ($title !== '' || ($allText !== '' && $allUrl !== '') || $explicitSlider): ?>
-            <div class="section-head">
-                <?php if ($title !== ''): ?><h2 class="section-head__title"><?= \App\Core\TitleMarkup::html($title) ?></h2><?php endif; ?>
-                <div class="section-head__tools">
-                    <?php if ($allText !== '' && $allUrl !== ''): ?><a class="section-head__all" href="<?= htmlspecialchars($allUrl, ENT_QUOTES) ?>"><?= htmlspecialchars($allText, ENT_QUOTES) ?> →</a><?php endif; ?>
-                    <?php if ($explicitSlider): ?><?php include __DIR__ . '/partials/carousel_nav.php'; ?><?php endif; ?>
-                </div>
-            </div>
-        <?php endif; ?>
+    <div class="block-cards<?= $cardClasses ?><?= $numbering ? ' block-cards--numbered' : '' ?>"<?= $explicitSlider ? ' data-carousel' : '' ?>>
+        <?php
+        // Шапка секции — общая: у «Преимуществ» было своё описание раздела, и
+        // при переезде сюда оно обязано остаться, иначе текст пропал бы со
+        // страниц молча.
+        $cardsNav = '';
+        if ($explicitSlider) {
+            ob_start();
+            include __DIR__ . '/partials/carousel_nav.php';
+            $cardsNav = (string) ob_get_clean();
+        }
+        ?>
+        <?= \App\Core\SectionHead::render([
+            'title' => $title,
+            'description' => $description,
+            'description_html' => true,
+            'all_text' => $allText,
+            'all_url' => $allUrl,
+            'tools' => $cardsNav,
+        ]) ?>
         <?php if ($items === []): ?>
             <p class="block-cards__empty"><?= htmlspecialchars(t('Пункты ещё не добавлены.'), ENT_QUOTES) ?></p>
         <?php else: ?>
             <div class="cards-grid<?= $explicitSlider ? ' cards-track' : '' ?>"<?= $explicitSlider ? ' data-carousel-track tabindex="0" role="group" aria-label="' . htmlspecialchars(t('Карточки — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
                 <?php foreach ($items as $index => $item): ?>
-                    <?php $url = trim((string) ($item['url'] ?? '')); $hasIcon = !empty($item['icon_svg']); ?>
+                    <?php $url = $safeLink($item); $hasIcon = !empty($item['icon_svg']); ?>
                     <?php if ($url !== '' && $hasIcon): ?>
                     <a class="feature-card feature-card--has-icon"<?= $explicitSlider ? ' data-carousel-item' : '' ?> href="<?= htmlspecialchars($url, ENT_QUOTES) ?>">
                     <?php elseif ($url !== ''): ?>
@@ -157,16 +230,24 @@ if ($variant === 'icon' && $visualStyle === 'new') {
                     <?php else: ?>
                     <article class="feature-card"<?= $explicitSlider ? ' data-carousel-item' : '' ?>>
                     <?php endif; ?>
+                        <?php // «В строке с заголовком»: заголовок уходит в верхнюю
+                              // строку, к иконке, а номер прижимается вправо — так
+                              // карточка ниже, и в ряд их влезает больше. ?>
                         <div class="feature-card__top">
                             <?php if ($hasIcon): ?>
                                 <span class="feature-card__icon" aria-hidden="true"><?= Icon::render($item['icon_svg'], $iconSize) ?></span>
                             <?php else: ?>
                                 <span class="feature-card__spacer"></span>
                             <?php endif; ?>
-                            <span class="feature-card__num" aria-hidden="true"><?= sprintf('%02d', $index + 1) ?></span>
+                            <?php if ($iconPosition === 'inline'): ?>
+                                <h3 class="feature-card__title"><?= htmlspecialchars((string) ($item['title'] ?? ''), ENT_QUOTES) ?></h3>
+                            <?php endif; ?>
+                            <?php if ($numbering): ?><span class="feature-card__num" aria-hidden="true"><?= sprintf('%02d', $index + 1) ?></span><?php endif; ?>
                         </div>
                         <div class="feature-card__content">
-                            <h3 class="feature-card__title"><?= htmlspecialchars((string) ($item['title'] ?? ''), ENT_QUOTES) ?></h3>
+                            <?php if ($iconPosition !== 'inline'): ?>
+                                <h3 class="feature-card__title"><?= htmlspecialchars((string) ($item['title'] ?? ''), ENT_QUOTES) ?></h3>
+                            <?php endif; ?>
                             <?php if (!empty($item['text'])): ?><p class="feature-card__text"><?= htmlspecialchars((string) $item['text'], ENT_QUOTES) ?></p><?php endif; ?>
                         </div>
                     <?php if ($url !== ''): ?></a><?php else: ?></article><?php endif; ?>

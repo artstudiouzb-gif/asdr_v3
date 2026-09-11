@@ -330,78 +330,18 @@ summary:focus-visible {
     font-weight: 600;
 }/* Колонки задаёт шаблон блока (--adv-cols) по числу карточек, чтобы в
    последнем ряду не оставалась одна карточка. auto-fit оставлен запасным
-   вариантом на случай, если переменная не пришла. *//* Дорожки и ширину карточки считает App\Core\GridBalance: последний ряд
-   растягивается на всю ширину, пустых ячеек справа не остаётся. */
+   вариантом на случай, если переменная не пришла. *//* Ряды без дыр: дорожки и ширину карточки считает App\Core\GridBalance, и
+   хвост последнего ряда растягивается на свободные ячейки. Правило живёт у
+   сетки карточек: «Преимущества» переехали в «Карточки», и второй сетки с тем
+   же смыслом больше нет.
 
-.block-advantages__grid { display: grid; grid-template-columns: repeat(var(--grid-track, 3), minmax(0, 1fr)); gap: 24px; }
-.block-advantages__item { grid-column: span var(--grid-span, 1); }
+   Всё остальное оформление карточки — у самого `.feature-card` в теме: пока
+   у «Преимуществ» был свой набор правил, он молча расходился с общим (у них,
+   например, осталась синеватая подложка иконки, хотя у «Карточек» её давно
+   сменили на тон акцента). */
+.cards-grid > .feature-card { grid-column: span var(--grid-span, 1); }
 @media (max-width: 900px) {
-    .block-advantages__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .block-advantages__item { grid-column: auto; }
-}
-@media (max-width: 560px) {
-    .block-advantages__grid { grid-template-columns: 1fr; }
-    .block-advantages__item { grid-column: auto; }
-}
-.block-advantages__item {
-    /* Текст по левому краю: центровка на абзаце в 250 знаков даёт рваные
-       края и читается заметно хуже. */
-    text-align: left;
-    padding: 30px 24px;
-    background: var(--gov-surface);
-    border: 1px solid var(--gov-border);
-    border-radius: var(--radius, 12px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s ease;
-}
-.block-advantages__item h3,
-.block-advantages__item p {
-    /* Расстояния внутри карточки задаёт gap: собственные margin заголовка
-       (1.4rem сверху) складывались с ним и разрывали карточку. */
-    margin: 0;
-}
-.block-advantages__item h3 {
-    transition: color 0.3s ease;
-}
-.block-advantages__item:hover h3 {
-    color: var(--gov-teal-text);
-}
-.block-advantages__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--gov-teal) 8%, transparent);
-    color: var(--gov-teal);
-    margin-bottom: 16px;
-    font-size: 28px;
-    transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease;
-}
-.block-advantages__item:hover .block-advantages__icon {
-    background: var(--gov-teal);
-    color: #fff;
-}
-@keyframes advantages-icon-float {
-    0%, 100% { transform: translateY(0) scale(1.08); }
-    50% { transform: translateY(-7px) scale(1.08); }
-}
-@media (prefers-reduced-motion: no-preference) {
-    .block-advantages__item:hover .block-advantages__icon,
-    .block-advantages__item:focus-within .block-advantages__icon {
-        animation: advantages-icon-float 1.8s ease-in-out infinite;
-    }
-}
-@media (prefers-reduced-motion: reduce) {
-    .block-advantages__item,
-    .block-advantages__icon { transition: none; }
-    .block-advantages__item:hover { transform: none; }
-    .block-advantages__item:hover .block-advantages__icon,
-    .block-advantages__item:focus-within .block-advantages__icon {
-        animation: none;
-        transform: none;
-    }
+    .cards-grid > .feature-card { grid-column: auto; }
 }
 
 .block-slider { position: relative; overflow: hidden; border-radius: var(--radius, 12px); }
@@ -917,8 +857,7 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .block-team__unit { margin-top: 26px; }
 .block-team__unit-title { margin: 0 0 14px; font-size: var(--step-0); font-weight: 700; color: var(--text-muted); }/* SVG-иконка в блоке преимуществ (группа 4.3) */
 
-.block-advantages__icon--svg svg { width: 48px; height: 48px; display: block; margin: 0 auto; }
-.block-advantages__icon--svg svg [fill]:not([fill="none"]) { fill: currentColor; }/* FAQ / аккордеон (группа 6) */
+/* FAQ / аккордеон (группа 6) */
 
 .faq-item:hover {
     border-color: color-mix(in srgb, var(--gov-teal) 35%, var(--gov-border));
@@ -2619,7 +2558,7 @@ img.block-hero__button-icon { width: 20px; height: 20px; object-fit: contain; }
 .cms-empty-notice span { color: var(--text-muted, #666); }
 .cms-empty-notice__edit { margin-left: auto; font-weight: 600; white-space: nowrap; }/* --- Интерактивный Spotlight-блик при наведении --- */
 
-.cat-tile, .contact-card, .project-card, .team-card, .feature-card, .news-card, .person-card, .album-card, .doc-card, .act-card, .catcard, .testimonial, .block-advantages__item, .mediacard, .imgcard, .faq-item,
+.cat-tile, .contact-card, .project-card, .team-card, .feature-card, .news-card, .person-card, .album-card, .doc-card, .act-card, .catcard, .testimonial, .mediacard, .imgcard, .faq-item,
 .btn, .block-cta__button, .btn-cta, .block-hero__button, .timeline-card__button, .timeline-cta__button,
 .a11y-toggle, .site-theme-toggle, .site-search-toggle {
     position: relative;
@@ -2630,7 +2569,7 @@ img.block-hero__button-icon { width: 20px; height: 20px; object-fit: contain; }
 .stage, .timeline-item {
     overflow: visible;
 }
-.cat-tile::before, .contact-card::before, .project-card::before, .team-card::before, .feature-card::before, .news-card::before, .person-card::before, .album-card::before, .doc-card::before, .act-card::before, .catcard::before, .testimonial::before, .block-advantages__item::before, .mediacard::before, .imgcard::before, .faq-item::before,
+.cat-tile::before, .contact-card::before, .project-card::before, .team-card::before, .feature-card::before, .news-card::before, .person-card::before, .album-card::before, .doc-card::before, .act-card::before, .catcard::before, .testimonial::before, .mediacard::before, .imgcard::before, .faq-item::before,
 .block-icon-text--cards .icon-text__card::before,
 .btn::before, .block-cta__button::before, .btn-cta::before, .block-hero__button::before, .timeline-card__button::before, .timeline-cta__button::before,
 .a11y-toggle::before, .site-theme-toggle::before, .site-search-toggle::before {
@@ -2644,7 +2583,7 @@ img.block-hero__button-icon { width: 20px; height: 20px; object-fit: contain; }
     pointer-events: none;
     z-index: 1;
 }
-.cat-tile:hover::before, .contact-card:hover::before, .project-card:hover::before, .team-card:hover::before, .feature-card:hover::before, .news-card:hover::before, .person-card:hover::before, .album-card:hover::before, .doc-card:hover::before, .act-card:hover::before, .catcard:hover::before, .testimonial:hover::before, .block-advantages__item:hover::before, .mediacard:hover::before, .imgcard:hover::before, .faq-item:hover::before,
+.cat-tile:hover::before, .contact-card:hover::before, .project-card:hover::before, .team-card:hover::before, .feature-card:hover::before, .news-card:hover::before, .person-card:hover::before, .album-card:hover::before, .doc-card:hover::before, .act-card:hover::before, .catcard:hover::before, .testimonial:hover::before, .mediacard:hover::before, .imgcard:hover::before, .faq-item:hover::before,
 .block-icon-text--cards .icon-text__card:hover::before,
 .btn:hover::before, .block-cta__button:hover::before, .btn-cta:hover::before, .block-hero__button:hover::before, .timeline-card__button:hover::before, .timeline-cta__button:hover::before,
 .a11y-toggle:hover::before, .site-theme-toggle:hover::before, .site-search-toggle:hover::before {
@@ -2661,7 +2600,7 @@ input[type="text"], input[type="email"], input[type="password"], input[type="sea
     .cat-tile::before, .contact-card::before, .project-card::before, .team-card::before,
     .feature-card::before, .news-card::before, .person-card::before, .album-card::before,
     .doc-card::before, .act-card::before, .catcard::before, .testimonial::before,
-    .block-advantages__item::before, .mediacard::before, .imgcard::before,
+    .mediacard::before, .imgcard::before,
     .faq-item::before, .block-icon-text--cards .icon-text__card::before,
     .btn::before, .block-cta__button::before, .btn-cta::before,
     .block-hero__button::before, .timeline-card__button::before,

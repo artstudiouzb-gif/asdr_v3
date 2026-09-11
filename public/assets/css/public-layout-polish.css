@@ -227,35 +227,9 @@
 }
 
 /* About page / advantages */
-.block-advantages__grid {
+.cards-grid {
     grid-template-columns: repeat(var(--grid-track, 3), minmax(0, 1fr));
     gap: 18px;
-}
-
-.block-advantages__item:not(.feature-card) {
-    min-height: 100%;
-    padding: clamp(22px, 2.3vw, 30px);
-    gap: 16px;
-    border-radius: var(--page-card-radius);
-    box-shadow: var(--page-soft-shadow);
-}
-
-.block-advantages__item:not(.feature-card) .block-advantages__icon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-sm, 12px);
-}
-
-.block-advantages__item:not(.feature-card) h3,
-.block-advantages__item:not(.feature-card) .card__title {
-    margin: 0;
-    font-size: var(--font-size-card-title, var(--step-1));
-    line-height: 1.28;
-}
-
-.block-advantages__item:not(.feature-card) p {
-    font-size: var(--font-size-card-text, var(--step--1));
-    line-height: 1.62;
 }
 
 /* Development stages */
@@ -508,7 +482,7 @@
 
 /* Responsive */
 @media (max-width: 1100px) {
-    .block-advantages__grid {
+    .cards-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -516,7 +490,6 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .block-advantages__item:not(.feature-card),
     .persons-grid > .person-card {
         grid-column: auto;
     }
@@ -587,7 +560,7 @@
 }
 
 @media (max-width: 560px) {
-    .block-advantages__grid,
+    .cards-grid,
     .persons-grid {
         grid-template-columns: 1fr;
     }
@@ -600,7 +573,6 @@
         font-size: var(--font-size-body, var(--step-0));
     }
 
-    .block-advantages__item:not(.feature-card),
     .bio-edu {
         padding: 20px;
     }

@@ -50,9 +50,10 @@ return [
                         ],
                         'quote' => '',
                     ]],
-                    ['advantages', 'Направления работы', [
+                    ['cards_grid', 'Направления работы', [
                         '_reveal' => ['enabled' => true, 'type' => 'stagger'],
-                        'variant' => 'indexed',
+                        'variant' => 'icon',
+                        'numbering' => true,
                         'title' => 'Чем занимается Агентство',
                         'description' => '<p>Агентство участвует во всём цикле стратегического планирования — от анализа и подготовки инициатив до мониторинга их реализации и оценки достигнутых результатов.</p>',
                         'items' => [
@@ -143,9 +144,10 @@ return [
                         ],
                         'quote' => '',
                     ]],
-                    ['advantages', 'Faoliyat yo‘nalishlari', [
+                    ['cards_grid', 'Faoliyat yo‘nalishlari', [
                         '_reveal' => ['enabled' => true, 'type' => 'stagger'],
-                        'variant' => 'indexed',
+                        'variant' => 'icon',
+                        'numbering' => true,
                         'title' => 'Agentlik nima bilan shug‘ullanadi?',
                         'description' => '<p>Agentlik strategik rejalashtirishning barcha bosqichlarida — vaziyatni tahlil qilish va tashabbuslarni ishlab chiqishdan tortib, ularning amalga oshirilishini monitoring qilish va natijadorligini baholashgacha ishtirok etadi.</p>',
                         'items' => [
@@ -236,9 +238,10 @@ return [
                         ],
                         'quote' => '',
                     ]],
-                    ['advantages', 'Areas of work', [
+                    ['cards_grid', 'Areas of work', [
                         '_reveal' => ['enabled' => true, 'type' => 'stagger'],
-                        'variant' => 'indexed',
+                        'variant' => 'icon',
+                        'numbering' => true,
                         'title' => 'What the Agency Does',
                         'description' => '<p>The Agency is involved throughout the strategic planning cycle — from analysis and the development of new initiatives to implementation monitoring and evaluation of results.</p>',
                         'items' => [
