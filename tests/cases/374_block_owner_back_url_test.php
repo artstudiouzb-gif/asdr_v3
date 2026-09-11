@@ -54,6 +54,18 @@ test('Конструктор и его редиректы не пишут раз
     $pageController = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/PageController.php');
     // Копирование блоков другого языка возвращает туда же, откуда пришли.
     assert_contains('BlockOwner::editUrlFor($owner', $pageController, 'копирование блоков: возврат через BlockOwner');
+
+    $blockController = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/BlockController.php');
+    assert_contains(
+        "header('Location: /admin/blocks/' . (int) \$block['id'] . '/edit?draft_saved=block%3A'",
+        $blockController,
+        'после сохранения редактор должен остаться в форме текущего блока'
+    );
+    assert_not_contains(
+        "pageEditUrl(\$block) . '&draft_saved=block%3A'",
+        $blockController,
+        'сохранение не должно автоматически возвращать к странице или проекту'
+    );
 });
 
 test('Форма блока подписывает кнопку по владельцу', function () {
