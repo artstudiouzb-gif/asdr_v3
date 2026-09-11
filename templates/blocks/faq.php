@@ -10,7 +10,7 @@ $categories = array_values(array_unique(array_filter(array_map(
 ))));
 ?>
 <div class="block-faq" data-faq-list<?= $singleOpen ? ' data-faq-single' : '' ?>>
-    <?php if ($title !== ''): ?><h2 class="block-faq__title"><?= \App\Core\TitleMarkup::html($title) ?></h2><?php endif; ?>
+    <?= \App\Core\SectionHead::render(['title' => $title]) ?>
     <?php if ($searchEnabled && count($items) >= 4): ?>
         <div class="faq-tools" role="search" aria-label="<?= htmlspecialchars(t('Поиск по вопросам'), ENT_QUOTES) ?>">
             <label class="faq-tools__search">

@@ -52,7 +52,7 @@
    ============================================================================ */
 
 /* --- Полоса статистики (counters): спокойная цельная карта без стекла --- */
-.block-counters__title { color: var(--counters-text, var(--gov-title)); }
+.block-counters .section-head__title { color: var(--counters-text, var(--gov-title)); }
 .block-counters__grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; }
 .counter { 
     border: 0; 
@@ -65,6 +65,9 @@
     align-items: flex-start; 
     gap: 14px; 
 }
+/* Разделитель рисует сам показатель, поэтому у последнего его нет:
+   иначе полоса заканчивается чертой в пустоту. */
+.counter:last-child { border-right: 0; }
 .counter__value, .counter__suffix { color: var(--counters-text, var(--gov-title)) !important; font-family: var(--font-family, 'Noto Sans', sans-serif); font-weight: 700; font-size: var(--step-8); line-height: 1; }
 /* Плотный межстрочный: подпись из 2–3 слов не должна «рассыпаться». */
 .counter__label { color: var(--counters-text, var(--gov-muted)); font-size: var(--step--2); line-height: 1.35; margin: 4px 0 0; transition: color 0.3s ease; }
@@ -204,14 +207,8 @@
     border-color: var(--gov-teal);
 }
 
-.counter {
-    border-right: 1px solid var(--gov-border);
-}
 .counter:hover {
     transform: none;
-}
-.counter:last-child {
-    border-right: 0;
 }
 
 .counter__value, .counter__suffix {
