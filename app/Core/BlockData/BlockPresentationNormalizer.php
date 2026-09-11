@@ -71,7 +71,15 @@ final class BlockPresentationNormalizer
             $mode = 'preset';
         }
 
-        $color = self::color($input['bg_color'] ?? null);
+        // У CTA и Hero есть собственное поле `bg_color`. Общая заливка
+        // секции приходит под отдельным именем, иначе два одноимённых input
+        // в форме перезаписывают друг друга ещё до нормализации PHP. Старое
+        // имя принимаем для импортов, API и ранее написанных тестов.
+        $colorField = array_key_exists('section_bg_color', $input)
+            || array_key_exists('section_bg_color_off', $input)
+            ? 'section_bg_color'
+            : 'bg_color';
+        $color = BlockDataInput::optionalColor($input, $colorField);
         $from = self::color($input['bg_gradient_from'] ?? null);
         $to = self::color($input['bg_gradient_to'] ?? null);
         $image = trim(self::scalarString($input['bg_image'] ?? null));
