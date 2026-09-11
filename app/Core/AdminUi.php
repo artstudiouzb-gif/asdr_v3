@@ -301,6 +301,80 @@ final class AdminUi
     }
 
     /**
+     * Выбор варианта отображения — плитками со схемой раскладки.
+     *
+     * Раньше это был выпадающий список, и он отвечал на вопрос «как это будет
+     * выглядеть» словом, а не видом: чтобы отличить «Мозаику» от «Колонок»,
+     * редактор выбирал значение, сохранял блок и открывал страницу — то есть
+     * проверял выбор публикацией. Плитка с миниатюрой показывает раскладку до
+     * сохранения.
+     *
+     * Управление одно — радиокнопки: без JavaScript выбор работает так же, а
+     * скрытый `<select>` рядом стал бы вторым элементом управления с тем же
+     * именем (тот же случай, что у поля цвета с его подписанной галочкой).
+     *
+     * Пояснение к варианту приходит рядом с рисунком, одним списком: оно
+     * отвечает на вопрос «чем это отличается от соседнего», на который
+     * название («Карточки», «Мозаика») не отвечает.
+     *
+     * @param array<string, string> $options значение → подпись
+     * @param array<string, array{0: string, 1: string}> $variants
+     *        значение → [схема раскладки (`VariantPreview`), пояснение]
+     */
+    public static function variantField(
+        string $name,
+        string $value,
+        array $options,
+        array $variants,
+        string $label,
+        string $hint = '',
+        string $id = ''
+    ): string {
+        $esc = static fn (string $s): string => htmlspecialchars($s, ENT_QUOTES);
+        $base = $id !== '' ? $id : 'vf_' . trim((string) preg_replace('/[^a-z0-9_]+/i', '_', $name), '_');
+        if (!array_key_exists($value, $options)) {
+            $value = (string) array_key_first($options);
+        }
+
+        $html = '<fieldset class="variant-field" data-variant-field>';
+        $html .= '<legend class="variant-field__legend">' . $esc($label) . '</legend>';
+        $html .= '<div class="variant-field__grid">';
+
+        $index = 0;
+        foreach ($options as $key => $text) {
+            $key = (string) $key;
+            $optionId = $base . '_' . $index++;
+            $name_ = (string) $text;
+            [$shape, $note] = $variants[$key] ?? ['', ''];
+            $thumb = $shape !== '' ? VariantPreview::svg($shape) : '';
+            $shapeLabel = $shape !== '' ? VariantPreview::label($shape) : '';
+
+            $html .= '<input class="variant-card__input" type="radio" id="' . $esc($optionId) . '" name="' . $esc($name)
+                . '" value="' . $esc($key) . '"' . ($key === $value ? ' checked' : '') . '>';
+            $html .= '<label class="variant-card" for="' . $esc($optionId) . '">';
+            $html .= $thumb;
+            $html .= '<span class="variant-card__name">' . $esc($name_) . '</span>';
+            if ($note !== '') {
+                $html .= '<span class="variant-card__note">' . $esc($note) . '</span>';
+            }
+            // Диктору набор прямоугольников не говорит ничего, а подпись
+            // называет замысел, а не раскладку: описание схемы идёт словами.
+            if ($shapeLabel !== '') {
+                $html .= '<span class="visually-hidden">Раскладка: ' . $esc($shapeLabel) . '</span>';
+            }
+            $html .= '</label>';
+        }
+
+        $html .= '</div>';
+        if ($hint !== '') {
+            $html .= '<span class="form-hint">' . $esc($hint) . '</span>';
+        }
+        $html .= '</fieldset>';
+
+        return $html;
+    }
+
+    /**
      * Два одинаковых набора пресетов кадрирования: для широкого и мобильного
      * экрана. Произвольный CSS не принимается.
      */
