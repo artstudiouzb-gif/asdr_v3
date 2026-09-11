@@ -222,6 +222,10 @@ test('Репитеры блоков различают свои наборы с�
     $editor = block_editor_markup();
 
     assert_contains('items[__INDEX__][icon_color]', $editor, '«Иконка и текст»: цвет иконки строки');
+    assert_contains('AdminUi::colorField(', $editor,
+        '«Иконка и текст»: цвет должен использовать единый компонент выбора');
+    assert_contains("'Цвет сайта'", $editor,
+        '«Иконка и текст»: компонент должен объяснять возврат к цвету сайта');
     assert_contains('items[__INDEX__][rows]', $editor, '«Иконка и текст»: строки карточки');
     assert_contains('items[__INDEX__][label]', $editor, '«Карточка руководителя»: подпись строки');
     assert_contains('items[__INDEX__][value]', $editor, '«Карточка руководителя»: значение строки');

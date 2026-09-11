@@ -392,6 +392,19 @@ test('Стили обложки: фон вне потока, навигация 
         'системная настройка «меньше движения» учтена');
     assert_true(strpos($css, '[data-a11y-motion="off"] .hero') !== false,
         'тумблер остановки анимаций из панели настроек учтён');
+
+    // Кнопки нового модуля повторяют проверенную геометрию обычного Hero:
+    // высота 50px, иконка 46px и тот же периодический блик.
+    assert_true(preg_match('/\.hero__cta\s*\{[^}]*height:\s*50px/', $css) === 1,
+        'высота CTA должна совпадать с обычным Hero');
+    assert_true(preg_match('/\.hero__cta-icon\s*\{[^}]*width:\s*46px[^}]*height:\s*46px/', $css) === 1,
+        'иконка CTA должна заполнять кнопку по высоте');
+    assert_contains('.hero__cta:not(.hero__cta--link)::after', $css,
+        'у кнопки обложки пропал эффект блеска');
+    assert_contains('animation: hero-cta-shimmer 6s infinite ease-in-out', $css,
+        'периодический блик кнопки не запущен');
+    assert_contains('.hero__cta::after { content: none; animation: none; }', $css,
+        'эффект блеска обязан отключаться при уменьшении движения');
 });
 
 test('Навигация обложки: одна капсула, видимая всегда', function () {

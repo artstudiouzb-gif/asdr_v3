@@ -742,10 +742,11 @@ final class BlockController
                     }
                     $iconRows[] = [
                         'icon_svg' => $icon,
-                        // Пустой цвет = оттенок акцента сайта. Мусор в поле не
-                        // должен попасть в разметку, поэтому нормализуем тем же
-                        // помощником, что и цвет метки новости.
-                        'icon_color' => \App\Core\NewsBadge::normalizeColor($item['icon_color'] ?? ''),
+                        // Пустой цвет = оттенок акцента сайта. Единый компонент
+                        // присылает `icon_color_off` при возврате к нему, поэтому
+                        // читаем цвет тем же способом, что остальные необязательные
+                        // цвета админки, а не сохраняем показанный образец.
+                        'icon_color' => \App\Core\BlockData\BlockDataInput::optionalColor($item, 'icon_color'),
                         'rows' => TextProcessor::typographPlain($rows, $locale),
                     ];
                 }

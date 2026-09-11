@@ -45,13 +45,19 @@ test('Hero navigation: a single video has a pause control but no slide arrows', 
 
 test('Hero renderer: pause precedes slide links and enhancement owns inert state', function (): void {
     $slides = [
-        ['data' => HeroSlideData::withDefaults(['title' => 'One', 'link_url' => '/one'])],
+        ['data' => HeroSlideData::withDefaults([
+            'title' => 'One', 'link_url' => '/one',
+            'cta_enabled' => true, 'cta_text' => 'Open', 'cta_url' => '/open', 'cta_icon' => 'arrow-right',
+        ])],
         ['data' => HeroSlideData::withDefaults(['title' => 'Two', 'link_url' => '/two'])],
     ];
     $html = HeroRenderer::render(['name' => 'Demo'], $slides, HeroSettings::withDefaults(['autoplay' => true]), 15)['html'];
     assert_true(strpos($html, 'data-hero-toggle') < strpos($html, 'href="/one"'));
     assert_not_contains(' inert', $html);
     assert_contains('aria-atomic="true"', $html);
+    assert_contains('hero__cta hero__cta--primary hero__cta--with-icon', $html);
+    assert_contains('hero__cta-icon', $html);
+    assert_contains('width="46" height="46"', $html, 'рендерер не должен возвращать отдельный мелкий размер иконки');
 });
 
 test('Hero navigation: static image needs no motion control; Ken Burns does', function (): void {

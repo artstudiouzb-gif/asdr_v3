@@ -19,9 +19,9 @@ use App\Core\Hero\HeroSettings;
  */
 test('Образец цвета не выключается, а выбор снимает галочку «по умолчанию»', function () {
     $js = (string) file_get_contents(APP_ROOT . '/public/assets/js/admin.js');
-    $start = strpos($js, "document.querySelectorAll('.colorfield')");
+    $start = strpos($js, 'function enhanceColorFields(root)');
     assert_true($start !== false, 'в admin.js должен остаться обработчик полей цвета');
-    $block = substr($js, (int) $start, 4000);
+    $block = substr($js, (int) $start, 5000);
 
     assert_not_contains(
         'color.disabled',
@@ -38,6 +38,10 @@ test('Образец цвета не выключается, а выбор сн�
         $block,
         'иначе выбранный цвет уйдёт на сервер вместе с галочкой и будет отброшен'
     );
+    assert_contains('window.__enhanceColorFields = enhanceColorFields;', $js,
+        'поля цвета, добавленные репитером, должны получать тот же компонент');
+    assert_contains('window.__enhanceColorFields(wrapper)', $js,
+        'новая строка репитера должна сразу подключать выбор цвета');
 });
 
 /*

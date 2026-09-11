@@ -86,6 +86,12 @@ test('Поле цвета показывает состояние и возвр�
         'кнопка возврата обязана приходить скрытой'
     );
 
+    $nested = AdminUi::colorField('items[3][icon_color]', '', 'Цвет иконки', '#009bbe', 'Цвет сайта');
+    assert_contains('name="items[3][icon_color_off]"', $nested,
+        'флаг умолчания вложенного поля должен попасть в тот же элемент репитера');
+    assert_not_contains('name="items[3][icon_color]_off"', $nested,
+        'суффикс после закрывающей скобки PHP не разбирает как соседний ключ');
+
     $js = (string) file_get_contents(APP_ROOT . '/public/assets/js/admin.js');
     assert_contains("group.classList.add('is-enhanced')", $js, 'со скриптом поле переходит на одно управление');
     assert_contains('adminThemeMode()', $js, 'пикер обязан спрашивать текущий внешний вид панели');
