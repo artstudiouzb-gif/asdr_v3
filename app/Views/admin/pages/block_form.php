@@ -2,8 +2,15 @@
 
 use App\Core\Csrf;
 
+/** @var array<string, mixed> $block */
+/** @var array $data */
+/** @var array $forms */
+/** @var array $widgets */
+/** @var string|null $error */
+
 // Владелец блока — страница или проект: от него зависят и подпись кнопки
-// возврата, и подсвеченный раздел бокового меню.
+// возврата, и подсвеченный раздел бокового меню. Считается до шапки: раздел
+// меню подсвечивает она.
 $blockOwner = \App\Models\Page::findById((int) $block['page_id']) ?? [];
 $blockOwner['id'] = (int) $block['page_id'];
 $ownerIsProject = \App\Core\BlockOwner::isProject($blockOwner);
@@ -11,12 +18,6 @@ $ownerIsProject = \App\Core\BlockOwner::isProject($blockOwner);
 $pageTitle = 'Редактирование блока';
 $activeNav = $ownerIsProject ? 'projects' : 'pages';
 require __DIR__ . '/../layout/header.php';
-
-/** @var array $block */
-/** @var array $data */
-/** @var array $forms */
-/** @var array $widgets */
-/** @var string|null $error */
 
 $type = $block['type'];
 $error = $error ?? null;

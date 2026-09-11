@@ -44,7 +44,11 @@ final class BlockOwner
         return (string) ($page['entity_type'] ?? 'page') === 'project';
     }
 
-    /** Адрес формы владельца; язык блоков необязателен. */
+    /**
+     * Адрес формы владельца; язык блоков необязателен.
+     *
+     * @param array<string, mixed> $page строка `pages`
+     */
     public static function editUrlFor(array $page, string $lang = ''): string
     {
         return self::withLang(self::baseFor($page), $lang);
