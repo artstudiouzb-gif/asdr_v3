@@ -380,7 +380,9 @@
 
 .hero__cta:not(.hero__cta--link):hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px color-mix(in srgb, var(--hero-accent) 30%, transparent);
+    /* Та же тень уже используется кнопкой обычного Hero: новая ступень в
+       палитре теней ради идентичного поведения не нужна. */
+    box-shadow: 0 8px 20px rgba(22, 64, 110, .3);
 }
 
 /* Обычный Hero использует кнопку высотой 50px и зону иконки 46px. Обложка
