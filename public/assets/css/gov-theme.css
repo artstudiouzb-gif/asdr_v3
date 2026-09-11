@@ -2683,9 +2683,9 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
         min-width: 0;
         scroll-snap-align: start;
     }
-}/* Общей полосы во всю ширину нет намеренно: она продолжалась за последнюю
-   точку и выглядела оборванным хвостом. Линию собирают отрезки между
-   этапами — поэтому она заканчивается ровно на последней точке. */
+}/* Общей полосы во всю ширину нет намеренно: соединения собираются из
+   отрезков между этапами, а после последней точки остаётся только короткий
+   пунктир — обозначение продолжения, а не завершённого процесса. */
 
 .stage:not(:last-child)::before {
     content: '';
@@ -2703,6 +2703,16 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     background: linear-gradient(90deg, var(--gov-teal) 0%, var(--gov-teal) 100%);
 }
 .stage--active.stage--next-active::before { background: var(--gov-teal); }
+.stage:last-child::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: 5px;
+    left: 0;
+    width: clamp(48px, 45%, 96px);
+    border-top: 2px dashed color-mix(in srgb, var(--gov-teal) 45%, var(--gov-border));
+    pointer-events: none;
+}
 @media (max-width: 1000px) and (min-width: 561px) {/* В два столбца (правило выше) отрезки соединяли бы этапы из разных
        строк — прячем их, точки остаются. */
     
