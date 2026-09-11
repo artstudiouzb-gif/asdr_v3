@@ -39,7 +39,6 @@ final class BlockSamples
     /** @return array<string, array<string,mixed>> */
     public static function all(?string $lang = null): array
     {
-        $person = static fn (string $role): array => ['name' => 'Фамилия Имя Отчество', 'role' => $role, 'position' => $role, 'photo' => '', 'url' => ''];
         // Раздел новостей есть на любом сайте — это безопасный адрес для
         // кнопок образца (кнопка без ссылки на сайте не отображается).
         $news = Locale::url('news', $lang);
@@ -130,9 +129,6 @@ final class BlockSamples
             'media_gallery' => ['title' => 'Медиа', 'source' => 'manual', 'limit' => 8, 'items' => [
                 ['kind' => 'photo', 'title' => 'Название материала', 'image' => '', 'url' => $news, 'meta' => '', 'text' => ''],
                 ['kind' => 'photo', 'title' => 'Второй материал', 'image' => '', 'url' => $news, 'meta' => '', 'text' => ''],
-            ]],
-            'person_cards' => ['title' => 'Руководство', 'items' => [
-                $person('Директор'), $person('Заместитель директора'),
             ]],
             'icon_text' => [
                 'title' => 'Полезные телефоны',
@@ -227,13 +223,6 @@ final class BlockSamples
                 'bio' => '<p>' . self::LEAD . '</p>',
                 'duties_title' => 'Функции',
                 'duties' => '<p>' . self::LEAD . '</p>',
-            ],
-            'person_profile' => [
-                'photo' => '', 'name' => 'Фамилия Имя Отчество', 'position' => 'Должность',
-                'text' => self::LEAD,
-                'phone' => '+998 (71) 000-00-00', 'phone_label' => 'Приёмная:',
-                'email' => 'info@example.uz', 'email_label' => 'E-mail:',
-                'button_text' => '', 'button_url' => '',
             ],
             'bio_education' => [
                 'bio_title' => 'Биография',

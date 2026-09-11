@@ -103,10 +103,8 @@
 | `cards_grid` | Карточки | `variant`, `title`, `all_text`, `all_url`, `columns`, `card_bg`, `text_color`, `source`, `limit`, `image_position`, `image_position_mobile`, `items` |
 | `media_gallery` | Медиагалерея | `title`, `description`, `all_text`, `all_url`, `source`, `limit`, `paginate`, `columns`, `ratio`, `items` |
 | `news_feature` | Новости и аналитика | `variant`, `title`, `all_text`, `all_url`, `limit`, `category` |
-| `person_cards` | Карточки персон | `title`, `description`, `all_text`, `all_url`, `columns`, `items` |
 | `timeline` | Хронология | `title`, `description`, `items`, `button_text`, `button_url`, `cta_title`, `cta_text`, `cta_button_text`, `cta_button_url`, `cta_image` |
 | `news_docs` | Новости и документы | `news_title`, `news_all_text`, `news_all_url`, `limit`, `category`, `docs_title`, `docs_all_text`, `docs_all_url`, `docs` |
-| `person_profile` | Профиль персоны | `photo`, `photo_side`, `name`, `position`, `text`, `phone`, `phone_label`, `email`, `email_label`, `button_text`, `button_url`, `button2_text`, `button2_url`, `telegram`, `facebook`, `linkedin`, `x`, `instagram` |
 | `bio_education` | Биография и образование | `bio_title`, `bio_text`, `career_title`, `career`, `edu_title`, `edu_items`, `extra_title`, `extra_text`, `widgets_before`, `widgets_after`, `quote_text`, `quote_author` |
 | `anchor_nav` | Якорная навигация | `items`, `auto`, `sticky` |
 | `stages` | Этапы | `variant`, `title`, `description`, `all_text`, `all_url`, `columns`, `autoplay`, `items` |

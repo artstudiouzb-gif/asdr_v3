@@ -1284,42 +1284,6 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             </div>
         <?php endif; ?>
 
-        <?php if ($type === 'person_cards'): ?>
-            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('person_cards', $data) ?>
-            <div>
-                <label>Персоны (без фото и имени — карточка «Вакантно»)</label>
-                <div data-repeater="items">
-                    <?php foreach (($data['items'] ?? []) as $i => $item): ?>
-                        <div class="repeater-row">
-                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
-                            <?= \App\Core\AdminUi::imageField('items[' . $i . '][photo]', (string) ($item['photo'] ?? ''), ['label' => 'Фото']) ?>
-                            <div class="form-field"><label>Имя</label><input type="text" name="items[<?= $i ?>][name]" value="<?= htmlspecialchars($item['name'] ?? '', ENT_QUOTES) ?>"></div>
-                            <div class="form-field"><label>Должность</label><input type="text" name="items[<?= $i ?>][role]" value="<?= htmlspecialchars($item['role'] ?? '', ENT_QUOTES) ?>"></div>
-                            <div class="form-field"><label>Телефон</label><input type="text" name="items[<?= $i ?>][phone]" value="<?= htmlspecialchars($item['phone'] ?? '', ENT_QUOTES) ?>" placeholder="+998 71 200-00-00"></div>
-                            <div class="form-field"><label>E-mail</label><input type="text" name="items[<?= $i ?>][email]" value="<?= htmlspecialchars($item['email'] ?? '', ENT_QUOTES) ?>"></div>
-                            <div class="form-field"><label>Ссылка «Подробнее»</label><input type="text" name="items[<?= $i ?>][url]" value="<?= htmlspecialchars($item['url'] ?? '', ENT_QUOTES) ?>"></div>
-                            <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
-                            <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
-                            <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <template data-repeater-template="items">
-                    <?= \App\Core\AdminUi::imageField('items[__INDEX__][photo]', '', ['label' => 'Фото']) ?>
-                    <div class="form-field"><label>Имя</label><input type="text" name="items[__INDEX__][name]"></div>
-                    <div class="form-field"><label>Должность</label><input type="text" name="items[__INDEX__][role]"></div>
-                    <div class="form-field"><label>Телефон</label><input type="text" name="items[__INDEX__][phone]" placeholder="+998 71 200-00-00"></div>
-                    <div class="form-field"><label>E-mail</label><input type="text" name="items[__INDEX__][email]"></div>
-                    <div class="form-field"><label>Ссылка «Подробнее»</label><input type="text" name="items[__INDEX__][url]"></div>
-                    <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
-                    <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
-                    <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
-                </template>
-                <div class="repeater-actions"><button type="button" class="btn btn--small" data-repeater-add="items"><?= \App\Core\AdminUi::icon('plus') ?>Добавить персону</button></div>
-            </div>
-        <?php endif; ?>
-
-
         <?php if ($type === 'news_docs'): ?>
             <?= \App\Core\BlockData\BlockFieldSchema::formHtml('news_docs', $data) ?>
             <div>
@@ -1459,10 +1423,6 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             <p class="form-hint">Вкладка без заголовка и без содержимого не показывается. Цвет активной вкладки берётся из акцента сайта («Дизайн сайта»), отдельной настройки у блока нет.</p>
         <?php endif; ?>
 
-
-        <?php if ($type === 'person_profile'): ?>
-            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('person_profile', $data) ?>
-        <?php endif; ?>
 
         <?php if ($type === 'bio_education'): ?>
             <?= \App\Core\BlockData\BlockFieldSchema::formHtml('bio_education', $data, ['bio_title', 'bio_text', 'career_title']) ?>

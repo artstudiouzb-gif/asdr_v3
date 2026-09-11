@@ -214,8 +214,7 @@ html { font-size: var(--base-font-size, 16px); overflow-x: clip; }/* Загол�
 h1, h2, h3, h4, h5, h6,
 .section-title, .block-title, .card__title,
 .feature-card__title, .imgcard__title, .catcard__title, .catdetail__title, .gcal-list__title,
-.orgstruct__head-name, .person-card__name, .timeline-item__year, .ctaband__title,
-.profile__name, .profile__position, .bio__title, .block-text__title,
+.orgstruct__head-name, .timeline-item__year, .ctaband__title, .bio__title, .block-text__title,
 .featband__name, .bio-quote__mark, .widget__title, .bio-extra__title,
 .block-hero__title, .news-index__title, .content-list__head h1,
 .block-news__title, .block-categories__title,
@@ -1598,7 +1597,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
 :is(.act-card, .album-card, .block-testimonials__item, .cat-tile,
     .catcard, .catdetail__card, .contact-card, .content-card, .doc-card, .faq-item,
     .feature-card, .leader-card, .mediacard, .news-card, .news-poll-card, .newsdetail-card,
-    .newslist-lead, .person-card, .project-card, .relnews-card, .site-search-results__item,
+    .newslist-lead, .project-card, .relnews-card, .site-search-results__item,
     .social-embed-card, .team-card, .testimonial, .timeline-card, .widget--style-card) {
     --section-fg: var(--text-primary);
     --section-title-fg: var(--gov-title);
@@ -1615,14 +1614,13 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
 :root[data-theme="dark"] :is(.act-card, .album-card, .block-testimonials__item, .cat-tile,
     .catcard, .catdetail__card, .contact-card, .content-card, .doc-card, .faq-item,
     .feature-card, .leader-card, .mediacard, .news-card, .news-poll-card, .newsdetail-card,
-    .newslist-lead, .person-card, .project-card, .relnews-card, .site-search-results__item,
+    .newslist-lead, .project-card, .relnews-card, .site-search-results__item,
     .social-embed-card, .team-card, .testimonial, .timeline-card, .widget--style-card) {
     /* В тёмной теме поверхность карточки сама тёмная — акцент снова светлый. */
     --gov-teal-text: var(--gov-teal-on-dark);
 }
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline-offset: 2px; border-radius: 4px; }
 .cms-block--bg-navy a:focus-visible, .block-ctaband a:focus-visible, .featband a:focus-visible, .timeline-cta a:focus-visible { outline-color: #fff; }
-.section-head__all, .person-card__more { color: var(--gov-teal-text); }
 .media-tabs button, .media-tabs a { min-height: 32px; }
 @media (prefers-reduced-motion: reduce) {
     .imgcard__media, .feature-card, .news-card, .doc-card { transition: none; }
@@ -1633,7 +1631,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
    ============================================================================ *//* --- Карточки: классические, с мягкими контурами и микро-тенями --- */
 
 .news-card, .content-card, .contact-card, .cat-tile, .site-search-results__item,
-.block-testimonials__item, .testimonial, .team-card, .project-card, .person-card, .album-card,
+.block-testimonials__item, .testimonial, .team-card, .project-card, .album-card,
 .doc-card, .catcard, .catdetail__card, .widget--style-card {
     background: color-mix(in srgb, var(--gov-surface) 68%, transparent);
     backdrop-filter: blur(16px) saturate(180%);
@@ -1643,7 +1641,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
     transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s ease, background-color 0.35s ease;
 }
-.news-card:hover, .content-card:hover, .contact-card:hover, .cat-tile:hover, .team-card:hover, .project-card:hover, .person-card:hover, .album-card:hover,
+.news-card:hover, .content-card:hover, .contact-card:hover, .cat-tile:hover, .team-card:hover, .project-card:hover, .album-card:hover,
 .doc-card:hover, .catcard:hover, .catdetail__card:hover, .widget--style-card:hover {
     background: color-mix(in srgb, var(--gov-surface) 88%, transparent);
     box-shadow: 0 16px 36px rgba(19,42,92,.09);
@@ -2357,7 +2355,6 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     body[class] .block-hero__title { font-size: var(--step-6); }
     body[class] .section-head__title { font-size: var(--step-4); }
     body[class] .timeline-cta__title { font-size: var(--step-2); }
-    body[class] .profile__name { font-size: var(--step-5); }
     body[class] .block-featband__title { font-size: var(--step-4); }
     body[class] .block-banner--light .block-banner__title { font-size: var(--step-5); }
     body[class] .block-banner__title { font-size: var(--step-4); }
@@ -2390,8 +2387,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
    inline-flex с min-height: вид строки при этом не меняется. */
 
 .crumbs a, .content-crumbs a,
-.site-footer__col a,
-.person-card__more {
+.site-footer__col a{
     display: inline-flex; align-items: center; min-height: 24px;
 }/* Заливная CTA-кнопка шапки: слегка затемняем акцент, чтобы белый текст
    давал контраст ≥4.5:1 (WCAG AA). Общий акцент/бренд при этом не меняется. *//* Затемнение акцента на 15% давало белому тексту 4.36:1 при норме 4.5.
@@ -2433,7 +2429,6 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .album-card,
 .catcard,
 .project-card,
-.person-card,
 .team-card,
 .mediacard {
     display: flex;
@@ -2452,7 +2447,6 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .album-card:hover,
 .catcard:hover,
 .project-card:hover,
-.person-card:hover,
 .team-card:hover {
     transform: translateY(-4px);
     border-color: color-mix(in srgb, var(--gov-teal) 35%, var(--gov-border));
@@ -4204,7 +4198,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
 .cms-block--bg-navy :is(.act-card, .album-card, .block-testimonials__item, .cat-tile,
     .catcard, .catdetail__card, .contact-card, .content-card, .doc-card, .faq-item,
     .feature-card, .leader-card, .mediacard, .news-card, .news-poll-card, .newsdetail-card,
-    .newslist-lead, .person-card, .project-card, .relnews-card, .site-search-results__item,
+    .newslist-lead, .project-card, .relnews-card, .site-search-results__item,
     .social-embed-card, .team-card, .testimonial, .timeline-card, .widget--style-card) { background-color: var(--gov-surface); }
 .cms-block--bg-navy .section-head__all { color: var(--section-link-fg); }
 
@@ -4342,67 +4336,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
     -webkit-mask: var(--gov-emblem) 0 0 / var(--block-pattern-size, 28px) var(--block-pattern-size, 28px) repeat;
     mask: var(--gov-emblem) 0 0 / var(--block-pattern-size, 28px) var(--block-pattern-size, 28px) repeat;
 }
-.cms-block--fullwidth.cms-block--bg-pattern-emblem::after { left: calc(50% - 50vw); width: 100vw; }/* Руководство — карточки персон (вакантные с плейсхолдером). *//* Дорожки считает App\Core\GridBalance — сетка занимает всю ширину при
-   любом числе карточек, а хвост последнего ряда не оставляет дыр. */
-
-.persons-grid { display: grid; grid-template-columns: repeat(var(--grid-track, 4), minmax(0, 1fr)); gap: 20px; }
-.persons-grid > .person-card { grid-column: span var(--grid-span, 1); }/* Контакты в карточке персоны: телефон и почта кликабельны. */
-
-.person-card__contacts { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
-.person-card__contact { font-size: var(--step--2); color: var(--gov-muted); overflow-wrap: anywhere; }
-@media (max-width: 1000px) {
-    .persons-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .persons-grid > .person-card { grid-column: auto; }
-}
-@media (max-width: 560px) {
-    .persons-grid { grid-template-columns: 1fr; }
-    .persons-grid > .person-card { grid-column: auto; }
-}
-.person-card { display: flex; flex-direction: column; background: var(--gov-surface); border: 1px solid var(--gov-border); border-radius: var(--radius); overflow: hidden; }
-.person-card__photo { display: block; aspect-ratio: 4/4.4; background: var(--gov-navy) center/cover no-repeat; width: 100%; object-fit: cover; transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); }/* Потолок высоты портрета: когда персон в ряду две, карточка занимает
-   половину экрана, и пропорция 4:4.4 растила её до шестисот пикселей. */
-
-.person-card__photo, .person-card__placeholder { max-height: 360px; }
-.person-card:hover .person-card__photo { transform: scale(1.05); }/* Карточка без фотографии: вместо пустого серого поля — фирменная эмблема
-   водяным знаком, как на карточках актов. Пустых прямоугольников на странице
-   руководства получалось четыре подряд. */
-
-.person-card__placeholder {
-    position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 12px; aspect-ratio: 4/4.4; color: var(--gov-muted);
-    background: linear-gradient(160deg, color-mix(in srgb, var(--gov-navy) 8%, var(--gov-surface)), color-mix(in srgb, var(--gov-navy) 3%, var(--gov-surface)));
-}
-.person-card__placeholder::after {
-    /* Силуэт, а не гирих: на карточке сотрудника без фото он читается
-       однозначно. Гирих остаётся заглушкой прочих карточек без изображения. */
-    content: ""; position: absolute; inset: 0; background: var(--gov-navy); opacity: .16;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%2012.4a4.7%204.7%200%201%200%200-9.4%204.7%204.7%200%200%200%200%209.4Z'%2F%3E%3Cpath%20d%3D'M12%2014.3c-4.9%200-7.6%202.6-7.6%205.4V21h15.2v-1.3c0-2.8-2.7-5.4-7.6-5.4Z'%2F%3E%3C%2Fsvg%3E") center / 38% no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%2012.4a4.7%204.7%200%201%200%200-9.4%204.7%204.7%200%200%200%200%209.4Z'%2F%3E%3Cpath%20d%3D'M12%2014.3c-4.9%200-7.6%202.6-7.6%205.4V21h15.2v-1.3c0-2.8-2.7-5.4-7.6-5.4Z'%2F%3E%3C%2Fsvg%3E") center / 38% no-repeat;
-    transition: opacity .4s ease, transform .6s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-.person-card:hover .person-card__placeholder::after { opacity: .2; transform: scale(1.06); }
-.person-card__placeholder svg, .person-card__vacant { position: relative; z-index: 1; }
-.person-card__placeholder svg { opacity: .55; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease; }
-.person-card:hover .person-card__placeholder svg { transform: scale(1.15); color: var(--gov-teal); }
-.person-card__vacant {
-    text-transform: uppercase; font-size: var(--step--4); letter-spacing: .08em; font-weight: 700;
-    color: var(--gov-muted);
-    /* Подпись уходит под эмблему: по центру она ложилась прямо на гирих. */
-    position: absolute; left: 0; right: 0; bottom: 16px; text-align: center;
-}
-.person-card__body { display: flex; flex-direction: column; gap: 6px; padding: 18px; text-align: center; flex: 1; }/* У вакансии нет ни имени, ни ссылки «Подробнее» — без выравнивания по
-   центру внизу карточки оставалась дыра высотой со строку. */
-
-.person-card--vacant .person-card__body { justify-content: center; }
-.person-card--vacant .person-card__role { flex: 0 0 auto; }
-.person-card__name { font-family: var(--font-heading, 'Noto Serif', serif); font-weight: 700; font-size: var(--step-0); color: var(--gov-title); transition: color 0.3s ease; }
-.person-card:hover .person-card__name { color: var(--gov-teal-text); }
-.person-card__role { color: var(--gov-muted); font-size: var(--step--2); line-height: 1.35; flex: 1; }
-.person-card__more { color: var(--gov-teal-text); font-size: var(--step--2); font-weight: 700; text-decoration: none; margin-top: 8px; transition: transform 0.3s ease, color 0.3s ease; display: inline-block; }
-.person-card:hover .person-card__more { transform: translateX(4px); }
-.person-card--vacant { border: 1.5px dashed var(--gov-border); background: color-mix(in srgb, var(--gov-navy) 2%, var(--gov-surface)); }
-.person-card--vacant:hover { border-color: var(--gov-teal); background-color: color-mix(in srgb, var(--gov-teal) 4%, var(--gov-surface)); }
-.person-card--vacant .person-card__role { color: var(--gov-ink); font-weight: 700; }/* История — таймлайн + CTA-карточка с фоном. *//* История — таймлайн + CTA-карточка с фоном. */
+.cms-block--fullwidth.cms-block--bg-pattern-emblem::after { left: calc(50% - 50vw); width: 100vw; }/* История — таймлайн + CTA-карточка с фоном. *//* История — таймлайн + CTA-карточка с фоном. */
 
 .block-timeline__head { margin-bottom: 26px; }
 .block-timeline__title { margin: 0; color: var(--section-title-fg); font-size: var(--font-size-h2, var(--step-6)); font-weight: 700; line-height: 1.25; letter-spacing: -.02em; }
@@ -4569,55 +4503,6 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
     transform: translateY(-2px) scale(1.02);
     background-color: #f8fafc;
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
-}/* Профиль руководителя. *//* Колонка портрета уже: при 420px карточка без фотографии оказывалась выше
-   текста профиля почти вдвое и оставляла справа пустое поле. */
-
-.block-profile { display: grid; grid-template-columns: minmax(0, 340px) 1fr; gap: 44px; align-items: start; }
-@media (max-width: 900px) { .block-profile { grid-template-columns: 1fr; } }
-.profile__photo { display: block; width: 100%; aspect-ratio: 4/4.3; object-fit: cover; border-radius: var(--radius); }
-.profile__photo--empty {
-    position: relative; display: grid; place-items: center; color: var(--gov-muted);
-    background: linear-gradient(160deg, color-mix(in srgb, var(--gov-navy) 9%, var(--gov-surface)), color-mix(in srgb, var(--gov-navy) 3%, var(--gov-surface)));
-}
-.profile__photo--empty::after {
-    content: ""; position: absolute; inset: 0; background: var(--gov-navy); opacity: .12;
-    -webkit-mask: var(--gov-emblem) center / 52% no-repeat;
-    mask: var(--gov-emblem) center / 52% no-repeat;
-}
-.profile__photo--empty > * { position: relative; z-index: 1; }
-.profile__name { font-size: var(--font-size-h1, var(--step-8)); margin: 0 0 12px; }
-.profile__position { font-family: var(--font-heading, 'Noto Serif', serif); font-weight: 700; color: var(--gov-teal-text); font-size: var(--step-1); line-height: 1.35; margin-bottom: 18px; }
-.profile__text { color: var(--gov-ink); line-height: var(--base-line-height, 1.65); margin: 0 0 22px; font-size: var(--step-0); }
-.profile__contacts { display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
-.profile__contact { display: flex; align-items: center; gap: 10px; color: var(--gov-ink); font-size: var(--step--1); }
-.profile__contact svg { color: var(--gov-teal-text); flex: 0 0 auto; }
-.profile__contact-label { color: var(--gov-muted, #475569); font-weight: 600; }
-.profile__contact a { color: var(--gov-title); font-weight: 700; text-decoration: none; }
-.profile__contact a:hover { color: var(--gov-teal-text); }
-.profile__button { display: inline-block; padding: 13px 26px; background: var(--gov-navy); color: #fff; border-radius: var(--btn-radius, 8px); font-weight: 700; font-size: var(--step--1); text-decoration: none; transition: opacity .15s ease; }
-.profile__button:hover { opacity: .92; }
-.profile__buttons { display: flex; flex-wrap: wrap; gap: 12px; }/* Вторая кнопка — второстепенное действие: контур вместо заливки, иначе две
-   одинаковые кнопки спорят за внимание. */
-
-.profile__button--secondary { background: none; color: var(--gov-title); border: 1px solid var(--gov-border); }
-.profile__button--secondary:hover { border-color: var(--gov-teal); color: var(--gov-teal-text); opacity: 1; }/* Соцсети руководителя — тот же ряд значков, что в карточке руководителя. */
-
-.profile__socials { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 4px; }
-.profile__social {
-    display: inline-grid; place-items: center; width: 40px; height: 40px;
-    border: 1px solid var(--gov-border); border-radius: 50%;
-    color: var(--gov-title); transition: border-color .15s ease, color .15s ease;
-}
-.profile__social:hover, .profile__social:focus-visible { border-color: var(--gov-teal); color: var(--gov-teal-text); }/* Портрет справа: колонки меняются местами, порядок — явным order, иначе на
-   мобильном фото уезжало бы под текст. */
-
-.block-profile--photo-right { grid-template-columns: minmax(0, 1fr) minmax(0, 340px); }
-.block-profile--photo-right .profile__media { order: 2; }
-.block-profile--photo-right .profile__info { order: 1; }
-@media (max-width: 900px) {
-    .block-profile--photo-right { grid-template-columns: 1fr; }
-    .block-profile--photo-right .profile__media { order: initial; }
-    .block-profile--photo-right .profile__info { order: initial; }
 }/* Полоса компетенций (navy, 4 колонки с разделителями). */
 
 .featband { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--gov-navy); border-radius: var(--radius); overflow: hidden; }
@@ -5190,7 +5075,6 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
    отступами, не меняя видимый размер текста и не ломая раскладку строки. */
 @media (max-width: 900px) {
     .section-head__all,
-    .person-card__more,
     .content-card__more,
     .news-card__more,
     .catcard__more,
@@ -5218,7 +5102,6 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
    для них минимальный размер цели не действует. */
 
 .section-head__all,
-.person-card__more,
 .content-card__more,
 .news-card__more,
 .catcard__more,
@@ -6194,21 +6077,17 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 
 .album-card,
 .project-card,
-.person-card,
 .team-card,
 .catcard--with-image {
     overflow: hidden;
 }
 .album-card,
-.project-card,
-.person-card {
+.project-card{
     gap: 0;
     padding: 0;
 }
 .album-card__cover,
 .project-card__cover,
-.person-card__photo,
-.person-card__placeholder,
 .team-card__photo,
 .catcard__event-media {
     border-radius: 0;

@@ -56,7 +56,6 @@ final class SectionColors
         '.news-poll-card',
         '.newsdetail-card',
         '.newslist-lead',
-        '.person-card',
         '.project-card',
         '.relnews-card',
         '.site-search-results__item',

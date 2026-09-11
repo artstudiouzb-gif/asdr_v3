@@ -630,31 +630,6 @@ final class BlockController
                     BlockFieldSchema::normalize('news_feature', $_POST, $locale),
                     ['category' => max(0, (int) ($_POST['category'] ?? 0))]
                 );
-            case 'person_cards':
-                $items = [];
-                foreach ((array) ($_POST['items'] ?? []) as $item) {
-                    $name = trim((string) ($item['name'] ?? ''));
-                    $role = trim((string) ($item['role'] ?? ''));
-                    if ($name === '' && $role === '') {
-                        continue;
-                    }
-                    $url = trim((string) ($item['url'] ?? ''));
-                    if ($url !== '' && !\App\Core\UrlGuard::isSafeLink($url)) {
-                        $url = '';
-                    }
-                    $items[] = [
-                        'photo' => trim((string) ($item['photo'] ?? '')),
-                        'name' => TextProcessor::typographPlain($name, $locale),
-                        'role' => TextProcessor::typographPlain($role, $locale),
-                        'phone' => trim((string) ($item['phone'] ?? '')),
-                        'email' => trim((string) ($item['email'] ?? '')),
-                        'url' => $url,
-                    ];
-                }
-                return array_merge(
-                    BlockFieldSchema::normalize('person_cards', $_POST, $locale),
-                    ['items' => $items]
-                );
             case 'news_docs':
                 $docs = [];
                 foreach ((array) ($_POST['docs'] ?? []) as $doc) {
@@ -725,8 +700,6 @@ final class BlockController
                     BlockFieldSchema::normalize('leader_card', $_POST, $locale),
                     ['items' => $facts]
                 );
-            case 'person_profile':
-                return BlockFieldSchema::normalize('person_profile', $_POST, $locale);
             case 'bio_education':
                 $collect = static function (string $key, array $fields) use ($locale): array {
                     $rows = [];
