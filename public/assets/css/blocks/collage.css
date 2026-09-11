@@ -110,18 +110,40 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
     --block-pattern-size: 22px;
 }
 
-/* Телефон: сетка складывается в столбец, наложения и повороты снимаются.
-   Порядок — как в редакторе; пропорция полотна больше не действует, иначе
-   восемь элементов делили бы высоту одного экрана. */
+/* Узко: сетка складывается в столбец, наложения снимаются. Порядок — как в
+   редакторе; пропорция полотна больше не действует, иначе восемь элементов
+   делили бы высоту одного экрана.
+
+   Размещение отменяется сменой самого полотна на колонку flex, а не
+   переопределением grid-column у каждого элемента: те правила приезжают из
+   scoped CSS блока, вес у них по id, и перебить их можно было только флагом
+   приоритета — а следующая правка поверх него становится непредсказуемой.
+   Вне grid-контейнера grid-column и grid-row не применяются вовсе, спорить
+   не о чем. */
 @media (max-width: 720px) {
     .collage__canvas {
-        grid-template-columns: minmax(0, 1fr);
+        display: flex;
+        flex-direction: column;
+        grid-template-columns: none;
         grid-template-rows: none;
         aspect-ratio: auto;
     }
-    .collage__item {
-        grid-column: 1 / -1 !important;
-        grid-row: auto !important;
+    .collage__item--photo { aspect-ratio: 4 / 3; }
+    .collage__item--badge { block-size: 160px; }
+    .collage__item--pattern { display: none; }
+}
+
+/* Колонка конструктора мерит сама себя: ширина экрана про долю колонки ничего
+   не говорит, и композиция 6×4 в половине ряда давала ячейки по полсотни
+   пикселей — на 1440px тоже. Медиазапрос выше остаётся фолбэком: @container
+   без контейнера-предка не действует вовсе. */
+@container cms-col (max-width: 560px) {
+    .collage__canvas {
+        display: flex;
+        flex-direction: column;
+        grid-template-columns: none;
+        grid-template-rows: none;
+        aspect-ratio: auto;
     }
     .collage__item--photo { aspect-ratio: 4 / 3; }
     .collage__item--badge { block-size: 160px; }

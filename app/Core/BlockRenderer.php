@@ -55,6 +55,22 @@ final class BlockRenderer
     private static bool $h1Used = false;
 
     /**
+     * Типы блоков, отрисованных внутри контейнера («Колонки», «Вкладки»).
+     *
+     * renderPage() перечисляет ассеты по блокам верхнего уровня, а вложенный
+     * блок там представлен только своим контейнером — то есть его CSS и скрипт
+     * не подключались вовсе. Отказ тихий: разметка на месте, поэтому блок не
+     * пропадает, а рисуется без собственных правил — «Коллаж» в колонке шёл
+     * одним столбцом, потому что `display:grid` ему задаёт как раз свой файл.
+     * Эвристики по готовому HTML (обложка, фотокарусель) это не закрывают: они
+     * заведены под конкретные признаки, а типов со своим ассетом полтора
+     * десятка.
+     *
+     * @var array<string, bool>
+     */
+    private static array $nestedAssets = [];
+
+    /**
      * Разделы страницы для якорной навигации: собираются до рендера, потому
      * что блок оглавления обычно стоит первым и должен знать о том, что будет
      * ниже. Источник — заголовок блока: он же выводится на странице секцией.
@@ -389,6 +405,7 @@ final class BlockRenderer
         $preloadImages = [];
         self::$nextBoundary = null;
         self::$h1Used = false;
+        self::$nestedAssets = [];
         // FAQPage на страницу допускается ровно один — флаг живёт там же, где
         // счётчик h1, и сбрасывается вместе с ним.
         \App\Core\SchemaOrg::resetPageState();
@@ -440,6 +457,10 @@ final class BlockRenderer
                 $preloadImages[] = (string) $rendered['preload_image'];
             }
         }
+
+        // Ассеты вложенных блоков: сам контейнер о типах своих детей не
+        // сообщает, а без них блок внутри колонки остаётся без своего CSS.
+        $assets += self::$nestedAssets;
 
         return [
             'html' => implode("\n", $htmlParts),
@@ -573,6 +594,12 @@ final class BlockRenderer
             $rendered = self::render($child);
             if (!empty($rendered['hidden'])) {
                 continue;
+            }
+            // Тип ребёнка запоминаем здесь, а не в render(): скрытый блок
+            // разметки не даёт, и грузить его файл незачем.
+            $childType = preg_replace('/[^a-z0-9_]/', '', strtolower((string) $child['type'])) ?? '';
+            if ($childType !== '') {
+                self::$nestedAssets[$childType] = true;
             }
             $html .= $rendered['html'];
             if ($rendered['css'] !== '') {
