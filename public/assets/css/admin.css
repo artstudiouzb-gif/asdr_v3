@@ -2224,6 +2224,39 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 .block-editor-form > .bf-fields {
     width: min(100%, 880px);
 }
+.block-editor-type {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: min(100%, 880px);
+    padding: 13px 15px;
+    border: 1px solid var(--admin-border);
+    border-left: 3px solid var(--admin-accent);
+    border-radius: var(--admin-radius-sm);
+    background: var(--admin-surface-soft);
+}
+.block-editor-type__icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border: 1px solid rgba(37, 99, 235, .22);
+    border-radius: var(--admin-radius-sm);
+    background: var(--admin-accent-soft);
+    color: var(--admin-accent);
+}
+.block-editor-type__content { display: grid; gap: 2px; min-width: 0; }
+.block-editor-type__eyebrow {
+    color: var(--admin-muted);
+    font-size: var(--admin-fs-xs);
+    font-weight: var(--admin-fw-semibold);
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+.block-editor-type__content strong { color: var(--admin-text); font-size: var(--admin-fs-md); }
+.block-editor-type__content .form-hint { margin: 0; }
+.block-editor-type__content code { font-size: .92em; }
 
 /* Настройки блока, объявленные схемой полей: две колонки вместо столбца в
    один ряд. У «Карточек» настроек шестнадцать, и сплошной столбец полей
