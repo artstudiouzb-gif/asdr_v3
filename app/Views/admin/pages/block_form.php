@@ -1925,7 +1925,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             </select>
         </div>
         <div data-bg-group="color pattern">
-        <?= \App\Core\AdminUi::colorField('bg_color', $data['_bg_color'] ?? '', 'Цвет фона (для «Свой цвет» и подложки узора)', '#0f2b46', 'Не задан') ?>
+        <?= \App\Core\AdminUi::colorField('section_bg_color', $data['_bg_color'] ?? '', 'Цвет фона (для «Свой цвет» и подложки узора)', '#0f2b46', 'Не задан') ?>
         </div>
         <div data-bg-group="gradient">
         <div class="form-grid-2col">
