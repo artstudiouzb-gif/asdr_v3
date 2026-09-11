@@ -154,21 +154,9 @@ test('Миграция объединяет старые вступления с
     assert_contains("target.type IN ('advantages', 'stages')", $sql);
 });
 
-test('Страница директора использует читаемую системную хронологию', function (): void {
-    $content = require APP_ROOT . '/database/content/agency_content.php';
-    $director = $content['pages']['direktor']['ru']['blocks'] ?? [];
-    $bio = null;
-    foreach ($director as $block) {
-        if (($block[0] ?? '') === 'bio_education') {
-            $bio = $block[2] ?? [];
-            break;
-        }
-    }
-
-    assert_true(is_array($bio));
-    assert_same('Профессиональный путь', $bio['career_title'] ?? '');
-    assert_true(count($bio['career'] ?? []) >= 10);
-
+test('Карьера в блоке «Биография и образование» читается как хронология', function (): void {
+    // Страницы руководителей собираются в админке, поэтому проверять фикстуру
+    // тут больше нечем; сам приём — линия с маркерами — принадлежит блоку.
     $template = (string) file_get_contents(APP_ROOT . '/templates/blocks/bio_education.php');
     assert_contains('bio-career__title', $template);
     $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public-editorial-pages.css');
@@ -178,28 +166,6 @@ test('Страница директора использует читаемую 
     assert_contains('border-color: color-mix(in srgb, var(--gov-teal) 72%, #fff);', $css);
     assert_contains('left: -1px', $css, 'маркеры карьеры должны быть центрированы по линии');
     assert_contains('box-sizing: border-box', $css, 'граница должна входить в размер маркера');
-});
-
-test('Профиль руководителя использует адаптивную колонку без искусственного сужения текста', function (): void {
-    $css = str_replace("\r\n", "\n", (string) file_get_contents(APP_ROOT . '/public/assets/css/public-editorial-pages.css'));
-    $layoutCss = str_replace("\r\n", "\n", (string) file_get_contents(APP_ROOT . '/public/assets/css/public-layout-polish.css'));
-    assert_contains('aspect-ratio: 4 / 5', $css, 'портрет должен сохранять вертикальную пропорцию');
-    assert_contains('.editorial-page__content .profile__info::before', $css, 'между портретом и текстом нужен редакционный акцент');
-    assert_not_contains('.editorial-page__content .profile__media::before', $css, 'у портрета не должно быть отдельной цветной псевдотени');
-    assert_contains('box-shadow: var(--page-soft-shadow);', $css, 'портрет должен использовать общую тень внутренних страниц');
-    // Радиус портрета берётся из настройки «Скругление углов» (тест 309):
-    // жёсткое число здесь означало бы, что ползунок в «Дизайне» его не двигает.
-    assert_contains(".profile__photo {\n    aspect-ratio: 4 / 4.8;\n    border-radius: var(--radius, 16px);\n    box-shadow: var(--page-soft-shadow);", $layoutCss);
-
-    foreach (['bio__text', 'profile__name', 'profile__position', 'profile__text'] as $selector) {
-        $matched = preg_match(
-            '/\\.editorial-page__content \\.' . preg_quote($selector, '/') . '\\s*\\{([^}]*)\\}/',
-            $css,
-            $rule,
-        );
-        assert_same(1, $matched, "нет правила {$selector}");
-        assert_not_contains('max-width', $rule[1], "{$selector} не должен иметь фиксированную максимальную ширину");
-    }
 });
 
 test('Карточки, контакты и правовые акты используют один feature-card', function (): void {

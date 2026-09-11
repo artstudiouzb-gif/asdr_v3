@@ -27,7 +27,7 @@ test('Демо-пакет: вымышленного руководителя н�
 
     $prototype = json_decode((string) file_get_contents(APP_ROOT . '/database/demo_assets/prototype_pages.json'), true);
     assert_true(is_array($prototype));
-    // Страницу директора теперь целиком даёт фикстура Агентства.
+    // Страницы директора нет ни в демо, ни в фикстуре: её собирает владелец.
     assert_false(isset($prototype['direktor']), 'демо-прототип не должен подменять страницу директора');
 });
 
@@ -42,32 +42,33 @@ test('Демо-пакет: в команде реальное руководст
 
 test('Демо-пакет: мета и лид берутся из фикстуры, когда заданы', function () {
     $seeder = (string) file_get_contents(APP_ROOT . '/app/Core/DemoSeeder.php');
-    // Пустой лид у страниц с «Профилем персоны» обязателен: иначе к заголовку
-    // блока добавляется второй h1 из шапки страницы.
+    // Лид и мета берутся из фикстуры ровно тогда, когда ключ в ней есть:
+    // пустая строка — это «очистить», а отсутствие ключа — «не трогать».
     foreach (['meta_title', 'meta_description', 'lead'] as $key) {
         assert_contains("array_key_exists('" . $key . "', \$data)", $seeder, 'лид/мета игнорируются: ' . $key);
     }
-
-    $fixture = require APP_ROOT . '/database/content/agency_content.php';
-    foreach ($fixture['pages'] as $slug => $langData) {
-        foreach ($langData as $lang => $page) {
-            $hasProfile = false;
-            foreach ($page['blocks'] as $block) {
-                $hasProfile = $hasProfile || $block[0] === 'person_profile';
-            }
-            if ($hasProfile) {
-                assert_same('', trim((string) $page['lead']), "лид должен быть пустым: {$slug} [{$lang}]");
-            }
-        }
-    }
 });
 
-test('Демо-меню: пункты руководства ведут на существующие страницы', function () {
+test('Демо-меню: пункт ведёт на страницу, которую кто-то создаёт', function () {
+    // Пункт меню на несуществующий slug — это 404 сразу после установки демо,
+    // и заметен он только кликом. Страницу даёт либо фикстура Агентства, либо
+    // сам демо-посев; проверяем оба источника разом.
     $seeder = (string) file_get_contents(APP_ROOT . '/app/Core/DemoSeeder.php');
     $fixture = require APP_ROOT . '/database/content/agency_content.php';
+    $prototype = (array) json_decode(
+        (string) file_get_contents(APP_ROOT . '/database/demo_assets/prototype_pages.json'),
+        true
+    );
 
-    foreach (['o-nas', 'rukovodstvo', 'direktor', 'pervyy-zamestitel-direktora'] as $slug) {
-        assert_true(isset($fixture['pages'][$slug]), 'нет страницы в фикстуре: ' . $slug);
-        assert_contains("'page', '" . $slug . "'", $seeder, 'нет пункта меню: ' . $slug);
+    preg_match_all("/\['[^']*', 'page', '([a-z0-9-]+)'/u", $seeder, $matches);
+    assert_true($matches[1] !== [], 'пункты меню не разобрались — поменялся формат');
+
+    // Страницу демо создаёт один из трёх источников: фикстура Агентства,
+    // прототипы из JSON или блоки самого посева.
+    foreach (array_unique($matches[1]) as $slug) {
+        $known = isset($fixture['pages'][$slug])
+            || isset($prototype[$slug])
+            || str_contains($seeder, "'" . $slug . "' => [");
+        assert_true($known, 'пункт меню ведёт в никуда: ' . $slug);
     }
 });

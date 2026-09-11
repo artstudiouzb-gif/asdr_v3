@@ -96,7 +96,7 @@ test('Автоматический ритм: те же правила для с�
         ['hero', 'text', 'team_list', 'docs_list', 'contact_cards', 'cta'],
         ['text'],
         ['org_structure', 'text', 'cta'],
-        ['hero', 'text', 'counters', 'advantages', 'timeline', 'person_cards', 'faq', 'cta'],
+        ['hero', 'text', 'counters', 'advantages', 'timeline', 'team_list', 'faq', 'cta'],
     ];
 
     foreach ($pages as $types) {

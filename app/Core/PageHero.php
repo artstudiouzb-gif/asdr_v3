@@ -43,7 +43,7 @@ final class PageHero
     public static function ownsHeading(string $content): bool
     {
         return (bool) preg_match(
-            '/^\s*<section\b[^>]*\bcms-block--(?:hero|person_profile)\b/',
+            '/^\s*<section\b[^>]*\bcms-block--hero\b/',
             $content
         );
     }

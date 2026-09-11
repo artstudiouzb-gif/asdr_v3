@@ -55,7 +55,7 @@ final class PagePresets
         $cardTypes = [
             'cards_grid', 'contact_cards',
             'counters', 'docs_list', 'media_gallery',
-            'news_feature', 'news_latest', 'partners', 'person_cards',
+            'news_feature', 'news_latest', 'partners',
             'projects_list', 'team_list', 'testimonials',
         ];
 
@@ -256,14 +256,15 @@ final class PagePresets
                     ], self::look('none', 'premium', 'fade')),
                 ],
                 [
-                    'type' => 'person_cards',
+                    // Состав берётся из раздела «Команда»: те же люди уже
+                    // заведены там записями, и второй их список в блоке
+                    // разъехался бы с ним при первой же перестановке.
+                    'type' => 'team_list',
                     'title' => 'Руководство',
                     'data' => array_merge([
                         'title' => 'Руководство подразделения',
-                        'items' => [
-                            ['name' => 'Фамилия Имя Отчество', 'role' => 'Начальник управления', 'photo' => '', 'url' => ''],
-                            ['name' => 'Фамилия Имя Отчество', 'role' => 'Заместитель начальника', 'photo' => '', 'url' => ''],
-                        ],
+                        'limit' => 0,
+                        'group_by_department' => false,
                     ], self::look('light', 'premium', 'slide-up')),
                 ],
                 [
@@ -444,15 +445,12 @@ final class PagePresets
                     ], self::look('tint', 'premium', 'fade')),
                 ],
                 [
-                    'type' => 'person_cards',
+                    'type' => 'team_list',
                     'title' => 'Руководство',
                     'data' => array_merge([
                         'title' => 'Руководство',
-                        'items' => [
-                            ['name' => 'Фамилия Имя Отчество', 'role' => 'Директор', 'photo' => '', 'url' => ''],
-                            ['name' => 'Фамилия Имя Отчество', 'role' => 'Первый заместитель', 'photo' => '', 'url' => ''],
-                            ['name' => 'Фамилия Имя Отчество', 'role' => 'Заместитель', 'photo' => '', 'url' => ''],
-                        ],
+                        'limit' => 0,
+                        'group_by_department' => true,
                     ], self::look('none', 'premium', 'slide-up')),
                 ],
                 self::ctaBand('Открыты к сотрудничеству', 'Предложения о партнёрстве и инвестициях направляйте через форму обращения.'),

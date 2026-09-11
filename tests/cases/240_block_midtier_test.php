@@ -145,31 +145,6 @@ test('Этапы: колонки, автопрокрутка и ссылка с 
     assert_not_contains('data-carousel-autoplay', $auto['html']);
 });
 
-test('Профиль руководителя: сторона фото, соцсети и вторая кнопка', function () {
-    $block = midtier_block('person_profile', [
-        'name' => 'Иванов И. И.',
-        'position' => 'Директор',
-        'photo_side' => 'right',
-        'telegram' => 'https://t.me/example',
-        'instagram' => 'javascript:alert(1)',
-        'button_text' => 'Обратиться',
-        'button_url' => '/contacts',
-        'button2_text' => 'Биография',
-        'button2_url' => '/about',
-    ], 830);
-
-    assert_contains('block-profile--photo-right', $block['html']);
-    assert_contains('href="https://t.me/example"', $block['html']);
-    assert_not_contains('javascript:', $block['html'], 'небезопасный адрес соцсети отбрасывается');
-    assert_contains('profile__button--secondary', $block['html']);
-    assert_contains('href="/about"', $block['html']);
-
-    // По умолчанию фото слева, ряда соцсетей нет.
-    $plain = midtier_block('person_profile', ['name' => 'Петров П. П.'], 831);
-    assert_contains('block-profile--photo-left', $plain['html']);
-    assert_not_contains('profile__socials', $plain['html']);
-});
-
 test('«Преимущества» и «Карточки» — один тип: варианты стали настройками', function (): void {
     // Два блока печатали одну и ту же карточку (`.feature-card` с тем же
     // нутром) из одних и тех же полей — иконка, заголовок, текст, ссылка.

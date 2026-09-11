@@ -49,5 +49,4 @@ test('Тема отдаёт вычисленные варианты акцент
     assert_contains('.cms-block--bg-navy, .block-hero--media, .site-footer { --gov-teal-text: var(--gov-teal-on-dark); }', $css);
     // Мелкие ссылки берут текстовый вариант, а не «графический» акцент.
     assert_contains('.block-hero__eyebrow', $css);
-    assert_not_contains('.person-card__more { color: var(--gov-teal);', $css);
 });

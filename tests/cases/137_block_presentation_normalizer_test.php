@@ -109,13 +109,13 @@ test('Block presentation normalizer: поддерживает каскад ка�
 test('Block renderer: добавляет карточный контейнер только по настройке секции', function (): void {
     $card = \App\Core\BlockRenderer::render([
         'id' => 9137,
-        'type' => 'person_profile',
+        'type' => 'leader_card',
         'custom_css' => '',
         'data' => json_encode(['name' => 'Директор', '_surface' => 'card']),
     ]);
     $flat = \App\Core\BlockRenderer::render([
         'id' => 9138,
-        'type' => 'person_profile',
+        'type' => 'leader_card',
         'custom_css' => '',
         'data' => json_encode(['name' => 'Директор', '_surface' => 'flat']),
     ]);

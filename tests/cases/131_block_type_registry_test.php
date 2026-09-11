@@ -25,7 +25,7 @@ const EXPECTED_BLOCK_TYPES = [
     'counters', 'team_list', 'projects_list', 'news_latest',
     'partners', 'subscribe', 'faq', 'contact_cards',
     'hero', 'cards_grid', 'media_gallery', 'news_feature',
-    'person_cards', 'news_docs', 'person_profile',
+    'news_docs',
     'bio_education', 'anchor_nav', 'stages', 'text_image',
     'docs_list', 'map_point', 'org_structure', 'leader_card', 'icon_text',
     'collage', 'table', 'image', 'embed', 'chart', 'divider', 'buttons',

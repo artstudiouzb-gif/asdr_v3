@@ -170,25 +170,10 @@ test('Контент Агентства: все блоки рендерятся 
     assert_contains('Agentlik nima bilan shug‘ullanadi?', $renderedPages['o-nas|uz']);
     assert_contains('What the Agency Does', $renderedPages['o-nas|en']);
 
-    assert_contains('Умурзаков Сардор Уктамович', $renderedPages['direktor|ru']);
-    assert_contains('Европейский банк реконструкции и развития', $renderedPages['direktor|ru']);
-    assert_contains('Абдукодиров Абдулла Мамасаатович', $renderedPages['pervyy-zamestitel-direktora|ru']);
-    assert_contains('Доктор экономических наук', $renderedPages['pervyy-zamestitel-direktora|ru']);
-
-    // Профиль руководителя даёт странице h1 — на этих страницах лид пустой,
-    // поэтому второго заголовка первого уровня не появится.
-    assert_contains('<h1', $renderedPages['direktor|ru']);
-    foreach (agency_fixture()['pages'] as $slug => $langData) {
-        foreach ($langData as $lang => $page) {
-            $hasProfile = false;
-            foreach ($page['blocks'] as $block) {
-                $hasProfile = $hasProfile || $block[0] === 'person_profile';
-            }
-            if ($hasProfile) {
-                assert_same('', trim((string) $page['lead']), "у страницы с профилем {$slug} [{$lang}] должен быть пустой лид");
-            }
-        }
-    }
+    // Страниц руководства в фикстуре нет: их собирает владелец в админке, а
+    // посев заменяет блоки страницы целиком — то есть стёр бы его работу.
+    assert_false(isset($renderedPages['direktor|ru']), 'страница директора больше не из фикстуры');
+    assert_false(isset($renderedPages['rukovodstvo|ru']), 'страница руководства больше не из фикстуры');
 });
 
 test('Контент Агентства: у руководителей есть узбекский перевод', function () {

@@ -189,13 +189,13 @@ final class BlockSnippet
 
         $count = 0;
         foreach ($blocks as $b) {
-            if (!is_array($b) || (string) ($b['type'] ?? '') === '') {
+            if (!is_array($b) || !self::typeExists((string) ($b['type'] ?? ''))) {
                 continue;
             }
             $parentId = self::createFromSnapshot($b, $pageId, $lang, null, 0);
             $count++;
             foreach ((array) ($b['children'] ?? []) as $c) {
-                if (!is_array($c) || (string) ($c['type'] ?? '') === '') {
+                if (!is_array($c) || !self::typeExists((string) ($c['type'] ?? ''))) {
                     continue;
                 }
                 self::createFromSnapshot($c, $pageId, $lang, $parentId, (int) ($c['column_index'] ?? 0));
@@ -204,6 +204,20 @@ final class BlockSnippet
         }
 
         return $count;
+    }
+
+    /**
+     * Шаблон в библиотеке — снимок блоков, снятый когда-то раньше, и типа из
+     * него может уже не существовать: так ушли «Карточки персон» и «Профиль
+     * персоны». Такой блок нельзя класть на страницу — он выйдет комментарием
+     * «Неизвестный тип блока», то есть применение шаблона молча добавит
+     * поломку. Переименованный тип при этом остаётся годным.
+     */
+    private static function typeExists(string $type): bool
+    {
+        return $type !== '' && \App\Core\BlockTypeRegistry::has(
+            \App\Core\BlockTypeRegistry::canonicalType($type)
+        );
     }
 
     /** @param array<string, mixed> $b */

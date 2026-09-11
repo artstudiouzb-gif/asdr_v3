@@ -506,7 +506,7 @@ news         KEY idx_news_listing     (status, deleted_at, published_at)   -- в
 4. Повторить на той же странице с временно отключённым фильтром — в
    DevTools это делается без деплоя: вкладка Elements → найти правило с
    `backdrop-filter` → снять галочку; либо в Console выполнить
-   `document.head.insertAdjacentHTML('beforeend','<style>.news-card,.album-card,.doc-card,.project-card,.team-card,.person-card,.block-advantages__item,.catcard{backdrop-filter:none!important}</style>')`.
+   `document.head.insertAdjacentHTML('beforeend','<style>.news-card,.album-card,.doc-card,.project-card,.team-card,.feature-card,.catcard{backdrop-filter:none!important}</style>')`.
 5. Разница в доле долгих кадров и есть цена эффекта. Если она в пределах
    единиц процентов — оставлять как есть; если кадры проседают заметно —
    снимать у карточек, у шапки оставить.
