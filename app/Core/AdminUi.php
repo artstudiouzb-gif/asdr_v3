@@ -71,7 +71,6 @@ final class AdminUi
             'media_gallery' => 'media',
             'news_feature' => 'document',
             'person_cards' => 'users',
-            'timeline' => 'calendar',
             'news_docs' => 'document',
             'person_profile' => 'user',
             'bio_education' => 'user',

@@ -17,7 +17,7 @@ test('Редакционные варианты страницы Агентст�
     assert_true(array_key_exists('media_video', $defaults['text']));
     assert_true(array_key_exists('media_youtube', $defaults['text']));
     assert_true(array_key_exists('variant', $defaults['stages']));
-    foreach (['advantages', 'stages', 'timeline'] as $type) {
+    foreach (['advantages', 'stages'] as $type) {
         assert_true(array_key_exists('description', $defaults[$type]), "{$type}: нет описания раздела");
     }
     assert_true(array_key_exists('career_title', $defaults['bio_education']));
@@ -98,7 +98,7 @@ test('Преимущества, этапы и таймлайн имеют соб
         assert_true(isset($fields['description']), "{$type}: описание не описано схемой");
     }
 
-    foreach (['advantages', 'stages', 'timeline'] as $type) {
+    foreach (['advantages', 'stages'] as $type) {
         $template = (string) file_get_contents(APP_ROOT . '/templates/blocks/' . $type . '.php');
         assert_contains("\$data['description']", $template, "{$type}: описание не выводится");
     }

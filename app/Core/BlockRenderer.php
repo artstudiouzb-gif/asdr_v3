@@ -168,12 +168,17 @@ final class BlockRenderer
      */
     public static function render(array $block): array
     {
-        $type = preg_replace('/[^a-z0-9_]/', '', strtolower((string) $block['type'])) ?? '';
+        $rawType = preg_replace('/[^a-z0-9_]/', '', strtolower((string) $block['type'])) ?? '';
+        // Переименованный тип читается по-новому даже до миграции: код и база
+        // на сервере обновляются разными путями, и в окне между ними блок
+        // иначе вышел бы комментарием «Неизвестный тип блока».
+        $type = BlockTypeRegistry::canonicalType($rawType);
         $blockId = (int) $block['id'];
         $data = json_decode((string) ($block['data'] ?? '{}'), true);
         if (!is_array($data)) {
             $data = [];
         }
+        $data = BlockTypeRegistry::canonicalData($rawType, $data);
 
         // Смердживание с дефолтами поддерживает частично заполненные формы.
         $data = array_merge(self::defaultsFor($type), $data);
@@ -430,7 +435,9 @@ final class BlockRenderer
             if ($rendered['css'] !== '') {
                 $cssParts[] = "/* block #{$block['id']} ({$block['type']}) */\n" . $rendered['css'];
             }
-            $type = preg_replace('/[^a-z0-9_]/', '', strtolower((string) $block['type'])) ?? '';
+            $type = BlockTypeRegistry::canonicalType(
+                preg_replace('/[^a-z0-9_]/', '', strtolower((string) $block['type'])) ?? ''
+            );
             $assets[$type] = true;
             // Обложка со слайдами использует общий скрипт слайдера. Смотрим на
             // готовую разметку, а не на тип блока: обычной обложке этот скрипт
@@ -597,7 +604,9 @@ final class BlockRenderer
             }
             // Тип ребёнка запоминаем здесь, а не в render(): скрытый блок
             // разметки не даёт, и грузить его файл незачем.
-            $childType = preg_replace('/[^a-z0-9_]/', '', strtolower((string) $child['type'])) ?? '';
+            $childType = BlockTypeRegistry::canonicalType(
+                preg_replace('/[^a-z0-9_]/', '', strtolower((string) $child['type'])) ?? ''
+            );
             if ($childType !== '') {
                 self::$nestedAssets[$childType] = true;
             }
