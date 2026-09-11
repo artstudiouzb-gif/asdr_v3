@@ -373,8 +373,8 @@ final class TranslationGroupHelper
                 // Проект — страница с подтипом: запись идёт в pages, анонс
                 // карточки живёт в lead, тело копируется блоками ниже.
                 $ins = $pdo->prepare(
-                    "INSERT INTO pages (title, slug, entity_type, `lead`, cover_image, status, is_featured, sort_order, layout_type, lang, translation_group_id, created_at)
-                     VALUES (:t, :s, 'project', :d, :ci, 'draft', :if, :so, 'no_sidebar', :lang, :gid, NOW())"
+                    "INSERT INTO pages (title, slug, entity_type, `lead`, cover_image, status, is_featured, transparent_header, sort_order, layout_type, lang, translation_group_id, created_at)
+                     VALUES (:t, :s, 'project', :d, :ci, 'draft', :if, :th, :so, 'no_sidebar', :lang, :gid, NOW())"
                 );
                 $ins->execute([
                     ':t' => ($orig['title'] ?? '') . ' (' . strtoupper($targetLang) . ')',
@@ -382,6 +382,10 @@ final class TranslationGroupHelper
                     ':d' => $orig['description'] ?? null,
                     ':ci' => $orig['cover_image'] ?? null,
                     ':if' => $orig['is_featured'] ?? 0,
+                    // Оформление принадлежит записи, а блоки копируются: без
+                    // этого у перевода шапка молча становилась сплошной, хотя
+                    // обложка первым блоком у него та же самая.
+                    ':th' => $orig['transparent_header'] ?? 0,
                     ':so' => $orig['sort_order'] ?? 0,
                     ':lang' => $targetLang,
                     ':gid' => $groupId,
