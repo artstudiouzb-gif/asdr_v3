@@ -93,6 +93,8 @@
     font-size: var(--font-size-h3, var(--step-2));
     line-height: 1.25;
     letter-spacing: -.025em;
+    /* Лид один над сеткой, соседа по переносу нет.
+       Разобранный случай, см. TEXT_WRAP_BALANCE_BY_DESIGN. */
     text-wrap: balance;
     font-weight: 720;
     overflow-wrap: anywhere;
@@ -123,7 +125,6 @@
     font-size: var(--font-size-card-title, var(--step-0));
     line-height: 1.36;
     letter-spacing: -.018em;
-    text-wrap: balance;
     font-weight: 720;
     display: block;
     overflow: visible;
@@ -290,7 +291,7 @@
         .news-column
     ):hover {
         background: var(--gov-surface);
-        box-shadow: 0 16px 36px rgba(37, 99, 235, .12);
+        box-shadow: 0 16px 36px color-mix(in srgb, var(--gov-navy) 14%, transparent);
         transform: translateY(var(--feature-card-hover-lift, -4px));
         border-color: var(--gov-teal);
         border-bottom-color: var(--gov-teal);
@@ -377,7 +378,6 @@
     font-weight: 650;
     line-height: 1.36;
     letter-spacing: -.02em;
-    text-wrap: balance;
     overflow-wrap: anywhere;
     transition: color .2s ease;
 }

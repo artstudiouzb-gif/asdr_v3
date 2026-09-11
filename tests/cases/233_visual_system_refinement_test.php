@@ -7,12 +7,30 @@ test('visual refinement unifies section headings without changing markup', funct
 
     assert_contains('[data-visual-system] .section-head__title::before', $css);
     assert_contains('background: var(--gov-teal);', $css);
-    // `text-wrap: balance` в публичном CSS нет: браузер разносил заголовок на
-    // строки по своей ширине, и в сетке карточек соседние заголовки ломались
-    // в разных местах — ряд читался неровным. Ширину строки задаёт колонка.
-    // `text-wrap: pretty` остаётся: он убирает висячее слово, а не двигает
-    // перенос.
-    assert_not_contains('text-wrap: balance', $css, 'разрыв строк отдан колонке, а не браузеру');
+});
+
+test('text-wrap: balance не применяется без разобранной причины', function (): void {
+    // Запрет выведен из замера на СЕТКЕ карточек: браузер разносил заголовок
+    // по строкам, исходя из его собственной ширины, и соседние карточки ряда
+    // ломались в разных местах — ряд читался неровным. Ширину строки там
+    // задаёт колонка. `text-wrap: pretty` остаётся: он убирает висячее слово,
+    // а не двигает перенос.
+    //
+    // Проверка читает ВЕСЬ публичный CSS, а не один файл. Пока она сидела
+    // внутри public-layout-polish.css, приём спокойно жил в слое главной и в
+    // стилях ленты — то есть правило было, а нарушения лежали рядом с ним.
+    // А заголовку, который на экране один, приём не вредит вовсе: такие случаи
+    // разобраны поимённо в TEXT_WRAP_BALANCE_BY_DESIGN.
+    $budget = quality_budget('text_wrap_balance');
+    assert_true(
+        $budget['value'] === 0,
+        sprintf(
+            'перенос отдан браузеру там, где решение не объяснено: %s. '
+            . 'В сетке карточек ширину строки задаёт колонка; если заголовок на экране '
+            . 'один, добавьте селектор в TEXT_WRAP_BALANCE_BY_DESIGN с причиной.',
+            $budget['detail']
+        )
+    );
 });
 
 test('editorial media treatment excludes portraits and respects forced colors', function (): void {
@@ -41,4 +59,22 @@ test('visual refinement uses a component scope instead of blocking the homepage'
     assert_contains('$visualSystemScope = true;', $page);
     assert_contains('[data-visual-system] .section-head', $css);
     assert_contains('[data-visual-system] :where(', $css);
+});
+
+test('разобранные случаи text-wrap: balance не протухают', function (): void {
+    // Список исключений опаснее запрета: правило из него уходит вместе с
+    // правкой CSS, а строка с причиной остаётся и продолжает разрешать то,
+    // чего уже нет. Тогда следующий такой же случай пройдёт молча — по
+    // обоснованию, написанному для другого селектора.
+    $live = text_wrap_balance_selectors();
+    foreach (TEXT_WRAP_BALANCE_BY_DESIGN as $selector => $why) {
+        assert_true(
+            isset($live[$selector]),
+            sprintf('в CSS больше нет `%s` — строку из TEXT_WRAP_BALANCE_BY_DESIGN надо убрать', $selector)
+        );
+        assert_true(
+            trim($why) !== '',
+            sprintf('у `%s` не написана причина, по которой перенос отдан браузеру', $selector)
+        );
+    }
 });
