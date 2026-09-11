@@ -431,9 +431,10 @@ final class PagePresets
                     ], self::look('none', 'premium', 'fade')),
                 ],
                 [
-                    'type' => 'timeline',
+                    'type' => 'stages',
                     'title' => 'История',
                     'data' => array_merge([
+                        'layout' => 'list',
                         'title' => 'Этапы развития',
                         'items' => [
                             ['year' => '2019', 'text' => 'Событие, с которого началась работа ведомства.', 'status' => 'done'],

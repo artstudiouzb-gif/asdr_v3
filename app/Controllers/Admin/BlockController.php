@@ -688,26 +688,6 @@ final class BlockController
                     BlockFieldSchema::normalize('person_cards', $_POST, $locale),
                     ['items' => $items]
                 );
-            case 'timeline':
-                $items = [];
-                foreach ((array) ($_POST['items'] ?? []) as $item) {
-                    $year = trim((string) ($item['year'] ?? ''));
-                    $text = trim((string) ($item['text'] ?? ''));
-                    if ($year === '' && $text === '') {
-                        continue;
-                    }
-                    $items[] = [
-                        'year' => $year,
-                        'text' => TextProcessor::typographPlain($text, $locale),
-                        'status' => in_array($item['status'] ?? '', ['done', 'active', 'planned'], true)
-                            ? $item['status']
-                            : 'planned',
-                    ];
-                }
-                return array_merge(
-                    BlockFieldSchema::normalize('timeline', $_POST, $locale),
-                    ['items' => $items]
-                );
             case 'news_docs':
                 $docs = [];
                 foreach ((array) ($_POST['docs'] ?? []) as $doc) {
@@ -852,14 +832,18 @@ final class BlockController
                 foreach ((array) ($_POST['items'] ?? []) as $item) {
                     $year = trim((string) ($item['year'] ?? ''));
                     $itemTitle = trim((string) ($item['title'] ?? ''));
-                    if ($year === '' && $itemTitle === '') {
+                    $itemText = trim((string) ($item['text'] ?? ''));
+                    // Событие вертикального списка состоит из года и описания —
+                    // заголовка у него может не быть вовсе, и проверка «год или
+                    // заголовок» выбрасывала бы такие строки молча.
+                    if ($year === '' && $itemTitle === '' && $itemText === '') {
                         continue;
                     }
                     $items[] = [
                         'year' => $year,
                         'stage' => trim((string) ($item['stage'] ?? '')),
                         'title' => TextProcessor::typographPlain($itemTitle, $locale),
-                        'text' => TextProcessor::typographPlain(trim((string) ($item['text'] ?? '')), $locale),
+                        'text' => TextProcessor::typographPlain($itemText, $locale),
                         'status' => in_array($item['status'] ?? '', ['done', 'active', 'planned'], true) ? $item['status'] : 'planned',
                         'status_text' => trim((string) ($item['status_text'] ?? '')),
                         'url' => \App\Core\BlockData\BlockDataInput::safeLink($item['url'] ?? ''),

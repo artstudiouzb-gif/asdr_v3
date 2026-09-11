@@ -12,7 +12,10 @@ use App\Core\BlockTypeRegistry;
  * Редизайн «Redesign frontend block system for clean installs» свёл 38 типов
  * к 31, объединив banner/cta_band/feature_band в `cta`,
  * gallery/media_materials в `media_gallery`,
- * categories_grid/image_cards в `cards_grid`.
+ * categories_grid/image_cards в `cards_grid`. Позже к ним добавился
+ * `timeline`: «Хронология» и «Этапы» показывали события во времени и оба
+ * подписывались «таймлайн», а различала их раскладка — она и стала настройкой
+ * `layout` внутри `stages`.
  */
 const EXPECTED_BLOCK_TYPES = [
     'text', 'html', 'cta', 'advantages',
@@ -20,7 +23,7 @@ const EXPECTED_BLOCK_TYPES = [
     'counters', 'team_list', 'projects_list', 'news_latest',
     'partners', 'subscribe', 'faq', 'contact_cards',
     'hero', 'cards_grid', 'media_gallery', 'news_feature',
-    'person_cards', 'timeline', 'news_docs', 'person_profile',
+    'person_cards', 'news_docs', 'person_profile',
     'bio_education', 'anchor_nav', 'stages', 'text_image',
     'docs_list', 'map_point', 'org_structure', 'leader_card', 'icon_text',
     'collage', 'table', 'image', 'embed', 'chart', 'divider', 'buttons',

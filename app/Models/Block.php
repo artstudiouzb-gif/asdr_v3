@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Core\BlockTypeRegistry;
 use App\Core\ConcurrencyException;
 use App\Core\Database;
 use App\Core\Logger;
@@ -29,7 +30,7 @@ final class Block
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute([':page_id' => $pageId, ':lang' => $lang]);
 
-        return $stmt->fetchAll();
+        return self::canonicalTypes($stmt->fetchAll());
     }
 
     /**
@@ -48,7 +49,7 @@ final class Block
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute([':pid' => $parentBlockId]);
 
-        return $stmt->fetchAll();
+        return self::canonicalTypes($stmt->fetchAll());
     }
 
     /**
@@ -103,8 +104,62 @@ final class Block
         $stmt = Database::pdo()->prepare('SELECT * FROM blocks WHERE id = :id LIMIT 1');
         $stmt->execute([':id' => $id]);
         $row = $stmt->fetch();
+        if (!$row) {
+            return null;
+        }
+        return self::canonicalRow($row);
+    }
 
-        return $row ?: null;
+    /**
+     * Переименованные типы читаются по-новому.
+     *
+     * Записи в базе переписывает миграция, но полагаться только на неё нельзя:
+     * код и база на сервере обновляются разными путями (архив релиза, ветка
+     * `deploy`, `git pull`), и в окне между ними форма редактора открыла бы
+     * блок как незнакомый — без единого поля, — а страница вывела бы на его
+     * месте комментарий. Правило переименования объявлено один раз, в реестре
+     * типов.
+     *
+     * @param array<int, array<string, mixed>> $rows
+     * @return array<int, array<string, mixed>>
+     */
+    private static function canonicalTypes(array $rows): array
+    {
+        foreach ($rows as $i => $row) {
+            $rows[$i] = self::canonicalRow($row);
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Одна строка блока в терминах нынешнего типа. Данные разбираются только у
+     * переименованных типов: у остальных лишний json_decode на каждую строку
+     * списка страницы — это работа впустую.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private static function canonicalRow(array $row): array
+    {
+        $type = (string) ($row['type'] ?? '');
+        if (!isset(BlockTypeRegistry::LEGACY_TYPES[$type])) {
+            return $row;
+        }
+
+        $row['type'] = BlockTypeRegistry::canonicalType($type);
+        $data = json_decode((string) ($row['data'] ?? '{}'), true);
+        if (is_array($data)) {
+            // Форма редактора обязана показывать блок так же, как его видит
+            // сайт: иначе редактор открыл бы хронологию в виде ленты и первым
+            // же сохранением превратил её в ленту на самом деле.
+            $row['data'] = json_encode(
+                BlockTypeRegistry::canonicalData($type, $data),
+                JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+            ) ?: (string) $row['data'];
+        }
+
+        return $row;
     }
 
     public static function create(

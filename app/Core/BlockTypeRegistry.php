@@ -84,7 +84,6 @@ final class BlockTypeRegistry
         'media_gallery' => [], // схема: BlockFieldSchema
         'news_feature' => [], // схема: BlockFieldSchema
         'person_cards' => [], // схема: BlockFieldSchema
-        'timeline' => [], // схема: BlockFieldSchema
         'news_docs' => [], // схема: BlockFieldSchema
         'person_profile' => [], // схема: BlockFieldSchema
         'bio_education' => [], // схема: BlockFieldSchema
@@ -115,10 +114,11 @@ final class BlockTypeRegistry
         'subscribe' => 'Подписка', 'faq' => 'Вопросы и ответы', 'contact_cards' => 'Контакты',
         'hero' => 'Обложка',
         'cards_grid' => 'Карточки', 'media_gallery' => 'Медиагалерея',
-        'news_feature' => 'Новости и аналитика', 'person_cards' => 'Карточки персон', 'timeline' => 'Хронология',
+        'news_feature' => 'Новости и аналитика', 'person_cards' => 'Карточки персон',
         'news_docs' => 'Новости и документы', 'person_profile' => 'Профиль персоны',
         'bio_education' => 'Биография и образование',
-        'anchor_nav' => 'Якорная навигация', 'stages' => 'Этапы', 'text_image' => 'Текст с фото',
+        'anchor_nav' => 'Якорная навигация', 'stages' => 'Хронология и этапы',
+        'text_image' => 'Текст с фото',
         'docs_list' => 'Список документов', 'map_point' => 'Карта', 'org_structure' => 'Оргструктура',
         'leader_card' => 'Карточка руководителя',
         'icon_text' => 'Иконка и текст', 'collage' => 'Коллаж', 'table' => 'Таблица',
@@ -143,12 +143,13 @@ final class BlockTypeRegistry
         'media_gallery' => 'Медиа-галерея (видео/фото)',
         'news_feature' => 'Новости и аналитика (крупная + список)',
         'person_cards' => 'Руководство (карточки персон)',
-        'timeline' => 'История (таймлайн + CTA-карточка)',
         'news_docs' => 'Новости + документы (2 колонки)',
         'person_profile' => 'Профиль руководителя',
         'bio_education' => 'Биография + образование',
         'anchor_nav' => 'Якорная навигация (вкладки)',
-        'stages' => 'Этапы реализации (таймлайн)',
+        // «Хронология» и «Этапы» были двумя блоками, и оба подписывались
+        // словом «таймлайн» — выбрать между ними по описанию было нельзя.
+        'stages' => 'Хронология / этапы (лента или список)',
         'text_image' => 'Текст + фото (о проекте)',
         'docs_list' => 'Документы (сетка)',
         'map_point' => 'Карта с меткой',
@@ -227,6 +228,66 @@ final class BlockTypeRegistry
     public static function isContainer(string $type): bool
     {
         return in_array($type, self::CONTAINER_TYPES, true);
+    }
+
+    /**
+     * Переименованные типы: ключ — как записано в старых блоках, значение —
+     * нынешний тип.
+     *
+     * Миграция переписывает `blocks.type`, но полагаться только на неё нельзя:
+     * база и код на сервере обновляются разными путями (архив релиза, ветка
+     * `deploy`, `git pull`), и между ними бывает окно. Неизвестный тип
+     * рендерится комментарием «Неизвестный тип блока», то есть страница
+     * молча теряет секцию — а это как раз тот случай, когда лучше показать
+     * содержимое по-старому. Знание о переименовании лежит здесь одно на всех
+     * читателей: вывод, форма редактора и список блоков страницы.
+     *
+     * @var array<string, string>
+     */
+    public const LEGACY_TYPES = [
+        // «Хронология» и «Этапы» — один тип: оба показывали события во времени
+        // и оба подписывались «таймлайн». Вертикальный список остался видом
+        // (`layout = list`), а кнопка под ним — той же ссылкой «Все …», что у
+        // ленты. Одного переименования типа тут мало: без раскладки старая
+        // хронология вышла бы лентой карточек, то есть вид собранной страницы
+        // поменялся бы молча — а это хуже, чем незнакомый тип.
+        'timeline' => [
+            'type' => 'stages',
+            'data' => ['layout' => 'list'],
+            'rename' => ['button_text' => 'all_text', 'button_url' => 'all_url'],
+        ],
+    ];
+
+    /** Нынешнее имя типа: переименованный отдаёт новое, остальные — себя. */
+    public static function canonicalType(string $type): string
+    {
+        return isset(self::LEGACY_TYPES[$type])
+            ? (string) self::LEGACY_TYPES[$type]['type']
+            : $type;
+    }
+
+    /**
+     * Данные блока в терминах нынешнего типа: подставленная раскладка и
+     * переименованные ключи. Сохранённое значение всегда сильнее умолчания —
+     * блок, уже переехавший миграцией, эта функция не меняет.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    public static function canonicalData(string $type, array $data): array
+    {
+        $legacy = self::LEGACY_TYPES[$type] ?? null;
+        if ($legacy === null) {
+            return $data;
+        }
+
+        foreach ($legacy['rename'] as $from => $to) {
+            if (!array_key_exists($to, $data) && array_key_exists($from, $data)) {
+                $data[$to] = $data[$from];
+            }
+        }
+
+        return array_merge($legacy['data'], $data);
     }
 
     public static function templateFile(string $type): ?string
