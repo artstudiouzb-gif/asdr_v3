@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Csrf;
+use App\Core\BlockTypeRegistry;
 
 /** @var array<string, mixed> $block */
 /** @var array $data */
@@ -19,7 +20,9 @@ $pageTitle = 'Редактирование блока';
 $activeNav = $ownerIsProject ? 'projects' : 'pages';
 require __DIR__ . '/../layout/header.php';
 
-$type = $block['type'];
+$type = (string) $block['type'];
+$typeLabels = BlockTypeRegistry::editorLabels();
+$typeLabel = $typeLabels[$type] ?? $type;
 $error = $error ?? null;
 $widgets = $widgets ?? [];
 // Раздел владельца, а не литерал `/admin/pages/`: у проекта своя форма, и
@@ -36,6 +39,15 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
     <form method="post" action="/admin/blocks/<?= (int) $block['id'] ?>/edit" class="form-grid block-editor-form" data-content-draft="block:<?= (int) $block['id'] ?>" data-record-updated="<?= htmlspecialchars((string) ($block['updated_at'] ?? ''), ENT_QUOTES) ?>">
         <?= Csrf::field() ?>
         <input type="hidden" name="expected_lock_version" value="<?= (int) ($block['lock_version'] ?? 1) ?>">
+
+        <div class="block-editor-type" aria-label="Тип блока">
+            <span class="block-editor-type__icon" aria-hidden="true"><?= \App\Core\AdminUi::blockIcon($type) ?></span>
+            <span class="block-editor-type__content">
+                <span class="block-editor-type__eyebrow">Тип блока</span>
+                <strong><?= htmlspecialchars($typeLabel, ENT_QUOTES) ?></strong>
+                <span class="form-hint">Системный код: <code><?= htmlspecialchars($type, ENT_QUOTES) ?></code>. Тип задаётся при создании блока и здесь не изменяется.</span>
+            </span>
+        </div>
 
         <div class="form-field">
             <label for="title">Внутреннее название блока</label>
