@@ -3677,10 +3677,12 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .block-hero--pos-center .block-hero__text--panel { display: inline-block; }/* Hero как шапка страницы: убираем верхний отступ контента, чтобы hero стоял
    вплотную под шапкой сайта (без зазора). */
 
-.site-content:has(> .cms-block--page-hero) { padding-top: 0; }/* Хлебные крошки как часть hero (шапка-герой): поверх фона, вверху секции,
+.site-content:has(.cms-block--page-hero) { padding-top: 0; }
+.projdetail--hero { padding-top: 0; }/* Хлебные крошки как часть hero (шапка-герой): поверх фона, вверху секции,
    вместо отдельной серой полосы над hero. */
 
-.block-hero .content-crumbs--on-hero {
+.block-hero .content-crumbs--on-hero,
+.hero .content-crumbs--on-hero {
     position: absolute; top: 0; left: 0; right: 0; z-index: 4;
     width: 100%; max-width: var(--container-max); margin: 0 auto;
     padding: clamp(14px, 2vw, 22px) 20px 0; font-size: var(--step--2);
@@ -3691,9 +3693,15 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 
 .block-hero--media .content-crumbs--on-hero a,
 .block-hero--media .content-crumbs--on-hero span { color: rgba(255, 255, 255, .82); }
-.block-hero--media .content-crumbs--on-hero a:hover { color: #fff; }/* На страницах с прозрачной шапкой крошки опускаем ниже неё. */
+.block-hero--media .content-crumbs--on-hero a:hover { color: #fff; }/* У обложки-записи цвет текста уже посчитан по кадру (--hero-fg), поэтому
+   крошки берут его, а не гадают по наличию фотографии. */
 
-body:has(.site-header--transparent) .block-hero .content-crumbs--on-hero { top: clamp(88px, 11vw, 130px); }
+.hero .content-crumbs--on-hero a,
+.hero .content-crumbs--on-hero span { color: color-mix(in srgb, var(--hero-fg) 82%, transparent); }
+.hero .content-crumbs--on-hero a:hover { color: var(--hero-fg); }/* На страницах с прозрачной шапкой крошки опускаем ниже неё. */
+
+body:has(.site-header--transparent) .block-hero .content-crumbs--on-hero,
+body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(88px, 11vw, 130px); }
 @media (max-width: 720px) {/* Своя ширина текста (--hero-text-width) на телефонах игнорируется,
        иначе 50vw и подобные значения сжимают текст в узкий столбик. */
     
