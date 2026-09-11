@@ -77,3 +77,34 @@ test('Пропорции колонок уходят в scoped CSS и не де�
 
     $pdo->exec('DELETE FROM pages');
 });
+
+test('Блок внутри контейнера получает свой CSS: тип ребёнка попадает в ассеты страницы (БД)', function () {
+    ensure_test_db();
+    $pdo = Database::pdo();
+    $pdo->exec('DELETE FROM blocks');
+    $pdo->exec('DELETE FROM pages');
+
+    $pageId = Page::create([
+        'slug' => 'cols-assets', 'title' => 'Cols', 'status' => 'published',
+        'meta_title' => '', 'meta_description' => '', 'layout_type' => 'no_sidebar',
+    ]);
+    $colBlock = Block::create($pageId, '', 'columns', 'Сетка', ['columns' => 2, 'gap' => 'medium'], '');
+    Block::create($pageId, '', 'collage', null, [
+        'columns' => 6,
+        'rows' => 4,
+        'items' => [[
+            'type' => 'stat', 'col' => 1, 'col_span' => 3, 'row' => 1, 'row_span' => 2,
+            'value' => '40', 'label' => 'единиц',
+        ]],
+    ], '', $colBlock, 0);
+
+    $out = BlockRenderer::renderPage(Block::forPageLocalized($pageId, ''));
+
+    // Ассеты перечисляются по блокам верхнего уровня, а там только контейнер:
+    // без сбора типов детей «Коллаж» остался бы без blocks/collage.css и
+    // рисовался бы одним столбцом — разметка на месте, правил нет.
+    assert_true(in_array('collage', $out['assets'], true), 'тип вложенного блока объявлен в ассетах страницы');
+    assert_contains('collage__canvas', $out['html'], 'вложенный коллаж отрисован');
+
+    $pdo->exec('DELETE FROM pages');
+});
