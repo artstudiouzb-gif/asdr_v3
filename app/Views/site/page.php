@@ -33,12 +33,10 @@ $visualSystemScope = true;
 require __DIR__ . '/_header.php';
 
 // Блоки, которые сами содержат заголовок страницы. Для них отдельный
-// editorial pagehead не нужен, иначе на странице появятся два h1.
-$firstIsHero = (bool) preg_match('/^\s*<section\b[^>]*\bcms-block--hero\b/', $content);
-$firstOwnsHeading = (bool) preg_match(
-    '/^\s*<section\b[^>]*\bcms-block--(?:hero|person_profile)\b/',
-    $content
-);
+// editorial pagehead не нужен, иначе на странице появятся два h1. Правило
+// общее со страницей проекта — App\Core\PageHero.
+$firstIsHero = \App\Core\PageHero::isHero($content);
+$firstOwnsHeading = \App\Core\PageHero::ownsHeading($content);
 $pageLead = trim((string) ($page['lead'] ?? ''));
 
 if ($isHome) {
@@ -73,20 +71,14 @@ if (!$isHome && !$hideChrome) {
     // Если первый блок страницы — hero (шапка-герой), крошки встраиваем внутрь
     // hero (поверх фона, сверху), а не отдельной полосой над ним.
     if ($firstIsHero) {
-        $content = preg_replace('/(class="[^"]*\bcms-block--hero\b)/', '$1 cms-block--page-hero', $content, 1);
-        $crumbsClass = 'content-crumbs--on-hero';
-        ob_start();
-        require __DIR__ . '/_crumbs.php';
-        $crumbsHtml = (string) ob_get_clean();
-        unset($crumbsClass);
-        if ($crumbsHtml !== '') {
-            $content = preg_replace('/(<div class="block-hero\b[^>]*>)/', '$1' . addcslashes($crumbsHtml, '\\$'), $content, 1);
-        }
-        $crumbsHtml = '';
-    } else {
-        ob_start();
-        require __DIR__ . '/_crumbs.php';
-        $crumbsHtml = (string) ob_get_clean();
+        $crumbsClass = \App\Core\PageHero::ON_HERO_CLASS;
+    }
+    ob_start();
+    require __DIR__ . '/_crumbs.php';
+    $crumbsHtml = (string) ob_get_clean();
+    unset($crumbsClass);
+    if ($firstIsHero) {
+        [$content, $crumbsHtml] = \App\Core\PageHero::withCrumbs($content, $crumbsHtml);
     }
 }
 
