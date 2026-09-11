@@ -15,7 +15,7 @@
         letter-spacing: -.025em;
         padding-inline-start: 15px;
     }
-    .site-home .section-head__all { font-size: .875rem; font-weight: 500; text-decoration: none; transition: color .2s ease; }
+    .site-home .section-head__all { font-size: var(--step--2); font-weight: 500; text-decoration: none; transition: color .2s ease; }
     .site-home .section-head__all:hover { text-decoration: none; color: var(--gov-teal); }
 
     .site-home .hero {
@@ -27,14 +27,19 @@
         padding-block-end: calc(28px + var(--hero-nav-space));
     }
     .site-home .hero__title {
-        font-size: clamp(1.9rem, 3.6vw, 3rem);
+        /* 1.9rem стояли ровно между ступенями 1.8 и 2.0 — взята верхняя:
+           на телефоне 3.6vw всегда упирается в пол, и это единственный
+           размер, которым заголовок обложки держит первый экран. */
+        font-size: clamp(var(--step-6), 3.6vw, var(--step-9));
         line-height: 1.1;
         letter-spacing: -.035em;
+        /* Один заголовок на экран: разъезжаться по переносу не с кем.
+           Разобранный случай, см. TEXT_WRAP_BALANCE_BY_DESIGN. */
         text-wrap: balance;
     }
-    .site-home .hero__subtitle { font-size: 1rem; line-height: 1.5; max-width: 58ch; }
-    .site-home .hero__eyebrow { font-size: .75rem; letter-spacing: .18em; }
-    .site-home .hero__cta { min-height: 44px; padding: 10px 20px; font-size: .875rem; box-shadow: none; }
+    .site-home .hero__subtitle { font-size: var(--step-0); line-height: 1.5; max-width: 58ch; }
+    .site-home .hero__eyebrow { font-size: var(--step--4); letter-spacing: .18em; }
+    .site-home .hero__cta { min-height: 44px; padding: 10px 20px; font-size: var(--step--2); box-shadow: none; }
 
     .site-home .cards-grid,
     .site-home .imgcards-grid { gap: 16px; }
@@ -43,14 +48,20 @@
         gap: 12px;
     }
     .site-home .feature-card__top { margin-bottom: 0; }
-    .site-home .feature-card__title { font-size: 1rem; line-height: 1.35; }
-    .site-home .feature-card__text { font-size: .875rem; line-height: 1.5; }
+    .site-home .feature-card__title { font-size: var(--step-0); line-height: 1.35; }
+    .site-home .feature-card__text { font-size: var(--step--2); line-height: 1.5; }
     .site-home .feature-card__title::after { content: none; }
-    .site-home .feature-card__icon { width: 36px; height: 36px; padding: 0; border-radius: 0; background: transparent; }
-    .site-home .feature-card__num { font-size: .875rem; }
+    /* Плитка иконки на главной только уменьшена. Прежде она вдобавок
+       обнуляла скругление и делала фон прозрачным, а файл идёт в бандле
+       последним — поэтому настройки «Фон иконок» и «Скругление углов» на
+       главной не делали ничего: правило темы они не перебивали. Фон и
+       радиус берутся у темы; «без фона» по-прежнему включает
+       `.block-cards--icons-no-bg`. */
+    .site-home .feature-card__icon { width: 36px; height: 36px; padding: 0; }
+    .site-home .feature-card__num { font-size: var(--step--2); }
     .site-home .imgcard { min-height: 190px; }
     .site-home .imgcard__body { padding: 18px; }
-    .site-home .imgcard__title { font-size: .9375rem; line-height: 1.4; }
+    .site-home .imgcard__title { font-size: var(--step--1); line-height: 1.4; }
 
     .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card) {
         text-decoration: none;
@@ -62,7 +73,7 @@
     @media (hover: hover) and (pointer: fine) {
         .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card):hover {
             text-decoration: none;
-            box-shadow: 0 16px 36px rgba(37, 99, 235, .12);
+            box-shadow: 0 16px 36px color-mix(in srgb, var(--gov-navy) 14%, transparent);
             transform: translateY(var(--feature-card-hover-lift, -4px));
             border-color: var(--gov-teal);
         }/* Крупные карточки ленты исключены: их заголовок лежит на фотографии

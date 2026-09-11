@@ -4878,7 +4878,7 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
 }
 .feature-card:hover {
     background: var(--gov-surface);
-    box-shadow: 0 16px 36px rgba(37, 99, 235, 0.12);
+    box-shadow: 0 16px 36px color-mix(in srgb, var(--gov-navy) 14%, transparent);
     transform: translateY(-4px);
     border-color: var(--gov-teal);
     border-bottom-color: var(--gov-teal);
@@ -6299,7 +6299,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     border-color: var(--gov-teal);
     border-bottom-color: var(--gov-teal);
     background: var(--gov-surface);
-    box-shadow: 0 16px 36px rgba(37, 99, 235, .12);
+    box-shadow: 0 16px 36px color-mix(in srgb, var(--gov-navy) 14%, transparent);
 }
 
 .feature-card .contact-card__icon,

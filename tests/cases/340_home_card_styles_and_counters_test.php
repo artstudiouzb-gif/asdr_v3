@@ -58,7 +58,13 @@ test('Новости в колонках (.news-column) и карточки но
 
     // На главной странице новостные карточки имеют hover-подъём и тень
     assert_contains('.site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card):hover', $homeCss);
-    assert_contains('box-shadow: 0 16px 36px rgba(37, 99, 235, .12);', $homeCss);
+    // Цвет тени — основной цвет сайта, а не литерал: #2563eb это акцент
+    // ПАНЕЛИ, к публичной палитре отношения не имеющий, и на тёплой или
+    // тёмной палитре синий ореол под карточкой читался чужим.
+    assert_contains(
+        'box-shadow: 0 16px 36px color-mix(in srgb, var(--gov-navy) 14%, transparent);',
+        $homeCss
+    );
     assert_contains('transform: translateY(var(--feature-card-hover-lift, -4px));', $homeCss);
 });
 

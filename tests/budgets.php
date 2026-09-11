@@ -108,6 +108,84 @@ const ADMIN_MEDIA_ONLY_BY_DESIGN = [
 ];
 
 /**
+ * Селекторы, которым `text-wrap: balance` разрешён, и почему.
+ *
+ * Запрет выведен из замера на СЕТКЕ карточек: браузер разносит заголовок по
+ * строкам, исходя из его собственной ширины, и соседние карточки ряда ломаются
+ * в разных местах — ряд читается неровным, а на телефоне строка вдруг
+ * оказывается вдвое короче колонки. Там ширину строки задаёт колонка, и
+ * спорить с ней нечем.
+ *
+ * Из этого не следует, что приём вреден везде. У заголовка, который на экране
+ * один, соседа по переносу нет вовсе: разъезжаться не с чем, а висячее слово
+ * в крупном кегле видно сильнее всего. Правило, которое шире своего замера,
+ * рано или поздно снимают целиком — поэтому оно сужено до замеренного случая,
+ * а разобранные исключения перечислены здесь с причиной. Цена входа в список —
+ * одна строка обоснования, как и у ADMIN_MEDIA_ONLY_BY_DESIGN.
+ *
+ * @var array<string, string>
+ */
+const TEXT_WRAP_BALANCE_BY_DESIGN = [
+    '.site-home .hero__title' => 'заголовок обложки главной: один на экран, соседей по ряду нет',
+    '.newslist-lead__title' => 'лид-карточка одна над сеткой; компактным карточкам ряда приём снят',
+];
+
+/**
+ * Селекторы с `text-wrap: balance` во всём публичном CSS: селектор => файл.
+ *
+ * Сторож жил внутри одного файла (`public-layout-polish.css`) и потому
+ * не действовал ровно там, где приём и применяли: в слое главной и в стилях
+ * ленты новостей. Проверять надо весь публичный CSS — иначе правило есть,
+ * а нарушения живут рядом с ним.
+ *
+ * @return array<string, string>
+ */
+function text_wrap_balance_selectors(): array
+{
+    $found = [];
+    foreach (public_css_files() as $file) {
+        $css = (string) file_get_contents($file);
+        if (preg_match_all('/text-wrap:\s*balance/', $css, $m, PREG_OFFSET_CAPTURE) === 0) {
+            continue;
+        }
+        foreach ($m[0] as [$_, $offset]) {
+            $head = substr($css, 0, (int) $offset);
+            $open = strrpos($head, '{');
+            if ($open === false) {
+                continue;
+            }
+            $selector = substr($head, 0, $open);
+            // Начало селектора — конец предыдущего правила или комментария.
+            $cut = 0;
+            foreach (['}', '*/', ';'] as $stop) {
+                $at = strrpos($selector, $stop);
+                if ($at !== false) {
+                    $cut = max($cut, $at + strlen($stop));
+                }
+            }
+            $selector = trim((string) preg_replace('/\s+/', ' ', substr($selector, $cut)));
+            $found[$selector] = basename($file);
+        }
+    }
+    ksort($found);
+
+    return $found;
+}
+
+/**
+ * Те же селекторы, которым объяснения нет. Их и считает бюджет, потолок ноль.
+ *
+ * @return list<string>
+ */
+function text_wrap_balance_unexplained(): array
+{
+    return array_values(array_filter(
+        array_keys(text_wrap_balance_selectors()),
+        static fn (string $selector): bool => !isset(TEXT_WRAP_BALANCE_BY_DESIGN[$selector])
+    ));
+}
+
+/**
  * Классы админки, у которых есть правила ТОЛЬКО внутри `@media`.
  *
  * Такой класс сторож мёртвых классов не ловит: правило у него есть, значит
@@ -513,6 +591,11 @@ function public_design_css(): string
         'gov-theme.css',
         'public-layout-polish.css',
         'public-editorial-pages.css',
+        // Слой главной идёт в бандле последним, то есть перебивает тему —
+        // и при этом в счёт шкал не шёл. Отсюда там и накопились размеры,
+        // подобранные заново (.9375rem рядом со ступенью 0.95rem), и
+        // `border-radius: 0`, молча отменявший настройку скругления.
+        'public-home.css',
         'rich-content.css',
         'a11y.css',
     ];
@@ -666,6 +749,27 @@ function quality_budgets(): array
                 return [
                     'value' => count($classes),
                     'detail' => implode(', ', $classes),
+                ];
+            },
+        ],
+        'text_wrap_balance' => [
+            'title' => 'text-wrap: balance без объяснения',
+            'unit' => 'шт',
+            'guard' => 'tests/cases/233_visual_system_refinement_test.php',
+            'why' => 'в сетке карточек браузер ломает соседние заголовки в разных местах — '
+                . 'ряд читается неровным; ширину строки задаёт колонка',
+            // Потолок ноль, но считаются только НЕобъяснённые. Запрет выведен
+            // из замера на сетке карточек, и шире своего замера он не нужен:
+            // у заголовка, который на экране один, соседа по переносу нет.
+            // Разобранные случаи — в TEXT_WRAP_BALANCE_BY_DESIGN, с причиной
+            // у каждого.
+            'ceiling' => static fn (): int => 0,
+            'measure' => static function (): array {
+                $selectors = text_wrap_balance_unexplained();
+
+                return [
+                    'value' => count($selectors),
+                    'detail' => implode(', ', $selectors),
                 ];
             },
         ],
