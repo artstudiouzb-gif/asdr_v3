@@ -44,7 +44,6 @@ final class BlockFieldSchema
         // «над текстом при выравнивании по центру, иначе слева». Схема такую
         // связь не выражает, поэтому поле собирается отдельно.
         'icon_text' => ['items' => [], 'icon_position' => ''],
-        'person_cards' => ['items' => []],
         'slider' => ['slides' => []],
         'counters' => ['items' => []],
         'cards_grid' => ['items' => []],
@@ -366,18 +365,6 @@ final class BlockFieldSchema
                     30,
                     0,
                     'Прокрутка останавливается при наведении, фокусе внутри слайдера и у посетителей, которые просили меньше движения в системе.'
-                ),
-            ],
-            'person_cards' => [
-                'title' => Field::text('Заголовок, показываемый на сайте')->named('title_field'),
-                'description' => Field::textarea('Описание раздела'),
-                'all_text' => Field::text('Ссылка «Все …» — текст', '', '', 'Все руководство'),
-                'all_url' => Field::url('Ссылка «Все …» — URL'),
-                'columns' => Field::intChoice(
-                    'Колонок в сетке',
-                    [2, 3, 4, 5],
-                    4,
-                    'Если в последнем ряду остаётся две-три карточки, они растягиваются на всю ширину; одинокую карточку блок не растягивает.'
                 ),
             ],
             'contact_cards' => [
@@ -893,32 +880,6 @@ final class BlockFieldSchema
                     'Блок выводит опубликованные записи раздела «Команда» по порядку сортировки.'
                 ),
                 'group_by_department' => Field::bool('Группировать по секторам, а внутри — по отделам и группам', false),
-            ],
-            'person_profile' => [
-                'photo' => Field::media('Фото'),
-                'name' => Field::text('Имя'),
-                'position' => Field::text('Должность'),
-                'text' => Field::textarea('Описание'),
-                'phone_label' => Field::text('Подпись телефона', 'Приёмная:'),
-                'phone' => Field::text('Телефон', '', '', '+998 71 203 10 00'),
-                'email_label' => Field::text('Подпись e-mail', 'E-mail:'),
-                'email' => Field::text('E-mail'),
-                'button_text' => Field::text('Кнопка — текст', '', '', 'Обратиться к руководителю'),
-                'button_url' => Field::url('Кнопка — ссылка'),
-                'button2_text' => Field::text('Вторая кнопка — текст', '', '', 'Биография'),
-                'button2_url' => Field::url(
-                    'Вторая кнопка — ссылка',
-                    'Вторая кнопка оформляется контуром — как второстепенное действие.'
-                ),
-                'photo_side' => Field::enum('Сторона фото', [
-                    'left' => 'Слева',
-                    'right' => 'Справа',
-                ], 'left', 'На узких экранах фото в любом случае встаёт над текстом.'),
-                'telegram' => Field::url('Telegram', '', 'https://...'),
-                'facebook' => Field::url('Facebook', '', 'https://...'),
-                'linkedin' => Field::url('LinkedIn', '', 'https://...'),
-                'x' => Field::url('X', '', 'https://...'),
-                'instagram' => Field::url('Instagram', '', 'https://...'),
             ],
             'leader_card' => [
                 'photo' => Field::media('Фото руководителя'),

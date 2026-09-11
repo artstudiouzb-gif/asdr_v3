@@ -82,9 +82,7 @@ final class BlockTypeRegistry
         'cards_grid' => [], // схема: BlockFieldSchema
         'media_gallery' => [], // схема: BlockFieldSchema
         'news_feature' => [], // схема: BlockFieldSchema
-        'person_cards' => [], // схема: BlockFieldSchema
         'news_docs' => [], // схема: BlockFieldSchema
-        'person_profile' => [], // схема: BlockFieldSchema
         'bio_education' => [], // схема: BlockFieldSchema
         'anchor_nav' => [], // схема: BlockFieldSchema
         'stages' => [], // схема: BlockFieldSchema
@@ -113,8 +111,8 @@ final class BlockTypeRegistry
         'subscribe' => 'Подписка', 'faq' => 'Вопросы и ответы', 'contact_cards' => 'Контакты',
         'hero' => 'Обложка',
         'cards_grid' => 'Карточки', 'media_gallery' => 'Медиагалерея',
-        'news_feature' => 'Новости и аналитика', 'person_cards' => 'Карточки персон',
-        'news_docs' => 'Новости и документы', 'person_profile' => 'Профиль персоны',
+        'news_feature' => 'Новости и аналитика',
+        'news_docs' => 'Новости и документы',
         'bio_education' => 'Биография и образование',
         'anchor_nav' => 'Якорная навигация', 'stages' => 'Хронология и этапы',
         'text_image' => 'Текст с фото',
@@ -141,9 +139,7 @@ final class BlockTypeRegistry
         'cards_grid' => 'Карточки (иконки / фото / категории)',
         'media_gallery' => 'Медиа-галерея (видео/фото)',
         'news_feature' => 'Новости и аналитика (крупная + список)',
-        'person_cards' => 'Руководство (карточки персон)',
         'news_docs' => 'Новости + документы (2 колонки)',
-        'person_profile' => 'Профиль руководителя',
         'bio_education' => 'Биография + образование',
         'anchor_nav' => 'Якорная навигация (вкладки)',
         // «Хронология» и «Этапы» были двумя блоками, и оба подписывались

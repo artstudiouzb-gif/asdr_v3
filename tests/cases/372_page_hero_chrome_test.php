@@ -27,18 +27,12 @@ use App\Core\PageHero;
 test('Первый блок-обложка опознаётся в обеих разметках', function () {
     $record = '<section class="cms-block cms-block--hero"><div class="hero hero--w-full"></div></section>';
     $legacy = '<section class="cms-block cms-block--hero"><div class="block-hero block-hero--plain"></div></section>';
-    $profile = '<section class="cms-block cms-block--person_profile"><div></div></section>';
     $text = '<section class="cms-block cms-block--text"><div></div></section>';
 
     foreach ([$record, $legacy] as $html) {
         assert_true(PageHero::isHero($html), 'обложка первым блоком');
         assert_true(PageHero::ownsHeading($html), 'обложка печатает h1 сама');
     }
-
-    // Профиль руководителя тоже со своим заголовком, но композиции во всю
-    // ширину у него нет: шапку он заменяет, крошки — нет.
-    assert_false(PageHero::isHero($profile), 'профиль — не обложка');
-    assert_true(PageHero::ownsHeading($profile), 'профиль печатает h1 сам');
 
     assert_false(PageHero::isHero($text), 'обычный блок шапкой не является');
     assert_false(PageHero::ownsHeading($text), 'обычный блок заголовка страницы не несёт');

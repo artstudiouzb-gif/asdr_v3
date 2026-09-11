@@ -1548,7 +1548,7 @@
         'use strict';
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
         if (!('IntersectionObserver' in window)) { return; }
-        var GRIDS = '.imgcards-grid, .newslist-grid, .icon-text__grid, .mediagallery-grid, .albums-grid, .persons-grid, .cards-grid, .cat-grid, .block-news__grid, .block-counters__grid, .docslist-grid, .docslist-acts, .contact-cards, .block-partners__grid, .block-team__grid, .block-projects__grid, .block-faq__list, .stages, .timeline-list, .featband, .media-list, .newsdocs-news, .newsdocs-docs';
+        var GRIDS = '.imgcards-grid, .newslist-grid, .icon-text__grid, .mediagallery-grid, .albums-grid, .cards-grid, .cat-grid, .block-news__grid, .block-counters__grid, .docslist-grid, .docslist-acts, .contact-cards, .block-partners__grid, .block-team__grid, .block-projects__grid, .block-faq__list, .stages, .timeline-list, .featband, .media-list, .newsdocs-news, .newsdocs-docs';
         var sections = Array.prototype.slice.call(document.querySelectorAll('[data-reveal-items]'));
         if (!sections.length) { return; }
         var grids = document.querySelectorAll('[data-reveal-items] ' + GRIDS.split(', ').join(', [data-reveal-items] '));
@@ -1881,7 +1881,7 @@
                 var e = lastEvent;
                 if (!e || !e.target || !e.target.closest) { return; }
                 var el = e.target.closest(
-                    '.cat-tile, .contact-card, .project-card, .team-card, .feature-card, .news-card, .person-card, .album-card, .doc-card, .act-card, .catcard, .testimonial, .mediacard, .imgcard, .faq-item, .stage, .timeline-item, ' +
+                    '.cat-tile, .contact-card, .project-card, .team-card, .feature-card, .news-card, .album-card, .doc-card, .act-card, .catcard, .testimonial, .mediacard, .imgcard, .faq-item, .stage, .timeline-item, ' +
                     '.block-icon-text--cards .icon-text__card, ' +
                     '.btn, .block-cta__button, .btn-cta, .block-hero__button, .timeline-card__button, .timeline-cta__button, ' +
                     '.a11y-toggle, .site-theme-toggle, .site-search-toggle'

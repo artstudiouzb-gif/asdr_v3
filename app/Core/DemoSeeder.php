@@ -1817,8 +1817,7 @@ final class DemoSeeder
                     'title' => 'Руководство',
                     'blocks' => [
                         ['text', 'Введение', ['title' => 'Руководство', 'content' => '<p>Руководящий состав организации.</p>']],
-                        ['team_list', 'Команда', ['title' => 'Руководящий состав', 'limit' => 0, 'group_by_department' => true]],
-                        ['cta', 'Директор', ['variant' => 'band', 'title' => 'Директор Агентства', 'text' => 'Биография, приоритеты работы и публикации руководителя.', 'button_text' => 'Страница директора', 'button_url' => '/direktor', 'bg_color' => '#072b61', 'text_color' => '#ffffff']]
+                        ['team_list', 'Команда', ['title' => 'Руководящий состав', 'limit' => 0, 'group_by_department' => true]]
                     ]
                 ],
                 'uz' => [
@@ -1841,7 +1840,7 @@ final class DemoSeeder
                             'council' => 'Координационный совет',
                             'head_title' => 'Директор',
                             'head_name' => '',
-                            'head_url' => '/direktor',
+                            'head_url' => '',
                             'side_items' => 'Советник',
                             'branches' => [
                                 ['title' => 'Первый заместитель директора', 'name' => '', 'units' => "Сектор стратегического планирования и развития отраслей и сфер\nСектор анализа и исследований | /rukovodstvo#team-sektor-analiza-i-issledovaniy\nСектор организации деятельности Координационного совета\n* Проектные офисы по развитию отраслей"],
@@ -1865,7 +1864,7 @@ final class DemoSeeder
                             'council' => 'Muvofiqlashtiruvchi kengash',
                             'head_title' => 'Direktor',
                             'head_name' => '',
-                            'head_url' => '/direktor',
+                            'head_url' => '',
                             'side_items' => 'Maslahatchi',
                             'branches' => [
                                 ['title' => 'Direktorning birinchi oʻrinbosari', 'name' => '', 'units' => "Soha va tarmoqlarni strategik rejalashtirish va rivojlantirish shoʻbasi\nTahlil va tadqiqotlar shoʻbasi\nMuvofiqlashtiruvchi kengash faoliyatini tashkil qilish shoʻbasi\n* Tarmoqlarni rivojlantirish boʻyicha loyiha ofislari"],
@@ -1977,8 +1976,6 @@ final class DemoSeeder
             'o-nas' => 'About Agency',
             'rukovodstvo' => 'Leadership',
             'struktura' => 'Structure',
-            'direktor' => 'Director',
-            'pervyy-zamestitel-direktora' => 'First Deputy Director',
             'antikorrupciya' => 'Anti-Corruption',
             'napravleniya' => 'Priority Areas',
             'strategiya-2030' => 'Strategy «Uzbekistan–2030»',
@@ -2168,7 +2165,6 @@ final class DemoSeeder
         $hierarchy = [
             'rukovodstvo' => 'o-nas',
             'struktura' => 'o-nas',
-            'direktor' => 'rukovodstvo',
             'antikorrupciya' => 'o-nas',
             'strategiya-2030' => 'napravleniya',
             'ustoychivyy-ekonomicheskiy-rost' => 'napravleniya',
@@ -2210,8 +2206,6 @@ final class DemoSeeder
                     ['Об агентстве', 'page', 'o-nas'],
                     ['Руководство', 'page', 'rukovodstvo'],
                     ['Структура', 'page', 'struktura'],
-                    ['Директор', 'page', 'direktor'],
-                    ['Первый заместитель директора', 'page', 'pervyy-zamestitel-direktora'],
                     ['Противодействие коррупции', 'page', 'antikorrupciya'],
                 ]],
                 ['title' => 'Деятельность', 'type' => 'page', 'value' => 'napravleniya', 'mega' => 0, 'children' => [
@@ -2239,8 +2233,6 @@ final class DemoSeeder
                     ['Agentlik haqida', 'page', 'o-nas'],
                     ['Rahbariyat', 'page', 'rukovodstvo'],
                     ['Tuzilma', 'page', 'struktura'],
-                    ['Direktor', 'page', 'direktor'],
-                    ['Direktorning birinchi o‘rinbosari', 'page', 'pervyy-zamestitel-direktora'],
                     ['Korrupsiyaga qarshi kurash', 'page', 'antikorrupciya'],
                 ]],
                 ['title' => 'Faoliyat', 'type' => 'page', 'value' => 'napravleniya', 'mega' => 0, 'children' => [
@@ -2268,8 +2260,6 @@ final class DemoSeeder
                     ['About Agency', 'page', 'o-nas'],
                     ['Leadership', 'page', 'rukovodstvo'],
                     ['Structure', 'page', 'struktura'],
-                    ['Director', 'page', 'direktor'],
-                    ['First Deputy Director', 'page', 'pervyy-zamestitel-direktora'],
                     ['Anti-Corruption', 'page', 'antikorrupciya'],
                 ]],
                 ['title' => 'Activity', 'type' => 'page', 'value' => 'napravleniya', 'mega' => 0, 'children' => [

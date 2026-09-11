@@ -6,21 +6,6 @@ use App\Core\BlockRenderer;
 use App\Core\Database;
 use App\Core\Locale;
 
-test('Блок person_cards: персона с фото и вакантная карточка', function () {
-    $out = BlockRenderer::render(['id' => 40, 'type' => 'person_cards', 'custom_css' => null, 'data' => json_encode([
-        'title' => 'Руководство Агентства', 'all_text' => 'Все руководство', 'all_url' => '/o-nas',
-        'items' => [
-            ['photo' => '/uploads/public/d.jpg', 'name' => 'Элёр Ганиев', 'role' => 'Директор Агентства', 'url' => '/rukovoditel'],
-            ['photo' => '', 'name' => '', 'role' => 'Заместитель директора', 'url' => ''],
-        ],
-    ])])['html'];
-    assert_contains('cms-block--person_cards', $out);
-    assert_contains('Элёр Ганиев', $out);
-    assert_contains('person-card--vacant', $out);
-    assert_contains('person-card__vacant', $out);
-    assert_contains('href="/rukovoditel"', $out);
-});
-
 test('Блок timeline: события, кнопка и CTA-карточка', function () {
     $rendered = BlockRenderer::render(['id' => 41, 'type' => 'timeline', 'custom_css' => null, 'data' => json_encode([
         'title' => 'История Агентства',
@@ -61,19 +46,6 @@ test('CTA-полоса: заголовок, текст, кнопка; иконк
     assert_contains('block-ctaband', $out);
     assert_contains('ctaband__icon', $out);
     assert_contains('href="/kontakty"', $out);
-});
-
-test('Блок person_profile: фото, контакты, кнопка', function () {
-    $out = BlockRenderer::render(['id' => 44, 'type' => 'person_profile', 'custom_css' => null, 'data' => json_encode([
-        'photo' => '/uploads/public/dir.jpg', 'name' => 'Элёр Ганиев',
-        'position' => 'Директор Агентства', 'text' => 'Руководит деятельностью.',
-        'phone' => '+998 71 203 10 00', 'email' => 'info@strategy.uz',
-        'button_text' => 'Обратиться', 'button_url' => '/kontakty',
-    ])])['html'];
-    assert_contains('block-profile', $out);
-    assert_contains('tel:+998712031000', $out);
-    assert_contains('mailto:info@strategy.uz', $out);
-    assert_contains('profile__button', $out);
 });
 
 test('Преимущества-полоса: элементы с иконками', function () {

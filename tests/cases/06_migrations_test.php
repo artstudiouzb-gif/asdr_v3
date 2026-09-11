@@ -12,7 +12,7 @@ test('Миграции: все файлы непусты и содержат SQL
         $sql = (string) file_get_contents($f);
         assert_true(trim($sql) !== '', basename($f) . ' пуст');
         assert_true(
-            (bool) preg_match('/\b(CREATE|ALTER|INSERT|UPDATE|DROP)\b/i', $sql),
+            (bool) preg_match('/\b(CREATE|ALTER|INSERT|UPDATE|DELETE|DROP)\b/i', $sql),
             basename($f) . ' не содержит SQL-операторов'
         );
     }

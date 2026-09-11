@@ -91,7 +91,7 @@ final class BlockRenderer
      *
      * @var list<string>
      */
-    private const H1_BLOCKS = ['hero', 'person_profile'];
+    private const H1_BLOCKS = ['hero'];
 
     /**
      * Сообщает рендеру, что h1 на странице уже занят (например, шапкой самой

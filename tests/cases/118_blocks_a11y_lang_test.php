@@ -7,22 +7,17 @@ use App\Core\BlockSamples;
 
 test('Заголовок первого уровня на странице ровно один', function () {
     // Экранный диктор по h1 понимает, о чём страница: второй h1 ломает эту
-    // опору. Обложка и профиль персоны претендуют на него — h1 получает
-    // первый, остальные переходят на h2.
+    // опору. Претендент на него один — обложка, и только первая: вторая
+    // обложка на той же странице переходит на h2.
     $blocks = [
         ['id' => 1, 'type' => 'hero', 'custom_css' => '', 'data' => json_encode(['title' => 'Обложка'])],
-        ['id' => 2, 'type' => 'person_profile', 'custom_css' => '', 'data' => json_encode(['name' => 'Фамилия Имя'])],
+        ['id' => 2, 'type' => 'hero', 'custom_css' => '', 'data' => json_encode(['title' => 'Вторая обложка'])],
         ['id' => 3, 'type' => 'cta', 'custom_css' => '', 'data' => json_encode(['variant' => 'media-light', 'title' => 'Баннер'])],
     ];
     $html = BlockRenderer::renderPage($blocks)['html'];
     assert_same(1, substr_count($html, '<h1'), 'h1 должен быть один');
     assert_contains('<h1 class="block-hero__title"', $html);
-    assert_contains('<h2 class="profile__name"', $html);
-
-    // Порядок решает: первым идёт профиль — h1 достаётся ему.
-    $reordered = BlockRenderer::renderPage(array_reverse($blocks))['html'];
-    assert_same(1, substr_count($reordered, '<h1'));
-    assert_contains('<h1 class="profile__name"', $reordered);
+    assert_contains('<h2 class="block-hero__title"', $html);
 
     // Баннер — рекламная врезка, заголовком страницы не бывает никогда.
     $bannerOnly = BlockRenderer::renderPage([$blocks[2]])['html'];

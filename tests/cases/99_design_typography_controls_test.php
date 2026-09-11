@@ -157,7 +157,6 @@ test('редакционные размеры используют переме�
     );
     assert_contains('font-size: var(--font-size-card-title, var(--step-0));', $css);
     assert_contains('font-size: var(--font-size-meta, var(--step--3));', $css);
-    assert_contains('.profile__name', DesignSettings::TYPO_SIZES['fs_h1'][1]);
     assert_contains(
         'font-family: var(--font-heading, var(--font-family));',
         $css,
