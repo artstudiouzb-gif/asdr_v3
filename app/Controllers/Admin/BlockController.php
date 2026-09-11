@@ -52,14 +52,14 @@ final class BlockController
 
         if (!BlockTypeRegistry::has($type)) {
             Flash::error('Неизвестный тип блока.');
-            header('Location: ' . self::ownerEditUrl($pageId, $lang));
+            header('Location: ' . \App\Core\BlockOwner::editUrl($pageId, $lang));
             exit;
         }
 
         // Блок сырого HTML может создавать только супер-администратор.
         if ($type === 'html' && !Auth::isSuperAdmin()) {
             Flash::error('Блок «HTML-код» доступен только супер-администратору.');
-            header('Location: ' . self::ownerEditUrl($pageId, $lang));
+            header('Location: ' . \App\Core\BlockOwner::editUrl($pageId, $lang));
             exit;
         }
 
@@ -67,7 +67,7 @@ final class BlockController
         // если пришли parent_block_id + column_index (номер колонки/вкладки).
         $parentBlockId = null;
         $columnIndex = 0;
-        $redirectTo = self::ownerEditUrl($pageId, $lang);
+        $redirectTo = \App\Core\BlockOwner::editUrl($pageId, $lang);
         if (!empty($_POST['parent_block_id'])) {
             $parent = Block::findById((int) $_POST['parent_block_id']);
             if (!$parent || (int) $parent['page_id'] !== $pageId
@@ -410,24 +410,7 @@ final class BlockController
 
     private function pageEditUrl(array $block): string
     {
-        return self::ownerEditUrl((int) $block['page_id'], (string) $block['lang']);
-    }
-
-    /**
-     * Куда возвращаться после действия над блоком.
-     *
-     * Проект — страница с подтипом, и конструктор у него встроен в свою форму:
-     * возвращать редактора в раздел «Страницы» после правки блока проекта
-     * значило бы уводить его из того раздела, где он работает.
-     */
-    public static function ownerEditUrl(int $pageId, string $lang): string
-    {
-        $page = Page::findById($pageId);
-        $section = ($page !== null && (string) ($page['entity_type'] ?? 'page') === 'project')
-            ? '/admin/projects/'
-            : '/admin/pages/';
-
-        return $section . $pageId . '/edit?block_lang=' . urlencode($lang);
+        return \App\Core\BlockOwner::editUrl((int) $block['page_id'], (string) $block['lang']);
     }
 
     private function collectData(string $type, string $locale = 'ru'): array

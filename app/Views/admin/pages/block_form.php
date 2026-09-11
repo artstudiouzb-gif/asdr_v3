@@ -2,8 +2,14 @@
 
 use App\Core\Csrf;
 
+// Владелец блока — страница или проект: от него зависят и подпись кнопки
+// возврата, и подсвеченный раздел бокового меню.
+$blockOwner = \App\Models\Page::findById((int) $block['page_id']) ?? [];
+$blockOwner['id'] = (int) $block['page_id'];
+$ownerIsProject = \App\Core\BlockOwner::isProject($blockOwner);
+
 $pageTitle = 'Редактирование блока';
-$activeNav = 'pages';
+$activeNav = $ownerIsProject ? 'projects' : 'pages';
 require __DIR__ . '/../layout/header.php';
 
 /** @var array $block */
@@ -15,10 +21,14 @@ require __DIR__ . '/../layout/header.php';
 $type = $block['type'];
 $error = $error ?? null;
 $widgets = $widgets ?? [];
-$backUrl = '/admin/pages/' . (int) $block['page_id'] . '/edit?block_lang=' . urlencode((string) ($block['lang'] ?? ''));
+// Раздел владельца, а не литерал `/admin/pages/`: у проекта своя форма, и
+// страница отвечает на него 404 — редактор упирался в «404» ровно тогда,
+// когда закончил править блок проекта.
+$backUrl = \App\Core\BlockOwner::editUrlFor($blockOwner, (string) ($block['lang'] ?? ''));
+$backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к странице';
 ?>
 <?php if ($error): ?><div class="alert alert--error"><?= htmlspecialchars($error, ENT_QUOTES) ?></div><?php endif; ?>
-<a href="<?= htmlspecialchars($backUrl, ENT_QUOTES) ?>" class="btn btn--small u-inline-79a1c5a5db">&larr; Назад к странице</a>
+<a href="<?= htmlspecialchars($backUrl, ENT_QUOTES) ?>" class="btn btn--small u-inline-79a1c5a5db">&larr; <?= htmlspecialchars($backLabel, ENT_QUOTES) ?></a>
 <a href="/admin/blocks/<?= (int) $block['id'] ?>/revisions" class="btn btn--small u-inline-79a1c5a5db">История изменений</a>
 
 <div class="form-card block-editor-card">
