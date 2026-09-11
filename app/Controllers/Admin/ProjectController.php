@@ -226,6 +226,7 @@ final class ProjectController
             'cover_image' => $coverImage,
             'status' => $status,
             'is_featured' => !empty($_POST['is_featured']),
+            'transparent_header' => !empty($_POST['transparent_header']),
             'sort_order' => $sortOrder,
             'lang' => (string) ($_POST['lang'] ?? $_GET['lang'] ?? Language::defaultCode()),
         ];

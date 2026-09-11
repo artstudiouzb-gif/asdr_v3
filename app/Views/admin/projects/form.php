@@ -91,6 +91,12 @@ $action = $isEdit ? '/admin/projects/' . (int) $project['id'] . '/edit' : '/admi
                         <input type="checkbox" id="is_featured" name="is_featured" value="1" <?= !empty($project['is_featured']) ? 'checked' : '' ?>>
                         <label class="u-inline-d76ba0dbd2" for="is_featured">Показать на главной</label>
                     </div>
+
+                    <div class="form-field form-field--checkbox u-inline-b1ecc496e0">
+                        <input type="checkbox" id="transparent_header" name="transparent_header" value="1" <?= !empty($project['transparent_header']) ? 'checked' : '' ?>>
+                        <label class="u-inline-d76ba0dbd2" for="transparent_header">Прозрачная шапка</label>
+                    </div>
+                    <p class="form-hint">Для прозрачной шапки нужна обложка первым блоком.</p>
                 </div>
             </div>
         </aside>
