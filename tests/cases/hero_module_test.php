@@ -1,1 +1,84 @@
-PD9waHAKCmRlY2xhcmUoc3RyaWN0X3R5cGVzPTEpOwoKdXNlIEFwcFxDb3JlXEhlcm9cSGVyb01lZGlhUmVuZGVyZXI7CnVzZSBBcHBcQ29yZVxIZXJvXEhlcm9OYXZpZ2F0aW9uOwp1c2UgQXBwXENvcmVcSGVyb1xIZXJvUmVuZGVyZXI7CnVzZSBBcHBcQ29yZVxIZXJvXEhlcm9TZXR0aW5nczsKdXNlIEFwcFxDb3JlXEhlcm9cSGVyb1NsaWRlRGF0YTsKCnRlc3QoJ0hlcm8gbWVkaWE6IG9ubHkgdGhlIGZpcnN0IHJlc3BvbnNpdmUgcG9zdGVyIGhhcyBoaWdoIGZldGNoIHByaW9yaXR5JywgZnVuY3Rpb24gKCk6IHZvaWQgewogICAgJGRhdGEgPSBIZXJvU2xpZGVEYXRhOjp3aXRoRGVmYXVsdHMoWwogICAgICAgICdtZWRpYV90eXBlJyA9PiAnaW1hZ2UnLCAnaW1hZ2UnID0+ICcvdXBsb2Fkcy9wdWJsaWMvaGVyby5qcGcnLAogICAgICAgICdpbWFnZV9tb2JpbGUnID0+ICcvdXBsb2Fkcy9wdWJsaWMvaGVyby1tb2JpbGUuanBnJywKICAgIF0pOwogICAgJGZpcnN0ID0gSGVyb01lZGlhUmVuZGVyZXI6OnJlbmRlcigkZGF0YSwgdHJ1ZSk7CiAgICAkbGF0ZXIgPSBIZXJvTWVkaWFSZW5kZXJlcjo6cmVuZGVyKCRkYXRhLCBmYWxzZSk7CiAgICBhc3NlcnRfY29udGFpbnMoJ2ZldGNocHJpb3JpdHk9ImhpZ2giJywgJGZpcnN0KTsKICAgIGFzc2VydF9jb250YWlucygnaGVyby1tb2JpbGUuanBnJywgJGZpcnN0KTsKICAgIGFzc2VydF9ub3RfY29udGFpbnMoJ2xvYWRpbmc9ImxhenkiJywgJGZpcnN0KTsKICAgIGFzc2VydF9jb250YWlucygnbG9hZGluZz0ibGF6eSInLCAkbGF0ZXIpOwogICAgYXNzZXJ0X25vdF9jb250YWlucygnZmV0Y2hwcmlvcml0eT0iaGlnaCInLCAkbGF0ZXIpOwp9KTsKCnRlc3QoJ0hlcm8gbWVkaWE6IHZpZGVvcyBjYW5ub3QgZmV0Y2ggYmVmb3JlIHJ1bnRpbWUgc2VsZWN0cyB0aGUgdmlzaWJsZSBzb3VyY2UnLCBmdW5jdGlvbiAoKTogdm9pZCB7CiAgICAkaHRtbCA9IEhlcm9NZWRpYVJlbmRlcmVyOjpyZW5kZXIoSGVyb1NsaWRlRGF0YTo6d2l0aERlZmF1bHRzKFsKICAgICAgICAnbWVkaWFfdHlwZScgPT4gJ3ZpZGVvJywgJ3ZpZGVvX3VybCcgPT4gJy91cGxvYWRzL3B1YmxpYy9kZXNrdG9wLm1wNCcsCiAgICAgICAgJ3ZpZGVvX21vYmlsZV91cmwnID0+ICcvdXBsb2Fkcy9wdWJsaWMvbW9iaWxlLm1wNCcsICdpbWFnZScgPT4gJy91cGxvYWRzL3B1YmxpYy9wb3N0ZXIuanBnJywKICAgIF0pLCB0cnVlKTsKICAgIGFzc2VydF9jb250YWlucygnPHNvdXJjZSBkYXRhLWhlcm8tc3JjPSIvdXBsb2Fkcy9wdWJsaWMvZGVza3RvcC5tcDQiJywgJGh0bWwpOwogICAgYXNzZXJ0X25vdF9jb250YWlucygnPHNvdXJjZSBzcmM9JywgJGh0bWwpOwogICAgYXNzZXJ0X2NvbnRhaW5zKCdkYXRhLWhlcm8tdmlkZW8tbW9iaWxlPSIvdXBsb2Fkcy9wdWJsaWMvbW9iaWxlLm1wNCInLCAkaHRtbCk7CiAgICBhc3NlcnRfY29udGFpbnMoJ3ByZWxvYWQ9Im5vbmUiJywgJGh0bWwpOwogICAgYXNzZXJ0X2NvbnRhaW5zKCdoZXJvX19mYWxsYmFjaycsICRodG1sKTsKfSk7Cgp0ZXN0KCdIZXJvIG5hdmlnYXRpb246IGEgc2luZ2xlIHZpZGVvIGhhcyBhIHBhdXNlIGNvbnRyb2wgYnV0IG5vIHNsaWRlIGFycm93cycsIGZ1bmN0aW9uICgpOiB2b2lkIHsKICAgICRzbGlkZXMgPSBbWydkYXRhJyA9PiBIZXJvU2xpZGVEYXRhOjp3aXRoRGVmYXVsdHMoWydtZWRpYV90eXBlJyA9PiAndmlkZW8nLCAndmlkZW9fdXJsJyA9PiAnL3YubXA0J10pXV07CiAgICAkaHRtbCA9IEhlcm9OYXZpZ2F0aW9uOjpyZW5kZXIoJHNsaWRlcywgSGVyb1NldHRpbmdzOjpkZWZhdWx0cygpLCAxKTsKICAgIGFzc2VydF9jb250YWlucygnZGF0YS1oZXJvLXRvZ2dsZScsICRodG1sKTsKICAgIGFzc2VydF9ub3RfY29udGFpbnMoJ2RhdGEtaGVyby1wcmV2JywgJGh0bWwpOwogICAgYXNzZXJ0X25vdF9jb250YWlucygnZGF0YS1oZXJvLW5leHQnLCAkaHRtbCk7CiAgICBhc3NlcnRfbm90X2NvbnRhaW5zKCdhcmlhLXByZXNzZWQnLCAkaHRtbCwgJ2NoYW5naW5nIGFjdGlvbiBsYWJlbHMgdXNlIGNvbW1hbmQgYnV0dG9ucycpOwp9KTsKCnRlc3QoJ0hlcm8gcmVuZGVyZXI6IHBhdXNlIHByZWNlZGVzIHNsaWRlIGxpbmtzIGFuZCBlbmhhbmNlbWVudCBvd25zIGluZXJ0IHN0YXRlJywgZnVuY3Rpb24gKCk6IHZvaWQgewogICAgJHNsaWRlcyA9IFsKICAgICAgICBbJ2RhdGEnID0+IEhlcm9TbGlkZURhdGE6OndpdGhEZWZhdWx0cyhbCiAgICAgICAgICAgICd0aXRsZScgPT4gJ09uZScsICdsaW5rX3VybCcgPT4gJy9vbmUnLAogICAgICAgICAgICAnY3RhX2VuYWJsZWQnID0+IHRydWUsICdjdGFfdGV4dCcgPT4gJ09wZW4nLCAnY3RhX3VybCcgPT4gJy9vcGVuJywgJ2N0YV9pY29uJyA9PiAnYXJyb3ctcmlnaHQnLAogICAgICAgIF0pXSwKICAgICAgICBbJ2RhdGEnID0+IEhlcm9TbGlkZURhdGE6OndpdGhEZWZhdWx0cyhbJ3RpdGxlJyA9PiAnVHdvJywgJ2xpbmtfdXJsJyA9PiAnL3R3byddKV0sCiAgICBdOwogICAgJGh0bWwgPSBIZXJvUmVuZGVyZXI6OnJlbmRlcihbJ25hbWUnID0+ICdEZW1vJ10sICRzbGlkZXMsIEhlcm9TZXR0aW5nczo6d2l0aERlZmF1bHRzKFsnYXV0b3BsYXknID0+IHRydWVdKSwgMTUpWydodG1sJ107CiAgICBhc3NlcnRfdHJ1ZShzdHJwb3MoJGh0bWwsICdkYXRhLWhlcm8tdG9nZ2xlJykgPCBzdHJwb3MoJGh0bWwsICdocmVmPSIvb25lIicpKTsKICAgIGFzc2VydF9ub3RfY29udGFpbnMoJyBpbmVydCcsICRodG1sKTsKICAgIGFzc2VydF9jb250YWlucygnYXJpYS1hdG9taWM9InRydWUiJywgJGh0bWwpOwogICAgYXNzZXJ0X2NvbnRhaW5zKCdoZXJvX19jdGEgaGVyb19fY3RhLS1wcmltYXJ5IGhlcm9fX2N0YS0td2l0aC1pY29uJywgJGh0bWwpOwogICAgYXNzZXJ0X2NvbnRhaW5zKCdoZXJvX19jdGEtaWNvbicsICRodG1sKTsKICAgIGFzc2VydF9jb250YWlucygnd2lkdGg9IjQ2IiBoZWlnaHQ9IjQ2IicsICRodG1sLCAn0YDQtdC90LTQtdGA0LXRgCDQvdC1INC00L7Qu9C20LXQvSDQstC+0LfQstGA0LDRidCw0YLRjCDQvtGC0LTQtdC70YzQvdGL0Lkg0LzQtdC70LrQuNC5INGA0LDQt9C80LXRgCDQuNC60L7QvdC60LgnKTsKfSk7Cgp0ZXN0KCdIZXJvIG5hdmlnYXRpb246IHN0YXRpYyBpbWFnZSBuZWVkcyBubyBtb3Rpb24gY29udHJvbDsgS2VuIEJ1cm5zIGRvZXMnLCBmdW5jdGlvbiAoKTogdm9pZCB7CiAgICAkc2xpZGVzID0gW1snZGF0YScgPT4gSGVyb1NsaWRlRGF0YTo6d2l0aERlZmF1bHRzKFsndGl0bGUnID0+ICdTdGlsbCcsICdpbWFnZScgPT4gJy9zdGlsbC5qcGcnXSldXTsKICAgIGFzc2VydF9zYW1lKCcnLCBIZXJvTmF2aWdhdGlvbjo6cmVuZGVyKCRzbGlkZXMsIEhlcm9TZXR0aW5nczo6ZGVmYXVsdHMoKSwgMSkpOwogICAgJGh0bWwgPSBIZXJvTmF2aWdhdGlvbjo6cmVuZGVyKCRzbGlkZXMsIEhlcm9TZXR0aW5nczo6d2l0aERlZmF1bHRzKFsndHJhbnNpdGlvbicgPT4gJ2tlbmJ1cm5zJ10pLCAxKTsKICAgIGFzc2VydF9jb250YWlucygnZGF0YS1oZXJvLXRvZ2dsZScsICRodG1sKTsKfSk7Cgp0ZXN0KCdIZXJvIGVkaXRvcjogZXhwbGljaXQgY29sb3IgYmFja2dyb3VuZCB3aW5zIG92ZXIgcHJldmlvdXNseSB1cGxvYWRlZCBtZWRpYScsIGZ1bmN0aW9uICgpOiB2b2lkIHsKICAgICRkYXRhID0gSGVyb1NsaWRlRGF0YTo6bm9ybWFsaXplKFsKICAgICAgICAnbWVkaWFfdHlwZScgPT4gJ25vbmUnLCAndGl0bGUnID0+ICdDb2xvciBvbmx5JywKICAgICAgICAnaW1hZ2UnID0+ICcvaW1hZ2UuanBnJywgJ3ZpZGVvX3VybCcgPT4gJy92aWRlby5tcDQnLCAneW91dHViZV91cmwnID0+ICdodHRwczovL3lvdXR1LmJlL2RRdzR3OVdnWGNRJywKICAgIF0pOwogICAgYXNzZXJ0X3NhbWUoJ25vbmUnLCAkZGF0YVsnbWVkaWFfdHlwZSddKTsKICAgIGFzc2VydF9zYW1lKCcnLCBIZXJvU2xpZGVEYXRhOjpmYWxsYmFja0ltYWdlKCRkYXRhKSk7CiAgICBhc3NlcnRfc2FtZSgnJywgSGVyb01lZGlhUmVuZGVyZXI6OnJlbmRlcigkZGF0YSwgdHJ1ZSkpOwogICAgYXNzZXJ0X3NhbWUoJ2ltYWdlJywgSGVyb1NsaWRlRGF0YTo6bm9ybWFsaXplKFsnaW1hZ2UnID0+ICcvaW1hZ2UuanBnJ10pWydtZWRpYV90eXBlJ10pOwp9KTsKCnRlc3QoJ0hlcm8gZWRpdG9yOiBzd2l0Y2hpbmcgdG8gYW4gaW1hZ2UgY2Fubm90IHJldXNlIHRoZSBvbGQgdmlkZW8gcG9zdGVyJywgZnVuY3Rpb24gKCk6IHZvaWQgewogICAgJGRhdGEgPSBIZXJvU2xpZGVEYXRhOjpub3JtYWxpemUoWydtZWRpYV90eXBlJyA9PiAnaW1hZ2UnLCAnaW1hZ2UnID0+ICcvbmV3LmpwZycsICdwb3N0ZXInID0+ICcvb2xkLmpwZyddKTsKICAgIGFzc2VydF9zYW1lKCcvbmV3LmpwZycsIEhlcm9TbGlkZURhdGE6OmZhbGxiYWNrSW1hZ2UoJGRhdGEpKTsKfSk7Cg==
+<?php
+
+declare(strict_types=1);
+
+use App\Core\Hero\HeroMediaRenderer;
+use App\Core\Hero\HeroNavigation;
+use App\Core\Hero\HeroRenderer;
+use App\Core\Hero\HeroSettings;
+use App\Core\Hero\HeroSlideData;
+
+test('Hero media: only the first responsive poster has high fetch priority', function (): void {
+    $data = HeroSlideData::withDefaults([
+        'media_type' => 'image', 'image' => '/uploads/public/hero.jpg',
+        'image_mobile' => '/uploads/public/hero-mobile.jpg',
+    ]);
+    $first = HeroMediaRenderer::render($data, true);
+    $later = HeroMediaRenderer::render($data, false);
+    assert_contains('fetchpriority="high"', $first);
+    assert_contains('hero-mobile.jpg', $first);
+    assert_not_contains('loading="lazy"', $first);
+    assert_contains('loading="lazy"', $later);
+    assert_not_contains('fetchpriority="high"', $later);
+});
+
+test('Hero media: videos cannot fetch before runtime selects the visible source', function (): void {
+    $html = HeroMediaRenderer::render(HeroSlideData::withDefaults([
+        'media_type' => 'video', 'video_url' => '/uploads/public/desktop.mp4',
+        'video_mobile_url' => '/uploads/public/mobile.mp4', 'image' => '/uploads/public/poster.jpg',
+    ]), true);
+    assert_contains('<source data-hero-src="/uploads/public/desktop.mp4"', $html);
+    assert_not_contains('<source src=', $html);
+    assert_contains('data-hero-video-mobile="/uploads/public/mobile.mp4"', $html);
+    assert_contains('preload="none"', $html);
+    assert_contains('hero__fallback', $html);
+});
+
+test('Hero navigation: a single video has a pause control but no slide arrows', function (): void {
+    $slides = [['data' => HeroSlideData::withDefaults(['media_type' => 'video', 'video_url' => '/v.mp4'])]];
+    $html = HeroNavigation::render($slides, HeroSettings::defaults(), 1);
+    assert_contains('data-hero-toggle', $html);
+    assert_not_contains('data-hero-prev', $html);
+    assert_not_contains('data-hero-next', $html);
+    assert_not_contains('aria-pressed', $html, 'changing action labels use command buttons');
+});
+
+test('Hero renderer: pause precedes slide links and enhancement owns inert state', function (): void {
+    $slides = [
+        ['data' => HeroSlideData::withDefaults([
+            'title' => 'One', 'link_url' => '/one',
+            'cta_enabled' => true, 'cta_text' => 'Open', 'cta_url' => '/open', 'cta_icon' => 'arrow-right',
+        ])],
+        ['data' => HeroSlideData::withDefaults(['title' => 'Two', 'link_url' => '/two'])],
+    ];
+    $html = HeroRenderer::render(['name' => 'Demo'], $slides, HeroSettings::withDefaults(['autoplay' => true]), 15)['html'];
+    assert_true(strpos($html, 'data-hero-toggle') < strpos($html, 'href="/one"'));
+    assert_not_contains(' inert', $html);
+    assert_contains('aria-atomic="true"', $html);
+    assert_contains('hero__cta hero__cta--primary hero__cta--with-icon', $html);
+    assert_contains('hero__cta-icon', $html);
+    assert_contains('width="46" height="46"', $html, 'рендерер не должен возвращать отдельный мелкий размер иконки');
+});
+
+test('Hero navigation: static image needs no motion control; Ken Burns does', function (): void {
+    $slides = [['data' => HeroSlideData::withDefaults(['title' => 'Still', 'image' => '/still.jpg'])]];
+    assert_same('', HeroNavigation::render($slides, HeroSettings::defaults(), 1));
+    $html = HeroNavigation::render($slides, HeroSettings::withDefaults(['transition' => 'kenburns']), 1);
+    assert_contains('data-hero-toggle', $html);
+});
+
+test('Hero editor: explicit color background wins over previously uploaded media', function (): void {
+    $data = HeroSlideData::normalize([
+        'media_type' => 'none', 'title' => 'Color only',
+        'image' => '/image.jpg', 'video_url' => '/video.mp4', 'youtube_url' => 'https://youtu.be/dQw4w9WgXcQ',
+    ]);
+    assert_same('none', $data['media_type']);
+    assert_same('', HeroSlideData::fallbackImage($data));
+    assert_same('', HeroMediaRenderer::render($data, true));
+    assert_same('image', HeroSlideData::normalize(['image' => '/image.jpg'])['media_type']);
+});
+
+test('Hero editor: switching to an image cannot reuse the old video poster', function (): void {
+    $data = HeroSlideData::normalize(['media_type' => 'image', 'image' => '/new.jpg', 'poster' => '/old.jpg']);
+    assert_same('/new.jpg', HeroSlideData::fallbackImage($data));
+});
