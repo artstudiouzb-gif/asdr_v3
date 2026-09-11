@@ -74,6 +74,31 @@ test('CTA normalizer: сохраняет медиа-вариант, изобра
     assert_same('', $invalid['button_url']);
 });
 
+test('CTA: цвет блока и цвет общей секции сохраняются независимо', function () {
+    $post = [
+        'bg_color' => '#112233',
+        'bg_mode' => 'color',
+        'section_bg_color' => '#aabbcc',
+    ];
+
+    $block = BlockFieldSchema::normalize('cta', $post, 'ru');
+    $presentation = \App\Core\BlockData\BlockPresentationNormalizer::normalize($post);
+
+    assert_same('#112233', $block['bg_color'], 'цвет самого CTA не должен перезаписываться цветом секции');
+    assert_same('#aabbcc', $presentation['_bg_color'], 'общий фон секции должен сохраняться отдельно');
+
+    $sectionDefault = $post + ['section_bg_color_off' => '1'];
+    $blockWithDefaultSection = BlockFieldSchema::normalize('cta', $sectionDefault, 'ru');
+    $defaultPresentation = \App\Core\BlockData\BlockPresentationNormalizer::normalize($sectionDefault);
+    assert_same('#112233', $blockWithDefaultSection['bg_color'], 'сброс фона секции не должен сбрасывать цвет CTA');
+    assert_same('preset', $defaultPresentation['_bg_mode'], 'сброшенный фон секции возвращается к пресету');
+
+    $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/pages/block_form.php');
+    assert_contains("colorField('section_bg_color', \$data['_bg_color']", $form);
+    assert_not_contains("colorField('bg_color', \$data['_bg_color']", $form);
+});
+
+
 test('Subscribe normalizer: сохраняет простой текстовый контракт', function () {
     $data = SubscribeBlockNormalizer::normalize([
         'title_field' => '  Подписка  ',
