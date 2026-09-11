@@ -4221,6 +4221,14 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
     overflow-x: clip;
 }
 
+/* У полноширинной секции фон рисуется вынесенным до краёв viewport слоем
+   ::before. Локальный clip обрезал этот слой по ширине контентного контейнера,
+   как только у блока появлялась фоновая надпись. На такой секции выпускаем
+   слой наружу; длинную надпись по-прежнему безопасно обрезает корневой html. */
+.cms-block--fullwidth.cms-block--has-watermark {
+    overflow-x: visible;
+}
+
 .cms-block__watermark {
     position: absolute;
     z-index: 0;
