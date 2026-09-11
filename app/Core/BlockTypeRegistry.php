@@ -242,7 +242,7 @@ final class BlockTypeRegistry
      * содержимое по-старому. Знание о переименовании лежит здесь одно на всех
      * читателей: вывод, форма редактора и список блоков страницы.
      *
-     * @var array<string, string>
+     * @var array<string, array{type: string, data: array<string, mixed>, rename: array<string, string>}>
      */
     public const LEGACY_TYPES = [
         // «Хронология» и «Этапы» — один тип: оба показывали события во времени
