@@ -14,7 +14,7 @@ use PDO;
  */
 final class DemoSeeder
 {
-    private const DEMO_VERSION = '2026.09-v1';
+    private const DEMO_VERSION = '2026.09-v2';
 
     /** @return array<string,int> счётчики добавленного по разделам */
     /**
