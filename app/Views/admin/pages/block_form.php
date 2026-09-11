@@ -1450,6 +1450,10 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             if (!in_array($itIconPos, ['left', 'top', 'right'], true)) {
                 $itIconPos = ($data['align'] ?? 'left') === 'center' ? 'top' : 'left';
             }
+            $itIconDefaultColor = (string) \App\Models\Setting::get('color_accent', '#009BBE');
+            if (preg_match('/^#[0-9a-f]{6}$/i', $itIconDefaultColor) !== 1) {
+                $itIconDefaultColor = '#009BBE';
+            }
             ?>
             <div class="form-field">
                 <label for="it_icon_position">Позиция иконки</label>
@@ -1466,7 +1470,13 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row">
                             <?= \App\Core\AdminUi::iconField("items[{$i}][icon_svg]", $item['icon_svg'] ?? '', ['label' => 'Иконка Tabler']) ?>
-                            <div class="form-field"><label>Цвет иконки</label><input type="text" name="items[<?= $i ?>][icon_color]" value="<?= htmlspecialchars($item['icon_color'] ?? '', ENT_QUOTES) ?>" placeholder="#3f9c5a — пусто = цвет сайта"></div>
+                            <?= \App\Core\AdminUi::colorField(
+                                "items[{$i}][icon_color]",
+                                (string) ($item['icon_color'] ?? ''),
+                                'Цвет иконки',
+                                $itIconDefaultColor,
+                                'Цвет сайта'
+                            ) ?>
                             <div class="form-field">
                                 <label>Строки</label>
                                 <textarea name="items[<?= $i ?>][rows]" rows="3" placeholder="Телефон доверия | (71) 202-06-00"><?= htmlspecialchars($item['rows'] ?? '', ENT_QUOTES) ?></textarea>
@@ -1480,7 +1490,13 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                 </div>
                 <template data-repeater-template="items">
                     <?= \App\Core\AdminUi::iconField('items[__INDEX__][icon_svg]', '', ['label' => 'Иконка Tabler']) ?>
-                    <div class="form-field"><label>Цвет иконки</label><input type="text" name="items[__INDEX__][icon_color]" placeholder="#3f9c5a — пусто = цвет сайта"></div>
+                    <?= \App\Core\AdminUi::colorField(
+                        'items[__INDEX__][icon_color]',
+                        '',
+                        'Цвет иконки',
+                        $itIconDefaultColor,
+                        'Цвет сайта'
+                    ) ?>
                     <div class="form-field"><label>Строки</label><textarea name="items[__INDEX__][rows]" rows="3" placeholder="Телефон доверия | (71) 202-06-00"></textarea></div>
                     <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
                     <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
