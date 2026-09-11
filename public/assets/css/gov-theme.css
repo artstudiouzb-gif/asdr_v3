@@ -2684,8 +2684,8 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
         scroll-snap-align: start;
     }
 }/* Общей полосы во всю ширину нет намеренно: соединения собираются из
-   отрезков между этапами, а после последней точки остаётся только короткий
-   пунктир — обозначение продолжения, а не завершённого процесса. */
+   отрезков между этапами. Незавершённая шкала получает после последней точки
+   короткий пунктир, завершённая — заканчивается ровно на заполненной точке. */
 
 .stage:not(:last-child)::before {
     content: '';
@@ -2703,7 +2703,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     background: linear-gradient(90deg, var(--gov-teal) 0%, var(--gov-teal) 100%);
 }
 .stage--active.stage--next-active::before { background: var(--gov-teal); }
-.stage:last-child::before {
+.stage:last-child:not(.stage--done)::before {
     content: '';
     position: absolute;
     z-index: 1;
