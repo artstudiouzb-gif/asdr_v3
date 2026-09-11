@@ -13,6 +13,9 @@ $metaDescription = mb_substr(strip_tags((string) ($project['description'] ?? '')
 $ogImage = trim((string) ($project['cover_image'] ?? ''));
 // Scoped CSS блоков проекта уходит в <head> тем же путём, что и у страницы.
 $extraHeadCss = $blockCss ?? '';
+// Прозрачная шапка — та же настройка записи, что и у страницы, и прочитать её
+// надо до шапки: _header.php решает про режим один раз, при выводе.
+$transparentHeader = !empty($project['transparent_header']);
 require __DIR__ . '/_header.php';
 
 // Первый блок бывает шапкой сам: обложка несёт h1, лид и собственную
