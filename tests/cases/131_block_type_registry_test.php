@@ -75,3 +75,13 @@ test('Реестр блоков: форма и контроллер не сод�
     assert_contains('BlockTypeRegistry::has($type)', $controller);
     assert_contains('BlockTypeRegistry::editorLabels()', $form);
 });
+
+test('Редактор блока явно показывает его тип и системный код', function () {
+    $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/pages/block_form.php');
+
+    assert_contains('BlockTypeRegistry::editorLabels()', $form);
+    assert_contains('class="block-editor-type"', $form);
+    assert_contains('Тип блока', $form);
+    assert_contains('Системный код:', $form);
+    assert_contains('AdminUi::blockIcon($type)', $form);
+});
