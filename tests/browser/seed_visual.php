@@ -46,9 +46,10 @@ $blocks = [
             ['value' => '№1', 'label' => 'место в рейтинге', 'prefix' => '', 'note' => ''],
         ],
     ], 1),
-    block('advantages', [
+    block('cards_grid', [
         'title' => 'Направления работы',
         'description' => 'Три карточки с иконками и описанием.',
+        'variant' => 'icon',
         'columns' => 3,
         'items' => [
             ['icon_svg' => 'target', 'title' => 'Планирование', 'text' => 'Стратегические цели и показатели.'],
@@ -113,8 +114,9 @@ $revealBlocks = [
         'content' => '<p>Блок первого экрана с анимацией появления.</p>',
         '_reveal' => ['enabled' => true, 'type' => 'slide-up'],
     ], 0),
-    block('advantages', [
+    block('cards_grid', [
         'title' => 'Карточки по очереди',
+        'variant' => 'icon',
         'items' => [
             ['title' => 'Раз', 'text' => 'Первая карточка'],
             ['title' => 'Два', 'text' => 'Вторая карточка'],

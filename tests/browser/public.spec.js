@@ -276,7 +276,7 @@ test('анимация появления работает и в первом э
 
     // Карточки сетки проявляются по очереди: у каждой своя задержка.
     const delays = await page.evaluate(() => Array.from(
-        document.querySelectorAll('.block-advantages__grid .anim-card'),
+        document.querySelectorAll('.cards-grid .anim-card'),
         (c) => c.style.getPropertyValue('--card-reveal-delay')
     ));
     expect(delays.length).toBeGreaterThan(1);

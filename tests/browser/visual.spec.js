@@ -37,7 +37,6 @@ const PROBES = [
     ['.stage', ['gap', 'paddingTop', 'display']],
     ['.contact-card', ['backgroundColor', 'borderRadius', 'padding']],
     ['.cms-block--cta', ['backgroundColor', 'paddingTop', 'paddingBottom']],
-    ['.block-advantages__item', ['backgroundColor', 'borderRadius', 'padding', 'borderTopColor']],
     ['.act-card__number', ['color', 'fontSize', 'fontWeight']],
     ['.site-footer', ['backgroundColor', 'color', 'paddingTop']],
 ];

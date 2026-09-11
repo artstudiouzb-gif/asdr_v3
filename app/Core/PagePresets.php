@@ -53,7 +53,7 @@ final class PagePresets
         $previousBg = 'none';
         $tintTurn = false;
         $cardTypes = [
-            'advantages', 'cards_grid', 'contact_cards',
+            'cards_grid', 'contact_cards',
             'counters', 'docs_list', 'media_gallery',
             'news_feature', 'news_latest', 'partners', 'person_cards',
             'projects_list', 'team_list', 'testimonials',
@@ -418,7 +418,7 @@ final class PagePresets
                     ], self::look('light', 'premium', 'slide-up')),
                 ],
                 [
-                    'type' => 'advantages',
+                    'type' => 'cards_grid',
                     'title' => 'Направления работы',
                     'data' => array_merge([
                         'title' => 'Основные направления',

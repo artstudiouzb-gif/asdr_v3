@@ -57,12 +57,13 @@ test('SVG-санитайзер: XXE-сущности не разворачива
     assert_contains('<rect', Uploader::sanitizeSvgString($plain), 'легитимный SVG с DOCTYPE сохраняет содержимое');
 });
 
-test('Блок advantages рендерит ключ локальной Tabler-иконки', function () {
-    $html = render_block('advantages', [
+test('Блок карточек рендерит ключ локальной Tabler-иконки', function () {
+    $html = render_block('cards_grid', [
         'title' => 'Плюсы',
+        'variant' => 'icon',
         'items' => [['icon_svg' => 'bolt', 'title' => 'Скорость', 'text' => 'быстро']],
     ]);
-    assert_contains('block-advantages__icon--svg', $html);
+    assert_contains('feature-card__icon', $html);
     assert_contains('#tabler-bolt', $html);
     assert_not_contains('<rect', $html, 'собственная SVG-геометрия не хранится в данных блока');
 });

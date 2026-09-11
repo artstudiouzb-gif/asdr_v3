@@ -77,12 +77,6 @@
     "paddingTop": "0px",
     "paddingBottom": "51.2px"
   },
-  ".block-advantages__item": {
-    "backgroundColor": "rgb(41, 53, 77)",
-    "borderRadius": "14px",
-    "padding": "24px",
-    "borderTopColor": "rgba(255, 255, 255, 0.12)"
-  },
   ".act-card__number": {
     "color": "rgb(255, 255, 255)",
     "fontSize": "18px",

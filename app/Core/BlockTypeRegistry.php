@@ -58,7 +58,6 @@ final class BlockTypeRegistry
         ],
         'html' => ['html' => ''],
         'cta' => [], // схема: BlockFieldSchema
-        'advantages' => [], // схема: BlockFieldSchema
         'slider' => [], // схема: BlockFieldSchema
         'form' => ['form_id' => null],
         'columns' => [], // схема: BlockFieldSchema
@@ -107,7 +106,7 @@ final class BlockTypeRegistry
     /** Короткие русские названия для сообщений редактору. */
     public const TYPE_LABELS = [
         'text' => 'Текст', 'html' => 'Произвольный HTML', 'cta' => 'Призыв к действию',
-        'advantages' => 'Преимущества', 'slider' => 'Слайдер',
+        'slider' => 'Слайдер',
         'form' => 'Форма', 'columns' => 'Колонки', 'tabs' => 'Вкладки', 'testimonials' => 'Отзывы',
         'counters' => 'Счётчики', 'team_list' => 'Команда', 'projects_list' => 'Проекты',
         'news_latest' => 'Последние новости', 'partners' => 'Партнёры',
@@ -242,7 +241,12 @@ final class BlockTypeRegistry
      * содержимое по-старому. Знание о переименовании лежит здесь одно на всех
      * читателей: вывод, форма редактора и список блоков страницы.
      *
-     * @var array<string, array{type: string, data: array<string, mixed>, rename: array<string, string>}>
+     * @var array<string, array{
+     *     type: string,
+     *     data: array<string, mixed>,
+     *     rename: array<string, string>,
+     *     values?: array<string, array<string, array<string, mixed>>>
+     * }>
      */
     public const LEGACY_TYPES = [
         // «Хронология» и «Этапы» — один тип: оба показывали события во времени
@@ -255,6 +259,36 @@ final class BlockTypeRegistry
             'type' => 'stages',
             'data' => ['layout' => 'list'],
             'rename' => ['button_text' => 'all_text', 'button_url' => 'all_url'],
+        ],
+        // «Преимущества» и «Карточки» печатали одну и ту же карточку
+        // (`.feature-card` с тем же нутром) из одних и тех же полей — иконка,
+        // заголовок, текст, ссылка. Разошлись они только настройками: у
+        // «Карточек» есть размер и фон иконки, стиль и цвета, у «Преимуществ»
+        // — ряды без дыр и нумерация. Правка одного до второго не доходила:
+        // подложка иконки у «Карточек» давно берёт тон акцента, а у
+        // «Преимуществ» осталась синеватой — замерено.
+        //
+        // Вариант «в одну строку» у «Преимуществ» меняет ровно положение
+        // иконки, поэтому переезжает в настройку «Положение иконки», а не во
+        // второй вариант с тем же смыслом. Значение там своё: у «Карточек»
+        // «слева» кладёт иконку слева от всего текста, а здесь она стоит на
+        // одной линии с заголовком — замерено, вид разный.
+        'advantages' => [
+            'type' => 'cards_grid',
+            // Номер печатался всегда и во всех вариантах, включая «Карточки»
+            // без нумерации: правила, которое его прячет, в публичном CSS не
+            // было вовсе. Настройка появилась включённой, чтобы вид собранных
+            // страниц не менялся, а выключить её теперь можно.
+            'data' => ['numbering' => true],
+            'rename' => [],
+            'values' => [
+                'variant' => [
+                    'grid' => ['variant' => 'icon'],
+                    'indexed' => ['variant' => 'icon'],
+                    'inline' => ['variant' => 'icon', 'icon_position' => 'inline'],
+                    'band' => ['variant' => 'band'],
+                ],
+            ],
         ],
     ];
 
@@ -287,7 +321,19 @@ final class BlockTypeRegistry
             }
         }
 
-        return array_merge($legacy['data'], $data);
+        // Значение поля тоже бывает переименовано, и не всегда один в один:
+        // «в одну строку» у «Преимуществ» — это вариант «Иконка и текст» плюс
+        // настройка «Положение иконки: слева». Поэтому карта отдаёт набор
+        // полей, а не строку.
+        $replacement = [];
+        foreach ($legacy['values'] ?? [] as $field => $map) {
+            $current = $data[$field] ?? null;
+            if (is_string($current) && isset($map[$current])) {
+                $replacement += $map[$current];
+            }
+        }
+
+        return array_merge($legacy['data'], $data, $replacement);
     }
 
     public static function templateFile(string $type): ?string

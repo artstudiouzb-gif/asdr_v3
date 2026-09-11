@@ -41,7 +41,6 @@ final class SectionColors
     public const SURFACES = [
         '.act-card',
         '.album-card',
-        '.block-advantages__item',
         '.block-testimonials__item',
         '.cat-tile',
         '.catcard',

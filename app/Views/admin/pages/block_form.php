@@ -245,56 +245,6 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             <?= \App\Core\BlockData\BlockFieldSchema::formHtml('cta', $data) ?>
         <?php endif; ?>
 
-        <?php if ($type === 'advantages'): ?>
-            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('advantages', $data) ?>
-            <div>
-                <label>Пункты преимуществ</label>
-                <div data-repeater="items">
-                    <?php foreach (($data['items'] ?? []) as $i => $item): ?>
-                        <div class="repeater-row">
-                            <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
-                            <?= \App\Core\AdminUi::iconField("items[{$i}][icon_svg]", $item['icon_svg'] ?? '', ['label' => 'Иконка Tabler']) ?>
-                            <div class="form-field">
-                                <label>Заголовок</label>
-                                <input type="text" name="items[<?= $i ?>][title]" value="<?= htmlspecialchars($item['title'] ?? '', ENT_QUOTES) ?>">
-                            </div>
-                            <div class="form-field">
-                                <label>Текст</label>
-                                <textarea name="items[<?= $i ?>][text]"><?= htmlspecialchars($item['text'] ?? '', ENT_QUOTES) ?></textarea>
-                            </div>
-                            <div class="form-field">
-                                <label>Ссылка (необязательно — карточка станет кликабельной)</label>
-                                <input type="text" name="items[<?= $i ?>][url]" value="<?= htmlspecialchars($item['url'] ?? '', ENT_QUOTES) ?>">
-                            </div>
-                            <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
-                            <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
-                            <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить пункт</button>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <template data-repeater-template="items">
-                    <?= \App\Core\AdminUi::iconField('items[__INDEX__][icon_svg]', '', ['label' => 'Иконка Tabler']) ?>
-                    <div class="form-field">
-                        <label>Заголовок</label>
-                        <input type="text" name="items[__INDEX__][title]">
-                    </div>
-                    <div class="form-field">
-                        <label>Текст</label>
-                        <textarea name="items[__INDEX__][text]"></textarea>
-                    </div>
-                    <div class="form-field">
-                        <label>Ссылка (необязательно — карточка станет кликабельной)</label>
-                        <input type="text" name="items[__INDEX__][url]">
-                    </div>
-                    <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
-                    <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
-                    <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить пункт</button>
-                </template>
-                <div class="repeater-actions">
-                    <button type="button" class="btn btn--small" data-repeater-add="items"><?= \App\Core\AdminUi::icon('plus') ?>Добавить пункт</button>
-                </div>
-            </div>
-        <?php endif; ?>
 
         <?php if ($type === 'slider'): ?>
             <?= \App\Core\BlockData\BlockFieldSchema::formHtml('slider', $data) ?>

@@ -15,10 +15,12 @@ use App\Core\BlockTypeRegistry;
  * categories_grid/image_cards в `cards_grid`. Позже к ним добавился
  * `timeline`: «Хронология» и «Этапы» показывали события во времени и оба
  * подписывались «таймлайн», а различала их раскладка — она и стала настройкой
- * `layout` внутри `stages`.
+ * `layout` внутри `stages`. Следом ушёл `advantages`: он печатал ту же
+ * карточку `.feature-card` из тех же полей, что `cards_grid`, а разошлись они
+ * только настройками — нумерация и ряды без дыр переехали туда настройками.
  */
 const EXPECTED_BLOCK_TYPES = [
-    'text', 'html', 'cta', 'advantages',
+    'text', 'html', 'cta',
     'slider', 'form', 'columns', 'tabs', 'testimonials',
     'counters', 'team_list', 'projects_list', 'news_latest',
     'partners', 'subscribe', 'faq', 'contact_cards',

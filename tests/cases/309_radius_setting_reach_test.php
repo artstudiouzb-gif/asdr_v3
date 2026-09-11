@@ -48,7 +48,6 @@ test('Ключевые карточки берут радиус из перем�
         'карточка документа' => '.doc-card',
         'слайдер' => '.block-slider',
         'фотография руководителя' => '.editorial-page__content .profile__img',
-        'блок «Преимущества»' => '.block-advantages__item',
     ];
 
     foreach ($required as $title => $selector) {
