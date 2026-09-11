@@ -1396,7 +1396,11 @@ html[data-theme="dark"] .content-pagehead__emblem {
         grid-template-columns: 1fr;
     }
 
-    .editorial-page__content .feature-card {
+    /* Правило принадлежит карточкам блока «Карточки», а не всякому
+       .feature-card: акт и контакт носят тот же класс вторым, и общий
+       селектор снимал бы у них min-height: 100%, которым карточки ряда
+       выравниваются по высоте. */
+    .editorial-page__content .block-cards .feature-card {
         min-height: 0;
     }
 
