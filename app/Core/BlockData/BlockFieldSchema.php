@@ -602,7 +602,7 @@ final class BlockFieldSchema
                     '0 — адаптивный отступ темы. Настройка действует у редакционного вида без подложки.'
                 )
                     ->onlyWhen('card_style', ['new'])
-                    ->group('Карточка с иконкой'),
+                    ->group('Редакционный вид'),
                 'icon_size' => Field::int('Размер иконок, px', 16, 64, 22)
                     ->onlyWhen('variant', ['icon'])
                     ->group('Карточка с иконкой'),
