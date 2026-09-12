@@ -701,7 +701,7 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
     .cms-columns--mobile-reverse .cms-columns__col:nth-child(4) { order: 1; }
 }/* Новые блоки (группа 4): отзывы, счётчики, команда, проекты */
 
-.block-testimonials__title, .block-counters__title, .block-team__title, .block-projects__title {
+.block-testimonials__title, .block-team__title, .block-projects__title {
     text-align: center; margin: 0 0 28px;
 }
 .block-testimonials__track {
@@ -1046,7 +1046,7 @@ body.design-catalog-list .content-cards { display: flex; flex-direction: column;
 .site-cta:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }/* Hero (CTA-блок) — крупный современный вид */
 
 .block-cta { background: linear-gradient(135deg, color-mix(in srgb, var(--gov-navy) 6%, var(--surface)) , var(--surface)); border: 1px solid var(--border-color); padding: clamp(36px, 6vw, 72px); }
-.block-cta h2 { font-size: var(--font-size-h2, var(--step-8)); line-height: 1.15; letter-spacing: -.02em; margin-top: 0; }
+.block-cta h2 { font-size: var(--font-size-h2, var(--step-6)); line-height: 1.15; letter-spacing: -.02em; margin-top: 0; }
 .block-cta a { display: inline-block; padding: 13px 30px; background: var(--gov-teal); color: #fff; text-decoration: none; font-weight: 600; margin-top: 8px; box-shadow: var(--shadow-sm); transition: transform .15s, box-shadow .15s; }
 .block-cta a:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }/* Колонки быстрых ссылок — компактные карточки с ховером */
 
@@ -1178,7 +1178,7 @@ h1, h2 { letter-spacing: -.015em; }/* --- Блок «Партнёры» (лог�
 }
 .block-banner--image { background-size: cover; background-position: center; color: #fff; transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
 .block-banner__inner { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; padding: clamp(40px, 7vw, 88px) clamp(20px, 4vw, 48px); text-align: center; }
-.block-banner__title { font-size: var(--font-size-h2, var(--step-8)); margin: 0 0 12px; line-height: 1.15; }
+.block-banner__title { font-size: var(--font-size-h2, var(--step-6)); margin: 0 0 12px; line-height: 1.15; }
 .block-banner--image .block-banner__title { color: #fff; }
 .block-banner__text { font-size: var(--step-1); margin: 0 0 24px; opacity: .95; }
 .block-banner__button { 
@@ -1631,7 +1631,6 @@ h6 { font-size: var(--font-size-h6, var(--step--1)); line-height: var(--heading-
 .block-categories__title,
 .block-contact-cards__title,
 .block-testimonials__title,
-.block-counters__title,
 .block-team__title,
 .block-projects__title,
 .section-title {

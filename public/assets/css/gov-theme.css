@@ -2313,12 +2313,12 @@ h4, .h4 { font-size: var(--font-size-h4, var(--step-2)); }
 h5, .h5 { font-size: var(--font-size-h5, var(--step-1)); }
 h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .block-hero__title { font-size: var(--font-size-h1, var(--step-10)); }
-.block-banner__title { font-size: var(--font-size-h2, var(--step-8)); }
+.block-banner__title { font-size: var(--font-size-h2, var(--step-6)); }
 .textimage__title,
 .block-map__title { font-size: var(--font-size-h2, var(--step-5)); }
 .listing__title,
 .content-pagehead__title { font-size: var(--font-size-h1, var(--step-8)); }
-.block-cta h2 { font-size: var(--font-size-h2, var(--step-9)); }
+.block-cta h2 { font-size: var(--font-size-h2, var(--step-6)); }
 .cms-columns__col .cms-block--cta .block-cta h2 { font-size: var(--font-size-card-title, var(--step-4)); }
 .site-content > section.cms-block--cta:first-of-type .block-cta h2,
 .page-blocks > section.cms-block--cta:first-of-type .block-cta h2 { font-size: var(--font-size-h1, var(--step-10)); }
@@ -2330,10 +2330,8 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .news-single h1 { font-size: var(--font-size-h1, var(--step-8)); }
 .block-contact-cards__title { font-size: var(--font-size-h2, var(--step-6)); }
 .block-categories__title { font-size: var(--font-size-h2, var(--step-6)); }
-.block-counters__title,
 .block-team__title,
 .block-projects__title,
-.block-faq__title,
 .section-title { font-size: var(--font-size-h2, var(--step-6)); }
 
 /* Узкие экраны: крупные заголовки берут нижнюю границу прежнего clamp,
@@ -2373,10 +2371,8 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     body[class] .news-single h1 { font-size: var(--step-5); }
     body[class] .block-contact-cards__title { font-size: var(--step-4); }
     body[class] .block-categories__title { font-size: var(--step-3); }
-    body[class] .block-counters__title,
     body[class] .block-team__title,
     body[class] .block-projects__title,
-    body[class] .block-faq__title,
     body[class] .section-title { font-size: var(--step-4); }
 }/* ============================================================================
    5. СТРАНИЦЫ, РУБРИКИ И ДЕТАЛЬНЫЕ ШАБЛОНЫ (Editorial pages, Crumbs, Grids, Pagination)
@@ -2604,7 +2600,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 }
 @media (max-width: 900px) { .block-banner--light { grid-template-columns: 1fr; } .block-banner--light .block-banner__photo { display: none; } }
 .block-banner--light .block-banner__inner { padding: clamp(20px, 4vw, 48px) 0; text-align: left; }
-.block-banner--light .block-banner__title { color: var(--gov-title); font-size: var(--font-size-h2, var(--step-8)); line-height: 1.15; margin: 0 0 16px; }
+.block-banner--light .block-banner__title { color: var(--gov-title); font-size: var(--font-size-h2, var(--step-6)); line-height: 1.15; margin: 0 0 16px; }
 .block-banner--light .block-banner__text { color: var(--gov-muted); opacity: 1; font-size: var(--step-0); line-height: var(--base-line-height, 1.6); margin: 0 0 22px; }
 .block-banner--light .block-banner__button { 
     display: inline-block; padding: 13px 26px; background: var(--gov-navy); color: #fff; 
@@ -3781,8 +3777,11 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
 .block-contact-cards--inline .feature-card__spacer { display: none; }
 .feature-card__num {
     font-family: var(--font-heading, 'Noto Serif', serif);
-    font-size: var(--step-3);
-    font-weight: 800;
+    /* Номер подписывает порядок, а не называет содержание, поэтому он
+       мельче заголовка карточки, а не крупнее: при --step-3/800 против
+       --step-1/700 у названия глаз читал сначала «01 02 03». */
+    font-size: var(--step-0);
+    font-weight: 700;
     /* 25 % давали 1.65:1 — на телефоне номер попадает под порог крупного
        текста (3:1) и axe его ловил. 55 % оставляют номер вторым планом, но
        делают его различимым. */
@@ -6136,7 +6135,6 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
    ========================================================================== *//* --- FAQ / Аккордеон вопросов --- */
 
 .block-faq { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 100%; }
-.block-faq__title { margin: 0 0 10px; color: var(--section-title-fg); text-align: left; }
 .faq-tools { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; width: 100%; }
 .faq-tools__search, .faq-tools__category select {
     display: flex; align-items: center; gap: 10px; padding: 10px 16px;
