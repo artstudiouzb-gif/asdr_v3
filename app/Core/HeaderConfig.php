@@ -436,7 +436,7 @@ final class HeaderConfig
             'nav_font_size' => in_array($styles['nav_font_size'] ?? '', ['compact', 'normal', 'large'], true) ? $styles['nav_font_size'] : 'normal',
             'nav_transform' => in_array($styles['nav_transform'] ?? '', ['uppercase', 'capitalize', 'none'], true) ? $styles['nav_transform'] : 'uppercase',
             'nav_letter_spacing' => in_array($styles['nav_letter_spacing'] ?? '', ['normal', 'wide', 'wider'], true) ? $styles['nav_letter_spacing'] : 'normal',
-            'nav_style_type' => in_array($styles['nav_style_type'] ?? '', ['underline', 'dot', 'pill', 'glow', 'minimal'], true) ? $styles['nav_style_type'] : 'underline',
+            'nav_style_type' => in_array($styles['nav_style_type'] ?? '', ['underline', 'line', 'dot', 'pill', 'glow', 'minimal'], true) ? $styles['nav_style_type'] : 'underline',
             'nav_padding' => in_array($styles['nav_padding'] ?? '', ['compact', 'normal', 'spacious'], true) ? $styles['nav_padding'] : 'normal',
             'nav_icon_pos' => in_array($styles['nav_icon_pos'] ?? '', ['left', 'top'], true) ? $styles['nav_icon_pos'] : 'left',
             'nav_gap' => $boundedInt($styles['nav_gap'] ?? null, 18, 0, 64),
