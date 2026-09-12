@@ -257,6 +257,16 @@ final class DesignSettings
             'choices' => ['square' => 'Прямые', 'rounded' => 'Скруглённые', 'pill' => 'Капсула'],
             'default' => 'pill',
         ],
+        'block_surface' => [
+            'label' => 'Подложки блоков',
+            'hint' => 'Кому карточка: всем блокам или только тому, что открывается по нажатию.',
+            'group' => 'Общие',
+            'choices' => [
+                'all' => 'У всех блоков',
+                'interactive' => 'Только у ссылок и кнопок',
+            ],
+            'default' => 'all',
+        ],
         'card_style' => [
             'label' => 'Стиль карточек',
             'hint' => 'Тень и глубина карточек контента.',
@@ -294,22 +304,22 @@ final class DesignSettings
         'classic' => [
             'label' => 'Классический',
             'desc' => 'Строгий официальный стиль, умеренные отступы.',
-            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'sm', 'density' => 'standard', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'rounded', 'card_style' => 'soft', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'palette' => 'gov_blue', 'font_style' => 'system'],
+            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'sm', 'density' => 'standard', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'palette' => 'gov_blue', 'font_style' => 'system'],
         ],
         'modern' => [
             'label' => 'Современный',
             'desc' => 'Крупные скругления, воздух, акцентная шапка.',
-            'values' => ['container' => 'wide', 'radius' => 'large', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'lg', 'line_height' => 'relaxed', 'heading_line_height' => 'tight', 'heading_font_weight' => '800', 'heading_letter_spacing' => 'tight', 'button' => 'pill', 'card_style' => 'elevated', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'fade', 'section_marker' => 'line', 'scroll_top' => 'on', 'palette' => 'violet', 'font_style' => 'noto'],
+            'values' => ['container' => 'wide', 'radius' => 'large', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'lg', 'line_height' => 'relaxed', 'heading_line_height' => 'tight', 'heading_font_weight' => '800', 'heading_letter_spacing' => 'tight', 'button' => 'pill', 'block_surface' => 'all', 'card_style' => 'elevated', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'fade', 'section_marker' => 'line', 'scroll_top' => 'on', 'palette' => 'violet', 'font_style' => 'noto'],
         ],
         'minimal' => [
             'label' => 'Минимал',
             'desc' => 'Прямые углы, максимум воздуха, список в каталоге.',
-            'values' => ['container' => 'narrow', 'radius' => 'none', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'square', 'card_style' => 'flat', 'sidebar_position' => 'fixed', 'catalog_layout' => 'list', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'off', 'scroll_top' => 'on', 'palette' => 'graphite', 'font_style' => 'serif'],
+            'values' => ['container' => 'narrow', 'radius' => 'none', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'square', 'block_surface' => 'all', 'card_style' => 'flat', 'sidebar_position' => 'fixed', 'catalog_layout' => 'list', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'off', 'scroll_top' => 'on', 'palette' => 'graphite', 'font_style' => 'serif'],
         ],
         'compact' => [
             'label' => 'Компактный',
             'desc' => 'Плотная сетка, маленькие карточки — много данных.',
-            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'xs', 'density' => 'compact', 'font_size' => 'sm', 'line_height' => 'tight', 'heading_line_height' => 'tight', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'tight', 'button' => 'rounded', 'card_style' => 'soft', 'sidebar_position' => 'fixed', 'catalog_layout' => 'cards_sm', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'palette' => 'classic_red', 'font_style' => 'system'],
+            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'xs', 'density' => 'compact', 'font_size' => 'sm', 'line_height' => 'tight', 'heading_line_height' => 'tight', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'tight', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'fixed', 'catalog_layout' => 'cards_sm', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'palette' => 'classic_red', 'font_style' => 'system'],
         ],
     ];
 
@@ -1659,6 +1669,9 @@ final class DesignSettings
             preg_replace('/[^a-z]/', '', (string) ($v['card_style'] ?? 'soft')),
             preg_replace('/[^a-z]/', '', (string) ($v['detail_layout'] ?? 'plain'))
         )) . ' design-mmenu-burger'
+          . ' design-surface-' . (isset(self::OPTIONS['block_surface']['choices'][(string) ($v['block_surface'] ?? '')])
+              ? (string) $v['block_surface']
+              : 'all')
           . ' design-mark-' . (isset(self::OPTIONS['title_mark']['choices'][(string) ($v['title_mark'] ?? '')])
               ? (string) $v['title_mark']
               : 'accent')
