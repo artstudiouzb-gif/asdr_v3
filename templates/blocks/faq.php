@@ -2,6 +2,7 @@
 /** @var array $data */
 $title = $data['title'] ?? '';
 $items = $data['items'] ?? [];
+$panel = (string) $data['panel'];
 $searchEnabled = !array_key_exists('search_enabled', $data) || !empty($data['search_enabled']);
 $singleOpen = !empty($data['single_open']);
 $categories = array_values(array_unique(array_filter(array_map(
@@ -9,7 +10,7 @@ $categories = array_values(array_unique(array_filter(array_map(
     is_array($items) ? $items : []
 ))));
 ?>
-<div class="block-faq" data-faq-list<?= $singleOpen ? ' data-faq-single' : '' ?>>
+<div class="block-faq block-faq--panel-<?= htmlspecialchars($panel, ENT_QUOTES) ?>" data-faq-list<?= $singleOpen ? ' data-faq-single' : '' ?>>
     <?= \App\Core\SectionHead::render(['title' => $title]) ?>
     <?php if ($searchEnabled && count($items) >= 4): ?>
         <div class="faq-tools" role="search" aria-label="<?= htmlspecialchars(t('Поиск по вопросам'), ENT_QUOTES) ?>">
