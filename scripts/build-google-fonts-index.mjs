@@ -176,6 +176,24 @@ async function weightsFor(name) {
     return null;
 }
 
+/**
+ * Имя семейства приезжает из чужого файла, а уходит в сгенерированный PHP.
+ * Поэтому оно и проверяется набором символов, и экранируется: одной замены
+ * кавычки мало — обратный слэш в конце строки съел бы закрывающую кавычку и
+ * склеил бы соседние записи (CodeQL ловит это как неполное экранирование).
+ */
+function safeFamilyName(name) {
+    return /^[A-Za-z0-9][A-Za-z0-9 .-]*$/.test(name);
+}
+
+function phpSingleQuoted(value) {
+    return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+}
+
+function phpDoubleQuoted(value) {
+    return `"${value.replace(/\\/g, '\\\\').replace(/["$]/g, (char) => `\\${char}`)}"`;
+}
+
 function slugify(name) {
     return name
         .normalize('NFKD')
@@ -227,10 +245,14 @@ async function main() {
         if (slug === '') {
             continue;
         }
+        if (!safeFamilyName(entry.name)) {
+            console.warn(`  пропущено небезопасное имя семейства: ${entry.name}`);
+            continue;
+        }
         rows.push({
             slug,
             label: entry.name,
-            stack: `'${entry.name.replace(/'/g, "\\'")}', ${fallbackStack(entry.name)}`,
+            stack: `'${entry.name}', ${fallbackStack(entry.name)}`,
             query: familyParam(entry.name, entry.weights),
         });
     }
@@ -252,7 +274,11 @@ async function main() {
         ' */',
         '',
         'return [',
-        ...rows.map((row) => `    '${row.slug}' => ['${row.label.replace(/'/g, "\\'")}', "${row.stack.replace(/"/g, '\\"')}", '${row.query}'],`),
+        ...rows.map((row) => '    '
+            + `${phpSingleQuoted(row.slug)} => [`
+            + `${phpSingleQuoted(row.label)}, `
+            + `${phpDoubleQuoted(row.stack)}, `
+            + `${phpSingleQuoted(row.query)}],`),
         '];',
         '',
     ].join('\n');
