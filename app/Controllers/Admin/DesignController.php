@@ -185,10 +185,11 @@ final class DesignController
         }
 
         foreach (['body' => 'font_family', 'heading' => 'font_heading'] as $role => $target) {
+            $catalog = DesignSettings::googleFontCatalog();
             $slug = (string) ($preview['font_google_' . $role] ?? '');
-            if ($slug !== '' && isset(DesignSettings::GOOGLE_FONTS[$slug])) {
+            if ($slug !== '' && isset($catalog[$slug])) {
                 Setting::overrideInMemory('design_font_google_' . $role, $slug);
-                Setting::overrideInMemory($target, DesignSettings::GOOGLE_FONTS[$slug][1]);
+                Setting::overrideInMemory($target, $catalog[$slug][1]);
             } elseif (array_key_exists('font_google_' . $role, $preview)) {
                 Setting::overrideInMemory('design_font_google_' . $role, '');
                 if ($role === 'heading') {
