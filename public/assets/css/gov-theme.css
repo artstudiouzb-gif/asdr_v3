@@ -6480,6 +6480,27 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 .block-icon-text--rows-inline .icon-text__label { flex: none; }
 .block-icon-text--rows-inline.block-icon-text--align-center .icon-text__row { justify-content: center; }
 .icon-text__label { margin: 0; color: var(--gov-muted); font-size: var(--step--2); line-height: 1.4; }
+/* Подпись плашкой: рубрика или короткая метка, а не пояснение к значению —
+   в варианте «Без рамок» мелкая серая строка над крупным значением читалась
+   как случайный текст. Тон подложки следует за карточкой (тот же
+   --icon-text-accent, что у плитки иконки: второй цвет в одной карточке
+   спорил бы с ней), а цвет текста — общий --gov-title, а не сам акцент: цвет
+   карточки выбирает редактор, и на произвольном тоне контраст подписи
+   зависел бы от его выбора. Кегль и отступ подписи задаются настройками и
+   приезжают scoped CSS блока. */
+
+.block-icon-text--label-badge .icon-text__label {
+    align-self: flex-start;
+    padding: .3em .62em;
+    border-radius: var(--radius-sm, 8px);
+    background: color-mix(in srgb, var(--icon-text-accent, var(--gov-teal)) 12%, var(--gov-surface));
+    color: var(--gov-title);
+    font-weight: 600;
+}
+.block-icon-text--label-badge.block-icon-text--align-center .icon-text__label { align-self: center; }
+/* В строчном режиме подпись и значение стоят на одной базовой линии — там
+   прижимать плашку к началу поперечной оси нечего. */
+.block-icon-text--label-badge.block-icon-text--rows-inline .icon-text__label { align-self: auto; }
 .icon-text__value { margin: 0 0 6px; color: var(--gov-title); font-size: var(--step-1); font-weight: 700; line-height: 1.25; }
 .icon-text__value:last-child { margin-bottom: 0; }
 .block-icon-text__empty { color: var(--gov-muted); margin: 0; }/* ==========================================================================

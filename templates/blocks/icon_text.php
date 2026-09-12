@@ -27,6 +27,15 @@ if (!in_array($iconPosition, ['left', 'top', 'right'], true)) {
     $iconPosition = $align === 'center' ? 'top' : 'left';
 }
 $columns = (int) $data['columns'];
+// Вид подписи. Плашка нужна там, где подпись это рубрика («Hududlar rivoji»),
+// а не пояснение к значению: мелкая серая строка над крупным текстом в
+// варианте «Без рамок» читается как случайный текст.
+$labelBadge = !empty($data['label_badge']);
+// Кегль и отступ — числом: нужный размер зависит от длины подписи и от
+// кегля значения под ней, пресетом «мельче / крупнее» его не угадать. Ноль
+// означает «как в теме», поэтому у собранных блоков вид не меняется.
+$labelSize = (int) $data['label_size'];
+$labelGap = (int) $data['label_gap'];
 $items = array_values(array_filter(
     (array) ($data['items'] ?? []),
     static fn (array $item): bool => trim((string) ($item['rows'] ?? '')) !== ''
@@ -40,8 +49,16 @@ if ($columns !== 3) {
     $templateCss = '@media (min-width:721px){#block-' . (int) $blockId
         . ' .icon-text__grid{grid-template-columns:repeat(' . $columns . ',minmax(0,1fr));}}';
 }
+if ($labelSize > 0) {
+    $templateCss .= '#block-' . (int) $blockId . ' .icon-text__label{font-size:' . $labelSize . 'px;}';
+}
+if ($labelGap > 0) {
+    // Промежуток принадлежит строке пары, а не подписи: в строчном режиме
+    // подпись и значение стоят рядом, и нижний отступ там не виден вовсе.
+    $templateCss .= '#block-' . (int) $blockId . ' .icon-text__row{gap:' . $labelGap . 'px;}';
+}
 ?>
-<div class="block-icon-text block-icon-text--<?= $esc($variant) ?> block-icon-text--icon-<?= $esc($iconPosition) ?> block-icon-text--align-<?= $esc($align) ?> block-icon-text--rows-<?= $esc($rowsLayout) ?>">
+<div class="block-icon-text block-icon-text--<?= $esc($variant) ?> block-icon-text--icon-<?= $esc($iconPosition) ?> block-icon-text--align-<?= $esc($align) ?> block-icon-text--rows-<?= $esc($rowsLayout) ?><?= $labelBadge ? ' block-icon-text--label-badge' : '' ?>">
     <?= \App\Core\SectionHead::render([
         'title' => $title,
         'description' => $description,

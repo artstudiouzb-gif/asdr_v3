@@ -188,6 +188,29 @@ test('Иконка и текст: подпись и значение можно 
     assert_contains('block-icon-text--rows-stacked', $stacked['html']);
 });
 
+test('Иконка и текст: вид, кегль и отступ подписи — настройки блока', function () {
+    $items = [['icon_svg' => 'phone', 'rows' => "Hududlar rivoji | Tabiiy resurslar asosida"]];
+
+    // Вид подписи приезжает классом: плашку рисует тема, а не инлайн-стиль.
+    $badge = variant_block('icon_text', ['label_badge' => true, 'items' => $items], 750);
+    assert_contains('block-icon-text--label-badge', $badge['html']);
+
+    // Кегль и отступ — числом, в scoped CSS блока.
+    $sized = variant_block('icon_text', ['label_size' => 15, 'label_gap' => 10, 'items' => $items], 751);
+    assert_contains('#block-751 .icon-text__label{font-size:15px;}', $sized['css']);
+    assert_contains('#block-751 .icon-text__row{gap:10px;}', $sized['css']);
+
+    // Ноль означает «как в теме»: у собранных блоков ничего не появляется.
+    $plain = variant_block('icon_text', ['items' => $items], 752);
+    assert_not_contains('block-icon-text--label-badge', $plain['html']);
+    assert_not_contains('.icon-text__label{font-size', $plain['css']);
+    assert_not_contains('.icon-text__row{gap', $plain['css']);
+
+    // Плашку рисует тема, иначе настройка ничего не меняла бы на выводе.
+    $css = \theme_css();
+    assert_contains('.block-icon-text--label-badge .icon-text__label', $css, 'у плашки есть правила');
+});
+
 test('Иконка и текст: каждая пара «подпись + значение» — своя строка', function () {
     // Две пары в одной карточке. Без обёртки они сливались в общий поток и в
     // строчном режиме переносились вперемешку: «Факс:» уезжал к первому номеру.
