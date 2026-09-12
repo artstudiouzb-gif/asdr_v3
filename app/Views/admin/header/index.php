@@ -345,6 +345,7 @@ $heightSelect = function (string $name, string $current): string {
                         <label for="styles_nav_style_type">Индикатор активности / наведения</label>
                         <select id="styles_nav_style_type" name="styles_nav_style_type">
                             <option value="underline" <?= ($st['nav_style_type'] ?? 'underline') === 'underline' ? 'selected' : '' ?>>Неоновый световой луч с прозрачными краями (Neon Light Beam)</option>
+                            <option value="line" <?= ($st['nav_style_type'] ?? 'underline') === 'line' ? 'selected' : '' ?>>Подчёркивание без свечения (сплошная линия)</option>
                             <option value="dot" <?= ($st['nav_style_type'] ?? 'underline') === 'dot' ? 'selected' : '' ?>>Неоновая точка под текстом (Glowing Dot)</option>
                             <option value="pill" <?= ($st['nav_style_type'] ?? 'underline') === 'pill' ? 'selected' : '' ?>>Залитая плашка (Capsule pill)</option>
                             <option value="glow" <?= ($st['nav_style_type'] ?? 'underline') === 'glow' ? 'selected' : '' ?>>Свечение текста</option>
@@ -469,7 +470,7 @@ $heightSelect = function (string $name, string $current): string {
                 </div>
 
                 <!-- Настройки неоновой линии подчеркивания меню (Hoverline) -->
-                <div class="u-inline-d4e35c613b" data-hdr-nav-style-only="underline">
+                <div class="u-inline-d4e35c613b" data-hdr-nav-style-only="underline line">
                     <h4 class="u-inline-2e67dd3b15">
                         Параметры линии подчеркивания меню (Hoverline)
                     </h4>
@@ -1184,7 +1185,10 @@ $heightSelect = function (string $name, string $current): string {
             section.hidden = section.getAttribute('data-hdr-container-only') !== containerMode;
         });
         document.querySelectorAll('[data-hdr-nav-style-only]').forEach(function (section) {
-            section.hidden = section.getAttribute('data-hdr-nav-style-only') !== navStyle;
+            // Атрибут перечисляет варианты через пробел: параметры линии
+            // подчёркивания нужны и неоновому, и простому варианту.
+            var allowed = (section.getAttribute('data-hdr-nav-style-only') || '').split(/\s+/);
+            section.hidden = allowed.indexOf(navStyle) === -1;
         });
 
         var previewBox = document.querySelector('.hdr-live-preview__box');
