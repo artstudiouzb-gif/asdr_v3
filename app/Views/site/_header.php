@@ -130,7 +130,7 @@ if (!empty($menuItems)) {
     $navFontSize = in_array($st['nav_font_size'] ?? '', ['compact', 'normal', 'large'], true) ? $st['nav_font_size'] : 'normal';
     $navTransform = in_array($st['nav_transform'] ?? '', ['uppercase', 'capitalize', 'none'], true) ? $st['nav_transform'] : 'uppercase';
     $navLetterSpacing = in_array($st['nav_letter_spacing'] ?? '', ['normal', 'wide', 'wider'], true) ? $st['nav_letter_spacing'] : 'normal';
-    $navStyleType = in_array($st['nav_style_type'] ?? '', ['underline', 'dot', 'pill', 'glow', 'minimal'], true) ? $st['nav_style_type'] : 'underline';
+    $navStyleType = in_array($st['nav_style_type'] ?? '', ['underline', 'line', 'dot', 'pill', 'glow', 'minimal'], true) ? $st['nav_style_type'] : 'underline';
     $navPadding = in_array($st['nav_padding'] ?? '', ['compact', 'normal', 'spacious'], true) ? $st['nav_padding'] : 'normal';
     $navIconPos = in_array($st['nav_icon_pos'] ?? '', ['left', 'top'], true) ? $st['nav_icon_pos'] : 'left';
     $navDividers = !empty($st['nav_item_dividers']) ? ' site-menu--with-item-dividers' : '';

@@ -1032,6 +1032,36 @@ body .site-header--transparent:not(.is-scrolled) .site-menu--style-underline .si
     box-shadow: none !important;
     filter: drop-shadow(0 0 6px var(--menu-active-transparent, var(--menu-active, var(--gov-teal)))) !important;
 }
+
+/* Подчёркивание без свечения: та же геометрия, что у неонового варианта
+   (длина, отступ и толщина берутся из тех же --hoverline-*), но сплошной
+   цвет вместо градиента с прозрачными краями и без тени с drop-shadow —
+   базовое правило .site-menu__link::after даёт свечение всем, поэтому здесь
+   оно снимается явно. */
+.site-menu--style-line .site-menu__link::after {
+    bottom: var(--hoverline-bottom, 4px);
+    left: var(--hoverline-inset, 4px);
+    right: var(--hoverline-inset, 4px);
+    height: var(--hoverline-height, 2px);
+    background: var(--menu-active-color, var(--menu-active, var(--gov-teal)));
+    border-radius: var(--hoverline-height, 2px);
+    box-shadow: none;
+    filter: none;
+}
+.site-menu--style-line .site-menu__link:hover::after,
+.site-menu--style-line .site-menu__link:focus-visible::after,
+.site-menu--style-line .site-menu__link.is-active::after,
+.site-menu--style-line .site-menu__link[aria-current="page"]::after,
+.site-menu--style-line .site-menu__item--has-children:hover > .site-menu__link::after,
+.site-menu--style-line .site-menu__item--has-children:focus-within > .site-menu__link::after,
+.site-menu--style-line .site-menu__item.is-open > .site-menu__link::after {
+    transform: scaleX(1);
+    opacity: 1;
+}
+body .site-header--transparent:not(.is-scrolled) .site-menu--style-line .site-menu__link::after {
+    background: var(--menu-active-transparent, var(--menu-active, var(--gov-teal)));
+}
+
 body .site-header--transparent:not(.is-scrolled) .site-nav { border-top-color: rgba(var(--hdr-veil, 255, 255, 255), .16); background: transparent; }
 .site-header--transparent:not(.is-scrolled) .site-search { background: rgba(var(--hdr-veil, 255, 255, 255), .15) !important; border-color: rgba(var(--hdr-veil, 255, 255, 255), .3) !important; }
 .site-header--transparent:not(.is-scrolled) .site-search input { color: var(--hdr-fg, #fff) !important; }
