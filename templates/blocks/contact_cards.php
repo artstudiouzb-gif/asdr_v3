@@ -43,7 +43,7 @@ if ($iconBg === 'off') {
         . 'height:' . max(42, $iconSize + 22) . 'px}';
 }
 ?>
-<div class="block-contact-cards block-contact-cards--<?= htmlspecialchars($variant, ENT_QUOTES) ?> block-contact-cards--icon-bg-<?= $iconBg ?>">
+<div class="block-contact-cards block-contact-cards--<?= htmlspecialchars($variant, ENT_QUOTES) ?> block-contact-cards--icon-bg-<?= $iconBg ?> block-contact-cards--panel-<?= htmlspecialchars((string) $data['panel'], ENT_QUOTES) ?>">
     <?= \App\Core\SectionHead::render(['title' => $title, 'title_class' => 'block-contact-cards__title']) ?>
     <?php if (empty($items)): ?>
         <p class="block-contact-cards__empty"><?= htmlspecialchars(t('Контактные карточки ещё не добавлены.'), ENT_QUOTES) ?></p>

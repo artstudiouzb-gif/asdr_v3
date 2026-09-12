@@ -207,7 +207,7 @@ test('Counters: подложка блока — настройка, а поло�
     ]);
     assert_same('none', $data['panel']);
     // Значение вне набора — подделанная форма, а не «ближайшее допустимое».
-    assert_same('card', CountersBlockNormalizer::normalize(['panel' => 'glass'])['panel']);
+    assert_same('auto', CountersBlockNormalizer::normalize(['panel' => 'glass'])['panel']);
 
     // Класс обязан доехать до разметки: без него настройка ничего не меняет.
     $html = \App\Core\BlockRenderer::render([

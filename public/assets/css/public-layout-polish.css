@@ -720,3 +720,26 @@ body {
     border-top: 1px solid var(--gov-border);
 }
 
+/* Контакты — список фактов: карточка сама никуда не ведёт, ведут телефон и
+   почта внутри неё. Заливку карточке дают четыре правила темы, сильнейшее
+   из них — `.feature-card.contact-card` весом (0,2,0), и одно «стеклянное»
+   с backdrop-filter. Поэтому селектор называет обёртку и оба класса
+   карточки, а гасятся оба слоя сразу. */
+body.design-surface-interactive .block-contact-cards--panel-auto .feature-card.contact-card,
+.block-contact-cards--panel-none .feature-card.contact-card {
+    border: 0;
+    border-radius: 0;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    padding-inline: 0;
+}
+
+/* Номер у контакта ничего не нумерует: порядка у телефона и почты нет, а
+   без подложки он повисает в воздухе у правого края. */
+body.design-surface-interactive .block-contact-cards--panel-auto .feature-card.contact-card .feature-card__num,
+.block-contact-cards--panel-none .feature-card.contact-card .feature-card__num {
+    display: none;
+}
+
