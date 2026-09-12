@@ -26,7 +26,7 @@ $teamCard = static function (array $m): void {
 };
 ?>
 <div class="block-team">
-    <?php if ($title !== ''): ?><h2 class="block-team__title"><?= \App\Core\TitleMarkup::html($title) ?></h2><?php endif; ?>
+    <?= \App\Core\SectionHead::render(['title' => $title, 'title_class' => 'block-team__title']) ?>
     <?php if (empty($members)): ?>
         <p class="block-team__empty"><?= htmlspecialchars(t('Раздел команды пока пуст.'), ENT_QUOTES) ?></p>
     <?php elseif ($groups !== []): ?>

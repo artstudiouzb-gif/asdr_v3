@@ -44,9 +44,7 @@ if ($iconBg === 'off') {
 }
 ?>
 <div class="block-contact-cards block-contact-cards--<?= htmlspecialchars($variant, ENT_QUOTES) ?> block-contact-cards--icon-bg-<?= $iconBg ?>">
-    <?php if ($title !== ''): ?>
-        <h2 class="block-contact-cards__title"><?= \App\Core\TitleMarkup::html($title) ?></h2>
-    <?php endif; ?>
+    <?= \App\Core\SectionHead::render(['title' => $title, 'title_class' => 'block-contact-cards__title']) ?>
     <?php if (empty($items)): ?>
         <p class="block-contact-cards__empty"><?= htmlspecialchars(t('Контактные карточки ещё не добавлены.'), ENT_QUOTES) ?></p>
     <?php else: ?>
