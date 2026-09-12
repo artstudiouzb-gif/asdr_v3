@@ -6422,7 +6422,14 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
    непрозрачная: полупрозрачная подложка на светлом фото теряет читаемость.
    ========================================================================== */
 
-.icon-text__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+/* Промежуток берётся из настройки «Отступ между карточками» (--card-gap, её
+   печатает слой «Дизайна»). Прежде здесь стоял литерал 16px, и настройка не
+   делала на этом блоке ничего — тот же вид тихого отказа, что ловит тест 309.
+   У варианта «Без рамок» промежуток удвоен: подложку и её внутренние отступы
+   сняли вместе с рамкой, и разделять пункты стало нечем — замерено 16px
+   против 56px «текст до текста» у карточного варианта того же блока. */
+.icon-text__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--card-gap, 16px); }
+.block-icon-text--plain .icon-text__grid { gap: calc(var(--card-gap, 16px) * 2); }
 @media (max-width: 1000px) { .icon-text__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 720px) { .icon-text__grid { grid-template-columns: 1fr; } }
 .icon-text__card {
@@ -6442,6 +6449,15 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
    так блок не спорит с соседними карточными секциями. «В строку» ставит
    пункты подряд одной лентой: типовое применение — короткие реквизиты. */
 
+/* У карточного варианта своя непрозрачная заливка, поэтому он объявляет цвета
+   секции заново для своего поддерева — тот же приём, которым это делают
+   карточки из SectionColors::SURFACES. В сам список класс не идёт: там
+   перечислены компоненты с безусловной заливкой, а здесь она принадлежит
+   одному варианту блока и в «Без рамок» снимается строкой ниже. */
+.block-icon-text--cards .icon-text__card {
+    --section-title-fg: var(--gov-title);
+    --section-muted-fg: var(--text-muted);
+}
 .block-icon-text--plain .icon-text__card { background: none; border: 0; box-shadow: none; padding: 0; }
 .block-icon-text--inline .icon-text__grid { display: flex; flex-wrap: wrap; gap: 12px 32px; }
 .block-icon-text--inline .icon-text__card { flex: 0 1 auto; padding: 0; background: none; border: 0; box-shadow: none; }
@@ -6467,19 +6483,28 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     background: color-mix(in srgb, var(--icon-text-accent, var(--gov-teal)) 14%, var(--gov-surface));
     color: var(--icon-text-accent, var(--gov-teal-text));
 }
-.icon-text__body { min-width: 0; display: flex; flex-direction: column; gap: 8px; }/* Пара «подпись + значение» — отдельная строка. Промежуток между парами держит
+/* Пункт без иконки резервирует место под плитку: без резерва его текст уезжал
+   к левому краю карточки, и в ряду появлялась ступенька 64px. Заливки у
+   резерва нет — пустой цветной квадрат читался бы как незагрузившийся значок. */
+.icon-text__icon--empty { background: none; }
+.icon-text__body { min-width: 0; display: flex; flex-direction: column; gap: calc(var(--icon-text-row-gap, 2px) * 4); }/* Пара «подпись + значение» — отдельная строка. Промежуток между парами держит
    gap списка, поэтому нижний отступ значения обнулён. */
 
-.icon-text__row { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+/* Расстояние внутри пары «подпись → значение» и расстояние между парами — одна
+   величина: настройка «Отступ подписи от значения» умножается на четыре (то же
+   отношение, что было у прежних 2px и 8px). Двумя независимыми числами это
+   переворачивалось молча — с 9px подпись примыкала к чужому значению сверху. */
+.icon-text__row { display: flex; flex-direction: column; gap: var(--icon-text-row-gap, 2px); min-width: 0; }
+.block-icon-text--plain.block-icon-text--rows-stacked { --icon-text-row-gap: 4px; }
 .icon-text__row .icon-text__value { margin-bottom: 0; }/* Подпись и значение одной строкой: «Приёмная: +998 71 200-00-00». Перенос
    разрешён — длинный номер на узком экране уходит на вторую строку целиком,
    а не рвётся посередине. */
 
-.block-icon-text--rows-inline .icon-text__row { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.block-icon-text--rows-inline .icon-text__row { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 4px var(--icon-text-row-gap, 8px); }
 .block-icon-text--rows-inline .icon-text__value { font-size: var(--step-0); }
 .block-icon-text--rows-inline .icon-text__label { flex: none; }
 .block-icon-text--rows-inline.block-icon-text--align-center .icon-text__row { justify-content: center; }
-.icon-text__label { margin: 0; color: var(--gov-muted); font-size: var(--step--2); line-height: 1.4; }
+.icon-text__label { margin: 0; color: var(--section-muted-fg); font-size: var(--step--2); line-height: 1.4; }
 /* Подпись плашкой: рубрика или короткая метка, а не пояснение к значению —
    в варианте «Без рамок» мелкая серая строка над крупным значением читалась
    как случайный текст. Тон подложки следует за карточкой (тот же
@@ -6493,15 +6518,20 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     align-self: flex-start;
     padding: .3em .62em;
     border-radius: var(--radius-sm, 8px);
-    background: color-mix(in srgb, var(--icon-text-accent, var(--gov-teal)) 12%, var(--gov-surface));
-    color: var(--gov-title);
+    background: color-mix(in srgb, var(--icon-text-accent, var(--gov-teal)) 14%, transparent);
+    color: var(--section-title-fg);
     font-weight: 600;
 }
+/* Плашка забирает у значения роль главного в карточке, иначе в паре два
+   выделенных куска: 18px/700 против плашки читались как спор. Замерено — при
+   весе 400 значение совпадает с описанием секции (16px/400) и главного в
+   карточке не остаётся вовсе, поэтому вес 600. */
+.block-icon-text--label-badge .icon-text__value { font-size: var(--step-0); font-weight: 600; }
 .block-icon-text--label-badge.block-icon-text--align-center .icon-text__label { align-self: center; }
 /* В строчном режиме подпись и значение стоят на одной базовой линии — там
    прижимать плашку к началу поперечной оси нечего. */
 .block-icon-text--label-badge.block-icon-text--rows-inline .icon-text__label { align-self: auto; }
-.icon-text__value { margin: 0 0 6px; color: var(--gov-title); font-size: var(--step-1); font-weight: 700; line-height: 1.25; }
+.icon-text__value { margin: 0 0 6px; color: var(--section-title-fg); font-size: var(--step-1); font-weight: 700; line-height: 1.25; }
 .icon-text__value:last-child { margin-bottom: 0; }
 .block-icon-text__empty { color: var(--gov-muted); margin: 0; }/* ==========================================================================
    ЦЕЛЬ ДЛЯ КАСАНИЯ
