@@ -343,6 +343,10 @@ foreach ($options as $key => $opt) {
             $lineHeightCustom = \App\Core\DesignSettings::lineHeightCustom();
             $bodyFontChoice = \App\Core\DesignSettings::bodyFontChoice();
             $gHeading = (string) \App\Models\Setting::get('design_font_google_heading', '');
+            // Отобранные двадцать семейств показываются отдельной группой сверху,
+            // весь остальной каталог — ниже: список длинный, и первым выбором
+            // редактору предлагается то, что проверено на госсайте.
+            $googleExtraFonts = \App\Core\DesignSettings::googleFontsExtra();
             $gScript = (string) \App\Models\Setting::get('design_font_script', '');
             ?>
             <div class="design-manual u-inline-7dde5e56b3">
@@ -361,8 +365,16 @@ foreach ($options as $key => $opt) {
                                             <?= $bodyFontChoice === $choice ? 'selected' : '' ?>><?= htmlspecialchars($fontData[0], ENT_QUOTES) ?></option>
                                 <?php endforeach; ?>
                             </optgroup>
-                            <optgroup label="Каталог Google Fonts — локальные файлы">
+                            <optgroup label="Google Fonts — отобранные, локальные файлы">
                                 <?php foreach (\App\Core\DesignSettings::GOOGLE_FONTS as $slug => $fontData): ?>
+                                    <?php $choice = 'google:' . $slug; ?>
+                                    <option value="<?= htmlspecialchars($choice, ENT_QUOTES) ?>"
+                                            data-font-family="<?= htmlspecialchars($fontData[1], ENT_QUOTES) ?>"
+                                            <?= $bodyFontChoice === $choice ? 'selected' : '' ?>><?= htmlspecialchars($fontData[0], ENT_QUOTES) ?></option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                            <optgroup label="Весь каталог Google Fonts с кириллицей (<?= count($googleExtraFonts) ?>)">
+                                <?php foreach ($googleExtraFonts as $slug => $fontData): ?>
                                     <?php $choice = 'google:' . $slug; ?>
                                     <option value="<?= htmlspecialchars($choice, ENT_QUOTES) ?>"
                                             data-font-family="<?= htmlspecialchars($fontData[1], ENT_QUOTES) ?>"
@@ -376,7 +388,9 @@ foreach ($options as $key => $opt) {
                         </select>
                         <small class="form-hint">
                             При сохранении сервер скачивает только выбранные шрифты; посетители получают их с
-                            вашего домена без внешних запросов. Для Ўў, Ғғ, Ққ, Ҳҳ проверяются нужные кириллические подмножества.
+                            вашего домена без внешних запросов. Для Ўў, Ғғ, Ққ, Ҳҳ проверяются нужные кириллические подмножества,
+                            поэтому в списке только те семейства Google Fonts, у которых они есть. Декоративные и рукописные
+                            семейства каталога годятся для заголовков, но не для основного текста.
                         </small>
                     </div>
                     <div class="design-manual__custom-font design-manual__wide" data-custom-font-fields<?= $bodyFontChoice !== 'style:custom' ? ' hidden' : '' ?>>
@@ -403,8 +417,15 @@ foreach ($options as $key => $opt) {
                         <label for="design_font_heading">Шрифт заголовков</label>
                         <select id="design_font_heading" name="font_google_heading" data-design-preview-field>
                             <option value="">Как у основного текста (без отдельного шрифта)</option>
-                            <optgroup label="Каталог Google Fonts — локальные файлы">
+                            <optgroup label="Google Fonts — отобранные, локальные файлы">
                                 <?php foreach (\App\Core\DesignSettings::GOOGLE_FONTS as $slug => $fontData): ?>
+                                    <option value="<?= htmlspecialchars($slug, ENT_QUOTES) ?>"
+                                            data-font-family="<?= htmlspecialchars($fontData[1], ENT_QUOTES) ?>"
+                                            <?= $gHeading === $slug ? 'selected' : '' ?>><?= htmlspecialchars($fontData[0], ENT_QUOTES) ?></option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                            <optgroup label="Весь каталог Google Fonts с кириллицей (<?= count($googleExtraFonts) ?>)">
+                                <?php foreach ($googleExtraFonts as $slug => $fontData): ?>
                                     <option value="<?= htmlspecialchars($slug, ENT_QUOTES) ?>"
                                             data-font-family="<?= htmlspecialchars($fontData[1], ENT_QUOTES) ?>"
                                             <?= $gHeading === $slug ? 'selected' : '' ?>><?= htmlspecialchars($fontData[0], ENT_QUOTES) ?></option>

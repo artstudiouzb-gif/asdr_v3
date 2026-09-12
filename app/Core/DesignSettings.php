@@ -80,15 +80,77 @@ final class DesignSettings
         'pacifico' => ['Pacifico (вывеска)', "'Pacifico', cursive", 'Pacifico:wght@400'],
     ];
 
+    /** Сгенерированный каталог из app/Core/data, прочитанный один раз за запрос. */
+    /** @var array<string, array{0:string,1:string,2:string}>|null */
+    private static ?array $googleIndex = null;
+
     /**
-     * Оба каталога одним списком: тот, кто скачивает файлы и собирает
+     * Остальные семейства Google Fonts с узбекской кириллицей.
+     *
+     * GOOGLE_FONTS — двадцать отобранных семейств, и до появления этого файла
+     * ничего кроме них редактору не предлагалось: «каталог Google Fonts» в
+     * форме означал двадцать строк. Полный список лежит сгенерированным файлом
+     * (`npm run build:fonts-index`), потому что он меняется несколько раз в год,
+     * а зависеть от доступности чужого сервиса в момент, когда администратор
+     * открыл форму, незачем — по той же причине заранее собран индекс спрайта
+     * иконок.
+     *
+     * Семейства, уже названные в GOOGLE_FONTS и SCRIPT_FONTS, отсюда убраны —
+     * и по слугу, и по имени семейства: у «Exo 2» слуг в каталоге `exo2`, а в
+     * индексе `exo-2`, и без сверки по имени один шрифт стоял бы в списке
+     * дважды с разными подписями.
+     *
+     * @return array<string, array{0:string,1:string,2:string}>
+     */
+    public static function googleFontsExtra(): array
+    {
+        if (self::$googleIndex === null) {
+            $file = __DIR__ . '/data/google-fonts-index.php';
+            $index = is_file($file) ? require $file : [];
+            /** @var array<string, array{0:string,1:string,2:string}> $rows */
+            $rows = is_array($index) ? $index : [];
+
+            $known = [];
+            foreach (self::GOOGLE_FONTS + self::SCRIPT_FONTS as $entry) {
+                $known[strtolower(explode(':', $entry[2])[0])] = true;
+            }
+
+            $extra = [];
+            foreach ($rows as $slug => $entry) {
+                if (isset(self::GOOGLE_FONTS[$slug]) || isset(self::SCRIPT_FONTS[$slug])) {
+                    continue;
+                }
+                if (isset($known[strtolower(explode(':', $entry[2])[0])])) {
+                    continue;
+                }
+                $extra[$slug] = $entry;
+            }
+            self::$googleIndex = $extra;
+        }
+
+        return self::$googleIndex;
+    }
+
+    /**
+     * Каталог для ролей «текст» и «заголовки»: отобранные семейства первыми,
+     * за ними остальные из индекса.
+     *
+     * @return array<string, array{0:string,1:string,2:string}>
+     */
+    public static function googleFontCatalog(): array
+    {
+        return self::GOOGLE_FONTS + self::googleFontsExtra();
+    }
+
+    /**
+     * Все каталоги одним списком: тот, кто скачивает файлы и собирает
      * @font-face, различий между ролями не знает — ему нужен адрес.
      *
      * @return array<string, array{0:string,1:string,2:string}>
      */
     public static function fontCatalog(): array
     {
-        return self::GOOGLE_FONTS + self::SCRIPT_FONTS;
+        return self::googleFontCatalog() + self::SCRIPT_FONTS;
     }
 
     /** Стек выбранного рукописного шрифта или '' — если он не выбран. */

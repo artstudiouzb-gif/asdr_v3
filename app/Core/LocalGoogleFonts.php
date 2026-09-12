@@ -74,16 +74,17 @@ final class LocalGoogleFonts
     {
         $urls = [];
         $stacks = SiteThemeCss::fontStacks();
+        $catalog = DesignSettings::googleFontCatalog();
         foreach (['body' => $stacks['body'], 'heading' => $stacks['heading']] as $role => $stack) {
             $slug = (string) Setting::get('design_font_google_' . $role, '');
-            if ($slug === '' || !isset(DesignSettings::GOOGLE_FONTS[$slug])) {
+            if ($slug === '' || !isset($catalog[$slug])) {
                 // Слуг пуст на свежей установке, а стек уже просит семейство из
                 // поставки. Без этой ветки страница объявляла шрифт, для
                 // которого не подключён ни один @font-face: браузер молча
                 // рисовал системным, а preload всё равно качал файл.
                 $slug = self::bundledSlugForStack($stack);
             }
-            if ($slug === '' || !isset(DesignSettings::GOOGLE_FONTS[$slug])) {
+            if ($slug === '' || !isset($catalog[$slug])) {
                 continue;
             }
             if (isset(self::BUNDLED[$slug])) {
