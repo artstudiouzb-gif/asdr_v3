@@ -188,6 +188,74 @@ test('Иконка и текст: подпись и значение можно 
     assert_contains('block-icon-text--rows-stacked', $stacked['html']);
 });
 
+test('Иконка и текст: цвет подписи и значения приходит от секции', function () {
+    // Прежде здесь стояли литеральные токены --gov-title / --gov-muted, и на
+    // тёмной секции значение красилось ровно в цвет фона: замерено 1.00:1 при
+    // норме 4.5:1, у подписи 1.92:1. Цвет обязан следовать за секцией, а
+    // карточный вариант — объявлять его заново у своей заливки.
+    $css = \theme_css();
+    assert_true(
+        (bool) preg_match('/\.icon-text__value \{[^}]*color: var\(--section-title-fg\)/', $css),
+        'значение берёт цвет заголовка секции'
+    );
+    assert_true(
+        (bool) preg_match('/\.icon-text__label \{[^}]*color: var\(--section-muted-fg\)/', $css),
+        'подпись берёт приглушённый цвет секции'
+    );
+    assert_contains('.block-icon-text--cards .icon-text__card', $css, 'карточный вариант объявляет цвета заново');
+    assert_true(
+        (bool) preg_match('/\.block-icon-text--label-badge \.icon-text__label \{[^}]*color: var\(--section-title-fg\)/', $css),
+        'текст плашки — тоже цвет секции, иначе на тёмной секции он теряется внутри плашки'
+    );
+    // Подложка плашки считается от прозрачного: в варианте «Без рамок» плашка
+    // стоит на фоне секции, а не на белой карточке, и смешение с --gov-surface
+    // превращало её на тёмной секции в светлую заплатку.
+    assert_contains('14%, transparent)', $css, 'подложка плашки не смешивается с белой поверхностью');
+});
+
+test('Иконка и текст: промежутки — из настроек, а не литералами', function () {
+    $css = \theme_css();
+    assert_true(
+        (bool) preg_match('/\.icon-text__grid \{[^}]*gap: var\(--card-gap/', $css),
+        'сетка читает «Отступ между карточками» из «Дизайна»'
+    );
+    assert_contains(
+        '.block-icon-text--plain .icon-text__grid { gap: calc(var(--card-gap, 16px) * 2); }',
+        $css,
+        'у варианта без подложки промежуток удвоен — рамку и её отступы сняли'
+    );
+    // Расстояние внутри пары и между парами — одна величина: иначе настройка
+    // «Отступ подписи от значения» переворачивала группировку с 9px.
+    assert_true(
+        (bool) preg_match('/\.icon-text__row \{[^}]*gap: var\(--icon-text-row-gap, 2px\)/', $css),
+        'строка пары читает переменную'
+    );
+    assert_true(
+        (bool) preg_match('/\.icon-text__body \{[^}]*gap: calc\(var\(--icon-text-row-gap, 2px\) \* 4\)/', $css),
+        'промежуток между парами считается от неё же'
+    );
+
+    $items = [['icon_svg' => 'phone', 'rows' => "Подпись | Значение"]];
+    $block = variant_block('icon_text', ['label_gap' => 10, 'items' => $items], 753);
+    assert_contains('#block-753 .block-icon-text{--icon-text-row-gap:10px;}', $block['css'], 'настройка уходит переменной на корень блока');
+});
+
+test('Иконка и текст: пункт без иконки резервирует место под плитку', function () {
+    // Без резерва текст такого пункта уезжал к левому краю карточки, и в ряду
+    // появлялась ступенька 64px — замерено на шести пунктах: 64/0/64/64/0/64.
+    $items = [
+        ['icon_svg' => 'phone', 'rows' => "Приёмная | +998 71 200-00-00"],
+        ['icon_svg' => '', 'rows' => "Факс | +998 71 200-00-01"],
+    ];
+    $block = variant_block('icon_text', ['items' => $items], 754);
+    assert_same(2, substr_count($block['html'], 'class="icon-text__icon'), 'плитка печатается у каждого пункта');
+    assert_contains('icon-text__icon--empty', $block['html'], 'у пункта без иконки — пустой резерв');
+    assert_contains('.icon-text__icon--empty', \theme_css(), 'резерв без заливки: пустой цветной квадрат читался бы как поломка');
+
+    // Мёртвый класс шапки снят: правил под него в публичном CSS не было ни одного.
+    assert_not_contains('section-head--stacked', (string) file_get_contents(APP_ROOT . '/templates/blocks/icon_text.php'));
+});
+
 test('Иконка и текст: вид, кегль и отступ подписи — настройки блока', function () {
     $items = [['icon_svg' => 'phone', 'rows' => "Hududlar rivoji | Tabiiy resurslar asosida"]];
 
@@ -198,13 +266,15 @@ test('Иконка и текст: вид, кегль и отступ подпи�
     // Кегль и отступ — числом, в scoped CSS блока.
     $sized = variant_block('icon_text', ['label_size' => 15, 'label_gap' => 10, 'items' => $items], 751);
     assert_contains('#block-751 .icon-text__label{font-size:15px;}', $sized['css']);
-    assert_contains('#block-751 .icon-text__row{gap:10px;}', $sized['css']);
+    // Отступ уходит переменной на корень блока: её читают и строка пары, и
+    // промежуток между парами — см. соседний сценарий про промежутки.
+    assert_contains('#block-751 .block-icon-text{--icon-text-row-gap:10px;}', $sized['css']);
 
     // Ноль означает «как в теме»: у собранных блоков ничего не появляется.
     $plain = variant_block('icon_text', ['items' => $items], 752);
     assert_not_contains('block-icon-text--label-badge', $plain['html']);
     assert_not_contains('.icon-text__label{font-size', $plain['css']);
-    assert_not_contains('.icon-text__row{gap', $plain['css']);
+    assert_not_contains('--icon-text-row-gap', $plain['css']);
 
     // Плашку рисует тема, иначе настройка ничего не меняла бы на выводе.
     $css = \theme_css();

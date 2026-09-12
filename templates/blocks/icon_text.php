@@ -53,16 +53,17 @@ if ($labelSize > 0) {
     $templateCss .= '#block-' . (int) $blockId . ' .icon-text__label{font-size:' . $labelSize . 'px;}';
 }
 if ($labelGap > 0) {
-    // Промежуток принадлежит строке пары, а не подписи: в строчном режиме
-    // подпись и значение стоят рядом, и нижний отступ там не виден вовсе.
-    $templateCss .= '#block-' . (int) $blockId . ' .icon-text__row{gap:' . $labelGap . 'px;}';
+    // Величина объявляется переменной на корне блока, а не отдельными gap'ами:
+    // её читают и строка пары, и промежуток между парами (там она умножается
+    // на четыре). Двумя независимыми числами настройка молча переворачивала
+    // группировку — расстояние внутри пары становилось больше, чем между парами.
+    $templateCss .= '#block-' . (int) $blockId . ' .block-icon-text{--icon-text-row-gap:' . $labelGap . 'px;}';
 }
 ?>
 <div class="block-icon-text block-icon-text--<?= $esc($variant) ?> block-icon-text--icon-<?= $esc($iconPosition) ?> block-icon-text--align-<?= $esc($align) ?> block-icon-text--rows-<?= $esc($rowsLayout) ?><?= $labelBadge ? ' block-icon-text--label-badge' : '' ?>">
     <?= \App\Core\SectionHead::render([
         'title' => $title,
         'description' => $description,
-        'class' => 'section-head--stacked',
     ]) ?>
 
     <?php if ($items === []): ?>
@@ -82,8 +83,12 @@ if ($labelGap > 0) {
                 }
                 ?>
                 <div class="icon-text__card<?= $color !== '' ? ' icon-text__card--c' . $index : '' ?>">
+                    <?php // Плитка печатается всегда: пункт без иконки прижимал текст к
+                          // левому краю карточки, и в ряду появлялась ступенька 64px. ?>
                     <?php if ($icon !== ''): ?>
                         <span class="icon-text__icon" aria-hidden="true"><?= Icon::render($icon, 26) ?></span>
+                    <?php else: ?>
+                        <span class="icon-text__icon icon-text__icon--empty" aria-hidden="true"></span>
                     <?php endif; ?>
                     <div class="icon-text__body">
                         <?php foreach ($rows as $row): ?>
