@@ -111,13 +111,18 @@ test('Раздел «Дизайн» не предлагает настроек, 
 
     // Каждая оставшаяся настройка должна иметь потребителя: класс на <body>,
     // переменную темы или чтение в коде.
+    // Полиш читается наравне с темой: часть настроек оформлена там (метка
+    // заголовка секции, подложки блоков), и без него сторож их не видел —
+    // то есть мёртвую настройку, оформленную в полише, он бы пропустил.
     $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/gov-theme.css')
-        . file_get_contents(APP_ROOT . '/public/assets/css/frontend.css');
+        . file_get_contents(APP_ROOT . '/public/assets/css/frontend.css')
+        . file_get_contents(APP_ROOT . '/public/assets/css/public-layout-polish.css');
     $body = \App\Core\DesignSettings::bodyClasses(['catalog_layout' => 'list', 'sidebar_position' => 'fixed',
         'card_style' => 'flat', 'detail_layout' => 'sidebar', 'scroll_top' => 'on',
-        'title_reveal' => 'wipe']);
+        'title_reveal' => 'wipe', 'section_marker' => 'emblem', 'block_surface' => 'interactive']);
     foreach (['design-catalog-list', 'design-sidebar-fixed', 'design-cards-flat', 'design-detail-sidebar',
-              'design-scrolltop', 'design-title-wipe'] as $class) {
+              'design-scrolltop', 'design-title-wipe', 'design-secmark-emblem',
+              'design-surface-interactive'] as $class) {
         assert_contains($class, $body);
         assert_contains($class, $css, 'класс ' . $class . ' выводится, но не оформлен');
     }
