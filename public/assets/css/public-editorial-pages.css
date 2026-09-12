@@ -180,11 +180,20 @@
     border-top: 1px solid var(--editorial-line);
 }
 
+/* Заголовок секции на редакционной странице.
+
+   Адресуемся КОМПОНЕНТУ, который его рисует, а не списку типов блоков.
+   Список был написан, когда общую шапку звали три типа; сейчас их
+   четырнадцать, и одиннадцать оформления не получали — на одной странице
+   у соседних секций расходились трекинг, интерлиньяж и ширина строки
+   (замерено: -0.03em/1.18/820px против -0.02em/1.25/без предела). Дописывать
+   перечень руками и не нужно: правило принадлежит `.section-head__title`.
+   Строка `--timeline` из него ушла заодно — такого типа нет с тех пор, как
+   «Хронология» слита в «Этапы», а в списке она числилась дважды.
+
+   «Текст» остаётся отдельной строкой: у него свой заголовок, не общая шапка. */
 .editorial-page__content > .cms-block--text:has(.block-text__title) .block-text__title,
-.editorial-page__content > .cms-block--cards_grid .section-head__title,
-.editorial-page__content > .cms-block--stages .section-head__title,
-.editorial-page__content > .cms-block--timeline .block-timeline__title,
-.editorial-page__content > .cms-block--docs_list .section-head__title {
+.editorial-page__content > .cms-block .section-head__title {
     position: relative;
     max-width: 820px;
     margin: 0;
@@ -194,28 +203,25 @@
     font-size: var(--font-size-h2, clamp(var(--step-5), 2.5vw, var(--step-7)));
     font-weight: 700;
     line-height: 1.18;
-    letter-spacing: -.03em;
+    letter-spacing: var(--heading-letter-spacing, -.02em);
 }
 
 .editorial-page__content > .cms-block--text:has(.block-text__title) .block-text__title::before,
-.editorial-page__content > .cms-block--cards_grid .section-head__title::before,
-.editorial-page__content > .cms-block--stages .section-head__title::before,
-.editorial-page__content > .cms-block--timeline .block-timeline__title::before,
-.editorial-page__content > .cms-block--docs_list .section-head__title::before {
+.editorial-page__content > .cms-block .section-head__title::before {
     content: '';
     position: absolute;
     inset-block: .16em;
     left: 0;
-    width: 3px;
+    width: var(--section-marker-width, 3px);
     border-radius: 999px;
     background: var(--gov-teal);
 }
 
+/* `.section-head__title` стоял здесь дважды, а `.block-timeline__title` —
+   это title_class у «Этапов», то есть тот же элемент общей шапки. */
 .editorial-page__content > .cms-block--bg-navy :is(
     .block-text__title,
-    .section-head__title,
-    .section-head__title,
-    .block-timeline__title
+    .section-head__title
 )::before {
     background: var(--gov-teal-on-dark);
 }

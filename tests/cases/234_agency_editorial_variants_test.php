@@ -136,13 +136,36 @@ test('Иконки cards_grid настраиваются в редакторе �
 
 test('Заголовки редакционных разделов используют единый акцентный маркер', function (): void {
     $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public-editorial-pages.css');
-    foreach (['block-text__title', 'section-head__title', 'block-timeline__title'] as $selector) {
-        assert_contains($selector . '::before', $css, "{$selector}: нет общего маркера");
-    }
+
+    // Маркер и оформление адресованы компоненту, который рисует заголовок.
+    assert_contains('.cms-block .section-head__title::before', $css, 'нет общего маркера у шапки секции');
+    assert_contains('.block-text__title::before', $css, 'у блока «Текст» свой заголовок, ему маркер нужен отдельно');
     assert_contains('font-size: var(--font-size-h2', $css);
 
     $designSettings = (string) file_get_contents(APP_ROOT . '/app/Core/DesignSettings.php');
     assert_contains('.block-timeline__title', $designSettings, 'таймлайн должен брать H2 из настроек типографики');
+});
+
+test('Оформление заголовка не перечисляет типы блоков поимённо', function (): void {
+    // Перечень типов отстаёт от кода молча: он писался, когда общую шапку
+    // звали три блока, а зовут её четырнадцать — одиннадцать оформления не
+    // получали вовсе, и на одной странице у соседних секций расходились
+    // трекинг, интерлиньяж и ширина строки. Правило принадлежит компоненту,
+    // поэтому адресовать его отдельным типам нельзя: следующий блок на общей
+    // шапке снова остался бы за бортом, и узнали бы об этом не скоро.
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public-editorial-pages.css');
+    assert_true(
+        preg_match('/\.cms-block--[a-z_]+ \.section-head__title/', $css) !== 1,
+        'заголовок шапки секции оформлен по типу блока — адресуйте его .cms-block .section-head__title'
+    );
+});
+
+test('Метка заголовка на редакционной странице слушает настройку', function (): void {
+    // Файл грузится после public-layout-polish.css и перебивает его правило,
+    // поэтому число здесь молча отменяло бы «Метку заголовка секции».
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public-editorial-pages.css');
+    assert_contains('width: var(--section-marker-width', $css, 'толщина метки задана числом мимо настройки');
+    assert_contains('letter-spacing: var(--heading-letter-spacing', $css, 'трекинг задан числом мимо настройки');
 });
 
 test('Миграция объединяет старые вступления с целевыми блоками без потери текста', function (): void {
