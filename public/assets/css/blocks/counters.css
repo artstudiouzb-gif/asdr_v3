@@ -331,3 +331,31 @@
     body[class] .counter__value,
     body[class] .counter__suffix { font-size: var(--step-5); }
 }
+
+/* Подложка по роли («Дизайн» → «Подложки блоков»): показатели — полоса
+   чисел, а не карта поверх секции.
+
+   Правило живёт ЗДЕСЬ, а не в public-layout-polish.css: этот файл —
+   вынесенная часть темы, он подключается после общего бандла и стоит в
+   каскаде выше полиша. Замерено через CDP: и фон, и тень блока ставит
+   `.block-counters` именно отсюда.
+
+   Режимный класс без :where(): он и даёт довесок веса. Но одного довеска
+   мало — заливку и тень тема объявляет тремя правилами: сам класс и по
+   одному на `:root[data-theme=light|dark]`, а те весят (0,3,0). Поэтому
+   вариантов тоже три: ровно так в этом файле уже сделан `--panel-none`. */
+body.design-surface-interactive .block-counters--panel-auto,
+:root[data-theme="light"] body.design-surface-interactive .block-counters--panel-auto,
+:root[data-theme="dark"] body.design-surface-interactive .block-counters--panel-auto {
+    background: none;
+    border-color: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+}
+body.design-surface-interactive .block-counters--panel-auto:hover {
+    transform: none;
+    border-color: transparent;
+    box-shadow: none;
+}
+
