@@ -701,9 +701,10 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
     .cms-columns--mobile-reverse .cms-columns__col:nth-child(4) { order: 1; }
 }/* Новые блоки (группа 4): отзывы, счётчики, команда, проекты */
 
-.block-testimonials__title, .block-team__title, .block-projects__title {
-    text-align: center; margin: 0 0 28px;
-}
+/* Заголовок секции выравнивает общая шапка (.section-head), а не блок:
+   пока эти трое центрировали свой заголовок сами, на одной странице
+   соседние секции стояли по-разному, а метка заголовка у центрированного
+   не рисуется вовсе — она указывает на начало строки. */
 .block-testimonials__track {
     display: flex; gap: 24px; overflow-x: auto; scroll-snap-type: x mandatory;
     padding: 10px 10px 20px; scrollbar-width: none;

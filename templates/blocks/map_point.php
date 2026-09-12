@@ -21,7 +21,7 @@ $templateCss = $imageCss !== ''
     : '';
 ?>
 <div class="block-map">
-    <?php if ($title !== ''): ?><h2 class="block-map__title"><?= \App\Core\TitleMarkup::html($title) ?></h2><?php endif; ?>
+    <?= \App\Core\SectionHead::render(['title' => $title, 'title_class' => 'block-map__title']) ?>
     <div class="block-map__canvas">
         <?php if ($embedUrl !== '' && $loadMode === 'immediate'): ?>
             <iframe class="block-map__frame" src="<?= htmlspecialchars($embedUrl, ENT_QUOTES) ?>" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="<?= htmlspecialchars($title !== '' ? \App\Core\TitleMarkup::plain($title) : t('Карта'), ENT_QUOTES) ?>"></iframe>

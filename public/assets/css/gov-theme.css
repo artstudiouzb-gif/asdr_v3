@@ -3710,7 +3710,17 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
 
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
 .section-head__copy { flex: 1 1 520px; min-width: 0; }
-.section-head__title { font-size: var(--font-size-h2, var(--step-6)); margin: 0; font-weight: 700; letter-spacing: -0.02em; }
+.section-head__title {
+    font-size: var(--font-size-h2, var(--step-6));
+    margin: 0;
+    font-weight: 700;
+    /* Трекинг — настройка «Дизайна», а не число здесь: шапка секции
+       рисует заголовок полутора десятков блоков, и пока значение было
+       записано числом, «Межбуквенный интервал заголовков» до них не
+       доходил. Умолчание настройки то же самое, поэтому сайт без неё
+       не меняется. */
+    letter-spacing: var(--heading-letter-spacing, -0.02em);
+}
 .section-head__description,
 .block-featband__description,
 .block-timeline__description {

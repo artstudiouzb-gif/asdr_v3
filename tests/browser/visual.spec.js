@@ -22,14 +22,25 @@ const { test, expect } = require('@playwright/test');
 const PAGE = '/visual-regression';
 const BASELINE = path.join(__dirname, 'visual-baseline');
 
-/** Что снимаем: элемент → интересующие свойства. */
+/*
+ * Что снимаем: элемент → интересующие свойства.
+ *
+ * Проба берёт ПЕРВЫЙ элемент, подходящий под селектор, поэтому селектор,
+ * который встречается у нескольких блоков, называет блок. Иначе сторож молча
+ * меняет предмет наблюдения: перестановка блоков в фикстуре — или появление
+ * класса у блока, стоящего выше, — переводит пробу на другой элемент, эталон
+ * «законно» переписывается, и разницу читают как правку оформления. Так и
+ * вышло, когда «Счётчики» переехали на общую шапку секции: класс появился у
+ * второго блока страницы, проба ушла с «Карточек» на него, а в дифф попали
+ * три значения, к правке отношения не имевшие.
+ */
 const PROBES = [
     ['.site-header', ['backgroundColor', 'borderBottomColor', 'boxShadow', 'height']],
     ['.site-header__logo', ['color', 'fontSize', 'fontWeight', 'gap']],
-    ['.section-head__title', ['color', 'fontSize', 'fontWeight', 'letterSpacing', 'paddingLeft', 'marginBottom']],
+    ['.cms-block--cards_grid .section-head__title', ['color', 'fontSize', 'fontWeight', 'letterSpacing', 'paddingLeft', 'marginBottom']],
     ['.counter__value', ['color', 'fontSize', 'fontWeight', 'lineHeight']],
     ['.counter__label', ['color', 'fontSize', 'lineHeight']],
-    ['.feature-card', ['backgroundColor', 'borderRadius', 'borderTopWidth', 'borderTopColor', 'boxShadow', 'padding']],
+    ['.cms-block--cards_grid .feature-card', ['backgroundColor', 'borderRadius', 'borderTopWidth', 'borderTopColor', 'boxShadow', 'padding']],
     ['.act-card', ['backgroundColor', 'borderRadius', 'padding', 'minHeight']],
     ['.act-card__emblem', ['display', 'width', 'height', 'opacity', 'insetBlockEnd']],
     ['.faq-item', ['backgroundColor', 'borderRadius', 'borderTopColor']],
