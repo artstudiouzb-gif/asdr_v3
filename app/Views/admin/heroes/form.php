@@ -75,7 +75,7 @@ $group = static function (string $title, string $hint, string $state, string $bo
 
     $summaryFields = [
         'Размер обложки' => 'width,height,height_mobile',
-        'Текст и расположение' => 'text_position,text_align_y,title_size',
+        'Текст и расположение' => 'text_position,text_align_y,title_size,title_scale',
         'Цветовая схема' => 'scheme,content_scheme',
         'Наложение и подложка' => 'overlay,overlay_opacity',
         'Навигация' => 'nav_indicator,nav_arrows',
@@ -329,6 +329,23 @@ $overlayDirections = [
                 <span class="form-hint">Пусто — ширина темы.</span>
             </div>
             <?= $select('title_size', 'Размер заголовка', $sizeOptions, (string) $settings['title_size']) ?>
+            <?php
+            // Доводка кегля к выбранному классу размера: длина заголовка
+            // пресетом не описывается, а одно короткое слово и длинное
+            // ведомственное название просят разного кегля при одном «крупный».
+            ?>
+            <div class="form-field">
+                <label for="title_scale">Кегль заголовка, % от размера</label>
+                <input type="number" id="title_scale" name="title_scale"
+                       min="<?= App\Core\Hero\HeroSettings::TITLE_SCALE_MIN ?>"
+                       max="<?= App\Core\Hero\HeroSettings::TITLE_SCALE_MAX ?>" step="5"
+                       value="<?= (int) $settings['title_scale'] ?>">
+                <span class="form-hint">
+                    100 — размер как у выбранного класса. Короткий заголовок выдерживает больше,
+                    длинный просит меньше. На телефоне увеличение ограничено, чтобы заголовок
+                    не занял экран целиком.
+                </span>
+            </div>
             <?= $select('subtitle_size', 'Размер описания', $subtitleSizes, (string) $settings['subtitle_size']) ?>
             <?php
             // Отступ всего блока сверху — отдельно от промежутков между
@@ -345,7 +362,8 @@ $overlayDirections = [
                 </span>
             </div>
         <?php echo $group('Текст и расположение', 'положение текста и размеры',
-            ($posOptions[$settings['text_position']] ?? '') . ' · заголовок ' . mb_strtolower((string) ($sizeOptions[$settings['title_size']] ?? '')),
+            ($posOptions[$settings['text_position']] ?? '') . ' · заголовок ' . mb_strtolower((string) ($sizeOptions[$settings['title_size']] ?? ''))
+                . ((int) $settings['title_scale'] !== 100 ? ' ' . (int) $settings['title_scale'] . '%' : ''),
             (string) ob_get_clean()); ?>
 
         <?php

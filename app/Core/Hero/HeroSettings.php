@@ -23,6 +23,17 @@ final class HeroSettings
     public const INDICATORS = ['none', 'dots', 'counter', 'progress', 'counter_progress', 'thumbs'];
     public const TRANSITIONS = ['fade', 'slide', 'fade_slide', 'kenburns'];
     public const OVERLAYS = ['none', 'solid', 'gradient'];
+
+    /**
+     * Границы доводки кегля заголовка, в процентах от выбранного класса
+     * размера. Снизу 60 — ниже заголовок перестаёт быть заголовком и спорит
+     * с описанием. Сверху 160 — у класса xl это около 124px на экране 1440px;
+     * дальше начинается не кегль, а плакат, и он всё равно упрётся в ширину
+     * колонки. На узком экране множитель ограничивается отдельно (см.
+     * blocks/hero.css) — тем же приёмом, что отступ текста сверху.
+     */
+    public const TITLE_SCALE_MIN = 60;
+    public const TITLE_SCALE_MAX = 160;
     public const OVERLAY_DIRECTIONS = [
         'auto', 'to_right', 'to_left', 'to_bottom', 'to_top',
         'to_bottom_right', 'to_bottom_left', 'to_top_right', 'to_top_left',
@@ -72,6 +83,14 @@ final class HeroSettings
             'text_align_y' => 'center',
             'text_width' => '',
             'title_size' => 'l',
+            // Доводка кегля заголовка под его длину, в процентах от выбранного
+            // класса размера. Пресетом длину не угадать: «Агентство» и
+            // «Агентство стратегического развития при Президенте Республики
+            // Узбекистан» просят разного кегля при одном и том же «крупный».
+            // Множитель растягивает всю кривую clamp целиком — и пол, и
+            // скорость роста, и потолок, — поэтому на узком экране заголовок
+            // растёт пропорционально, а не выпрыгивает из кадра.
+            'title_scale' => 100,
             'subtitle_size' => 'm',
 
             // Отступ всего текстового блока сверху, в пикселях. Промежутки
@@ -159,6 +178,7 @@ final class HeroSettings
             'text_align_y' => BlockDataInput::enum($input, 'text_align_y', ['top', 'center', 'bottom'], 'center'),
             'text_width' => self::length($input, 'text_width_value', 'text_width_unit', ['px', '%', 'vw']),
             'title_size' => BlockDataInput::enum($input, 'title_size', ['s', 'm', 'l', 'xl'], 'l'),
+            'title_scale' => self::clamp($input['title_scale'] ?? null, self::TITLE_SCALE_MIN, self::TITLE_SCALE_MAX, 100),
             'subtitle_size' => BlockDataInput::enum($input, 'subtitle_size', ['s', 'm', 'l'], 'm'),
             'text_offset_top' => self::gap($input['text_offset_top'] ?? null, 0),
 
@@ -214,6 +234,7 @@ final class HeroSettings
         $s['text_align_y'] = $enum($s['text_align_y'] ?? '', ['top', 'center', 'bottom'], 'center');
         $s['text_width'] = self::cssLength($s['text_width'] ?? '', ['px', '%', 'vw']);
         $s['title_size'] = $enum($s['title_size'] ?? '', ['s', 'm', 'l', 'xl'], 'l');
+        $s['title_scale'] = self::clamp($s['title_scale'] ?? null, self::TITLE_SCALE_MIN, self::TITLE_SCALE_MAX, 100);
         $s['subtitle_size'] = $enum($s['subtitle_size'] ?? '', ['s', 'm', 'l'], 'm');
         $s['text_offset_top'] = self::gap($s['text_offset_top'] ?? null, 0);
 

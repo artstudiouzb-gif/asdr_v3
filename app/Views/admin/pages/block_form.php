@@ -1791,16 +1791,21 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
         <details class="form-section">
             <summary>Оформление секции <span class="form-section__hint">отступы, фон, анимация появления</span></summary>
             <div class="form-section__body form-section__body--grid">
-        <?php $spacing = $data['_spacing'] ?? 'premium'; ?>
+        <?php
+        // Ступени ритма перечисляет нормализатор — здесь второй список молча
+        // разошёлся бы с тем, что принимается при сохранении.
+        $spacing = \App\Core\BlockData\BlockPresentationNormalizer::spacing((string) ($data['_spacing'] ?? 'premium'));
+        $spacingLabels = \App\Core\BlockData\BlockPresentationNormalizer::SPACING_LABELS;
+        ?>
         <div class="form-field">
             <label for="spacing">Вертикальные отступы («воздух»)</label>
             <select id="spacing" name="spacing">
-                <option value="none" <?= $spacing === 'none' ? 'selected' : '' ?>>Нет</option>
-                <option value="small" <?= $spacing === 'small' ? 'selected' : '' ?>>Малый</option>
-                <option value="premium" <?= $spacing === 'premium' ? 'selected' : '' ?>>Премиум</option>
-                <option value="max" <?= $spacing === 'max' ? 'selected' : '' ?>>Максимальный</option>
+                <?php foreach ($spacingLabels as $v => $l): ?><option value="<?= $v ?>" <?= $spacing === $v ? 'selected' : '' ?>><?= $l ?></option><?php endforeach; ?>
             </select>
-            <span class="form-hint">Адаптивные отступы через CSS clamp() — масштабируются под ширину экрана.</span>
+            <span class="form-hint">
+                Адаптивные отступы через CSS clamp() — масштабируются под ширину экрана.
+                Величину ступеней задаёт «Дизайн» → «Плотность секций».
+            </span>
         </div>
 
         <?php
@@ -1808,11 +1813,16 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
         $bg = $data['_bg'] ?? 'none';
         $surface = $data['_surface'] ?? 'flat';
         $fullwidth = !empty($data['_fullwidth']);
-        $padTop = $data['_pad_top'] ?? 'default';
-        $padBottom = $data['_pad_bottom'] ?? 'default';
+        $padTop = \App\Core\BlockData\BlockPresentationNormalizer::padding((string) ($data['_pad_top'] ?? 'default'));
+        $padBottom = \App\Core\BlockData\BlockPresentationNormalizer::padding((string) ($data['_pad_bottom'] ?? 'default'));
         $bgOpts = ['none' => 'Нет', 'light' => 'Светлый', 'tint' => 'Лёгкий акцент', 'navy' => 'Тёмный (navy)'];
         $surfaceOpts = ['flat' => 'Без карточки (прозрачный)', 'card' => 'Карточка с фоном'];
-        $padOpts = ['default' => 'По умолчанию', 'none' => 'Нет', 'small' => 'Малый', 'medium' => 'Средний', 'large' => 'Большой'];
+        // Тот же ряд, что у «воздуха», плюс «По умолчанию» — то есть «не
+        // переопределять пресет». Прежде у этих полей был свой набор слов
+        // (`medium`/`large`), и «Средний» здесь означал ту же величину, что
+        // «Премиум» там: сравнить два поля глазами было нельзя.
+        $padOpts = ['default' => 'По умолчанию']
+            + \App\Core\BlockData\BlockPresentationNormalizer::SPACING_LABELS;
         ?>
         <div class="form-field">
             <label for="bg">Фон секции</label>
