@@ -50,7 +50,8 @@ test('Шаблон переживает дорогу туда и обратно 
     assert_same('navy', $data['_bg']);
     assert_same('#123456', $data['_bg_color'], 'цвет фона не пережил дорогу');
     assert_same(true, $data['_fullwidth']);
-    assert_same('large', $data['_pad_top']);
+    // Прежнее имя ступени приводится к текущему ряду той же величины.
+    assert_same('max', $data['_pad_top']);
     assert_same('stagger', $data['_reveal']['type'], 'появление при скролле потерялось');
     assert_same('ЦЕЛИ', $data['_watermark']);
     assert_same(30, $data['_watermark_size']);

@@ -15,10 +15,33 @@
        собственных жёстких 1rem. */
     --font-size-body: 1rem;
 
-    /* Пресеты вертикальных отступов блоков (адаптивные через clamp). */
-    --space-small: clamp(20px, 3vw, 32px);
-    --space-premium: clamp(48px, 6vw, 80px);
-    --space-max: clamp(64px, 8vw, 110px);
+    /* --------------------------------------------------------------------
+       РИТМ СЕКЦИЙ — шесть ступеней вертикального отступа блока.
+
+       Имя начинается с --section-, потому что рядом живёт вторая шкала
+       отступов --space-3xs…3xl (внутренние промежутки компонентов, статичные
+       rem). Пока обе назывались --space-*, `--space-s` (1rem) и
+       `--space-small` (clamp(14px,2.5vw,24px)) читались как одно и то же:
+       имена похожи, значения разные, а перепутать их ничто не мешало.
+
+       Опорных ступеней три — s, l, xl: они приезжают из «Дизайна»
+       («Плотность секций» плюс поля «Отступы», см. DesignSettings::
+       semanticSpacings) и потому записаны здесь запасными значениями,
+       равными набору «Стандарт». Прежде запасные (20/48/64px) были крупнее
+       умолчания (14/28/40px), то есть сайт с несобранным слоем «Дизайна»
+       выглядел иначе, чем с собранным, — тот же разъезд «одно имя, два
+       умолчания», ради которого сведены цвета.
+
+       Промежуточные xs и m не объявляются числами, а выводятся из опорных:
+       иначе настройка плотности двигала бы края шкалы, а середину оставляла
+       на месте — и ряд переставал быть рядом.
+       -------------------------------------------------------------------- */
+    --section-space-none: 0px;
+    --section-space-s: clamp(14px, 2.5vw, 24px);
+    --section-space-l: clamp(28px, 4vw, 56px);
+    --section-space-xl: clamp(40px, 5vw, 76px);
+    --section-space-xs: calc(var(--section-space-s) * .6);
+    --section-space-m: calc((var(--section-space-s) + var(--section-space-l)) / 2);
 }/* Тёмная тема: явное переключение через data-theme="dark". *//* Тёмная гамма одна на весь фронт: базовые переменные повторяют ступени темы
    (--gov-bg / --gov-surface / --gov-border из gov-theme.css). Раньше база была
    нейтрально-серой (#14161c), а карточки темы — синими: на одной странице
@@ -246,11 +269,13 @@ summary:focus-visible {
 .site-footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: var(--step--2); }/* Система «воздуха»: базовый отступ блока = плотность из настроек дизайна
    (--section-pad), с откатом на пресет. Классы --space-* переопределяют. */
 
-.cms-block { margin: 0; padding: var(--section-pad, var(--space-premium)) 0; }
+.cms-block { margin: 0; padding: var(--section-pad, var(--section-space-l)) 0; }
 .cms-block--space-none { padding: 0; }
-.cms-block--space-small { padding: var(--space-small) 0; }
-.cms-block--space-premium { padding: var(--space-premium) 0; }
-.cms-block--space-max { padding: var(--space-max) 0; }/* Соседние секции без собственного фона не удваивают вертикальный ритм:
+.cms-block--space-xs { padding: var(--section-space-xs) 0; }
+.cms-block--space-small { padding: var(--section-space-s) 0; }
+.cms-block--space-mid { padding: var(--section-space-m) 0; }
+.cms-block--space-premium { padding: var(--section-space-l) 0; }
+.cms-block--space-max { padding: var(--section-space-xl) 0; }/* Соседние секции без собственного фона не удваивают вертикальный ритм:
    нижний отступ одного блока и верхний следующего давали между секциями
    почти 160px пустоты. Блоки с фоном (cms-block--bg) сохраняют свои поля —
    иначе цветная подложка липнет к тексту. */

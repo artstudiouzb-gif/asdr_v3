@@ -322,12 +322,22 @@
     opacity: .85;
 }
 
+/* Кегль заголовка: класс размера из настройки обложки, умноженный на доводку
+   под длину конкретного заголовка (--hero-title-scale, 1 = как задано
+   классом). Множитель растягивает кривую clamp целиком, поэтому крупный
+   заголовок остаётся крупным и на телефоне — но не во всю его высоту: на
+   узком экране множитель ограничен сверху тем же приёмом, каким ограничен
+   отступ текста. */
 .hero__title {
     margin: var(--hero-gap-title) 0 0;
-    font-size: var(--hero-title-size);
+    font-size: calc(var(--hero-title-size) * var(--hero-title-scale, 1));
     line-height: 1.1;
     letter-spacing: -.02em;
     color: var(--hero-fg);
+}
+
+@media (max-width: 560px) {
+    .hero__title { font-size: calc(var(--hero-title-size) * min(var(--hero-title-scale, 1), 1.25)); }
 }
 
 .hero__title-link { color: inherit; text-decoration: none; }

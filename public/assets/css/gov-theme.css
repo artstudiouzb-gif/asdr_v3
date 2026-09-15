@@ -3422,7 +3422,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .projdetail__content { width: 100%; max-width: none; }/* Анонс проекта над блоками: тот же приём, что и лид страницы. */
 
 .projdetail__lead {
-    margin: 0 0 var(--space-small, 24px);
+    margin: 0 0 var(--section-space-s, 24px);
     color: var(--gov-muted);
     font-size: var(--step-1);
     line-height: var(--base-line-height, 1.55);
@@ -4206,11 +4206,13 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
 }
 .mediacard__date { display: block; color: var(--gov-muted); font-size: var(--step--2); margin-top: 4px; }/* --- Блочные опции: независимые отступы, фон секции, полноширинная подложка --- *//* Переменные --block-pad-top/bottom переопределяют пресет отступов. */
 
-.cms-block { padding-top: var(--block-pad-top, var(--section-pad, var(--space-premium))); padding-bottom: var(--block-pad-bottom, var(--section-pad, var(--space-premium))); }
+.cms-block { padding-top: var(--block-pad-top, var(--section-pad, var(--section-space-l))); padding-bottom: var(--block-pad-bottom, var(--section-pad, var(--section-space-l))); }
 .cms-block--space-none { padding-top: var(--block-pad-top, 0); padding-bottom: var(--block-pad-bottom, 0); }
-.cms-block--space-small { padding-top: var(--block-pad-top, var(--space-small)); padding-bottom: var(--block-pad-bottom, var(--space-small)); }
-.cms-block--space-premium { padding-top: var(--block-pad-top, var(--space-premium)); padding-bottom: var(--block-pad-bottom, var(--space-premium)); }
-.cms-block--space-max { padding-top: var(--block-pad-top, var(--space-max)); padding-bottom: var(--block-pad-bottom, var(--space-max)); }/* Фон секции. По умолчанию красит только область контейнера; при --fullwidth
+.cms-block--space-xs { padding-top: var(--block-pad-top, var(--section-space-xs)); padding-bottom: var(--block-pad-bottom, var(--section-space-xs)); }
+.cms-block--space-small { padding-top: var(--block-pad-top, var(--section-space-s)); padding-bottom: var(--block-pad-bottom, var(--section-space-s)); }
+.cms-block--space-mid { padding-top: var(--block-pad-top, var(--section-space-m)); padding-bottom: var(--block-pad-bottom, var(--section-space-m)); }
+.cms-block--space-premium { padding-top: var(--block-pad-top, var(--section-space-l)); padding-bottom: var(--block-pad-bottom, var(--section-space-l)); }
+.cms-block--space-max { padding-top: var(--block-pad-top, var(--section-space-xl)); padding-bottom: var(--block-pad-bottom, var(--section-space-xl)); }/* Фон секции. По умолчанию красит только область контейнера; при --fullwidth
    подложка растягивается на всю ширину экрана через ::before. */
 
 .cms-block--bg { position: relative; z-index: 0; }

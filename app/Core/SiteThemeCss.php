@@ -71,9 +71,14 @@ final class SiteThemeCss
             '--gov-ink' => 'var(--text-main)',
             '--gov-muted' => 'var(--text-muted)',
             '--gov-border' => 'var(--border-color)',
-            '--space-small' => $spacings['space_small'],
-            '--space-premium' => $spacings['space_premium'],
-            '--space-max' => $spacings['space_max'],
+            // Три опорные ступени ритма секций; xs и mid выводятся из них в
+            // frontend.css, поэтому «Плотность» двигает всю шкалу целиком.
+            // Ключи хранения остались прежними (space_small/premium/max) —
+            // они лежат в настройках, и переименование ради имени переменной
+            // потребовало бы миграции.
+            '--section-space-s' => $spacings['space_small'],
+            '--section-space-l' => $spacings['space_premium'],
+            '--section-space-xl' => $spacings['space_max'],
             '--feature-card-hover-lift' => $cardHoverTranslate,
             '--font-family' => $font,
             '--font-heading' => $heading,

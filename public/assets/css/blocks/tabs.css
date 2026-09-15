@@ -11,7 +11,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-bottom: var(--space-small, 24px);
+    margin-bottom: var(--section-space-s, 24px);
 }
 
 .cms-tabs__tab {
@@ -106,22 +106,22 @@
     .cms-tabs--vertical .cms-tabs__body {
         display: grid;
         grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
-        gap: var(--space-small, 24px);
+        gap: var(--section-space-s, 24px);
         align-items: start;
     }
 }
 
 /* --- Панели --- */
 .cms-tabs__panel + .cms-tabs__panel {
-    margin-top: var(--space-small, 24px);
-    padding-top: var(--space-small, 24px);
+    margin-top: var(--section-space-s, 24px);
+    padding-top: var(--section-space-s, 24px);
     border-top: 1px solid var(--gov-border, var(--line));
 }
 
 /* Вложенные блоки живут по правилам колонок: внешние отступы секции внутри
    контейнера лишние, расстояние между соседями задаём здесь. */
 .cms-tabs__panel > .cms-block { padding-top: 0; padding-bottom: 0; }
-.cms-tabs__panel > .cms-block + .cms-block { margin-top: var(--space-small, 24px); }
+.cms-tabs__panel > .cms-block + .cms-block { margin-top: var(--section-space-s, 24px); }
 
 .cms-tabs__panel-title {
     margin: 0 0 12px;

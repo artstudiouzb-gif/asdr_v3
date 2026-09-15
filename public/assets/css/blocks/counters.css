@@ -161,7 +161,7 @@
 
 @media (max-width: 720px) {
     .cms-block--hero:has(+ .cms-block--counters) .block-hero--media { padding-bottom: 0; }
-    .cms-block--hero + .cms-block--counters { padding-top: var(--space-premium); }
+    .cms-block--hero + .cms-block--counters { padding-top: var(--section-space-l); }
     .cms-block--hero + .cms-block--counters .block-counters { margin-top: 0; }
 }
 
