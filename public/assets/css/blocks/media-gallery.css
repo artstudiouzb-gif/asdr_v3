@@ -186,5 +186,5 @@
 /* Полоса страниц блока: та же, что у ленты новостей, но здесь она стоит сразу
    под плиткой, поэтому отступ задаём тут, а не в общей теме. */
 .mediagallery-grid + .listing-pager {
-    margin-top: var(--space-small, 24px);
+    margin-top: var(--section-space-s, 24px);
 }

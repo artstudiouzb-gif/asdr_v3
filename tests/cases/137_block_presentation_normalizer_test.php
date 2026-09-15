@@ -38,7 +38,7 @@ test('Block presentation normalizer: сохраняет допустимые н�
         '_surface' => 'card',
         '_fullwidth' => true,
         '_pad_top' => 'none',
-        '_pad_bottom' => 'large',
+        '_pad_bottom' => 'max',
         '_visible_from' => '2026-07-24 10:15',
         '_visible_to' => '2026-07-25 18:30',
         '_visible_device' => 'mobile',
@@ -149,7 +149,7 @@ test('Block renderer: отмечает только явно заданные н
     assert_contains('cms-block--pad-top-custom', $customHtml);
     assert_contains('cms-block--pad-bottom-custom', $customHtml);
     assert_contains('--block-pad-top:0;', $customCss);
-    assert_contains('--block-pad-bottom:var(--space-max);', $customCss);
+    assert_contains('--block-pad-bottom:var(--section-space-xl);', $customCss);
     assert_not_contains('cms-block--pad-top-custom', $defaultHtml);
     assert_not_contains('cms-block--pad-bottom-custom', $defaultHtml);
 });

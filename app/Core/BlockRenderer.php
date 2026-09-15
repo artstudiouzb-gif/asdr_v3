@@ -236,10 +236,7 @@ final class BlockRenderer
         // Дизайн-система: пресет отступов и опция анимации появления.
         // Ключи _spacing/_reveal могут отсутствовать (старые/битые данные) —
         // берём безопасные значения по умолчанию.
-        $spacing = (string) ($data['_spacing'] ?? 'premium');
-        if (!in_array($spacing, ['none', 'small', 'premium', 'max'], true)) {
-            $spacing = 'premium';
-        }
+        $spacing = BlockPresentationNormalizer::spacing((string) ($data['_spacing'] ?? 'premium'));
         // Анимация появления (группа 4.2). Обратная совместимость: старое
         // булево _reveal=true → {enabled:true, type:'fade'}.
         $revealRaw = $data['_reveal'] ?? null;
@@ -263,7 +260,9 @@ final class BlockRenderer
             $surface = 'flat';
         }
         $fullwidth = !empty($data['_fullwidth']);
-        $padMap = ['none' => '0', 'small' => 'var(--space-small)', 'medium' => 'var(--space-premium)', 'large' => 'var(--space-max)'];
+        // Ступень → переменная ритма объявлена один раз, в нормализаторе:
+        // свой список здесь молча разошёлся бы с тем, что принимает форма.
+        $padMap = BlockPresentationNormalizer::SPACING_VARS;
         $extraClass = '';
         // Своя заливка (цвет, градиент, фото, узор) отменяет пресет темы: два
         // фона на одной секции дают кашу.
@@ -297,8 +296,10 @@ final class BlockRenderer
         // ветвление по User-Agent сделало бы его непригодным.
         $extraClass .= BlockVisibility::deviceClass($data);
         $styleVars = '';
-        $padTop = (string) ($data['_pad_top'] ?? 'default');
-        $padBottom = (string) ($data['_pad_bottom'] ?? 'default');
+        // Имена ступеней приводятся к текущему ряду и на выводе: данные блока
+        // приезжают и из базы, и из файла шаблона страницы, снятого раньше.
+        $padTop = BlockPresentationNormalizer::padding((string) ($data['_pad_top'] ?? 'default'));
+        $padBottom = BlockPresentationNormalizer::padding((string) ($data['_pad_bottom'] ?? 'default'));
         if (isset($padMap[$padTop])) {
             $extraClass .= ' cms-block--pad-top-custom';
             $styleVars .= '--block-pad-top:' . $padMap[$padTop] . ';';

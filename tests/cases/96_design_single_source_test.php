@@ -81,7 +81,7 @@ test('семантические цвета выводятся как перем
     foreach (['--bg-primary', '--bg-surface', '--text-main', '--text-muted', '--border-color'] as $variable) {
         assert_contains($variable, $themeCss);
     }
-    foreach (['--space-small', '--space-premium', '--space-max'] as $variable) {
+    foreach (['--section-space-s', '--section-space-l', '--section-space-xl'] as $variable) {
         assert_contains($variable, $themeCss);
     }
     assert_contains("'--gov-bg' => 'var(--bg-primary)'", $themeCss);

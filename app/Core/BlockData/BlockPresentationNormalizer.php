@@ -14,7 +14,69 @@ use App\Core\UrlGuard;
 final class BlockPresentationNormalizer
 {
     /** @var list<string> */
-    private const SPACING = ['none', 'small', 'premium', 'max'];
+    /**
+     * Ритм секции: шесть ступеней от «нет» до «максимального». Прежде их было
+     * четыре, и между «Малым» (14–24px) и «Премиумом» (28–56px) лежала
+     * двукратная ступень — а ритм, ради которого отступы и настраиваются
+     * («маленький снизу притягивает заголовок к следующему блоку, крупный
+     * сверху отделяет тяжёлую секцию»), живёт как раз между ними.
+     *
+     * Имена значений оставлены прежними (`small`, `premium`, `max`): они
+     * лежат в данных блоков, в шаблонах страниц и в классах уже собранных
+     * страниц, а переименование ради красоты ряда потребовало бы миграции
+     * JSON и сброса кэша ради подписи в форме. Подписи для редактора — в
+     * SPACING_LABELS, порядок ряда задаёт сам список.
+     *
+     * @var list<string>
+     */
+    public const SPACING = ['none', 'xs', 'small', 'mid', 'premium', 'max'];
+
+    /**
+     * Подписи ступеней и та же шкала для полей «Отступ сверху/снизу».
+     * Объявлены здесь, потому что форма блока, нормализатор и рендерер
+     * читают один и тот же ряд: три списка разъехались бы при первом же
+     * добавлении ступени.
+     *
+     * @var array<string, string>
+     */
+    public const SPACING_LABELS = [
+        'none' => 'Нет',
+        'xs' => 'Компактный',
+        'small' => 'Малый',
+        'mid' => 'Средний',
+        'premium' => 'Большой',
+        'max' => 'Максимальный',
+    ];
+
+    /**
+     * Ступень → переменная ритма секций (см. frontend.css). Читают рендерер
+     * (для --block-pad-top/bottom) и правила .cms-block--space-*.
+     *
+     * @var array<string, string>
+     */
+    public const SPACING_VARS = [
+        'none' => '0',
+        'xs' => 'var(--section-space-xs)',
+        'small' => 'var(--section-space-s)',
+        'mid' => 'var(--section-space-m)',
+        'premium' => 'var(--section-space-l)',
+        'max' => 'var(--section-space-xl)',
+    ];
+
+    /**
+     * Прежние значения полей «Отступ сверху/снизу». Ряд у них был свой
+     * (`small`/`medium`/`large`), и те же три величины назывались в «воздухе»
+     * иначе (`small`/`premium`/`max`) — одно и то же слово значило в двух
+     * полях разное. Теперь ряд один, а прежние имена приводятся к нему на
+     * входе, а не переписываются в базе (тем же приёмом, каким переехали типы
+     * блоков): величина при этом сохраняется, поэтому вид уже собранных
+     * страниц не меняется. Средняя ступень названа `mid` именно потому, что
+     * слово `medium` занято прежним смыслом и переиспользовать его значило бы
+     * молча уменьшить отступ там, где редактор когда-то выбрал «Средний».
+     *
+     * @var array<string, string>
+     */
+    private const PADDING_LEGACY = ['medium' => 'premium', 'large' => 'max'];
 
     /** @var list<string> */
     private const REVEAL_TYPES = ['fade', 'slide-up', 'slide-left', 'slide-right', 'zoom-in', 'stagger'];
@@ -26,7 +88,8 @@ final class BlockPresentationNormalizer
     private const SURFACES = ['flat', 'card'];
 
     /** @var list<string> */
-    private const PADDINGS = ['default', 'none', 'small', 'medium', 'large'];
+    /** @var list<string> */
+    private const PADDINGS = ['default', 'none', 'xs', 'small', 'mid', 'premium', 'max'];
 
     /** Минимальная высота секции: пусто — по содержимому. */
     private const MIN_HEIGHTS = ['small', 'medium', 'large', 'screen'];
@@ -216,21 +279,21 @@ final class BlockPresentationNormalizer
         $revealType = self::scalarString($input['reveal_type'] ?? null);
         $background = self::scalarString($input['bg'] ?? null, 'none');
         $surface = self::scalarString($input['surface'] ?? null, 'flat');
-        $padTop = self::scalarString($input['pad_top'] ?? null, 'default');
-        $padBottom = self::scalarString($input['pad_bottom'] ?? null, 'default');
+        $padTop = self::padding(self::scalarString($input['pad_top'] ?? null, 'default'));
+        $padBottom = self::padding(self::scalarString($input['pad_bottom'] ?? null, 'default'));
         $device = self::scalarString($input['visible_device'] ?? null);
 
         $normalized = [
             '_anchor' => $anchor,
-            '_spacing' => in_array($spacing, self::SPACING, true) ? $spacing : 'premium',
+            '_spacing' => self::spacing($spacing),
             '_reveal' => in_array($revealType, self::REVEAL_TYPES, true)
                 ? ['enabled' => true, 'type' => $revealType]
                 : ['enabled' => false, 'type' => 'fade'],
             '_bg' => in_array($background, self::BACKGROUNDS, true) ? $background : 'none',
             '_surface' => in_array($surface, self::SURFACES, true) ? $surface : 'flat',
             '_fullwidth' => !empty($input['fullwidth']),
-            '_pad_top' => in_array($padTop, self::PADDINGS, true) ? $padTop : 'default',
-            '_pad_bottom' => in_array($padBottom, self::PADDINGS, true) ? $padBottom : 'default',
+            '_pad_top' => $padTop,
+            '_pad_bottom' => $padBottom,
             '_visible_from' => BlockVisibility::normalize(self::scalarString($input['visible_from'] ?? null)),
             '_visible_to' => BlockVisibility::normalize(self::scalarString($input['visible_to'] ?? null)),
             '_visible_device' => in_array($device, ['desktop', 'mobile'], true) ? $device : '',
@@ -291,6 +354,33 @@ final class BlockPresentationNormalizer
         $to = BlockVisibility::parse($data['_visible_to'] ?? '');
 
         return $from !== null && $to !== null && $to <= $from;
+    }
+
+    /**
+     * Ступень «воздуха» секции. Отличается от padding() только запасным
+     * значением: у «воздуха» ступени `default` нет — не выбрана ни одна,
+     * значит действует прежнее умолчание `premium`.
+     */
+    public static function spacing(string $value): string
+    {
+        $value = self::PADDING_LEGACY[$value] ?? $value;
+
+        return in_array($value, self::SPACING, true) ? $value : 'premium';
+    }
+
+    /**
+     * Ступень отступа сверху/снизу: прежние имена приводятся к текущему ряду,
+     * неизвестное значение — «по умолчанию» (то есть пресет «воздуха»).
+     *
+     * Публичный, потому что читателя два: форма (через normalize) и вывод —
+     * данные блока приезжают из базы и из файла шаблона страницы, где лежат
+     * имена, сохранённые до появления общего ряда.
+     */
+    public static function padding(string $value): string
+    {
+        $value = self::PADDING_LEGACY[$value] ?? $value;
+
+        return in_array($value, self::PADDINGS, true) ? $value : 'default';
     }
 
     private static function scalarString(mixed $value, string $default = ''): string
