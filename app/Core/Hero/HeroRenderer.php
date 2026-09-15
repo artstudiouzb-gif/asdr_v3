@@ -199,6 +199,13 @@ final class HeroRenderer
             : 'transparent';
         $vars['--hero-duration'] = (int) $s['transition_duration'] . 'ms';
         $vars['--hero-title-size'] = 'var(--hero-title-' . $s['title_size'] . ')';
+        // Множитель печатается только когда он что-то меняет: у обложек,
+        // собранных до появления настройки, своя переменная в scoped CSS не
+        // появляется вовсе, и вид их не меняется.
+        $titleScale = (int) ($s['title_scale'] ?? 100);
+        if ($titleScale !== 100) {
+            $vars['--hero-title-scale'] = rtrim(rtrim(number_format($titleScale / 100, 2, '.', ''), '0'), '.');
+        }
         $vars['--hero-subtitle-size'] = 'var(--hero-subtitle-' . $s['subtitle_size'] . ')';
         $vars['--hero-text-offset'] = (int) $s['text_offset_top'] . 'px';
 

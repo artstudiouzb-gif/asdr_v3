@@ -53,6 +53,7 @@ test('Каждая настройка обложки влияет на выво�
     'height_mobile' => 'tall', 'height_mobile_value' => '400px',
     'text_position' => 'right', 'text_align_y' => 'bottom', 'text_width' => '500px',
     'title_size' => 'xl', 'subtitle_size' => 's',
+    'title_scale' => 130,
     'text_offset_top' => 33,
     'scheme' => 'light', 'scheme_bg' => '#123456', 'scheme_text' => '#654321', 'scheme_accent' => '#abcdef',
     'content_scheme' => 'dark',
