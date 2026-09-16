@@ -10,6 +10,16 @@ use App\Core\BlockTypeRegistry;
 
 test('Каждое поле блока читается на выводе', function () {
     $renderer = (string) file_get_contents(APP_ROOT . '/app/Core/BlockRenderer.php');
+    // Настройка бывает потребляемой не на выводе, а при сохранении: «Тип
+    // сборки» коллажа сам считает сетку и места элементов, и шаблон получает
+    // уже посчитанные номера ячеек — спрашивать раскладку ему нечего.
+    // Нормализатор здесь такой же законный потребитель, как шаблон: если
+    // ключа нет и там, настройка не делает ничего нигде, а это ровно тот
+    // дефект, ради которого тест написан.
+    $normalizers = '';
+    foreach (glob(APP_ROOT . '/app/Core/BlockData/*Normalizer.php') ?: [] as $file) {
+        $normalizers .= (string) file_get_contents($file);
+    }
     $orphans = [];
 
     foreach (BlockTypeRegistry::defaults() as $type => $defaults) {
@@ -22,7 +32,8 @@ test('Каждое поле блока читается на выводе', func
         foreach (array_keys($defaults) as $key) {
             $used = str_contains($tpl, "'" . $key . "'")
                 || str_contains($tpl, '"' . $key . '"')
-                || str_contains($renderer, "'" . $key . "'");
+                || str_contains($renderer, "'" . $key . "'")
+                || str_contains($normalizers, "'" . $key . "'");
             if (!$used) {
                 $orphans[] = $type . '.' . $key;
             }

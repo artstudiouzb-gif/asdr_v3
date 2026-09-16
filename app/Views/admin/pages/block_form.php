@@ -481,7 +481,11 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             $collageRows = (int) ($data['rows'] ?? 4);
             $collageTypes = [
                 'photo' => 'Фотография',
-                'stat' => 'Плитка с числом',
+                // «Плитка с числом» не читалась как показатель, хотя это
+                // ровно он: значение, подпись, иконка и цвет — набор блока
+                // «Показатели». Ключ в данных прежний.
+                'stat' => 'Показатель',
+                'quote' => 'Цитата',
                 'badge' => 'Круглая печать',
                 'pattern' => 'Узор',
             ];
@@ -513,7 +517,14 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
 
                 return '<div class="form-field"><label>Тип элемента</label><select name="' . $p('type') . '" data-collage-type>'
                         . $sel($collageTypes, 'type', (string) ($item['type'] ?? 'photo')) . '</select></div>'
-                    . '<div class="collage-place">'
+                    // Места элемента спрашиваются только у свободной сетки: у
+                    // готовой сборки их считает раскладка, и четыре поля,
+                    // которые ни на что не влияют, читались бы как поломка.
+                    // Скрывает их скрипт панели, поэтому рядом печатается
+                    // строка о том, кто теперь ими распоряжается: исчезнувшее
+                    // без объяснения поле — тот же тихий отказ.
+                    . '<p class="form-hint" data-collage-auto hidden>Места элементов задаёт выбранный тип сборки — они пересчитываются при каждом сохранении.</p>'
+                    . '<div class="collage-place" data-collage-place>'
                         . '<div class="form-field"><label>Колонка</label>' . $collageNumbers($p('col'), $collageCols, $n('col', 1)) . '</div>'
                         . '<div class="form-field"><label>Ширина, колонок</label>' . $collageNumbers($p('col_span'), $collageCols, $n('col_span', 1)) . '</div>'
                         . '<div class="form-field"><label>Строка</label>' . $collageNumbers($p('row'), $collageRows, $n('row', 1)) . '</div>'
@@ -529,8 +540,14 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     . '</div>'
                     . '<div data-collage-fields="stat">'
                         . \App\Core\AdminUi::iconField($p('icon_svg'), (string) ($item['icon_svg'] ?? ''), ['label' => 'Иконка'])
+                        . '<div class="form-field"><label>Приставка</label><input type="text" name="' . $p('prefix') . '" maxlength="16" value="' . $v('prefix') . '" placeholder="более"><span class="form-hint">Слово перед числом. Отдельным полем, чтобы не мешать переносу длинного значения.</span></div>'
                         . '<div class="form-field"><label>Значение</label><input type="text" name="' . $p('value') . '" maxlength="24" value="' . $v('value') . '" placeholder="25K+"></div>'
                         . '<div class="form-field"><label>Подпись</label><input type="text" name="' . $p('label') . '" value="' . $v('label') . '"></div>'
+                    . '</div>'
+                    . '<div data-collage-fields="quote">'
+                        . '<div class="form-field"><label>Текст цитаты</label><textarea name="' . $p('quote_text') . '" rows="3" maxlength="220">' . $v('quote_text') . '</textarea><span class="form-hint">Короткая прямая речь: в ячейке коллажа она стоит рядом с фотографией, и длинный абзац там читается хуже, чем блоком «Текст».</span></div>'
+                        . '<div class="form-field"><label>Кто сказал</label><input type="text" name="' . $p('author') . '" maxlength="60" value="' . $v('author') . '"></div>'
+                        . '<div class="form-field"><label>Должность или источник</label><input type="text" name="' . $p('role') . '" maxlength="80" value="' . $v('role') . '"></div>'
                     . '</div>'
                     . '<div data-collage-fields="badge">'
                         . '<div class="form-field"><label>Надпись по кругу</label><input type="text" name="' . $p('text') . '" maxlength="40" value="' . $v('text') . '" placeholder="Свяжитесь с нами"></div>'
