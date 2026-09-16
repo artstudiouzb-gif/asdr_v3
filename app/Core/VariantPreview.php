@@ -46,6 +46,8 @@ final class VariantPreview
         'track' => 'полоса с прокруткой',
         'split' => 'две колонки',
         'mosaic' => 'мозаика из крупных и мелких',
+        'hero-tiles' => 'крупный кадр и мелкие рядом',
+        'overlap' => 'элементы с наложением по диагонали',
         'bars' => 'горизонтальные полосы',
         'stacked' => 'одна полоса из долей',
         'meter' => 'шкала выполнения',
@@ -92,6 +94,8 @@ final class VariantPreview
             'track' => self::track($count, $mods),
             'split' => self::split($mods),
             'mosaic' => self::mosaic(),
+            'hero-tiles' => self::heroTiles(),
+            'overlap' => self::overlap(),
             'bars' => self::bars(),
             'stacked' => self::stacked(),
             'meter' => self::meter(),
@@ -362,6 +366,33 @@ final class VariantPreview
         $out .= self::line($textX, self::PAD + 10, $half, 0.3);
         $out .= self::line($textX, self::PAD + 14, $half, 0.3);
         $out .= self::line($textX, self::PAD + 18, $half * 0.6, 0.3);
+
+        return $out;
+    }
+
+    /** Крупный кадр слева и колонка спутников справа — без текстовых строк: в коллаже их нет. */
+    private static function heroTiles(): string
+    {
+        $h = self::H - self::PAD * 2;
+        $big = 34;
+        $smallX = self::PAD + $big + 2.5;
+        $smallW = self::W - self::PAD - $smallX;
+        $smallH = ($h - 2.5 * 2) / 3;
+
+        $out = self::box(self::PAD, self::PAD, $big, $h, 0.32);
+        for ($i = 0; $i < 3; $i++) {
+            $out .= self::box($smallX, self::PAD + $i * ($smallH + 2.5), $smallW, $smallH, 0.2);
+        }
+
+        return $out;
+    }
+
+    /** Наложение: три пятна по диагонали, пересечения видно по разной плотности. */
+    private static function overlap(): string
+    {
+        $out = self::box(self::PAD, self::PAD, 30, 20, 0.3);
+        $out .= self::box(self::PAD + 14, self::PAD + 8, 30, 20, 0.22);
+        $out .= self::box(self::PAD + 6, self::PAD + 16, 22, 14, 0.34);
 
         return $out;
     }
