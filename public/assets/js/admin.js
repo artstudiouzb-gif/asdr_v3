@@ -4370,8 +4370,27 @@ document.addEventListener('change', function (event) {
         });
     }
 
+    /*
+     * Готовая сборка считает места сама, поэтому поля «Колонка / Ширина /
+     * Строка / Высота» у элементов скрываются, а вместо них показывается
+     * строка о том, кто ими теперь распоряжается. Без скрипта поля остаются
+     * видимыми — введённое просто перезапишется на сохранении, и это честнее
+     * пустой формы.
+     */
+    function applyLayout(root) {
+        var picked = document.querySelector('[name="layout"]:checked, select[name="layout"]');
+        var preset = !!picked && picked.value !== 'free';
+        (root || document).querySelectorAll('[data-collage-place]').forEach(function (place) {
+            place.hidden = preset;
+        });
+        (root || document).querySelectorAll('[data-collage-auto]').forEach(function (note) {
+            note.hidden = !preset;
+        });
+    }
+
     function applyAll(root) {
         (root || document).querySelectorAll('[data-collage-repeater] .repeater-row').forEach(applyRow);
+        applyLayout(root);
     }
 
     var repeater = document.querySelector('[data-collage-repeater]');
@@ -4379,7 +4398,9 @@ document.addEventListener('change', function (event) {
 
     applyAll();
     document.addEventListener('change', function (event) {
-        var select = event.target.closest ? event.target.closest('[data-collage-type]') : null;
+        var target = event.target;
+        if (target && target.name === 'layout') { applyLayout(); return; }
+        var select = target.closest ? target.closest('[data-collage-type]') : null;
         if (!select) { return; }
         var row = select.closest('.repeater-row');
         if (row) { applyRow(row); }

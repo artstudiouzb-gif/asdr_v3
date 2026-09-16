@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\BlockData;
 
+use App\Core\CollageLayout;
 use App\Core\Icon;
 
 /**
@@ -50,6 +51,7 @@ final class CollageBlockNormalizer
     public static function normalize(array $input, string $locale = 'ru'): array
     {
         $canvas = BlockFieldSchema::normalize('collage', $input, $locale);
+        $layout = (string) $canvas['layout'];
         $columns = (int) $canvas['columns'];
         $rows = (int) $canvas['rows'];
 
@@ -75,6 +77,20 @@ final class CollageBlockNormalizer
             };
             if ($filled !== null) {
                 $items[] = $filled;
+            }
+        }
+
+        // У готовой сборки места считаются по числу элементов — и считаются
+        // ПОСЛЕ отбора: пустой элемент из композиции выпадает, и раскладка,
+        // посчитанная до него, оставила бы в полотне дыру ровно там, где он
+        // был. Вместе с местами приходит и сетка: сколько колонок и строк
+        // нужно этой композиции, знает сама раскладка, а не редактор.
+        if (CollageLayout::isPreset($layout)) {
+            $placed = CollageLayout::place($layout, count($items));
+            $canvas['columns'] = $placed['columns'];
+            $canvas['rows'] = $placed['rows'];
+            foreach ($placed['cells'] as $i => $cell) {
+                $items[$i] = $cell + $items[$i];
             }
         }
 

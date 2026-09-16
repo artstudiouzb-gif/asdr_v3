@@ -513,7 +513,14 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
 
                 return '<div class="form-field"><label>Тип элемента</label><select name="' . $p('type') . '" data-collage-type>'
                         . $sel($collageTypes, 'type', (string) ($item['type'] ?? 'photo')) . '</select></div>'
-                    . '<div class="collage-place">'
+                    // Места элемента спрашиваются только у свободной сетки: у
+                    // готовой сборки их считает раскладка, и четыре поля,
+                    // которые ни на что не влияют, читались бы как поломка.
+                    // Скрывает их скрипт панели, поэтому рядом печатается
+                    // строка о том, кто теперь ими распоряжается: исчезнувшее
+                    // без объяснения поле — тот же тихий отказ.
+                    . '<p class="form-hint" data-collage-auto hidden>Места элементов задаёт выбранный тип сборки — они пересчитываются при каждом сохранении.</p>'
+                    . '<div class="collage-place" data-collage-place>'
                         . '<div class="form-field"><label>Колонка</label>' . $collageNumbers($p('col'), $collageCols, $n('col', 1)) . '</div>'
                         . '<div class="form-field"><label>Ширина, колонок</label>' . $collageNumbers($p('col_span'), $collageCols, $n('col_span', 1)) . '</div>'
                         . '<div class="form-field"><label>Строка</label>' . $collageNumbers($p('row'), $collageRows, $n('row', 1)) . '</div>'
