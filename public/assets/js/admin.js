@@ -4356,6 +4356,9 @@ document.addEventListener('change', function (event) {
     var FIELDS = {
         photo: ['shape', 'photo', 'link'],
         stat: ['shape', 'stat', 'colors', 'link'],
+        // У цитаты ссылки нет: прямая речь, ведущая куда-то по клику, не
+        // читается как ссылка, а подчёркивать её целиком — уже не цитата.
+        quote: ['shape', 'quote', 'colors'],
         // Печать всегда круглая: выбор формы у неё ничего не менял бы.
         badge: ['badge', 'colors', 'link'],
         pattern: ['shape', 'pattern', 'colors']

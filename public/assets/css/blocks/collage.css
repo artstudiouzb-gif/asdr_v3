@@ -58,6 +58,66 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
    нельзя — на цветной плитке контраст уходит ниже нормы. */
 .collage__stat-label { font-size: var(--step--1); line-height: 1.35; text-wrap: pretty; }
 
+/* Приставка «более», «до» — слово, а не часть числа: оно стоит над значением
+   и набирается кеглем подписи, иначе читается как часть разряда. */
+.collage__stat-prefix { font-size: var(--step--1); line-height: 1.2; }
+
+/* --- Цитата --- */
+/* Текст прижат к низу, а знак кавычки стоит сверху: цитата в ячейке читается
+   снизу вверх — сначала кто сказал, потом что. Выравнивание по левому краю, в
+   отличие от плитки с числом: прямая речь по центру рвётся на разной длине
+   строк. */
+.collage__item--quote {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: clamp(16px, 2.2vw, 28px);
+    background: var(--collage-bg, var(--gov-surface));
+    color: var(--collage-fg, var(--gov-title));
+}
+.collage__quote { margin: 0; display: contents; }
+/* Ячейка спутника бывает невысокой, и длинная цитата вытесняла подпись за её
+   край: замерено — имя автора срезалось по горизонту на половине букв, что
+   читается как поломка вёрстки. Поэтому ужимается текст, а не подпись: сам
+   текст обрезается по строкам с многоточием (оно честно говорит, что есть
+   продолжение), а «кто сказал» не сжимается никогда — цитата без автора
+   теряет то единственное, ради чего стоит в композиции. */
+.collage__item--quote { overflow: hidden; }
+.collage__quote-by { flex: 0 0 auto; }
+/* Знак — декорация, поэтому он крупный и приглушён формой, а не цветом:
+   прозрачность на цветной плитке увела бы контраст ниже нормы, а тут он
+   ничего не сообщает и читаться не обязан. */
+.collage__quote-mark {
+    font-family: var(--font-heading, Georgia, serif);
+    font-size: var(--step-7);
+    line-height: .6;
+    height: .5em;
+}
+/* Ячейка спутника бывает ниже цитаты, и обрезать её по краю нельзя: резалось
+   по середине букв, а это читается как поломка, а не как продолжение. Поэтому
+   последняя видимая строка гасится маской — обрыв виден намеренным. Маска
+   трогает только альфу края, цвет текста остаётся прежним, поэтому контраст
+   самой цитаты не падает. */
+.collage__quote-text {
+    margin: 0;
+    min-height: 0;
+    overflow: hidden;
+    font-size: var(--step-0);
+    line-height: 1.45;
+    text-wrap: pretty;
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent);
+}
+.collage__quote-by {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--step--2);
+    line-height: 1.3;
+}
+.collage__quote-author { font-style: normal; font-weight: 600; }
+.collage__quote-role { font-size: var(--step--3); }
+
 /* --- Круглая печать --- */
 /* Ячейка бывает не квадратной, а печать обязана остаться кругом. Пропорции у
    самого элемента мало: при `aspect-ratio` с ограничением по высоте браузер

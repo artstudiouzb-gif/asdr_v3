@@ -22,7 +22,7 @@ use App\Core\Icon;
 final class CollageBlockNormalizer
 {
     /** @var list<string> */
-    public const TYPES = ['photo', 'stat', 'badge', 'pattern'];
+    public const TYPES = ['photo', 'stat', 'quote', 'badge', 'pattern'];
 
     /** @var list<string> */
     public const SHAPES = ['rounded', 'circle', 'square'];
@@ -72,6 +72,7 @@ final class CollageBlockNormalizer
             $filled = match ($type) {
                 'photo' => self::photo($item, $normalized),
                 'stat' => self::stat($item, $normalized, $locale),
+                'quote' => self::quote($item, $normalized, $locale),
                 'badge' => self::badge($item, $normalized, $locale),
                 default => self::pattern($item, $normalized),
             };
@@ -153,11 +154,54 @@ final class CollageBlockNormalizer
 
         return $base + [
             'icon_svg' => Icon::cleanName($item['icon_svg'] ?? ''),
+            // Приставка отделена от значения по той же причине, что в блоке
+            // «Показатели»: «более» перед числом — это слово, а не часть
+            // числа, и набранное одной строкой оно ломает отсчёт при
+            // появлении и перенос длинного значения.
+            'prefix' => mb_substr(BlockDataInput::plain($item, 'prefix', $locale), 0, 16),
             'value' => mb_substr($value, 0, 24),
             'label' => $label,
             'bg' => BlockDataInput::optionalColor($item, 'bg'),
             'fg' => BlockDataInput::optionalColor($item, 'fg'),
             'link' => BlockDataInput::safeLink($item['link'] ?? ''),
+        ];
+    }
+
+    /**
+     * Цитата в композиции: короткая прямая речь с подписью.
+     *
+     * Своё оформление знака кавычки здесь не заводится, в отличие от варианта
+     * «Акцентная цитата» блока «Текст»: там цитата стоит рядом с колонкой
+     * текста и держит на себе весь блок, а тут она — один элемент среди
+     * четырёх, и третий набор настроек цвета и кегля спорил бы с соседями.
+     * Цвета берутся общие для элемента, как у плитки с числом.
+     *
+     * @param array<string, mixed> $item
+     * @param array<string, mixed> $base
+     * @return array<string, mixed>|null
+     */
+    private static function quote(array $item, array $base, string $locale): ?array
+    {
+        // Ключ свой, а не общий `text`: его занимает надпись круглой печати, и
+        // в форме два поля с одним именем затирали бы друг друга — при
+        // отправке побеждало бы последнее.
+        $text = BlockDataInput::plain($item, 'quote_text', $locale);
+        if ($text === '') {
+            // Подпись без самой цитаты — это имя в пустой ячейке: элемент без
+            // содержимого занимал бы место в композиции и ничем его не
+            // заполнял.
+            return null;
+        }
+
+        return $base + [
+            // Предел длины — не вкус: в ячейке коллажа цитата стоит рядом с
+            // фотографией, и абзац в ней набирается кеглем подписи, то есть
+            // читается хуже, чем тот же текст блоком «Текст».
+            'quote_text' => mb_substr($text, 0, 220),
+            'author' => mb_substr(BlockDataInput::plain($item, 'author', $locale), 0, 60),
+            'role' => mb_substr(BlockDataInput::plain($item, 'role', $locale), 0, 80),
+            'bg' => BlockDataInput::optionalColor($item, 'bg'),
+            'fg' => BlockDataInput::optionalColor($item, 'fg'),
         ];
     }
 

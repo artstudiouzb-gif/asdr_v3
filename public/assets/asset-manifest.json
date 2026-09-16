@@ -59,11 +59,11 @@
     },
     "/assets/css/blocks/collage.css": {
       "path": "/assets/css/blocks/collage.min.css",
-      "sourceSha256": "37dcee6201dd55c9dcd371b5101f5e5ddd793325cd72bf9f8988bea60d3d3034",
-      "sha256": "0b6d1dc328443dbab54acec744faf0403dac1b68650a5d97bab27b07d25b7750",
-      "raw": 3051,
-      "gzip": 1017,
-      "brotli": 851
+      "sourceSha256": "3a57ca3dd6bae5c445792f8a6bcb6df2146d729041b911538b8297c90c124afd",
+      "sha256": "ac51748f11ac08c4587186cf22f47e4e2bd85bcc2fbc98137dbc6fcbb1b8bb87",
+      "raw": 3913,
+      "gzip": 1213,
+      "brotli": 1019
     },
     "/assets/css/blocks/counters.css": {
       "path": "/assets/css/blocks/counters.min.css",

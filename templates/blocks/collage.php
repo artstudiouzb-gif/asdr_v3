@@ -91,12 +91,34 @@ $focusMap = [
                         <?php if (!empty($item['icon_svg'])): ?>
                             <span class="collage__stat-icon" aria-hidden="true"><?= Icon::render((string) $item['icon_svg'], 32) ?></span>
                         <?php endif; ?>
+                        <?php if (($item['prefix'] ?? '') !== ''): ?>
+                            <span class="collage__stat-prefix"><?= htmlspecialchars((string) $item['prefix'], ENT_QUOTES) ?></span>
+                        <?php endif; ?>
                         <?php if (($item['value'] ?? '') !== ''): ?>
                             <span class="collage__stat-value"><?= htmlspecialchars((string) $item['value'], ENT_QUOTES) ?></span>
                         <?php endif; ?>
                         <?php if (($item['label'] ?? '') !== ''): ?>
                             <span class="collage__stat-label"><?= htmlspecialchars((string) $item['label'], ENT_QUOTES) ?></span>
                         <?php endif; ?>
+                    <?php elseif ($type === 'quote'): ?>
+                        <?php
+                        // Знак кавычки декоративен: диктор читает саму цитату,
+                        // а «левая двойная кавычка» посреди фразы сбивает.
+                        ?>
+                        <blockquote class="collage__quote">
+                            <span class="collage__quote-mark" aria-hidden="true">«</span>
+                            <p class="collage__quote-text"><?= htmlspecialchars((string) $item['quote_text'], ENT_QUOTES) ?></p>
+                            <?php if (($item['author'] ?? '') !== '' || ($item['role'] ?? '') !== ''): ?>
+                                <footer class="collage__quote-by">
+                                    <?php if (($item['author'] ?? '') !== ''): ?>
+                                        <cite class="collage__quote-author"><?= htmlspecialchars((string) $item['author'], ENT_QUOTES) ?></cite>
+                                    <?php endif; ?>
+                                    <?php if (($item['role'] ?? '') !== ''): ?>
+                                        <span class="collage__quote-role"><?= htmlspecialchars((string) $item['role'], ENT_QUOTES) ?></span>
+                                    <?php endif; ?>
+                                </footer>
+                            <?php endif; ?>
+                        </blockquote>
                     <?php elseif ($type === 'badge'):
                         // Надпись по кругу собирает CollageBadge: это текст на
                         // траектории, а не иконка, и шаблону такую геометрию

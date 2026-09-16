@@ -175,3 +175,115 @@ test('У каждого типа сборки своя плитка с рису�
         assert_true(trim((string) ($variant[1] ?? '')) !== '', 'у типа ' . $key . ' нет пояснения');
     }
 });
+
+/*
+ * Типы элементов. Цитата и показатель нужны в композиции не меньше
+ * фотографии: коллаж на госсайте — это «кадр, число и слово руководителя»,
+ * и до сих пор слово приходилось ставить отдельным блоком под коллажем.
+ */
+test('Коллаж умеет цитату, а показатель называется показателем', function (): void {
+    assert_true(in_array('quote', CollageBlockNormalizer::TYPES, true), 'тип цитаты объявлен');
+
+    $editor = block_editor_markup();
+    assert_contains("'quote' => 'Цитата'", $editor, 'цитата предлагается редактору');
+    // «Плитка с числом» не читалась как показатель, хотя это ровно он.
+    assert_contains("'stat' => 'Показатель'", $editor, 'показатель назван своим именем');
+    assert_contains('data-collage-fields="quote"', $editor, 'у цитаты своя группа полей');
+
+    $js = (string) file_get_contents(APP_ROOT . '/public/assets/js/admin.js');
+    assert_contains('quote:', $js, 'скрипт знает, какие поля показывать у цитаты');
+});
+
+test('Текст цитаты не спорит с надписью печати за одно поле формы', function (): void {
+    // У печати поле зовётся `text`. Два поля с одним именем в форме затирают
+    // друг друга — при отправке побеждает последнее, и редактор теряет то,
+    // что набрал в первом.
+    $editor = block_editor_markup();
+    assert_contains("\$p('quote_text')", $editor, 'у цитаты свой ключ');
+
+    // Слова без коротких предлогов: нормализатор привязывает их к соседу
+    // неразрывным пробелом, и сравнение строк ловило бы типографику, а не то,
+    // ради чего написан тест.
+    $data = CollageBlockNormalizer::normalize(['items' => [
+        ['type' => 'quote', 'quote_text' => 'Прямая речь', 'author' => 'Имя', 'role' => 'Должность'],
+        ['type' => 'badge', 'text' => 'Круглая надпись'],
+    ]]);
+
+    assert_same('Прямая речь', $data['items'][0]['quote_text']);
+    assert_same('Круглая надпись', $data['items'][1]['text']);
+    assert_true(!isset($data['items'][0]['text']), 'цитата не занимает ключ печати');
+});
+
+test('Цитата без текста в композицию не попадает', function (): void {
+    // Подпись без самой цитаты — имя в пустой ячейке: элемент занимал бы
+    // место в композиции и ничем его не заполнял.
+    $data = CollageBlockNormalizer::normalize(['items' => [
+        ['type' => 'quote', 'author' => 'Только подпись', 'role' => 'Должность'],
+    ]]);
+
+    assert_same([], $data['items']);
+});
+
+test('Приставка показателя — отдельное поле, а не часть числа', function (): void {
+    // Тот же довод, что в блоке «Показатели»: «более» перед числом это слово,
+    // и набранное одной строкой оно ломает отсчёт при появлении и перенос
+    // длинного значения.
+    $data = CollageBlockNormalizer::normalize(['items' => [
+        ['type' => 'stat', 'prefix' => 'более', 'value' => '128', 'label' => 'проектов'],
+    ]]);
+
+    assert_same('более', $data['items'][0]['prefix']);
+    assert_same('128', $data['items'][0]['value']);
+
+    assert_contains('collage__stat-prefix', (string) file_get_contents(APP_ROOT . '/templates/blocks/collage.php'), 'приставка печатается');
+    assert_contains('.collage__stat-prefix', (string) file_get_contents(APP_ROOT . '/public/assets/css/blocks/collage.css'), 'у приставки есть правило');
+});
+
+test('Цитата размечена как цитата и её знак не читается диктором', function (): void {
+    $tpl = (string) file_get_contents(APP_ROOT . '/templates/blocks/collage.php');
+
+    // Прямая речь — это blockquote с cite, иначе диктор читает её как обычный
+    // абзац, а поиск не отличает от остального текста ячейки.
+    assert_contains('<blockquote class="collage__quote">', $tpl);
+    assert_contains('<cite class="collage__quote-author">', $tpl);
+    // Знак кавычки декоративен: «левая двойная кавычка» посреди фразы сбивает.
+    assert_contains('collage__quote-mark" aria-hidden="true"', $tpl);
+
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/blocks/collage.css');
+    foreach (['.collage__item--quote', '.collage__quote-text', '.collage__quote-by', '.collage__quote-role'] as $selector) {
+        assert_contains($selector, $css, 'у цитаты нет правила: ' . $selector);
+    }
+});
+
+test('Длинная цитата в невысокой ячейке предупреждает редактора', function (): void {
+    // Текст, не поместившийся в ячейку, гасится маской: обрыв виден, но
+    // причина — нет. Ячейку задаёт раскладка, а длину текста — поле в другом
+    // месте формы, и связать одно с другим редактору неоткуда.
+    $data = CollageBlockNormalizer::normalize(['layout' => 'hero', 'items' => [
+        ['type' => 'photo', 'image' => '/uploads/public/a.jpg'],
+        ['type' => 'quote', 'quote_text' => str_repeat('Длинная цитата, которая никак не помещается. ', 3), 'author' => 'А. К.'],
+        ['type' => 'stat', 'value' => '12', 'label' => 'районов'],
+    ]]);
+
+    assert_same(1, (int) $data['items'][1]['row_span'], 'спутник занимает одну строку сетки');
+    $hints = \App\Core\BlockHints::forBlock('collage', $data);
+    assert_true(
+        $hints !== [] && str_contains(implode(' ', $hints), 'Цитата длиннее'),
+        'редактору сказано, почему текст оборвётся'
+    );
+
+    // Короткая цитата в той же ячейке подсказки не вызывает: предупреждение
+    // на каждом блоке перестают читать.
+    $short = CollageBlockNormalizer::normalize(['layout' => 'hero', 'items' => [
+        ['type' => 'photo', 'image' => '/uploads/public/a.jpg'],
+        ['type' => 'quote', 'quote_text' => 'Коротко и по делу.', 'author' => 'А. К.'],
+        ['type' => 'stat', 'value' => '12', 'label' => 'районов'],
+    ]]);
+    assert_same([], \App\Core\BlockHints::forBlock('collage', $short));
+
+    // Гасит текст маска, а не обрезка по краю: резалось по середине букв, и
+    // это читалось как поломка вёрстки, а не как продолжение.
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/blocks/collage.css');
+    assert_contains('mask-image: linear-gradient', $css, 'обрыв цитаты гасится, а не режется');
+    assert_contains('.collage__quote-by { flex: 0 0 auto; }', $css, 'подпись не ужимается вместе с текстом');
+});
