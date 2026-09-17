@@ -59,6 +59,12 @@ $categoryOf = static function (array $item) use ($categoryNames): string {
                 'cover' => News::getCoverImage($item),
             ];
             $cardDate = $fmt;
+            // Первый ряд ленты стоит в первом экране: обложка занимает две
+            // ячейки, рядом с ней две компактные. Ленивыми они быть не должны
+            // — иначе браузер берётся за них после раскладки и верх страницы
+            // дорисовывается последним. Остальные одиннадцать остаются
+            // ленивыми: до них ещё нужно долистать.
+            $cardEager = $index < 3;
             require __DIR__ . '/_news_rhythm_card.php';
             ?>
         <?php endforeach; ?>
