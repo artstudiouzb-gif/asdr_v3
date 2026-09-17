@@ -26,9 +26,22 @@ use App\Core\NewsFeedRhythm;
  * } $card
  * @var string $slot Вид карточки: hero | wide | compact
  * @var callable(string):string $cardDate Формат даты
+ * @var bool $cardEager Кадр нужен сразу, без ленивой загрузки
  */
 $isHero = $slot === NewsFeedRhythm::SLOT_HERO;
 $isWide = $slot === NewsFeedRhythm::SLOT_WIDE;
+
+// Ленивость — не свойство карточки, а свойство её места на странице, поэтому
+// решает вызывающий: у ленты первый ряд стоит в первом экране, у мозаики блока
+// он может оказаться где угодно. `loading="lazy"` не просто откладывает
+// запрос — браузер назначает такой картинке низкий приоритет и берётся за неё
+// после раскладки, то есть верх ленты дорисовывается последним. Обложка цикла
+// не ленива всегда: она и есть главная новость страницы.
+//
+// Флаг обязан приходить из каждой итерации вызывающего: партиал подключается
+// через `require` в общую область видимости, и значение, посчитанное для
+// прошлой карточки, иначе доживёт до следующей.
+$cardLazy = !$isHero && empty($cardEager);
 
 // Анонс — только у крупных: в компактную карточку он не помещается, а
 // обрезанный до строки не сообщает ничего.
@@ -46,7 +59,7 @@ $cardCategory = trim((string) ($card['category'] ?? ''));
 <a class="relnews-card relnews-card--<?= $slot ?>" href="<?= htmlspecialchars((string) $card['url'], ENT_QUOTES) ?>">
     <span class="news-cover">
         <?php if ($cardCover !== ''): ?>
-            <?= Media::picture($cardCover, (string) $card['title'], null, null, 'relnews-card__img', !$isHero, $cardSizes, $isHero, 'relnews-card__media') ?>
+            <?= Media::picture($cardCover, (string) $card['title'], null, null, 'relnews-card__img', $cardLazy, $cardSizes, $isHero, 'relnews-card__media') ?>
         <?php else: ?>
             <span class="relnews-card__media relnews-card__media--empty" aria-hidden="true"></span>
         <?php endif; ?>

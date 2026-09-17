@@ -138,6 +138,9 @@ $templateCss = '';
                 $slot = \App\Core\NewsFeedRhythm::blockSlot($mosaicIndex);
                 $card = $item;
                 $cardDate = $mosaicDate;
+                // Блок подборки встаёт в любое место страницы, и что он попал
+                // в первый экран, отсюда не видно — кадры остаются ленивыми.
+                $cardEager = false;
                 require APP_ROOT . '/app/Views/site/_news_rhythm_card.php';
                 ?>
             <?php endforeach; ?>
