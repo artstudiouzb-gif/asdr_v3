@@ -326,17 +326,28 @@ test('Мягкое появление кадра новости вешает т�
     $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/gov-theme.css');
     $js = (string) file_get_contents(APP_ROOT . '/public/assets/js/frontend.js');
 
-    assert_contains('.relnews-card__media img.is-media-loading { opacity: 0; }', $css, 'прячет только класс');
+    // Правило не знает своих мест: носителем является класс, который вешает
+    // скрипт. Иначе вторая площадка (фотографии детальной страницы) потребовала
+    // бы второй копии перехода в blocks/news-detail.css, и две копии разъехались
+    // бы при первой правке длительности.
+    assert_contains('.is-soft-media.is-media-loading { opacity: 0; }', $css, 'прячет только класс');
     assert_contains('transition-property: opacity;', $css, 'переход записан longhand — сокращённый минификатор выбрасывает');
+
+    // Классов два, потому что переход обязан пережить снятие бледности:
+    // объявленный на `is-media-loading`, он исчезал бы вместе с ним, и кадр
+    // всё равно возникал бы рывком.
+    assert_contains('.is-soft-media {', $css, 'переход живёт на отдельном классе');
+    assert_contains("img.classList.add('is-soft-media');", $js, 'скрипт вешает носителя перехода');
 
     // Наезда кадра у карточки новости нет намеренно: при наведении она уже
     // поднимается, меняет рамку и тень. Появление не вправе вернуть движение,
     // которое с неё сняли.
-    $fade = substr($css, (int) strpos($css, '.relnews-card__media img {'));
+    $fade = substr($css, (int) strpos($css, '.is-soft-media {'));
     $fade = substr($fade, 0, (int) strpos($fade, '.relnews-card__media--empty'));
     assert_true(!str_contains($fade, 'transform'), 'появление кадра двигает только прозрачность');
 
-    assert_contains("var SOFT_MEDIA = '.relnews-card__media img';", $js, 'места приёма названы одним списком');
+    assert_contains("var SOFT_MEDIA = [", $js, 'места приёма названы одним списком');
+    assert_contains("'.relnews-card__media img',", $js, 'карточки ленты — в списке');
     assert_contains('if (img.complete) { return; }', $js, 'готовый кадр не проявляется заново');
     assert_contains("img.addEventListener('error', settle", $js, 'отказ загрузки тоже снимает бледность');
     assert_contains('window.asdrReduceMotion()) { return; }', $js, '«меньше движения» отменяет приём целиком');
