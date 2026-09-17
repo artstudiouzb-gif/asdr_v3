@@ -188,6 +188,7 @@ final class AdminUi
             'security' => 'shield',
             'news_categories' => 'category',
             'pages' => 'file-text',
+            'snippets' => 'template',
             'heroes' => 'slideshow',
             'projects' => 'briefcase',
             'albums' => 'photo',
