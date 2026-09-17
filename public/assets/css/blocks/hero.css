@@ -139,6 +139,13 @@
     transform: translateX(calc(var(--hero-shift) * var(--hero-dir) * -1 * var(--hero-motion)));
 }
 
+/* Fade the backgrounds, not two overlapping sets of text and artwork.
+   Keep inactive content in layout so the carousel height remains stable.
+   Scope this to enhancement to preserve the native scrolling fallback. */
+.hero[data-hero-ready] .hero__slide:not(.is-active) .hero__inner {
+    opacity: 0;
+}
+
 /* Класс вертикального выравнивания стоит на самом слайде, а не на корне
    обложки: селектор `.hero--y-top .hero__slide` искал его у предка и не
    совпадал никогда — настройка «по вертикали» молча не работала.
