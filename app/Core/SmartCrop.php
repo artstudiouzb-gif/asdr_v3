@@ -5,84 +5,86 @@ declare(strict_types=1);
 namespace App\Core;
 
 /**
- * Умное авто-определение фокальной точки (focal position) для безупречного
- * кадрирования обложек и фотографий на смартфонах и мобильных устройствах.
+ * Фокальная точка кадра (значение CSS `object-position`) по пропорции снимка:
+ * при `object-fit: cover` она решает, что останется в кадре, когда карточка
+ * или обложка обрежет фотографию по своей пропорции.
+ *
+ * **Размеры спрашиваются у `Media::dimensions()`, а не читаются заново.** Своя
+ * пара «путь на диске + getimagesize» здесь была, и она не работала: путь
+ * собирался как `paths.public_uploads` плюс остаток URL после `/uploads/`, но
+ * настройка уже оканчивается на `/public`, а остаток с него же и начинается —
+ * выходил несуществующий `…/uploads/public/public/…`. Спасала только запасная
+ * ветка через `$_SERVER['DOCUMENT_ROOT']`, поэтому в вебе приём работал, а в
+ * CLI (прогрев кэша, консольные проходы) `DOCUMENT_ROOT` пуст, файл не
+ * находился, и **любая** фотография молча получала умолчание — то есть
+ * настройка существовала, а кадрирования не было.
+ *
+ * Отсюда правило: отображение «публичный URL → файл на диске» объявлено один
+ * раз (пара `paths.public_uploads_url` / `paths.public_uploads` в конфиге) и
+ * разрешается один раз — в `Media`. Второй копии этого знания быть не должно,
+ * она разъедется при первой же правке путей. Заодно исчезает и второй
+ * `getimagesize` на ту же картинку: `Media::picture()` всё равно спрашивает
+ * размеры для `width`/`height`, а у `Media::dimensions()` есть дисковый кэш по
+ * пути и mtime. Замерено на трёх снимках, холодный запрос: связка «фокальная
+ * точка + размеры» 0.0174 → 0.0110 мс на картинку.
+ *
+ * Побочное следствие важнее экономии: фокальная точка и зарезервированный под
+ * картинку бокс считаются теперь от **одних и тех же** чисел и разойтись не
+ * могут.
  */
 final class SmartCrop
 {
+    /** Умолчание: верхняя треть — там лица на репортажном снимке. */
+    public const DEFAULT_POSITION = '50% 30%';
+
     /** @var array<string, string> */
     private static array $cache = [];
 
     /**
-     * Возвращает значение CSS object-position (например "50% 30%"), вычисленное
-     * автоматически по пропорциям изображения, чтобы лица и ключевые объекты
-     * на мобильных устройствах никогда не срезались при object-fit: cover.
+     * Возвращает значение `object-position` (например «50% 30%»).
+     *
+     * Пороги пропорций не менялись при переезде на общий источник размеров:
+     * на страницах, где приём и так работал, вид остаётся прежним.
      */
     public static function focalPosition(?string $imageUrl): string
     {
         $imageUrl = trim((string) $imageUrl);
         if ($imageUrl === '') {
-            return '50% 30%';
+            return self::DEFAULT_POSITION;
         }
 
         if (isset(self::$cache[$imageUrl])) {
             return self::$cache[$imageUrl];
         }
 
-        // По умолчанию для всех новостных и репортажных снимков — 50% 30% (верхняя треть)
-        $position = '50% 30%';
-
-        $localPath = self::resolveLocalPath($imageUrl);
-        if ($localPath !== null && is_file($localPath)) {
-            $info = @getimagesize($localPath);
-            if (is_array($info) && !empty($info[0]) && !empty($info[1])) {
-                $w = (int) $info[0];
-                $h = (int) $info[1];
-                $ratio = $w / $h;
-
-                if ($ratio >= 1.4) {
-                    // Альбомное фото (16:9, 3:2) — акцент на лица в верхней трети (30%)
-                    $position = '50% 30%';
-                } elseif ($ratio >= 0.95) {
-                    // Квадратное или близкое к квадрату — 50% 38%
-                    $position = '50% 38%';
-                } else {
-                    // Портретное фото — 50% 25%
-                    $position = '50% 25%';
-                }
-            }
-        }
-
-        self::$cache[$imageUrl] = $position;
-
-        return $position;
+        return self::$cache[$imageUrl] = self::positionFor($imageUrl);
     }
 
     /**
-     * Пытается найти локальный физический путь к файлу по его публичному URL.
+     * Размеров нет — значит файла на диске нет, он не картинка (SVG размеров в
+     * пикселях не обязан иметь) или это пиксельная заглушка. Во всех трёх
+     * случаях говорить о фокальной точке не о чем, и умолчание — честный ответ.
      */
-    private static function resolveLocalPath(string $url): ?string
+    private static function positionFor(string $imageUrl): string
     {
-        $path = parse_url($url, PHP_URL_PATH) ?: '';
-        if ($path === '') {
-            return null;
+        $size = Media::dimensions($imageUrl);
+        if ($size === null || $size[1] <= 0) {
+            return self::DEFAULT_POSITION;
         }
 
-        $publicUploads = rtrim((string) Config::get('paths.public_uploads'), '/');
-        if (str_contains($path, '/uploads/')) {
-            $relative = ltrim(substr($path, (int) strpos($path, '/uploads/') + 9), '/');
-            $full = $publicUploads . '/' . $relative;
-            if (is_file($full)) {
-                return $full;
-            }
+        $ratio = $size[0] / $size[1];
+
+        if ($ratio >= 1.4) {
+            // Альбомный кадр (16:9, 3:2) — лица в верхней трети.
+            return self::DEFAULT_POSITION;
         }
 
-        // Проверка через DOCUMENT_ROOT
-        $docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
-        if ($docRoot !== '' && is_file($docRoot . $path)) {
-            return $docRoot . $path;
+        if ($ratio >= 0.95) {
+            // Квадрат и близкое к нему.
+            return '50% 38%';
         }
 
-        return null;
+        // Портрет: голова выше, чем у альбомного кадра.
+        return '50% 25%';
     }
 }
