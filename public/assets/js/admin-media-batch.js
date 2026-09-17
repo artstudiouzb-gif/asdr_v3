@@ -78,6 +78,12 @@
         }
 
         function line(scopeName, seen, totals, dry) {
+            if (scopeName === 'alt') {
+                return dry
+                    ? seen + ' · без подписи: ' + totals.planned
+                    : seen + ' · подписано: ' + totals.fixed
+                        + (totals.failed ? ' · не удалось: ' + totals.failed : '');
+            }
             if (scopeName === 'permissions') {
                 return dry
                     ? seen + ' · нужно исправить: ' + totals.planned
@@ -127,7 +133,15 @@
             }
 
             draw(1, 1);
-            if (scope === 'permissions') {
+            if (scope === 'alt') {
+                say(dry
+                    ? (totals.planned > 0
+                        ? 'Без alt-текста: ' + totals.planned + ' изображений. Каждое — отдельный запрос к модели; нажмите «Подписать изображения».'
+                        : 'Alt-текст есть у всех изображений — делать нечего.')
+                    : 'Готово. Подписано: ' + totals.fixed
+                        + (totals.failed ? ' · не удалось: ' + totals.failed : '')
+                        + '. Подписи правятся в медиатеке.');
+            } else if (scope === 'permissions') {
                 say(dry
                     ? (totals.planned > 0
                         ? 'Права надо исправить у ' + totals.planned + ' записей. Нажмите «Починить права».'

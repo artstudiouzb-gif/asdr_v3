@@ -234,6 +234,30 @@ $size = static function (mixed $bytes): string {
             </div>
             <p class="form-hint" data-batch-status="images" aria-live="polite" hidden></p>
 
+            <h4>Alt-тексты для изображений</h4>
+            <p class="form-hint">
+                Альтернативный текст читает экранный диктор и учитывает поиск; у
+                снимков, загруженных без подписи, он пустой, и картинка для незрячего
+                посетителя просто исчезает. Подпись предлагает модель по самому
+                изображению, а редактор правит её в медиатеке. Проход добровольный и
+                не бесплатный: за каждым снимком — обращение к Gemini, поэтому сначала
+                посмотрите объём работы. Обработка идёт пакетами и останавливается в
+                любой момент — подписанное уже сохранено.
+            </p>
+            <div class="form-actions" data-batch-task="alt" data-endpoint="/admin/performance/alt-texts">
+                <button type="button" class="btn btn--small" data-batch="dry">
+                    <?= \App\Core\AdminUi::icon('search') ?>Посмотреть объём работы
+                </button>
+                <button type="button" class="btn btn--small btn--primary" data-batch="run">
+                    <?= \App\Core\AdminUi::icon('sparkles') ?>Подписать изображения
+                </button>
+                <button type="button" class="btn btn--small" data-batch="stop" hidden>Остановить</button>
+            </div>
+            <div class="admin-progress" data-batch-progress="alt" hidden>
+                <div class="admin-progress__bar" data-batch-bar></div>
+            </div>
+            <p class="form-hint" data-batch-status="alt" aria-live="polite" hidden></p>
+
             <h4>Проверка файлов медиатеки</h4>
             <p class="form-hint">
                 Отвечает на вопрос «почему на месте фотографии пусто». Причин с диска

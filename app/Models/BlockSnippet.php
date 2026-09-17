@@ -75,7 +75,12 @@ final class BlockSnippet
     }
 
     /**
-     * @param array<int, array{type:string, title:?string, data:array, custom_css:string}> $blocks
+     * Снимок блоков: кроме типа, заголовка, данных и своего CSS он несёт
+     * `is_active` и вложенные блоки колонок (`children`), поэтому узкая форма
+     * из четырёх ключей описывала не то, что сюда приходит на самом деле — ни
+     * от снимка страницы, ни от разобранного файла шаблона.
+     *
+     * @param array<int, array<string, mixed>> $blocks
      */
     public static function create(string $name, array $blocks): int
     {

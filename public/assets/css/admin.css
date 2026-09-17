@@ -8876,3 +8876,37 @@ table.table--compact th, table.table--compact td,
 
 /* Dependent hero settings retain their values while absent from the layout. */
 [data-hero-editor] [data-hero-dependent][hidden] { display: none; }
+
+/* --- Ответ помощника-модели -----------------------------------------------
+   Замечания вычитки и разбор записи журнала печатаются в общий блок: задач у
+   модели несколько, и второй набор правил под тот же вид разъехался бы с
+   первым. Это подсказка, а не ошибка формы, поэтому цвет — обычный текст, а
+   выделяется только то, что мешает читателю. */
+.ai-report {
+    margin-top: var(--admin-gap, 12px);
+    padding: 12px 14px;
+    border: 1px solid var(--admin-border, #e2e8f0);
+    border-radius: var(--admin-radius, 8px);
+    background: var(--admin-surface-soft, #f8fafc);
+    font-size: var(--admin-fs-sm);
+    color: var(--admin-text, #0f172a);
+}
+
+.ai-report p { margin: 0 0 8px; }
+.ai-report p:last-child { margin-bottom: 0; }
+
+.ai-remarks {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 6px;
+}
+
+.ai-remark { color: var(--admin-text, #0f172a); }
+
+/* Замечание, без которого материал не понять. Цветом, а не рамкой: рамка в
+   списке из шести строк превращает подсказку в предупреждение обо всём. */
+.ai-remark--high {
+    color: var(--admin-danger, #b32d2e);
+    font-weight: var(--admin-fw-medium);
+}

@@ -137,6 +137,14 @@ $existingPoll = !empty($news['id']) ? \App\Models\NewsPoll::findByNews((int) $ne
                 <div class="form-field u-inline-79a1c5a5db">
                     <label class="u-inline-e925a44577">Текст новости (Визуальный редактор)</label>
                     <textarea class="u-inline-62b266a36b" name="content" data-wysiwyg><?= htmlspecialchars($news['content'] ?? '', ENT_QUOTES) ?></textarea>
+                    <?php // Чек-лист выше отвечает «все ли поля заполнены»; вычитка — про сам текст. ?>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--sm btn--secondary" data-ai-task="review"
+                                data-ai-kind="новость" data-ai-report="[data-ai-review]"
+                                data-ai-waiting="ИИ читает…"><?= \App\Core\AdminUi::icon('sparkles') ?>ИИ-вычитка</button>
+                    </div>
+                    <div class="ai-report" data-ai-review hidden></div>
+                    <span class="form-hint">Вычитка ничего не меняет в тексте: она называет, что мешает читателю, — решает редактор.</span>
                 </div>
 
                 <div class="form-grid-2col u-inline-001013efee">
@@ -381,6 +389,12 @@ $existingPoll = !empty($news['id']) ? \App\Models\NewsPoll::findByNews((int) $ne
                     <?= \App\Core\AdminUi::icon('folder', 18) ?>
                     Рубрика и метка
                 </h3>
+
+                <?php // Рубрика выбирается только из заведённых: новых модель не придумывает. ?>
+                <div class="form-actions">
+                    <button type="button" class="btn btn--small btn--secondary" data-ai-task="classify"
+                            data-ai-waiting="ИИ подбирает…"><?= \App\Core\AdminUi::icon('sparkles') ?>Подобрать по тексту</button>
+                </div>
 
                 <div class="form-field">
                     <label for="category_id">Категория</label>
