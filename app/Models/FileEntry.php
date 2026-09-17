@@ -230,6 +230,44 @@ final class FileEntry
         return $stmt->fetchAll(\PDO::FETCH_COLUMN) ?: [];
     }
 
+    /**
+     * Снимки без альтернативного текста — материал для пакетной подписи.
+     *
+     * SVG исключён намеренно: это чаще всего логотип или пиктограмма, чью роль
+     * в разметке описывает соседний текст, а не отдельная подпись. Условие
+     * «картинка» берётся из того же списка видов, что и медиабиблиотека, —
+     * второй список разъехался бы с первым.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function missingAltText(int $limit = 50, int $offset = 0): array
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT id, stored_name, original_name FROM files
+              WHERE ' . self::MISSING_ALT_WHERE . '
+              ORDER BY id DESC LIMIT :limit OFFSET :offset'
+        );
+        $stmt->bindValue(':limit', max(1, $limit), \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', max(0, $offset), \PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    public static function countMissingAltText(): int
+    {
+        return (int) Database::pdo()
+            ->query('SELECT COUNT(*) FROM files WHERE ' . self::MISSING_ALT_WHERE)
+            ->fetchColumn();
+    }
+
+    /** Условие «картинка без подписи» объявлено один раз: считает и выбирает его один и тот же код. */
+    private const MISSING_ALT_WHERE = "access_type = 'public'
+              AND " . self::RASTER_IMAGE . "
+              AND (alt_text IS NULL OR alt_text = '')";
+
+    private const RASTER_IMAGE = "mime_type LIKE 'image/%' AND mime_type <> 'image/svg+xml'";
+
     public static function findById(int $id): ?array
     {
         $stmt = Database::pdo()->prepare('SELECT * FROM files WHERE id = :id LIMIT 1');
@@ -320,6 +358,24 @@ final class FileEntry
         ]);
 
         return self::findById($id);
+    }
+
+    /**
+     * Пишет только подпись для незрячих.
+     *
+     * `updateMetadata()` перезаписывает весь набор полей разом — это форма
+     * медиатеки, где редактор видит их все сразу. Пакетная подпись знает лишь
+     * про alt, и вызов общего метода стёр бы у снимка подпись, автора и точку
+     * фокуса: данные ушли бы молча, по одному файлу за раз.
+     */
+    public static function setAltText(int $id, string $alt): void
+    {
+        MediaMetadataSchema::ensure();
+
+        $stmt = Database::pdo()->prepare(
+            'UPDATE files SET alt_text = :alt, metadata_updated_at = NOW() WHERE id = :id'
+        );
+        $stmt->execute([':alt' => mb_substr(trim($alt), 0, 255), ':id' => $id]);
     }
 
     public static function regenerateToken(int $id): string

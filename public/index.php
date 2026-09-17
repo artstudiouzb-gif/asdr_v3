@@ -259,6 +259,16 @@ $router->post('/admin/blocks/reorder', [AdminBlockController::class, 'reorder'])
 $router->get('/admin/blocks/{id}/revisions', [AdminBlockController::class, 'revisions']);
 $router->post('/admin/blocks/{id}/revisions/restore', [AdminBlockController::class, 'restoreRevision']);
 
+// --- Admin: помощник редактора (ИИ) ---
+// Все задачи POST'ом с CSRF: запрос к модели стоит квоты, и ссылкой его
+// дёргать нельзя. Логика — в App\Core\Ai\*, контроллер решает только доступ.
+$router->post('/admin/ai/alt', [\App\Controllers\Admin\AiController::class, 'alt']);
+$router->post('/admin/ai/seo', [\App\Controllers\Admin\AiController::class, 'seo']);
+$router->post('/admin/ai/review', [\App\Controllers\Admin\AiController::class, 'review']);
+$router->post('/admin/ai/classify', [\App\Controllers\Admin\AiController::class, 'classify']);
+$router->post('/admin/ai/explain', [\App\Controllers\Admin\AiController::class, 'explain']);
+$router->post('/admin/ai/page-draft', [\App\Controllers\Admin\AiController::class, 'pageDraft']);
+
 // --- Admin: шаблоны блоков (сниппеты, задача 133) ---
 $router->post('/admin/pages/{id}/snippets/save', [\App\Controllers\Admin\SnippetController::class, 'save']);
 $router->post('/admin/pages/{id}/snippets/insert', [\App\Controllers\Admin\SnippetController::class, 'insert']);
@@ -336,6 +346,7 @@ $router->post('/admin/performance', [\App\Controllers\Admin\PerformanceControlle
 $router->post('/admin/performance/clear-cache', [\App\Controllers\Admin\PerformanceController::class, 'clearCache']);
 $router->post('/admin/performance/reset-opcache', [\App\Controllers\Admin\PerformanceController::class, 'resetOpcache']);
 $router->post('/admin/performance/optimize-images', [\App\Controllers\Admin\PerformanceController::class, 'optimizeImages']);
+$router->post('/admin/performance/alt-texts', [\App\Controllers\Admin\PerformanceController::class, 'generateAltTexts']);
 $router->post('/admin/performance/fix-permissions', [\App\Controllers\Admin\PerformanceController::class, 'fixPermissions']);
 $router->post('/admin/cloudflare/verify', [\App\Controllers\Admin\PerformanceController::class, 'cloudflareVerify']);
 $router->post('/admin/cloudflare/purge', [\App\Controllers\Admin\PerformanceController::class, 'cloudflarePurge']);

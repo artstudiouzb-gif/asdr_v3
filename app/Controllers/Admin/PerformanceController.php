@@ -29,6 +29,12 @@ final class PerformanceController
     // но каталог тот же, поэтому и предел времени тот же.
     private const PERMISSIONS_BATCH_SECONDS = 15.0;
 
+    /**
+     * Проход по alt-текстам короче соседних: каждый снимок — обращение к
+     * модели на несколько секунд, и пакет на 15 секунд браузер ждал бы молча.
+     */
+    private const ALT_BATCH_SECONDS = 12.0;
+
     public function index(): void
     {
         Auth::requireSuperAdmin();
@@ -294,6 +300,42 @@ final class PerformanceController
             'scanned' => $result['scanned'],
             'optimized' => $result['optimized'],
             'planned' => $result['planned'],
+            'skipped' => $result['skipped'],
+            'failed' => $result['failed'],
+            'done' => $result['cursor'] >= $result['total'],
+        ]);
+    }
+
+    /**
+     * Подписывает изображения медиатеки, у которых нет alt-текста.
+     *
+     * Проход добровольный и платный: за каждым снимком стоит запрос к модели.
+     * Поэтому пробный проход честно показывает, сколько снимков без подписи,
+     * а боевой идёт пакетами и останавливается в любой момент — обработанное
+     * уже сохранено.
+     */
+    public function generateAltTexts(): never
+    {
+        Auth::requireSuperAdmin();
+        Csrf::verifyRequest();
+
+        $offset = max(0, (int) ($_POST['offset'] ?? 0));
+        $dryRun = (string) ($_POST['dry'] ?? '') === '1';
+
+        try {
+            $result = \App\Core\Ai\AiAltText::run($dryRun, $offset, self::ALT_BATCH_SECONDS);
+        } catch (\Throwable $error) {
+            $this->json(['ok' => false, 'error' => $error->getMessage()], 500);
+        }
+
+        $this->json([
+            'ok' => true,
+            'dry' => $dryRun,
+            'cursor' => $result['cursor'],
+            'total' => $result['total'],
+            'scanned' => $result['scanned'],
+            'planned' => $result['planned'],
+            'fixed' => $result['fixed'],
             'skipped' => $result['skipped'],
             'failed' => $result['failed'],
             'done' => $result['cursor'] >= $result['total'],

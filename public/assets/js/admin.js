@@ -1455,6 +1455,20 @@
             alt.setAttribute('aria-label', 'Альтернативный текст');
             detailsBody.appendChild(fieldRow('Альтернативный текст', alt));
 
+            // Подпись для незрячих у большинства снимков пустая: её надо
+            // печатать руками при загрузке, и этого не делает никто. Кнопка
+            // просит описание у модели и кладёт его в то же поле — сохраняет
+            // по-прежнему редактор, соседней кнопкой.
+            var altAi = document.createElement('button');
+            altAi.type = 'button';
+            altAi.className = 'btn btn--small';
+            altAi.setAttribute('data-ai-task', 'alt');
+            altAi.setAttribute('data-ai-file', String(item.id || ''));
+            altAi.setAttribute('data-ai-into', '[data-media-alt]');
+            altAi.setAttribute('data-ai-waiting', 'ИИ смотрит…');
+            altAi.innerHTML = icon('sparkles', 15) + '<span>Описать изображение</span>';
+            detailsBody.appendChild(altAi);
+
             var caption = document.createElement('input');
             caption.type = 'text';
             caption.value = item.caption || '';
@@ -4029,6 +4043,187 @@
             btn.disabled = false;
             restoreButton();
             adminAlert('Ошибка при вызове ИИ: ' + (err.message || err));
+        });
+    });
+})();
+
+/**
+ * Помощник редактора: одна кнопка — одна задача модели.
+ *
+ * Обработчик общий на все задачи (вычитка, рубрикация, SEO, alt, разбор
+ * записи журнала, каркас страницы): у них одинаковый разговор с сервером —
+ * POST с CSRF-токеном, JSON в ответе, строка notice для редактора. Различается
+ * только то, откуда взять текст и куда положить результат, и это описано
+ * атрибутами у самой кнопки. Второй такой обработчик рядом разъехался бы с
+ * первым при первой правке — так уже было с кнопкой ИИ-аннотации.
+ */
+(function () {
+    'use strict';
+
+    function editorValue(field) {
+        if (!field) return '';
+        if (window.tinymce && field.id && window.tinymce.get(field.id)) {
+            return window.tinymce.get(field.id).getContent();
+        }
+        return field.value || '';
+    }
+
+    function fieldValue(scope, name) {
+        return editorValue(scope.querySelector('[name="' + name + '"]'));
+    }
+
+    function report(scope, button, nodes) {
+        var target = button.getAttribute('data-ai-report');
+        var box = target ? scope.querySelector(target) : null;
+        if (!box) { return false; }
+        box.hidden = false;
+        box.textContent = '';
+        nodes.forEach(function (node) { box.appendChild(node); });
+        return true;
+    }
+
+    function line(text, level) {
+        var item = document.createElement('li');
+        item.className = level === 'high' ? 'ai-remark ai-remark--high' : 'ai-remark';
+        item.textContent = text;
+        return item;
+    }
+
+    function fill(scope, selector, value) {
+        if (!value) { return; }
+        var field = scope.querySelector(selector);
+        if (!field) { return; }
+        field.value = value;
+        if (window.tinymce && field.id && window.tinymce.get(field.id)) {
+            window.tinymce.get(field.id).setContent(value);
+            window.tinymce.get(field.id).save();
+        }
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function payload(task, button, scope) {
+        var body = new URLSearchParams();
+        var token = scope.querySelector('[name="csrf_token"]')
+            || document.querySelector('[name="csrf_token"]');
+        if (token) { body.append('csrf_token', token.value); }
+
+        if (task === 'alt') {
+            var url = button.getAttribute('data-ai-url') || '';
+            var fileId = button.getAttribute('data-ai-file') || '';
+            if (fileId) { body.append('file_id', fileId); }
+            if (url) { body.append('url', url); }
+            return body;
+        }
+        if (task === 'explain') {
+            body.append('message', button.getAttribute('data-ai-message') || '');
+            return body;
+        }
+        if (task === 'page-draft') {
+            var source = scope.querySelector(button.getAttribute('data-ai-source') || '');
+            body.append('description', source ? source.value : '');
+            return body;
+        }
+
+        body.append('title', fieldValue(scope, 'title'));
+        body.append('content', fieldValue(scope, 'content') || fieldValue(scope, 'body'));
+        body.append('lead', fieldValue(scope, 'lead_html') || fieldValue(scope, 'lead'));
+        body.append('kind', button.getAttribute('data-ai-kind') || '');
+        if (task === 'seo') {
+            body.append('target', button.getAttribute('data-ai-target') || 'meta_description');
+        }
+        return body;
+    }
+
+    function apply(task, button, scope, data) {
+        if (task === 'alt') {
+            fill(scope, button.getAttribute('data-ai-into') || '[data-ai-alt]', data.alt);
+            return;
+        }
+        if (task === 'seo') {
+            var target = button.getAttribute('data-ai-target') || 'meta_description';
+            fill(scope, '[name="' + target + '"]', data[target]);
+            return;
+        }
+        if (task === 'classify') {
+            fill(scope, '[name="category_id"]', data.category_id ? String(data.category_id) : '');
+            fill(scope, '[name="badge"]', data.badge);
+            fill(scope, '[name="hashtags"]', data.hashtags);
+            return;
+        }
+        if (task === 'review') {
+            var list = document.createElement('ul');
+            list.className = 'ai-remarks';
+            (data.remarks || []).forEach(function (remark) {
+                list.appendChild(line(remark.text, remark.level));
+            });
+            if (!(data.remarks || []).length) {
+                list.appendChild(line(data.notice || 'Замечаний нет.', 'normal'));
+            }
+            report(scope, button, [list]);
+            return;
+        }
+        if (task === 'explain') {
+            var nodes = [];
+            if (data.meaning) {
+                var meaning = document.createElement('p');
+                meaning.textContent = data.meaning;
+                nodes.push(meaning);
+            }
+            if (data.action) {
+                var action = document.createElement('p');
+                action.className = 'ai-remark';
+                action.textContent = data.action;
+                nodes.push(action);
+            }
+            if (nodes.length && report(scope, button, nodes)) { return; }
+            window.adminAlert((data.meaning || '') + (data.action ? '\n\n' + data.action : ''));
+            return;
+        }
+        if (task === 'page-draft' && data.name) {
+            window.location.reload();
+        }
+    }
+
+    document.addEventListener('click', function (event) {
+        var button = event.target.closest('[data-ai-task]');
+        if (!button) { return; }
+        event.preventDefault();
+
+        var task = button.getAttribute('data-ai-task');
+        var scope = button.closest('form') || button.closest('[data-ai-scope]') || document;
+        var waiting = button.getAttribute('data-ai-waiting') || 'ИИ думает…';
+        var restore = Array.prototype.slice.call(button.childNodes);
+
+        button.disabled = true;
+        button.textContent = waiting;
+
+        fetch('/admin/ai/' + task, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: payload(task, button, scope).toString()
+        }).then(function (response) {
+            return response.text().then(function (text) {
+                try { return JSON.parse(text); }
+                catch (error) { throw new Error('Сервер ответил не JSON (HTTP ' + response.status + ').'); }
+            });
+        }).then(function (data) {
+            button.disabled = false;
+            button.textContent = '';
+            restore.forEach(function (node) { button.appendChild(node); });
+
+            if (!data || data.ok !== true) {
+                window.adminAlert((data && data.error) || 'ИИ не ответил.');
+                return;
+            }
+            apply(task, button, scope, data);
+            if (data.notice) { window.adminAlert(data.notice); }
+        }).catch(function (error) {
+            button.disabled = false;
+            button.textContent = '';
+            restore.forEach(function (node) { button.appendChild(node); });
+            window.adminAlert('Ошибка при вызове ИИ: ' + (error.message || error));
         });
     });
 })();
