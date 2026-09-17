@@ -292,3 +292,52 @@ test('Соседние новости — зеркальная пара', functi
     // колонка в полтора слова.
     assert_contains('.adjnews__media { display: none; }', $css);
 });
+
+test('Кадры первого ряда ленты не ленивые, остальные ленивые', function () {
+    // `loading="lazy"` не просто откладывает запрос: браузер назначает такой
+    // картинке низкий приоритет и берётся за неё после раскладки. У карточек
+    // первого ряда это значит, что верх ленты дорисовывается последним — при
+    // том, что он уже на экране. Обложка цикла не ленива всегда, две
+    // компактные рядом с ней — по решению вызывающего.
+    $card = (string) file_get_contents(APP_ROOT . '/app/Views/site/_news_rhythm_card.php');
+    $list = (string) file_get_contents(APP_ROOT . '/app/Views/site/_news_list.php');
+    $feature = (string) file_get_contents(APP_ROOT . '/templates/blocks/news_feature.php');
+
+    assert_contains('$cardLazy = !$isHero && empty($cardEager);', $card, 'ленивость считается из слота и флага места');
+    assert_contains('$cardSizes, $isHero, ', $card, 'высокий приоритет остаётся только у обложки');
+    assert_true(
+        !str_contains($card, "'relnews-card__img', !$" . 'isHero'),
+        'ленивость больше не выводится из одного слота'
+    );
+
+    // Первый ряд — обложка на две ячейки плюс две компактные.
+    assert_contains('$cardEager = $index < 3;', $list, 'лента открывает первый ряд без ленивой загрузки');
+
+    // Флаг обязан приходить из каждой итерации: партиал подключается через
+    // require в общую область видимости, и значение прошлой карточки иначе
+    // доживёт до следующей.
+    assert_contains('$cardEager = false;', $feature, 'мозаика блока задаёт флаг явно, а не наследует его');
+});
+
+test('Мягкое появление кадра новости вешает только JS и только на незагруженный кадр', function () {
+    // Без скриптов кадр обязан быть виден: бледное состояние — это класс,
+    // которого в разметке нет. И картинке из кэша браузера перехода быть не
+    // должно, иначе лента мигает на каждом возврате.
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/gov-theme.css');
+    $js = (string) file_get_contents(APP_ROOT . '/public/assets/js/frontend.js');
+
+    assert_contains('.relnews-card__media img.is-media-loading { opacity: 0; }', $css, 'прячет только класс');
+    assert_contains('transition-property: opacity;', $css, 'переход записан longhand — сокращённый минификатор выбрасывает');
+
+    // Наезда кадра у карточки новости нет намеренно: при наведении она уже
+    // поднимается, меняет рамку и тень. Появление не вправе вернуть движение,
+    // которое с неё сняли.
+    $fade = substr($css, (int) strpos($css, '.relnews-card__media img {'));
+    $fade = substr($fade, 0, (int) strpos($fade, '.relnews-card__media--empty'));
+    assert_true(!str_contains($fade, 'transform'), 'появление кадра двигает только прозрачность');
+
+    assert_contains("var SOFT_MEDIA = '.relnews-card__media img';", $js, 'места приёма названы одним списком');
+    assert_contains('if (img.complete) { return; }', $js, 'готовый кадр не проявляется заново');
+    assert_contains("img.addEventListener('error', settle", $js, 'отказ загрузки тоже снимает бледность');
+    assert_contains('window.asdrReduceMotion()) { return; }', $js, '«меньше движения» отменяет приём целиком');
+});

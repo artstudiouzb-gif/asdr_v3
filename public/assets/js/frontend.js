@@ -832,6 +832,32 @@
         window.asdrRevealObserve(Array.prototype.slice.call(reveals));
     })();
 
+    // Мягкое появление кадров новостей: фотография проявляется из залитой
+    // подложки, а не сменяет её рывком. Приём включён ровно там, где назван, —
+    // селектор объявлен один раз, и он же является списком мест (тот же приём,
+    // что у GRIDS в появлении карточек).
+    var SOFT_MEDIA = '.relnews-card__media img';
+
+    (function () {
+        // «Меньше движения» — приём не откладывается, а не проводится вовсе:
+        // класс не вешается, и снимать его потом не с чего.
+        if (typeof window.asdrReduceMotion === 'function' && window.asdrReduceMotion()) { return; }
+
+        var imgs = Array.prototype.slice.call(document.querySelectorAll(SOFT_MEDIA));
+        imgs.forEach(function (img) {
+            // Кадр из кэша браузера уже готов к отрисовке: спрятать его и
+            // проявить заново — это мелькание на каждом переходе по ленте.
+            if (img.complete) { return; }
+
+            var settle = function () { img.classList.remove('is-media-loading'); };
+            img.classList.add('is-media-loading');
+            img.addEventListener('load', settle, { once: true });
+            // Снимаем бледность и на отказе: иначе на месте не загрузившегося
+            // кадра остаётся пустота вместо alt-текста.
+            img.addEventListener('error', settle, { once: true });
+        });
+    })();
+
     // Проявление заголовков (Дизайн → Типографика). Заголовок секции ждёт
     // прокрутки бледным и набирает свой цвет. Бледное состояние вешает сам
     // скрипт: без него, при «меньше движения» и в режимах контраста заголовок
