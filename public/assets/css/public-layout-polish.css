@@ -228,7 +228,7 @@
 
 /* About page / advantages */
 .cards-grid {
-    grid-template-columns: repeat(var(--grid-track, 3), minmax(0, 1fr));
+    grid-template-columns: repeat(var(--grid-track, var(--cards-cols, 3)), minmax(0, 1fr));
     gap: 18px;
 }
 
@@ -742,4 +742,3 @@ body.design-surface-interactive .block-contact-cards--panel-auto .feature-card.c
 .block-contact-cards--panel-none .feature-card.contact-card .feature-card__num {
     display: none;
 }
-
