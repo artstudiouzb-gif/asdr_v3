@@ -285,12 +285,13 @@
     border: 0;
 }
 
-/* Число колонок считает GridBalance, и только там, где работает растяжение
+/* При авторасчёте число дорожек задаёт GridBalance; при ручном выборе
+   используем --cards-cols из настроек блока. Только там, где работает растяжение
    хвоста, — ниже 901px мобильную раскладку задаёт тема. Жёсткое repeat(5)
    оставляло в последнем ряду одинокую карточку при другом количестве. */
 @media (min-width: 901px) {
     .editorial-page__content .cards-grid {
-        grid-template-columns: repeat(var(--grid-track, 3), minmax(0, 1fr));
+        grid-template-columns: repeat(var(--grid-track, var(--cards-cols, 3)), minmax(0, 1fr));
     }
 }
 /* Timeline --------------------------------------------------------------- */
