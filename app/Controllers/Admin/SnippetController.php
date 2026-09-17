@@ -83,13 +83,28 @@ final class SnippetController
             $this->back($pageId, $lang);
         }
 
-        $blocks = json_decode((string) $snippet['blocks_json'], true);
-        if (!is_array($blocks)) {
+        if (!$this->applySnippet($snippet, $page, $lang, ($_POST['mode'] ?? 'append') === 'replace')) {
             Flash::error('Шаблон повреждён.');
-            $this->back($pageId, $lang);
+        }
+        $this->back($pageId, $lang);
+    }
+
+    /**
+     * Применение шаблона к записи. Общая часть редактора страницы и раздела
+     * «Шаблоны страниц»: две копии разъехались бы при первой правке — в одной
+     * появилась бы автокопия перед заменой, в другой нет.
+     *
+     * @param array<string, mixed> $snippet строка библиотеки
+     * @param array<string, mixed> $page    запись pages (страница или проект)
+     */
+    private function applySnippet(array $snippet, array $page, string $lang, bool $replace): bool
+    {
+        $blocks = json_decode((string) ($snippet['blocks_json'] ?? ''), true);
+        if (!is_array($blocks)) {
+            return false;
         }
 
-        $replace = ($_POST['mode'] ?? 'append') === 'replace';
+        $pageId = (int) $page['id'];
         // Замена удаляет блоки безвозвратно — сначала снимаем автокопию.
         $backup = $replace ? BlockSnippet::autoBackup($pageId, $lang, (string) ($page['title'] ?? '')) : null;
         $count = BlockSnippet::applyToPage($blocks, $pageId, $lang, $replace);
@@ -99,7 +114,113 @@ final class SnippetController
         if ($backup !== null) {
             Flash::success('Прежние блоки сохранены как шаблон «' . $backup . '» — применить его с режимом «Заменить», чтобы вернуть как было.');
         }
-        $this->back($pageId, $lang);
+
+        return true;
+    }
+
+    /**
+     * Раздел «Шаблоны страниц»: библиотека жила внутри формы страницы, то есть
+     * увидеть сохранённое можно было, только открыв какую-нибудь страницу и
+     * прокрутив её конструктор до конца. Скачать шаблон файлом — тем более:
+     * список выгрузки стоял там же. Здесь она видна целиком — состав, вес,
+     * дата, — и отсюда же скачивается, переименовывается и применяется.
+     */
+    public function index(): void
+    {
+        Auth::requireLogin();
+
+        try {
+            $snippets = BlockSnippet::all();
+        } catch (\Throwable) {
+            // Миграция block_snippets не накатана: раздел не роняем 500-й, а
+            // объясняем, что делать (тот же приём, что в конструкторе блоков).
+            View::render('admin/snippets/index', ['snippets' => null, 'targets' => [], 'langs' => []]);
+            return;
+        }
+
+        View::render('admin/snippets/index', [
+            'snippets' => $snippets,
+            'targets' => $this->applyTargets(),
+            'langs' => Language::active(),
+        ]);
+    }
+
+    /**
+     * Куда можно применить шаблон: страницы и проекты — это одна таблица
+     * `pages`, и блоки у них общие, поэтому список один, но с разделением по
+     * подтипу: в форме «Страница» и «Проект» разные, и редактор должен
+     * понимать, куда именно уедет сборка.
+     *
+     * @return array<string, list<array{id: int, title: string}>>
+     */
+    private function applyTargets(): array
+    {
+        $groups = ['Страницы' => Page::all(), 'Проекты' => \App\Models\Project::all()];
+
+        $out = [];
+        foreach ($groups as $group => $rows) {
+            $items = [];
+            foreach ($rows as $row) {
+                $id = (int) $row['id'];
+                $title = trim((string) ($row['title'] ?? ''));
+                // Безымянная запись в списке неотличима от соседней: показываем
+                // хотя бы номер, иначе выбрать её можно только наугад.
+                $items[] = ['id' => $id, 'title' => $title !== '' ? $title : '#' . $id];
+            }
+            $out[(string) $group] = $items;
+        }
+
+        return $out;
+    }
+
+    /**
+     * Применение из раздела: и шаблон, и страница выбираются списком, а не
+     * приходят адресом, поэтому маршрут свой и без параметров. Возврат — в
+     * конструктор владельца: результат смотрят там, а не в списке шаблонов.
+     */
+    public function apply(): void
+    {
+        Auth::requireLogin();
+        Csrf::verifyRequest();
+
+        $snippet = BlockSnippet::findById((int) ($_POST['snippet_id'] ?? 0));
+        if ($snippet === null) {
+            Flash::error('Шаблон не найден.');
+            $this->backToLibrary();
+        }
+
+        $page = Page::findById((int) ($_POST['page_id'] ?? 0));
+        if ($page === null || ($page['deleted_at'] ?? null) !== null) {
+            Flash::error('Выберите страницу или проект, к которым применить шаблон.');
+            $this->backToLibrary();
+        }
+
+        $lang = $this->resolveLang();
+        if (!$this->applySnippet($snippet, $page, $lang, ($_POST['mode'] ?? 'append') === 'replace')) {
+            Flash::error('Шаблон повреждён.');
+            $this->backToLibrary();
+        }
+        $this->back((int) $page['id'], $lang);
+    }
+
+    /** @param array<string, string> $params */
+    public function rename(array $params): void
+    {
+        Auth::requireLogin();
+        Csrf::verifyRequest();
+
+        if (BlockSnippet::rename((int) $params['id'], (string) ($_POST['name'] ?? ''))) {
+            Flash::success('Название шаблона изменено.');
+        } else {
+            Flash::error('Название не изменено: пустое имя или шаблон не найден.');
+        }
+        $this->backToLibrary();
+    }
+
+    private function backToLibrary(): never
+    {
+        header('Location: /admin/snippets');
+        exit;
     }
 
     /**

@@ -25,9 +25,15 @@ final class BlockSnippet
             ->fetchAll();
 
         foreach ($rows as $i => $row) {
-            $blocks = json_decode((string) ($row['blocks_json'] ?? ''), true);
+            $json = (string) ($row['blocks_json'] ?? '');
+            $blocks = json_decode($json, true);
             $rows[$i]['summary'] = is_array($blocks) ? self::summarize($blocks) : '';
             $rows[$i]['blocks_count'] = is_array($blocks) ? count($blocks) : 0;
+            // Вес снимка — единственный признак, по которому видно тяжёлый
+            // шаблон до его применения (в разделе он печатается колонкой).
+            $rows[$i]['bytes'] = strlen($json);
+            $rows[$i]['is_auto'] = str_starts_with((string) ($row['name'] ?? ''), self::AUTO_PREFIX);
+            $rows[$i]['is_broken'] = !is_array($blocks);
             unset($rows[$i]['blocks_json']); // в списке не нужен, только вес
         }
 
@@ -87,6 +93,32 @@ final class BlockSnippet
     public static function delete(int $id): void
     {
         Database::pdo()->prepare('DELETE FROM block_snippets WHERE id = :id')->execute([':id' => $id]);
+    }
+
+    /**
+     * Переименование. Имя шаблона — единственное, чем он опознаётся в списке
+     * применения, а приезжает оно из файла импорта или из старой сборки:
+     * без правки на месте пришлось бы выгружать и загружать заново.
+     */
+    public static function rename(int $id, string $name): bool
+    {
+        $name = trim($name);
+        if ($name === '') {
+            return false;
+        }
+
+        // Существование проверяем отдельно: MySQL считает изменённые строки,
+        // и переименование в то же самое имя дало бы rowCount() = 0, то есть
+        // «шаблон не найден» на живом шаблоне.
+        if (self::findById($id) === null) {
+            return false;
+        }
+
+        Database::pdo()
+            ->prepare('UPDATE block_snippets SET name = :name WHERE id = :id')
+            ->execute([':name' => mb_substr($name, 0, 190), ':id' => $id]);
+
+        return true;
     }
 
     /** Префикс автокопий: по нему их видно в списке и чистится история. */
