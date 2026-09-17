@@ -124,7 +124,9 @@ test('ИИ-редактор: локальный резерв анализиру�
 test('ИИ-редактор: форма содержит отдельные действия и не дублирует HTTP-запрос', function (): void {
     $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/news/form.php');
     $adminJs = (string) file_get_contents(APP_ROOT . '/public/assets/js/admin.js');
-    $service = (string) file_get_contents(APP_ROOT . '/app/Core/AiAssistantService.php');
+    // Транспорт (ключ, модели, схема ответа) переехал в общий клиент: задач у
+    // модели стало много, и второй такой вызов рядом разъехался бы с первым.
+    $service = (string) file_get_contents(APP_ROOT . '/app/Core/Ai/AiClient.php');
 
     assert_contains('data-ai-generate="summary"', $form, 'Есть генерация аннотации');
     assert_contains('data-ai-generate="meta_title"', $form, 'Есть генерация Meta Title');

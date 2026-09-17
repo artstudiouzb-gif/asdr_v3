@@ -35,6 +35,27 @@ require __DIR__ . '/../layout/header.php';
     </p>
 </div>
 
+<div class="form-card u-inline-7dde5e56b3" data-ai-scope>
+    <h2 class="u-inline-291b7bbb01">Собрать каркас по описанию</h2>
+    <div class="form-field">
+        <label for="ai_page_description">Что должно быть на странице</label>
+        <textarea id="ai_page_description" rows="3" data-ai-description
+                  placeholder="Раздел о поддержке экспортёров: вводный текст, три преимущества, показатели за год, документы, форма обратной связи"></textarea>
+    </div>
+    <div class="form-actions">
+        <button type="button" class="btn btn--small btn--secondary" data-ai-task="page-draft"
+                data-ai-source="[data-ai-description]" data-ai-waiting="ИИ собирает…">
+            <?= AdminUi::icon('sparkles') ?>Собрать каркас
+        </button>
+    </div>
+    <p class="form-hint">
+        Модель предлагает <strong>структуру</strong>: какие блоки и в каком порядке. Тексты внутри —
+        заготовки, их заменяет редактор. Каркас проходит ту же проверку, что и шаблон из файла
+        (тип блока сверяется с реестром, поля — с умолчаниями), и попадает в библиотеку ниже:
+        на страницу он сам не применяется.
+    </p>
+</div>
+
 <?php if (!empty($snippets)): ?>
 <div class="form-card u-inline-7dde5e56b3">
     <h2 class="u-inline-291b7bbb01">Применить к странице или проекту</h2>

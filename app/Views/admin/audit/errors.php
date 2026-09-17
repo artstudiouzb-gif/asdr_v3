@@ -70,7 +70,7 @@ $shortFile = static function (string $file): string {
             <tr><th>Когда</th><th>Уровень</th><th>Что случилось и почему</th><th>Где</th></tr>
         </thead>
         <tbody>
-            <?php foreach ($items as $item): ?>
+            <?php foreach ($items as $rowIndex => $item): ?>
                 <tr>
                     <td class="u-inline-df7cae6aa0"><?= htmlspecialchars((string) $item['created_at'], ENT_QUOTES) ?></td>
                     <td class="u-inline-060dc9f317">
@@ -85,6 +85,14 @@ $shortFile = static function (string $file): string {
                             <summary class="u-inline-bbb9c7d040">Технические детали</summary>
                             <code class="u-inline-0dfd020469"><?= htmlspecialchars((string) $item['message'], ENT_QUOTES) ?></code>
                         </details>
+                        <?php // Наружу уходит только сама запись: журнал видит и пути на диске, и содержимое запросов. ?>
+                        <button type="button" class="btn btn--small" data-ai-task="explain"
+                                data-ai-waiting="ИИ разбирает…"
+                                data-ai-message="<?= htmlspecialchars((string) $item['message'], ENT_QUOTES) ?>"
+                                data-ai-report="[data-ai-explain='<?= (int) $rowIndex ?>']">
+                            <?= \App\Core\AdminUi::icon('sparkles') ?>Что это значит
+                        </button>
+                        <div class="ai-report" data-ai-explain="<?= (int) $rowIndex ?>" hidden></div>
                     </td>
                     <td class="u-inline-6c1edda8b7">
                         <?php if ((string) $item['file'] !== ''): ?>

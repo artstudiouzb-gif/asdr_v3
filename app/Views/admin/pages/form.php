@@ -73,6 +73,16 @@ $languages = Language::active();
                         <textarea name="meta_description" rows="2" placeholder="SEO Краткое описание для поисковиков"><?= htmlspecialchars($page['meta_description'] ?? '', ENT_QUOTES) ?></textarea>
                     </div>
                 </div>
+                <?php // Тот же генератор, что у новости: описание у страницы того же рода, и второй набор промптов разъехался бы с первым. ?>
+                <div class="form-actions">
+                    <button type="button" class="btn btn--small btn--secondary" data-ai-task="seo"
+                            data-ai-target="meta_title" data-ai-kind="страница"
+                            data-ai-waiting="ИИ думает…"><?= \App\Core\AdminUi::icon('sparkles') ?>ИИ-заголовок</button>
+                    <button type="button" class="btn btn--small btn--secondary" data-ai-task="seo"
+                            data-ai-target="meta_description" data-ai-kind="страница"
+                            data-ai-waiting="ИИ думает…"><?= \App\Core\AdminUi::icon('sparkles') ?>ИИ-описание</button>
+                </div>
+                <p class="form-hint">Считается по названию и лиду страницы. Пустое описание — не «ничего»: поиск соберёт сниппет из случайного куска текста.</p>
             </div>
 
             <!-- Блок 3: Пользовательские и внешние CSS / JS (только супер-админ) -->
