@@ -119,6 +119,35 @@ test('rapid return clears obsolete exit and header transitions', async ({ page }
     await expect(page.locator('body')).not.toHaveClass(/is-hero-light/);
 });
 
+test('outgoing text and artwork disappear before the background fade completes', async ({ page }) => {
+    await setup(page);
+    for (const effect of ['fade', 'slide', 'fade-slide', 'kenburns']) {
+        await page.locator('#cover').evaluate((root, effect) => {
+            root.className = `hero hero--carousel hero--tr-${effect}`;
+        }, effect);
+        for (const control of ['next', 'next', 'prev']) {
+            const state = await page.evaluate(control => {
+                document.querySelector(`[data-hero-${control}]`).click();
+                return Array.from(document.querySelectorAll('[data-hero-slide]'), slide => ({
+                    active: slide.classList.contains('is-active'),
+                    leaving: slide.classList.contains('is-leaving'),
+                    contentOpacity: getComputedStyle(slide.querySelector('.hero__inner')).opacity,
+                    visibility: getComputedStyle(slide).visibility,
+                }));
+            }, control);
+            expect(state.filter(slide => slide.leaving).length).toBeGreaterThan(0);
+            for (const slide of state) {
+                expect(slide.contentOpacity).toBe(slide.active ? '1' : '0');
+                if (slide.leaving) expect(slide.visibility).toBe('visible');
+            }
+        }
+    }
+    await page.locator('#cover').dispatchEvent('asdr:hero-destroy');
+    for (const content of await page.locator('.hero__inner').all()) {
+        await expect(content).toHaveCSS('opacity', '1');
+    }
+});
+
 test('mobile initially pauses rotation but accepts an explicit start', async ({ page }) => {
     await setup(page);
     await page.setViewportSize({ width: 390, height: 844 });

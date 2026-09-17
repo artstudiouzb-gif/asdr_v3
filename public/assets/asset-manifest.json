@@ -99,11 +99,11 @@
     },
     "/assets/css/blocks/hero.css": {
       "path": "/assets/css/blocks/hero.min.css",
-      "sourceSha256": "19c3b16340395bf21dffc083d09b0cdc35c8d24161db263eff7887e2dca67752",
-      "sha256": "b0ff20973759e263c4acd46e2b48f2b24c5b3d0bff6fb7c0ade401d0681cc1ac",
-      "raw": 12840,
-      "gzip": 3278,
-      "brotli": 2913
+      "sourceSha256": "bb68cfc0fd7bc88d333103c8b53256217969efa3e2ea5ad9a47aefb57274fb56",
+      "sha256": "ffb575ca142119fb70a89bc7c8e6d14cad64dee9badea361f1b27526c4e266a5",
+      "raw": 12915,
+      "gzip": 3298,
+      "brotli": 2929
     },
     "/assets/css/blocks/image.css": {
       "path": "/assets/css/blocks/image.min.css",
