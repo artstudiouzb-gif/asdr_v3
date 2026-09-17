@@ -2531,10 +2531,20 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .project-card:hover .project-card__media img {
     transform: scale(1.04);
 }
-/* Мягкое появление кадра новости. Подложка кадра уже залита `--gov-navy`, и
-   до сих пор фотография сменяла её мгновенно: в ленте из четырнадцати карточек
+/* Мягкое появление фотографии. Подложка кадра уже залита `--gov-navy`, и до
+   сих пор фотография сменяла её мгновенно: в ленте из четырнадцати карточек
    кадры доезжают вразнобой, и сетка рябит на глазах. Теперь кадр проявляется
    из подложки.
+
+   **Правило не знает своих мест, и это намеренно.** Прежде селектор стоял в
+   самом правиле (`.relnews-card__media img`), поэтому вторая площадка —
+   фотографии на детальной странице новости — потребовала бы второй копии
+   перехода, уже в `blocks/news-detail.css`. Две копии одного приёма разъехались
+   бы при первой правке длительности. Теперь носителем является класс, который
+   вешает скрипт, а список мест объявлен один раз — `SOFT_MEDIA` в
+   `frontend.js`. Классов два, потому что переход обязан пережить снятие
+   бледности: объяви его на `is-media-loading`, и вместе с классом исчезал бы
+   сам переход, то есть кадр всё равно возникал бы рывком.
 
    Бледное состояние вешает **только JS** (`is-media-loading`) и только на тот
    кадр, который в этот момент ещё не загружен: картинке, уже лежащей в кэше
@@ -2549,12 +2559,12 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
    в другой момент. Переход записан longhand: сокращённую запись минификатор
    выбрасывает. */
 
-.relnews-card__media img {
+.is-soft-media {
     transition-property: opacity;
     transition-duration: 0.5s;
     transition-timing-function: ease;
 }
-.relnews-card__media img.is-media-loading { opacity: 0; }
+.is-soft-media.is-media-loading { opacity: 0; }
 .relnews-card__media--empty,
 .album-card__cover--empty,
 .project-card__media--empty { background: linear-gradient(120deg, color-mix(in srgb, var(--gov-navy) 14%, var(--gov-surface)), var(--gov-surface)); }

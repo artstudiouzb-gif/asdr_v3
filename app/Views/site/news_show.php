@@ -364,7 +364,7 @@ $hasSidebar = $sidebar !== null && trim((string) ($sidebar['html'] ?? '')) !== '
             ?>
             <div class="newsdetail-media newsdetail-media--video">
                 <div class="news-video newsdetail-video skeleton" data-youtube="<?= htmlspecialchars($videoId, ENT_QUOTES) ?>" data-embed="<?= htmlspecialchars($embed, ENT_QUOTES) ?>" data-replay-label="<?= htmlspecialchars(t('Посмотреть ещё раз'), ENT_QUOTES) ?>">
-                    <img class="news-video__thumb" src="<?= htmlspecialchars($cover !== '' ? $cover : $thumb, ENT_QUOTES) ?>" data-fallback="<?= htmlspecialchars($fallback, ENT_QUOTES) ?>" alt="<?= htmlspecialchars((string) $news['title'], ENT_QUOTES) ?>" loading="eager" decoding="async">
+                    <img class="news-video__thumb" src="<?= htmlspecialchars($cover !== '' ? $cover : $thumb, ENT_QUOTES) ?>" data-fallback="<?= htmlspecialchars($fallback, ENT_QUOTES) ?>" alt="<?= htmlspecialchars((string) $news['title'], ENT_QUOTES) ?>" loading="eager" fetchpriority="high" decoding="async">
                     <?= $badgeOnMedia ?>
                     <button type="button" class="news-video__play" aria-label="<?= htmlspecialchars(t('Смотреть видео'), ENT_QUOTES) ?>"></button>
                 </div>
@@ -373,7 +373,12 @@ $hasSidebar = $sidebar !== null && trim((string) ($sidebar['html'] ?? '')) !== '
             <div class="newsdetail-gallery" data-ndgallery>
                 <div class="newsdetail-gallery__main">
                     <?php foreach ($heroSlides as $i => $s): ?>
-                        <?= \App\Core\Media::picture((string) $s['path'], (string) ($s['alt'] !== '' ? $s['alt'] : ($s['caption'] ?? '')), null, null, 'newsdetail-gallery__slide' . ($i === 0 ? ' is-active' : ''), $i !== 0, '(max-width: 900px) 100vw, 70vw') ?>
+                        <?php // Первый слайд — самый крупный элемент первого экрана, то есть
+                              // LCP страницы новости. Он и раньше был не ленивым, но высокого
+                              // приоритета не получал: браузер ставил его в общую очередь
+                              // наравне с миниатюрами и кадрами соседних новостей. Остальным
+                              // слайдам приоритет не адресован — их не видно до листания. ?>
+                        <?= \App\Core\Media::picture((string) $s['path'], (string) ($s['alt'] !== '' ? $s['alt'] : ($s['caption'] ?? '')), null, null, 'newsdetail-gallery__slide' . ($i === 0 ? ' is-active' : ''), $i !== 0, '(max-width: 900px) 100vw, 70vw', $i === 0) ?>
                     <?php endforeach; ?>
                     <?php if (count($heroSlides) > 1): ?>
                         <button type="button" class="newsdetail-gallery__nav newsdetail-gallery__nav--prev" data-ndg-prev aria-label="<?= htmlspecialchars(t('Предыдущее фото'), ENT_QUOTES) ?>"><?= \App\Core\Icon::render('chevron-left', 22, 'ui-icon', 2) ?></button>
