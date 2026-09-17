@@ -63,14 +63,15 @@ final class AiAssistantService
         $cleanTitle = self::cleanText($title);
         $cleanContent = self::cleanText($content);
         $fallback = self::generateLocalNewsFields($cleanTitle, $cleanContent);
-        $fallback['provider'] = 'local';
-        $fallback['model'] = '';
-        $fallback['notice'] = '';
 
         if (!AiClient::configured()) {
-            $fallback['notice'] = 'Ключ Gemini не настроен: применён локальный анализ ключевых фактов. '
-                . 'Для полноценной переформулировки настройте ИИ-интеграцию.';
-            return $fallback;
+            return self::answer(
+                $fallback,
+                'local',
+                '',
+                'Ключ Gemini не настроен: применён локальный анализ ключевых фактов. '
+                    . 'Для полноценной переформулировки настройте ИИ-интеграцию.'
+            );
         }
 
         $generated = AiClient::json(
@@ -84,17 +85,40 @@ final class AiAssistantService
         if (is_array($generated) && self::hasGeneratedTarget($generated, $target)) {
             $result = self::normalizeGeneratedFields($fallback, $generated, $target);
             if (self::hasGeneratedTarget($result, $target)) {
-                $result['provider'] = 'gemini';
-                $result['model'] = (string) ($generated['_model'] ?? '');
-                $result['notice'] = '';
-
-                return $result;
+                return self::answer($result, 'gemini', (string) ($generated['_model'] ?? ''), '');
             }
         }
 
-        $fallback['notice'] = 'Gemini временно недоступен: применён локальный анализ ключевых фактов.';
+        return self::answer($fallback, 'local', '', 'Gemini временно недоступен: применён локальный анализ ключевых фактов.');
+    }
 
-        return $fallback;
+    /**
+     * Ответ собирается поимённо, а не дополнением массива полей: набор ключей
+     * — это контракт с формой редактора, и «дописали ещё один ключ» читается
+     * как «поле появится», пока не окажется, что его никто не печатает.
+     *
+     * @param array<string, string> $fields
+     * @return array{
+     *     excerpt:string,
+     *     hashtags:string,
+     *     meta_title:string,
+     *     meta_description:string,
+     *     provider:string,
+     *     model:string,
+     *     notice:string
+     * }
+     */
+    private static function answer(array $fields, string $provider, string $model, string $notice): array
+    {
+        return [
+            'excerpt' => (string) ($fields['excerpt'] ?? ''),
+            'hashtags' => (string) ($fields['hashtags'] ?? ''),
+            'meta_title' => (string) ($fields['meta_title'] ?? ''),
+            'meta_description' => (string) ($fields['meta_description'] ?? ''),
+            'provider' => $provider,
+            'model' => $model,
+            'notice' => $notice,
+        ];
     }
 
     /**

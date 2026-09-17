@@ -138,7 +138,9 @@ final class AiPageDraft
         return [
             'name' => $parsed['name'] !== '' ? $parsed['name'] : $name,
             'blocks' => $parsed['blocks'],
-            'warnings' => $parsed['warnings'],
+            // array_values: разбор отдаёт массив с целыми ключами, а обещан
+            // список — без этого «список» может оказаться с дырами в ключах.
+            'warnings' => array_values($parsed['warnings']),
             'notice' => '',
         ];
     }
@@ -171,7 +173,9 @@ final class AiPageDraft
     {
         $lines = [];
         foreach (self::TYPES as $type) {
-            $label = BlockTypeRegistry::TYPE_LABELS[$type] ?? $type;
+            // Ключ заведомо есть: список типов проверяется тестом по реестру,
+            // и запасное значение здесь читалось бы как «бывает и без подписи».
+            $label = BlockTypeRegistry::TYPE_LABELS[$type];
             $lines[] = '- ' . $type . ': ' . $label;
         }
 
