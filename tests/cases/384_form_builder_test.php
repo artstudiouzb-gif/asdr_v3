@@ -26,23 +26,23 @@ test('Форма: ширина поля — настройка, а не след
     assert_same('text', FormLayout::normalizeType('script'));
 });
 
-test('Форма: сетка читает и прежний ключ layout', function (): void {
-    // Настройка переименована (1col/2col → число колонок), но данные блока
-    // приезжают ещё и из файла шаблона страницы: старый ключ обязан давать
-    // прежнюю раскладку, иначе вид собранных страниц поменялся бы молча.
+test('Форма: сетка сохраняет прежний ключ и прежние значения', function (): void {
+    // Настройка та же (`layout`), к ней добавился третий вариант: данные
+    // блока приезжают ещё и из файла шаблона страницы, и переименование
+    // ключа поменяло бы вид собранных страниц молча.
     assert_same(1, FormLayout::columns([]));
     assert_same(1, FormLayout::columns(['layout' => '1col']));
     assert_same(2, FormLayout::columns(['layout' => '2col']));
-    assert_same(3, FormLayout::columns(['columns' => 3]));
-    assert_same(2, FormLayout::columns(['columns' => 2, 'layout' => '1col']));
-    assert_same(1, FormLayout::columns(['columns' => 9]));
+    assert_same(3, FormLayout::columns(['layout' => '3col']));
+    assert_same(1, FormLayout::columns(['layout' => '9col']));
+    assert_same('1col', FormLayout::normalizeLayout('<script>'));
 
     assert_same('block-form__form block-form__form--cols-2', FormLayout::formClass(['layout' => '2col']));
     assert_contains('block-form__field--w-half', FormLayout::fieldClass(['type' => 'text', 'width' => 'half']));
 
     // Ключ настройки объявлен и в реестре типов: иначе первое же сохранение
     // блока в панели потеряло бы её.
-    assert_true(array_key_exists('columns', BlockTypeRegistry::defaults()['form']));
+    assert_true(array_key_exists('layout', BlockTypeRegistry::defaults()['form']));
 });
 
 test('Форма: каждая ширина что-то меняет на выводе', function (): void {
@@ -62,7 +62,8 @@ test('Форма: каждая ширина что-то меняет на выв
 
     // Одна колонка — базовое состояние сетки (поле занимает ряд целиком),
     // своего правила ей не нужно; остальные обязаны его иметь.
-    foreach (array_keys(FormLayout::COLUMNS) as $columns) {
+    foreach (array_keys(FormLayout::COLUMNS) as $layout) {
+        $columns = FormLayout::columns(['layout' => $layout]);
         if ($columns === 1) {
             continue;
         }

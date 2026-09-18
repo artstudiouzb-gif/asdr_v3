@@ -66,11 +66,17 @@ final class FormLayout
      */
     private const FULL_BY_TYPE = ['textarea', 'file', 'checkbox_group', 'checkbox'];
 
-    /** @var array<int, string> Колонок в сетке формы (настройка блока). */
+    /**
+     * Сетка формы — настройка блока, где форма выводится. Ключ остался
+     * прежним (`1col`/`2col`), поэтому у собранных страниц вид не меняется и
+     * переносить данные не нужно: добавился только третий вариант.
+     *
+     * @var array<string, string>
+     */
     public const COLUMNS = [
-        1 => 'В одну колонку',
-        2 => 'В две колонки',
-        3 => 'В три колонки',
+        '1col' => 'В одну колонку',
+        '2col' => 'В две колонки',
+        '3col' => 'В три колонки',
     ];
 
     public static function normalizeType(string $type): string
@@ -114,21 +120,19 @@ final class FormLayout
         return 'block-form__field ' . self::widthClass(self::widthOf($field), 'block-form__field');
     }
 
+    public static function normalizeLayout(string $layout): string
+    {
+        return isset(self::COLUMNS[$layout]) ? $layout : '1col';
+    }
+
     /**
-     * Колонок у формы. Читается и прежний ключ `layout` (1col/2col): данные
-     * блока приезжают ещё и из файла шаблона страницы, а переименование
-     * настройки не должно менять вид собранных страниц.
+     * Колонок у формы числом — его печатает класс сетки.
      *
      * @param array<string, mixed> $data
      */
     public static function columns(array $data): int
     {
-        $columns = (int) ($data['columns'] ?? 0);
-        if (isset(self::COLUMNS[$columns])) {
-            return $columns;
-        }
-
-        return ((string) ($data['layout'] ?? '') === '2col') ? 2 : 1;
+        return (int) self::normalizeLayout((string) ($data['layout'] ?? ''))[0];
     }
 
     /** @param array<string, mixed> $data */
