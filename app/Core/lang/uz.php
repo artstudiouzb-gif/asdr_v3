@@ -474,4 +474,9 @@ return [
     'Код состояния:' => 'Holat kodi:',
     'Сайт временно закрыт на техническое обслуживание. Мы скоро вернёмся.' => 'Sayt texnik xizmat ko‘rsatish uchun vaqtincha yopilgan. Tez orada qaytamiz.',
     'Техническое обслуживание' => 'Texnik xizmat',
+    'Введите корректный номер телефона (не менее 7 цифр)' => 'To‘g‘ri telefon raqamini kiriting (kamida 7 ta raqam)',
+    'Отправка…' => 'Yuborilmoqda…',
+    'Ошибка сервера.' => 'Server xatosi.',
+    'Проверьте форму.' => 'Formani tekshiring.',
+    'Сетевая ошибка. Попробуйте ещё раз.' => 'Tarmoq xatosi. Qayta urinib ko‘ring.',
 ];
