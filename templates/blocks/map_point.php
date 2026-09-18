@@ -16,9 +16,31 @@ if ($image !== '' && !\App\Core\UrlGuard::isSafeMedia($image)) {
 }
 
 $imageCss = str_replace(["\\", "'"], ["\\\\", "\\'"], $image);
-$templateCss = $imageCss !== ''
-    ? '#block-' . $blockId . " .block-map__image{--block-map-image:url('" . $imageCss . "')}"
-    : '';
+$mapWidth = (int) ($data['map_width'] ?? 100);
+$mapHeight = (int) ($data['map_height'] ?? 0);
+$mapWidthMobile = (int) ($data['map_width_mobile'] ?? 100);
+$mapHeightMobile = (int) ($data['map_height_mobile'] ?? 0);
+
+$mapRules = [];
+if ($imageCss !== '') {
+    $mapRules[] = '#block-' . $blockId . " .block-map__image{--block-map-image:url('" . $imageCss . "')}";
+}
+
+$desktopRule = '#block-' . $blockId . ' .block-map__canvas{width:' . $mapWidth
+    . '%;max-width:100%;margin-inline:auto;';
+if ($mapHeight > 0) {
+    $desktopRule .= 'height:' . $mapHeight . 'px;';
+}
+$mapRules[] = $desktopRule . '}';
+
+$mobileDeclarations = 'width:' . $mapWidthMobile . '%;';
+if ($mapHeightMobile > 0) {
+    $mobileDeclarations .= 'height:' . $mapHeightMobile . 'px;';
+}
+$mapRules[] = '@media(max-width:720px){#block-' . $blockId
+    . ' .block-map__canvas{' . $mobileDeclarations . '}}';
+
+$templateCss = implode("\n", $mapRules);
 ?>
 <div class="block-map">
     <?= \App\Core\SectionHead::render(['title' => $title, 'title_class' => 'block-map__title']) ?>
