@@ -57,6 +57,67 @@ final class MapEmbedUrl
             }
         }
 
+        // Обычная ссылка из адресной строки Яндекс Карт не является URL
+        // виджета: /maps/... может запрещать показ внутри iframe. Кнопка
+        // «Поделиться» также отдаёт короткую /maps/-/TOKEN, для которой
+        // встраиваемый эквивалент — /map-widget/v1/-/TOKEN.
+        if (self::isYandexHost($host)) {
+            $url = self::normalizeYandex($url, $host);
+        }
+
+        return $url;
+    }
+
+    private static function isYandexHost(string $host): bool
+    {
+        return self::hostMatches($host, 'yandex.ru')
+            || self::hostMatches($host, 'yandex.com')
+            || self::hostMatches($host, 'yandex.uz');
+    }
+
+    private static function normalizeYandex(string $url, string $host): string
+    {
+        $parts = parse_url($url);
+        if ($parts === false) {
+            return '';
+        }
+
+        $path = (string) ($parts['path'] ?? '');
+        // Уже готовые URL виджета и frame API менять нельзя.
+        if (str_contains($path, '/map-widget/v1/')
+            || str_contains($path, '/frame/v1/')
+            || str_contains($path, '/services/constructor/')) {
+            return $url;
+        }
+
+        $query = (string) ($parts['query'] ?? '');
+        $suffix = $query !== '' ? '?' . $query : '';
+
+        if (preg_match('#^/maps/-/([^/]+)$#', rtrim($path, '/'), $match)) {
+            return 'https://' . $host . '/map-widget/v1/-/' . $match[1] . $suffix;
+        }
+
+        if (preg_match('#^/maps(?:/|$)#', $path)) {
+            $params = [];
+            if ($query !== '') {
+                parse_str($query, $params);
+            }
+
+            // У ссылки на карточку организации идентификатор хранится в пути,
+            // тогда как виджет ждёт его параметром oid.
+            if (preg_match('#^/maps/org/[^/]+/(\\d+)(?:/|$)#', $path, $match)) {
+                $params += [
+                    'oid' => $match[1],
+                    'ol' => 'biz',
+                    'mode' => 'search',
+                ];
+            }
+
+            $widgetQuery = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+
+            return 'https://' . $host . '/map-widget/v1/' . ($widgetQuery !== '' ? '?' . $widgetQuery : '');
+        }
+
         return $url;
     }
 
