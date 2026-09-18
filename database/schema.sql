@@ -254,6 +254,17 @@ INSERT INTO languages (code, name, short_name, is_default, is_active, sort_order
     ('uz', 'Oʻzbekcha', 'Oʻzb', 0, 1, 1)
 ON DUPLICATE KEY UPDATE code = code;
 
+-- Редактируемые системные переводы. Штатные lang/*.php остаются fallback.
+CREATE TABLE IF NOT EXISTS interface_translations (
+    id                BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    lang              VARCHAR(8) NOT NULL,
+    translation_key   VARCHAR(500) NOT NULL,
+    translation_value TEXT NOT NULL,
+    updated_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_interface_translation (lang, translation_key),
+    KEY idx_interface_translation_lang (lang)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ---------------------------------------------------------------------------
 -- Страницы (статические, собираются из блоков)
 -- Каждый язык = отдельная строка pages; версии связаны translation_group_id.
@@ -1265,7 +1276,8 @@ INSERT INTO migrations (filename) VALUES
     ('2026_08_27_goal_texts.sql'),
     ('2026_08_29_content_type_icon.sql'),
     ('2026_09_01_seo_audits.sql'),
-    ('2026_09_08_content_type_root_url.sql')
+    ('2026_09_08_content_type_root_url.sql'),
+    ('2026_09_18_interface_translations.sql')
 ON DUPLICATE KEY UPDATE filename = filename;
 
 CREATE TABLE IF NOT EXISTS search_log (
