@@ -2140,11 +2140,14 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
         <?php // Возврат стоит в самой панели сохранения: ссылка наверху формы
               // уезжает за экран, а форма блока бывает в тысячи пикселей —
               // закончив правку, редактор искал выход прокруткой вверх.
-              // Вторая ссылка на тот же адрес рядом не нужна, поэтому прежняя
-              // «Отмена» стала подписанным возвратом. ?>
+              // Адрес у возврата и «Отмены» один и тот же (уйти со страницы
+              // блока больше некуда), но подписи означают разное: возврат —
+              // навигация, «Отмена» — отказ от правки. Про несохранённое
+              // предупреждает beforeunload в admin.js, одинаково для обеих. ?>
         <div class="form-actions form-actions--sticky">
             <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить блок</button>
             <a href="<?= htmlspecialchars($backUrl, ENT_QUOTES) ?>" class="btn">&larr; <?= htmlspecialchars($backLabel, ENT_QUOTES) ?></a>
+            <a href="<?= htmlspecialchars($backUrl, ENT_QUOTES) ?>" class="btn">Отмена</a>
         </div>
     </form>
 </div>
