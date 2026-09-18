@@ -27,16 +27,16 @@ final class FormController
             return;
         }
 
-        $successMessage = $form['success_message'] ?: 'Спасибо! Ваша заявка отправлена.';
+        $successMessage = $form['success_message'] ?: t('Спасибо! Ваша заявка отправлена.');
 
         if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
-            $this->fail('Сессия устарела, обновите страницу и попробуйте снова.', [], 419);
+            $this->fail(t('Сессия устарела, обновите страницу и попробуйте снова.'), [], 419);
         }
 
         // Анти-флуд: не более 10 отправок форм с одного IP за 10 минут.
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         if (!RateLimiter::throttle('form', $ip, 10, 10)) {
-            $this->fail('Слишком много отправок. Пожалуйста, попробуйте позже.', [], 429);
+            $this->fail(t('Слишком много отправок. Пожалуйста, попробуйте позже.'), [], 429);
         }
 
         // Honeypot: боты заполняют скрытое поле или отправляют форму мгновенно.
@@ -47,12 +47,12 @@ final class FormController
 
         // Капча (одноразовый код из сессии; выключается в «Настройках»).
         if (\App\Core\Captcha::isEnabled() && !\App\Core\Captcha::verify($_POST['_captcha'] ?? null)) {
-            $this->fail('Неверный код с картинки. Попробуйте ещё раз.', ['_captcha' => 'Код не совпал или устарел.']);
+            $this->fail(t('Неверный код с картинки. Попробуйте ещё раз.'), ['_captcha' => t('Код не совпал или устарел.')]);
         }
 
         // Согласие на обработку персональных данных (если включено глобально).
         if (\App\Models\Setting::get('form_consent_enabled', '0') === '1' && empty($_POST['_consent'])) {
-            $this->fail('Подтвердите согласие на обработку персональных данных.', ['_consent' => 'Требуется согласие.']);
+            $this->fail(t('Подтвердите согласие на обработку персональных данных.'), ['_consent' => t('Требуется согласие.')]);
         }
 
         $data = [];
@@ -71,7 +71,7 @@ final class FormController
                 $file = $_FILES[$name] ?? null;
                 $uploaded = $file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK;
                 if (!empty($field['required']) && !$uploaded) {
-                    $errors[$name] = 'Приложите файл к полю «' . $field['label'] . '».';
+                    $errors[$name] = sprintf(t('Приложите файл к полю «%s».'), (string) $field['label']);
                 } elseif ($uploaded) {
                     try {
                         // Вложения публичных форм могут содержать персональные
@@ -94,19 +94,19 @@ final class FormController
                 $values = array_map('trim', $_POST[$name]);
                 $values = array_filter($values, static fn($v) => $v !== '');
                 if (!empty($field['required']) && empty($values)) {
-                    $errors[$name] = 'Поле «' . $field['label'] . '» обязательно.';
+                    $errors[$name] = sprintf(t('Поле «%s» обязательно.'), (string) $field['label']);
                     continue;
                 }
                 $data[$name] = implode(', ', $values);
             } else {
                 $value = trim((string) ($_POST[$name] ?? ''));
                 if (!empty($field['required']) && $value === '') {
-                    $errors[$name] = 'Поле «' . $field['label'] . '» обязательно.';
+                    $errors[$name] = sprintf(t('Поле «%s» обязательно.'), (string) $field['label']);
                     continue;
                 }
                 $isEmailField = ($field['type'] === 'email') || str_contains(mb_strtolower($field['name'] . ' ' . ($field['label'] ?? '')), 'email') || str_contains(mb_strtolower($field['name'] . ' ' . ($field['label'] ?? '')), 'mail') || str_contains(mb_strtolower($field['name'] . ' ' . ($field['label'] ?? '')), 'почта');
                 if ($isEmailField && $value !== '' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                    $errors[$name] = 'Некорректный e-mail адрес.';
+                    $errors[$name] = t('Некорректный e-mail адрес.');
                     continue;
                 }
 
@@ -114,13 +114,13 @@ final class FormController
                 if ($isPhoneField && $value !== '') {
                     $digits = preg_replace('/\D/', '', $value);
                     if (strlen($digits) < 7 || preg_match('/[a-zA-Zа-яА-ЯёЁ]/u', $value)) {
-                        $errors[$name] = 'Некорректный номер телефона (не менее 7 цифр, без букв).';
+                        $errors[$name] = t('Некорректный номер телефона (не менее 7 цифр, без букв).');
                         continue;
                     }
                 }
 
                 if (($field['type'] ?? '') === 'textarea' && mb_strlen($value) > 2000) {
-                    $errors[$name] = 'Превышена максимальная длина сообщения (не более 2000 символов).';
+                    $errors[$name] = t('Превышена максимальная длина сообщения (не более 2000 символов).');
                     continue;
                 }
                 $data[$name] = $value;
@@ -128,7 +128,7 @@ final class FormController
         }
 
         if ($errors !== []) {
-            $this->fail('Проверьте правильность заполнения формы.', $errors);
+            $this->fail(t('Проверьте правильность заполнения формы.'), $errors);
         }
 
         $submissionId = FormSubmission::create(
