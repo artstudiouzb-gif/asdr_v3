@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Core\Cache;
 use App\Core\Database;
 use App\Core\Logger;
 
@@ -126,35 +127,40 @@ final class InterfaceTranslation
     public static function flush(): void
     {
         self::$cache = null;
+        Cache::forget('i18n:interface-translations');
     }
 
     /** @return array<string, array<string,string>> */
     private static function loadAll(): array
     {
-        try {
-            $rows = Database::pdo()->query(
-                'SELECT lang, translation_key, translation_value
-                 FROM interface_translations
-                 ORDER BY lang, translation_key'
-            )->fetchAll();
-        } catch (\Throwable $e) {
-            // Во время deploy код может появиться на секунды раньше миграции.
-            // Публичный сайт в это окно обязан продолжить работать на файлах.
-            Logger::swallowed('InterfaceTranslation: таблица переводов недоступна', $e);
-            return [];
-        }
-
-        $result = [];
-        foreach ($rows as $row) {
-            $lang = self::cleanLang((string) ($row['lang'] ?? ''));
-            $key = (string) ($row['translation_key'] ?? '');
-            $value = (string) ($row['translation_value'] ?? '');
-            if ($lang !== '' && $key !== '' && $value !== '') {
-                $result[$lang][$key] = $value;
+        $result = Cache::remember('i18n:interface-translations', static function (): array {
+            try {
+                $rows = Database::pdo()->query(
+                    'SELECT lang, translation_key, translation_value
+                     FROM interface_translations
+                     ORDER BY lang, translation_key'
+                )->fetchAll();
+            } catch (\Throwable $e) {
+                // Во время deploy код может появиться на секунды раньше миграции.
+                // Публичный сайт в это окно обязан продолжить работать на файлах.
+                Logger::swallowed('InterfaceTranslation: таблица переводов недоступна', $e);
+                return [];
             }
-        }
 
-        return $result;
+            $translations = [];
+            foreach ($rows as $row) {
+                $lang = self::cleanLang((string) ($row['lang'] ?? ''));
+                $key = (string) ($row['translation_key'] ?? '');
+                $value = (string) ($row['translation_value'] ?? '');
+                if ($lang !== '' && $key !== '' && $value !== '') {
+                    $translations[$lang][$key] = $value;
+                }
+            }
+
+            return $translations;
+        }, 300);
+
+        return is_array($result) ? $result : [];
     }
 
     private static function cleanLang(string $lang): string
