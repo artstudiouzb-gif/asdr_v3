@@ -437,4 +437,8 @@ return [
     'Будьте в курсе главных событий! Подпишитесь на мгновенные push-уведомления о новых публикациях.' => 'Asosiy voqealardan xabardor bo‘ling! Yangi e’lonlar haqida tezkor push-bildirishnomalarga obuna bo‘ling.',
     'Включить уведомления' => 'Bildirishnomalarni yoqish',
     'Позже' => 'Keyinroq',
+    'Код с картинки' => 'Rasmdagi kod',
+    'Защитный код' => 'Himoya kodi',
+    'Обновить код' => 'Kodni yangilash',
+    'Введите символы с картинки (регистр не важен).' => 'Rasmdagi belgilarni kiriting (harflar registri muhim emas).',
 ];
