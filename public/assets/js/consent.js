@@ -10,6 +10,7 @@
             cfg = { required: false, privacyUrl: '' };
         }
     }
+    var labels = cfg.labels || {};
     var COOKIE = 'cookie_consent';
 
     function hasConsent() {
@@ -40,20 +41,20 @@
         var bar = document.createElement('div');
         bar.className = 'cookie-banner';
         bar.setAttribute('role', 'region');
-        bar.setAttribute('aria-label', 'Согласие на использование cookie');
+        bar.setAttribute('aria-label', labels.aria || 'Cookie consent');
         var text = document.createElement('span');
         text.className = 'cookie-banner__text';
-        text.textContent = 'Мы используем cookie для аналитики. Продолжая, вы соглашаетесь с их использованием.';
+        text.textContent = labels.text || '';
         if (cfg.privacyUrl) {
             var link = document.createElement('a');
             link.href = cfg.privacyUrl;
-            link.textContent = ' Политика конфиденциальности';
+            link.textContent = ' ' + (labels.privacy || '');
             text.appendChild(link);
         }
         var accept = document.createElement('button');
         accept.type = 'button';
         accept.className = 'cookie-banner__accept';
-        accept.textContent = 'Принять';
+        accept.textContent = labels.accept || '';
         accept.addEventListener('click', function () {
             setConsent();
             runAnalytics();
@@ -62,7 +63,7 @@
         var decline = document.createElement('button');
         decline.type = 'button';
         decline.className = 'cookie-banner__decline';
-        decline.textContent = 'Отклонить';
+        decline.textContent = labels.decline || '';
         decline.addEventListener('click', function () {
             bar.parentNode && bar.parentNode.removeChild(bar);
         });
