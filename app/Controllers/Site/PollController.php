@@ -17,7 +17,7 @@ final class PollController
 
         if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
             http_response_code(419);
-            echo json_encode(["ok" => false, "error" => "Сессия устарела"], JSON_UNESCAPED_UNICODE);
+            echo json_encode(["ok" => false, "error" => t('Сессия устарела')], JSON_UNESCAPED_UNICODE);
             return;
         }
 
@@ -26,7 +26,7 @@ final class PollController
 
         if ($pollId <= 0 || $optionIndex < 0) {
             http_response_code(400);
-            echo json_encode(["ok" => false, "error" => "Неверные параметры запроса"], JSON_UNESCAPED_UNICODE);
+            echo json_encode(["ok" => false, "error" => t('Неверные параметры запроса')], JSON_UNESCAPED_UNICODE);
             return;
         }
 
@@ -36,7 +36,7 @@ final class PollController
         if (!RateLimiter::throttle('poll_vote', $ip, 10, 10, false)) {
             http_response_code(429);
             header('Retry-After: 600');
-            echo json_encode(["ok" => false, "error" => "Слишком много попыток"], JSON_UNESCAPED_UNICODE);
+            echo json_encode(["ok" => false, "error" => t('Слишком много попыток')], JSON_UNESCAPED_UNICODE);
             return;
         }
         $voterHash = hash("sha256", $ip . "|" . session_id());
