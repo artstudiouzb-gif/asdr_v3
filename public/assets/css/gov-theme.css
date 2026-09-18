@@ -1557,13 +1557,23 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
 .block-hero__button, .block-cta a, .content-detail__download, .site-search__submit,
 .block-cta__button, .btn-cta, .btn, input[type="button"], input[type="submit"], input[type="reset"] {
     background: linear-gradient(to bottom, var(--gov-navy) 0%, color-mix(in srgb, var(--gov-navy) 90%, #000) 100%) !important;
-    color: #fff !important;
     border-radius: var(--btn-radius, 8px) !important;
     font-family: var(--font-family, inherit) !important;
     box-shadow: 0 2px 4px rgba(19,42,92,.1) !important;
     transition: all 0.2s ease-in-out !important;
     text-decoration: none !important;
     border: none !important;
+}/* Подпись кнопки объявлена отдельно, потому что у блока со своим цветом
+   кнопки она считается по контрасту с заливкой (`--cta-btn-fg`), а этот
+   флаг приоритета побеждал расчёт: жёлтая кнопка получала белую подпись —
+   замерено rgb(255,255,255) при заказанных #000. Флагов от выноса не
+   прибавилось: объявление то же, просто у части селекторов снято. */
+
+.block-hero__button, .content-detail__download, .site-search__submit,
+.btn-cta, .btn, input[type="button"], input[type="submit"], input[type="reset"],
+.block-cta:where(:not(.block-cta--custom-btn)) a,
+.block-cta:where(:not(.block-cta--custom-btn)) .block-cta__button {
+    color: #fff !important;
 }
 .block-hero__button:hover, .block-cta a:hover, .content-detail__download:hover, .site-search__submit:hover,
 .block-cta:not(.block-cta--custom-btn) .block-cta__button:hover, .btn-cta:hover, .btn:hover {
@@ -3493,8 +3503,8 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 
 .block-hero__subtitle { color: var(--hero-text, var(--gov-muted)); font-size: var(--step-0); }/* --- Убираем «кричащий» градиентный герой старой темы (design 2.0) --- */
 
-.site-content > section.cms-block--cta:first-of-type .block-cta,
-.page-blocks > section.cms-block--cta:first-of-type .block-cta {
+.site-content > section.cms-block--cta:first-of-type .block-cta:where(:not(.block-cta--custom-bg)),
+.page-blocks > section.cms-block--cta:first-of-type .block-cta:where(:not(.block-cta--custom-bg)) {
     background: var(--gov-navy); box-shadow: none;
 }/* ==========================================================================
    ГЛАВНАЯ ПО ЭСКИЗУ: видео-герой, полоса статистики, направления, проекты, медиа
@@ -3614,6 +3624,12 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 
 .block-hero__button--with-icon { padding-left: 4px !important; }/* --- Зона иконки в кнопках (Button Icon Area & Enlarged Scale) --- */
 
+/* Размер зоны иконки настраивается у блока «Герой» (`--hero-btn-icon`
+   приезжает в scoped CSS). 46px было записано числом в трёх правилах сразу,
+   и поменять его было нечем: иконка ведомства и стрелка «далее» просят
+   разного размера при одной и той же кнопке. Запасное значение равно
+   прежнему, поэтому блок без настройки не меняется. */
+
 .block-hero__button-icon,
 .block-hero__button .block-hero__button-icon,
 .btn__icon,
@@ -3621,9 +3637,9 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 46px;
-    height: 46px;
-    min-width: 46px;
+    width: var(--hero-btn-icon, 46px);
+    height: var(--hero-btn-icon, 46px);
+    min-width: var(--hero-btn-icon, 46px);
     margin-right: 6px;
     flex-shrink: 0;
 }
@@ -3632,14 +3648,14 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .block-hero__button svg:not(.ui-icon-arrow),
 .btn__icon svg,
 .btn-icon-area svg {
-    width: 46px;
-    height: 46px;
+    width: var(--hero-btn-icon, 46px);
+    height: var(--hero-btn-icon, 46px);
 }
 
 .block-hero__button-icon img,
 .block-hero__button img.block-hero__button-icon {
-    width: 46px;
-    height: 46px;
+    width: var(--hero-btn-icon, 46px);
+    height: var(--hero-btn-icon, 46px);
     object-fit: contain;
 }
 .block-hero__button::after {
