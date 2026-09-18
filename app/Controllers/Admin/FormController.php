@@ -26,6 +26,7 @@ final class FormController
             $item['submissions_total'] = $canManageSubmissions ? (int) $stats['total'] : 0;
             $item['unread'] = $canManageSubmissions ? (int) $stats['unread'] : 0;
         }
+        unset($item);
         View::render('admin/forms/index', [
             'items' => $items,
             'canManageSubmissions' => $canManageSubmissions,

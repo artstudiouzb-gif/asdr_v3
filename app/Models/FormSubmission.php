@@ -40,6 +40,7 @@ final class FormSubmission
         foreach ($rows as &$row) {
             $row['data'] = json_decode((string) $row['data_json'], true) ?: [];
         }
+        unset($row);
 
         return $rows;
     }
@@ -94,6 +95,7 @@ final class FormSubmission
         foreach ($items as &$item) {
             self::decodeRow($item);
         }
+        unset($item);
 
         return ['items' => $items, 'total' => $total, 'page' => $page, 'pages' => $pages];
     }
