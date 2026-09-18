@@ -473,4 +473,9 @@ return [
     'Код состояния:' => 'Status code:',
     'Сайт временно закрыт на техническое обслуживание. Мы скоро вернёмся.' => 'The site is temporarily closed for maintenance. We will be back soon.',
     'Техническое обслуживание' => 'Maintenance',
+    'Введите корректный номер телефона (не менее 7 цифр)' => 'Enter a valid phone number (at least 7 digits)',
+    'Отправка…' => 'Sending…',
+    'Ошибка сервера.' => 'Server error.',
+    'Проверьте форму.' => 'Please check the form.',
+    'Сетевая ошибка. Попробуйте ещё раз.' => 'Network error. Please try again.',
 ];
