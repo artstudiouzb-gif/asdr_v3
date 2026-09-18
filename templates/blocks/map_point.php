@@ -16,10 +16,10 @@ if ($image !== '' && !\App\Core\UrlGuard::isSafeMedia($image)) {
 }
 
 $imageCss = str_replace(["\\", "'"], ["\\\\", "\\'"], $image);
-$mapWidth = (int) ($data['map_width'] ?? 100);
-$mapHeight = (int) ($data['map_height'] ?? 0);
-$mapWidthMobile = (int) ($data['map_width_mobile'] ?? 100);
-$mapHeightMobile = (int) ($data['map_height_mobile'] ?? 0);
+$mapWidth = (int) $data['map_width'];
+$mapHeight = (int) $data['map_height'];
+$mapWidthMobile = (int) $data['map_width_mobile'];
+$mapHeightMobile = (int) $data['map_height_mobile'];
 
 $mapRules = [];
 if ($imageCss !== '') {
