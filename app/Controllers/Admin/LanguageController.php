@@ -7,7 +7,9 @@ namespace App\Controllers\Admin;
 use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Flash;
+use App\Core\Lang;
 use App\Core\View;
+use App\Models\InterfaceTranslation;
 use App\Models\Language;
 
 final class LanguageController
