@@ -181,7 +181,10 @@ final class LanguageController
             exit;
         }
 
+        $oldCode = (string) ($lang['code'] ?? '');
         Language::update($id, $data);
+        InterfaceTranslation::renameLanguage($oldCode, (string) $data['code']);
+        Lang::flush();
         Flash::success('Язык обновлён.');
         header('Location: /admin/languages');
         exit;
@@ -201,7 +204,11 @@ final class LanguageController
             exit;
         }
 
+        if ($lang) {
+            InterfaceTranslation::deleteLanguage((string) ($lang['code'] ?? ''));
+        }
         Language::delete($id);
+        Lang::flush();
         Flash::success('Язык удалён.');
         header('Location: /admin/languages');
         exit;
