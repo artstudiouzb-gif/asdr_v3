@@ -60,4 +60,50 @@ test('map_point: парсинг и нормализация карт Google/Ян
     ]);
     assert_not_contains('example.com', $blocked['html']);
     assert_not_contains('<iframe', $blocked['html']);
+
+    // 5. Короткая ссылка «Поделиться» из Яндекс Карт должна стать URL
+    // встраиваемого виджета, а не открываться обычной страницей /maps/.
+    $yandexShare = BlockRenderer::render([
+        'id' => 1655,
+        'type' => 'map_point',
+        'custom_css' => '',
+        'data' => json_encode([
+            'embed_url' => 'https://yandex.uz/maps/-/CDqQyB8D',
+            'load_mode' => 'immediate',
+        ]),
+    ]);
+    assert_contains(
+        'src="https://yandex.uz/map-widget/v1/-/CDqQyB8D"',
+        $yandexShare['html']
+    );
+    assert_not_contains('src="https://yandex.uz/maps/-/', $yandexShare['html']);
+
+    // 6. Уже готовый widget URL сохраняется без повторного преобразования.
+    $yandexWidget = BlockRenderer::render([
+        'id' => 1656,
+        'type' => 'map_point',
+        'custom_css' => '',
+        'data' => json_encode([
+            'embed_url' => 'https://yandex.ru/map-widget/v1/?ll=69.240562%2C41.311081&z=16',
+            'load_mode' => 'immediate',
+        ]),
+    ]);
+    assert_contains(
+        'src="https://yandex.ru/map-widget/v1/?ll=69.240562%2C41.311081&amp;z=16"',
+        $yandexWidget['html']
+    );
+
+    // 7. Ссылка на организацию переносит oid и параметры карты в widget URL.
+    $yandexOrg = BlockRenderer::render([
+        'id' => 1657,
+        'type' => 'map_point',
+        'custom_css' => '',
+        'data' => json_encode([
+            'embed_url' => 'https://yandex.com/maps/org/example/123456789/?ll=69.24%2C41.31&z=17',
+            'load_mode' => 'immediate',
+        ]),
+    ]);
+    assert_contains('src="https://yandex.com/map-widget/v1/?', $yandexOrg['html']);
+    assert_contains('oid=123456789', $yandexOrg['html']);
+    assert_contains('ol=biz', $yandexOrg['html']);
 });
