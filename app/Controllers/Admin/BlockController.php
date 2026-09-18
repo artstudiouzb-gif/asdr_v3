@@ -516,10 +516,11 @@ final class BlockController
                 );
             case 'form':
                 $formId = (int) ($_POST['form_id'] ?? 0);
-                $layout = in_array($_POST['layout'] ?? '1col', ['1col', '2col'], true) ? (string) $_POST['layout'] : '1col';
                 return [
                     'form_id' => $formId > 0 ? $formId : null,
-                    'layout' => $layout,
+                    // Сетка формы: набор значений объявлен в FormLayout, там же
+                    // его читает публичный шаблон.
+                    'layout' => \App\Core\FormLayout::normalizeLayout((string) ($_POST['layout'] ?? '')),
                 ];
             case 'columns':
                 $columnsData = BlockFieldSchema::normalize('columns', $_POST, $locale);

@@ -271,15 +271,18 @@ final class FormController
                 continue;
             }
             $fieldName = preg_replace('/[^a-z0-9_]/i', '', $fieldName) ?? '';
-            $type = (string) ($field['type'] ?? 'text');
-            $type = in_array($type, ['text', 'email', 'tel', 'textarea', 'file', 'select', 'radio', 'checkbox_group', 'checkbox', 'date'], true) ? $type : 'text';
+            // Набор типов и шкала ширин объявлены один раз — в FormLayout:
+            // свой список здесь молча разъезжался бы с формой редактора, и
+            // новый тип сохранялся бы как «Текст».
+            $type = \App\Core\FormLayout::normalizeType((string) ($field['type'] ?? 'text'));
             $entry = [
                 'name' => $fieldName,
                 'label' => $fieldLabel,
                 'type' => $type,
+                'width' => \App\Core\FormLayout::normalizeWidth((string) ($field['width'] ?? '')),
                 'required' => !empty($field['required']),
             ];
-            if (in_array($type, ['select', 'radio', 'checkbox_group'], true)) {
+            if (in_array($type, \App\Core\FormLayout::OPTION_TYPES, true)) {
                 $entry['options'] = trim((string) ($field['options'] ?? ''));
             }
             // Условная логика показа поля (задача 135): показывать только если
