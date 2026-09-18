@@ -40,11 +40,12 @@ final class LanguageController
 
         $base = Lang::baseTable($lang);
         $custom = InterfaceTranslation::forLanguage($lang);
+        $sourceKeys = Lang::sourceKeys();
         $rows = [];
         $translated = 0;
         $customCount = 0;
 
-        foreach (Lang::sourceKeys() as $key) {
+        foreach ($sourceKeys as $key) {
             $baseValue = (string) ($base[$key] ?? '');
             $customValue = (string) ($custom[$key] ?? '');
             $effective = $customValue !== '' ? $customValue : $baseValue;
@@ -90,7 +91,7 @@ final class LanguageController
             'page' => $page,
             'pages' => $pages,
             'totalFiltered' => $totalFiltered,
-            'total' => count(Lang::sourceKeys()),
+            'total' => count($sourceKeys),
             'translated' => $translated,
             'customCount' => $customCount,
         ]);
