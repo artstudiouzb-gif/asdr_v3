@@ -1276,7 +1276,8 @@ INSERT INTO migrations (filename) VALUES
     ('2026_08_27_goal_texts.sql'),
     ('2026_08_29_content_type_icon.sql'),
     ('2026_09_01_seo_audits.sql'),
-    ('2026_09_08_content_type_root_url.sql')
+    ('2026_09_08_content_type_root_url.sql'),
+    ('2026_09_18_interface_translations.sql')
 ON DUPLICATE KEY UPDATE filename = filename;
 
 CREATE TABLE IF NOT EXISTS search_log (
