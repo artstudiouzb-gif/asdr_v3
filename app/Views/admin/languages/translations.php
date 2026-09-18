@@ -53,14 +53,19 @@ $queryFor = static function (array $replace = []) use ($lang, $query, $status, $
     <div class="form-grid">
         <div class="form-field">
             <label for="translation-lang">Язык</label>
-            <select id="translation-lang" onchange="if(this.value){window.location='/admin/languages/translations?lang='+encodeURIComponent(this.value)}">
-                <?php foreach ($languages as $language): ?>
-                    <?php $code = (string) $language['code']; ?>
-                    <option value="<?= htmlspecialchars($code, ENT_QUOTES) ?>" <?= $code === $lang ? 'selected' : '' ?>>
-                        <?= htmlspecialchars((string) $language['name'], ENT_QUOTES) ?> (<?= htmlspecialchars($code, ENT_QUOTES) ?>)
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <form method="get" action="/admin/languages/translations">
+                <div class="form-field">
+                    <select id="translation-lang" name="lang">
+                        <?php foreach ($languages as $language): ?>
+                            <?php $code = (string) $language['code']; ?>
+                            <option value="<?= htmlspecialchars($code, ENT_QUOTES) ?>" <?= $code === $lang ? 'selected' : '' ?>>
+                                <?= htmlspecialchars((string) $language['name'], ENT_QUOTES) ?> (<?= htmlspecialchars($code, ENT_QUOTES) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <button class="btn btn--small btn--secondary" type="submit">Открыть</button>
+            </form>
         </div>
         <div class="form-field">
             <label>Покрытие <?= htmlspecialchars($currentName, ENT_QUOTES) ?></label>
@@ -105,7 +110,7 @@ $queryFor = static function (array $replace = []) use ($lang, $query, $status, $
     <input type="hidden" name="page" value="<?= $page ?>">
 
     <div class="table-responsive">
-        <table class="data-table language-translation-table">
+        <table class="data-table">
             <thead>
                 <tr>
                     <th>Русский / ключ</th>
@@ -143,7 +148,7 @@ $queryFor = static function (array $replace = []) use ($lang, $query, $status, $
                         </td>
                         <td>
                             <?php if ($row['custom'] !== ''): ?>
-                                <span class="badge badge--info">Изменён</span>
+                                <span class="badge">Изменён</span>
                             <?php elseif ($row['missing']): ?>
                                 <span class="badge badge--warning">Нет перевода</span>
                             <?php else: ?>
