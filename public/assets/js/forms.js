@@ -1,6 +1,15 @@
 (function () {
     'use strict';
 
+    var publicLabels = {};
+    var publicLabelsNode = document.getElementById('frontend-labels');
+    if (publicLabelsNode) {
+        try { publicLabels = JSON.parse(publicLabelsNode.textContent || '{}'); } catch (error) { publicLabels = {}; }
+    }
+    function publicLabel(key, fallback) {
+        return publicLabels[key] || fallback;
+    }
+
     var forms = document.querySelectorAll('.block-form__form');
     if (!forms.length) { return; }
 
@@ -52,7 +61,7 @@
                     field.classList.add('is-error');
                     var em = document.createElement('span');
                     em.className = 'block-form__error';
-                    em.textContent = 'Введите корректный номер телефона (не менее 7 цифр)';
+                    em.textContent = publicLabel('formInvalidPhone', 'Invalid phone number');
                     field.appendChild(em);
                 }
             });
@@ -94,7 +103,7 @@
 
             var btn = form.querySelector('button[type="submit"], .block-form__submit');
             var oldLabel = btn ? btn.textContent : '';
-            if (btn) { btn.disabled = true; btn.classList.add('is-loading'); btn.textContent = 'Отправка…'; }
+            if (btn) { btn.disabled = true; btn.classList.add('is-loading'); btn.textContent = publicLabel('formSending', 'Sending…'); }
 
             fetch(form.action, {
                 method: 'POST',
@@ -102,7 +111,7 @@
                 credentials: 'same-origin',
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
             })
-                .then(function (r) { return r.json().catch(function () { return { ok: false, message: 'Ошибка сервера.' }; }); })
+                .then(function (r) { return r.json().catch(function () { return { ok: false, message: publicLabel('formServerError', 'Server error.') }; }); })
                 .then(function (res) {
                     if (res.ok) {
                         // Успех: плавно скрываем форму, показываем благодарность.
@@ -110,7 +119,7 @@
                         setTimeout(function () {
                             var done = document.createElement('div');
                             done.className = 'block-form__thanks';
-                            done.textContent = res.message || 'Спасибо! Ваша заявка отправлена.';
+                            done.textContent = res.message || publicLabel('formSuccess', 'Thank you! Your submission has been sent.');
                             form.parentNode.replaceChild(done, form);
                         }, 400);
                         return;
@@ -130,10 +139,10 @@
                             }
                         });
                     }
-                    showTopMessage(form, res.message || 'Проверьте форму.', 'error');
+                    showTopMessage(form, res.message || publicLabel('formCheck', 'Please check the form.'), 'error');
                 })
                 .catch(function () {
-                    showTopMessage(form, 'Сетевая ошибка. Попробуйте ещё раз.', 'error');
+                    showTopMessage(form, publicLabel('formNetworkError', 'Network error. Please try again.'), 'error');
                 })
                 .finally(function () {
                     if (btn) { btn.disabled = false; btn.classList.remove('is-loading'); btn.textContent = oldLabel; }
