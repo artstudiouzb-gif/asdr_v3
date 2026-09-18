@@ -12,7 +12,9 @@ test('Все строки t() публичных шаблонов есть в у
     $dict = require APP_ROOT . '/app/Core/lang/uz.php';
     $missing = [];
 
-    foreach (['templates', 'app/Views/site'] as $dir) {
+    // Системные страницы (404/500/503/обслуживание) тоже видит посетитель, а
+    // под проверку не попадали вовсе: пропуск в них выходил бы по-русски.
+    foreach (['templates', 'app/Views/site', 'app/Views/errors'] as $dir) {
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(APP_ROOT . '/' . $dir));
         foreach ($files as $file) {
             if (!$file->isFile() || $file->getExtension() !== 'php') {
@@ -44,6 +46,9 @@ test('Все строки t() публичных шаблонов есть в у
         'public/assets/js/consent.js' => ["textContent = 'Мы используем cookie", "textContent = 'Принять'"],
         'public/assets/js/forms.js' => ["textContent = 'Отправка", "showTopMessage(form, 'Сетевая ошибка"],
         'public/assets/js/news-share-gallery.js' => ["return 'Поделиться всеми фото'"],
+        // Своя таблица языков рядом со словарём знает фиксированный набор
+        // языков, и редактор переводов в админке её не видит.
+        'app/Views/errors/404.php' => ["'ru' => ['Страница не найдена"],
     ] as $path => $needles) {
         $source = (string) file_get_contents(APP_ROOT . '/' . $path);
         foreach ($needles as $needle) {

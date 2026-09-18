@@ -478,4 +478,9 @@ return [
     'Ошибка сервера.' => 'Server error.',
     'Проверьте форму.' => 'Please check the form.',
     'Сетевая ошибка. Попробуйте ещё раз.' => 'Network error. Please try again.',
+    'Страница не найдена' => 'Page not found',
+    'Возможно, страница была перемещена или удалена. Попробуйте поиск или разделы ниже.' => 'The page may have been moved or removed. Try searching or the sections below.',
+    'Возможно, вы искали' => 'You may be looking for',
+    'Последние новости' => 'Latest news',
+    'Разделы сайта' => 'Site sections',
 ];

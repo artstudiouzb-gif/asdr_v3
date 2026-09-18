@@ -479,4 +479,9 @@ return [
     'Ошибка сервера.' => 'Server xatosi.',
     'Проверьте форму.' => 'Formani tekshiring.',
     'Сетевая ошибка. Попробуйте ещё раз.' => 'Tarmoq xatosi. Qayta urinib ko‘ring.',
+    'Страница не найдена' => 'Sahifa topilmadi',
+    'Возможно, страница была перемещена или удалена. Попробуйте поиск или разделы ниже.' => 'Sahifa koʻchirilgan yoki oʻchirilgan boʻlishi mumkin. Qidiruv yoki quyidagi boʻlimlardan foydalaning.',
+    'Возможно, вы искали' => 'Balki siz izlagansiz',
+    'Последние новости' => 'Soʻnggi yangiliklar',
+    'Разделы сайта' => 'Sayt boʻlimlari',
 ];
