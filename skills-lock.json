@@ -12,6 +12,12 @@
       "sourceType": "github",
       "skillPath": "skills/security-audit/SKILL.md",
       "computedHash": "98b97aad2873b3b9a8e064007c25e7827b493ba27fda8bfbdb41dab586767973"
+    },
+    "open-code-review-delegate": {
+      "source": "alibaba/open-code-review",
+      "sourceType": "github",
+      "skillPath": "plugins/open-code-review/skills/open-code-review-delegate/SKILL.md",
+      "computedHash": "0c504bed0bc09cca30963d660ca8a1833dcba34f8e54671e42a7ac44e6b4ad5d"
     }
   }
 }
