@@ -6,13 +6,28 @@ test('503 fail-safe remains standalone, responsive and actionable', function ():
     $html = (string) file_get_contents(APP_ROOT . '/app/Views/errors/503.php');
     $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/system.css');
 
+    $bootstrap = (string) file_get_contents(APP_ROOT . '/app/Core/bootstrap.php');
+
     assert_contains('<meta name="robots" content="noindex, nofollow">', $html);
     assert_contains('class="system-error system-error--503"', $html);
     assert_contains('<main>', $html);
-    assert_contains('href="">Повторить попытку</a>', $html);
+    assert_contains("href=\"\"><?= htmlspecialchars(t('Повторить попытку')", $html);
     assert_contains('.system-error--503 a:focus-visible', $css);
     assert_contains('@media (max-width: 480px)', $css);
-    assert_false(str_contains($html, '<?php'), 'bootstrap отдаёт 503 через file_get_contents, PHP-код здесь не выполнится');
+
+    // Подписи страницы переводятся, значит её нужно выполнять: отданная
+    // текстом, она показала бы посетителю исходник вместе с именами классов.
+    assert_contains("require \$view;", $bootstrap);
+    assert_not_contains('file_get_contents($view)', $bootstrap);
+
+    // Но выполняется она тогда, когда база недоступна, поэтому обращений к
+    // ней быть не должно — ни настроек, ни моделей, ни запросов напрямую.
+    foreach (['Setting::', 'Database::', 'App\\Models\\'] as $forbidden) {
+        assert_false(
+            str_contains($html, $forbidden),
+            '503 рисуется при мёртвой базе: ' . $forbidden . ' на ней бросит исключение'
+        );
+    }
 });
 
 test('public dynamic UI uses localized labels and text-only untrusted values', function (): void {
