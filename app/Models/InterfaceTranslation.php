@@ -97,6 +97,32 @@ final class InterfaceTranslation
         }
     }
 
+    public static function renameLanguage(string $from, string $to): void
+    {
+        $from = self::cleanLang($from);
+        $to = self::cleanLang($to);
+        if ($from === '' || $to === '' || $from === $to || !Database::isConnected()) {
+            return;
+        }
+
+        Database::pdo()->prepare(
+            'UPDATE interface_translations SET lang = :to WHERE lang = :from'
+        )->execute([':to' => $to, ':from' => $from]);
+        self::flush();
+    }
+
+    public static function deleteLanguage(string $lang): void
+    {
+        $lang = self::cleanLang($lang);
+        if ($lang === '' || !Database::isConnected()) {
+            return;
+        }
+
+        Database::pdo()->prepare('DELETE FROM interface_translations WHERE lang = :lang')
+            ->execute([':lang' => $lang]);
+        self::flush();
+    }
+
     public static function flush(): void
     {
         self::$cache = null;
