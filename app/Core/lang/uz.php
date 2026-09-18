@@ -465,4 +465,13 @@ return [
     'Принять' => 'Qabul qilish',
     'Отклонить' => 'Rad etish',
     'Поделиться всеми фото' => 'Barcha rasmlarni ulashish',
+    'Внутренняя ошибка сервера' => 'Serverning ichki xatosi',
+    'Произошла внутренняя ошибка сервера. Мы уже работаем над её устранением.' => 'Serverda ichki xato yuz berdi. Uni bartaraf etish ustida ishlayapmiz.',
+    'Сервис временно недоступен' => 'Xizmat vaqtincha ishlamayapti',
+    'Временные технические работы' => 'Vaqtinchalik texnik ishlar',
+    'Не удалось подключиться к одному из компонентов сайта. Пожалуйста, повторите попытку через минуту.' => 'Sayt komponentlaridan biriga ulanib bo‘lmadi. Iltimos, bir daqiqadan so‘ng qayta urinib ko‘ring.',
+    'Повторить попытку' => 'Qayta urinish',
+    'Код состояния:' => 'Holat kodi:',
+    'Сайт временно закрыт на техническое обслуживание. Мы скоро вернёмся.' => 'Sayt texnik xizmat ko‘rsatish uchun vaqtincha yopilgan. Tez orada qaytamiz.',
+    'Техническое обслуживание' => 'Texnik xizmat',
 ];
