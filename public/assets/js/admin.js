@@ -4517,12 +4517,39 @@ document.addEventListener('change', function (event) {
     var fields = document.querySelectorAll('[data-field-when]');
     if (!fields.length) return;
 
+    /*
+     * Вариант отображения — набор радиокнопок (плитки с рисунком раскладки),
+     * а не <select>: выбор показывается, а не называется. У радиокнопки
+     * `value` — её собственное значение, поэтому querySelector('[name=…]')
+     * отдавал первую плитку набора и её значение независимо от выбора. Поле
+     * от этого не «иногда ошибалось», а не работало вовсе: оно либо не
+     * показывалось никогда (значение первой плитки в список не входит — так
+     * пропали все восемь полей акцентной цитаты у блока «Текст», включая саму
+     * цитату), либо показывалось всегда, в том числе у чужого варианта.
+     * Спрашиваем выбранную кнопку, а слушаем весь набор — `change` приходит
+     * на ту, которую нажали, и подписка на одну первую не срабатывала тоже.
+     */
+    function sourceValue(name) {
+        var group = document.querySelectorAll('[name="' + name + '"]');
+        if (!group.length) return null;
+        var radio = false;
+        for (var i = 0; i < group.length; i++) {
+            if (group[i].type !== 'radio') continue;
+            radio = true;
+            if (group[i].checked) return group[i].value;
+        }
+
+        // Набор без отмеченной кнопки — оставляем поле видимым, как без JS:
+        // скрытие здесь подсказка редактору, а не условие сохранения.
+        return radio ? null : group[0].value;
+    }
+
     function apply() {
         fields.forEach(function (field) {
-            var source = document.querySelector('[name="' + field.getAttribute('data-field-when') + '"]');
-            if (!source) return;
+            var value = sourceValue(field.getAttribute('data-field-when'));
+            if (value === null) return;
             var allowed = (field.getAttribute('data-field-value') || '').split(',');
-            field.hidden = allowed.indexOf(source.value) === -1;
+            field.hidden = allowed.indexOf(value) === -1;
         });
     }
 
@@ -4531,8 +4558,9 @@ document.addEventListener('change', function (event) {
         var name = field.getAttribute('data-field-when');
         if (watched[name]) return;
         watched[name] = true;
-        var source = document.querySelector('[name="' + name + '"]');
-        if (source) source.addEventListener('change', apply);
+        document.querySelectorAll('[name="' + name + '"]').forEach(function (input) {
+            input.addEventListener('change', apply);
+        });
     });
     apply();
 })();

@@ -1696,14 +1696,20 @@ p { line-height: var(--base-line-height, 1.6); }/* --- Шапка: глубин�
     position: relative; overflow: hidden; isolation: isolate;
     padding: clamp(56px, 9vw, 120px) clamp(24px, 6vw, 80px);
     border-radius: var(--radius, 16px);
-    color: #fff;
-    background:
-        radial-gradient(720px 340px at 12% -30%, color-mix(in srgb, var(--gov-teal) 55%, transparent), transparent 62%),
-        radial-gradient(900px 420px at 105% 130%, color-mix(in srgb, var(--gov-teal) 38%, transparent), transparent 60%),
-        linear-gradient(118deg, var(--ink) 0%, color-mix(in srgb, var(--gov-navy) 88%, #000) 58%, color-mix(in srgb, var(--gov-navy) 60%, var(--gov-teal)) 100%);
-    box-shadow: var(--shadow-primary);
-}/* Тонкая декоративная сетка поверх градиента. */
+}/* Палитра полотна — умолчание, а не приговор. Она весит (0,3,1) и потому
+   перебивала выбранные редактором цвета: первый CTA страницы показывал
+   белый текст, что бы ни стояло в полях. Замерено — при заказанном #ff0000
+   выходило rgb(255,255,255). Раскладка полотна остаётся всем, цвет уступает
+   своему; исключение через :where(), иначе вес селектора вырастет и
+   перевернёт спор с темой (замерено на лиде: 20px → 18px).
 
+   Фона здесь нет намеренно: его задаёт тема тем же селектором (плоский navy
+   вместо градиента старой темы), и вторая копия читалась бы как рабочая. */
+
+.site-content > section.cms-block--cta:first-of-type .block-cta:where(:not(.block-cta--custom-text)),
+.page-blocks > section.cms-block--cta:first-of-type .block-cta:where(:not(.block-cta--custom-text)) {
+    color: #fff;
+}
 .site-content > section.cms-block--cta:first-of-type .block-cta::before,
 .page-blocks > section.cms-block--cta:first-of-type .block-cta::before {
     content: ''; position: absolute; inset: 0; z-index: -1; opacity: .5;
@@ -1713,20 +1719,24 @@ p { line-height: var(--base-line-height, 1.6); }/* --- Шапка: глубин�
     background-size: 44px 44px;
     mask-image: radial-gradient(760px 400px at 50% 0%, #000 30%, transparent 78%);
 }
-.site-content > section.cms-block--cta:first-of-type .block-cta h2,
-.page-blocks > section.cms-block--cta:first-of-type .block-cta h2 {
+.site-content > section.cms-block--cta:first-of-type .block-cta:where(:not(.block-cta--custom-text)) h2,
+.page-blocks > section.cms-block--cta:first-of-type .block-cta:where(:not(.block-cta--custom-text)) h2 {
     color: #fff; font-size: var(--font-size-h1, var(--step-10)); margin: 0 0 14px;
 }
-.site-content > section.cms-block--cta:first-of-type .block-cta p,
-.page-blocks > section.cms-block--cta:first-of-type .block-cta p {
+.site-content > section.cms-block--cta:first-of-type .block-cta:where(:not(.block-cta--custom-text)) p,
+.page-blocks > section.cms-block--cta:first-of-type .block-cta:where(:not(.block-cta--custom-text)) p {
     color: rgba(255, 255, 255, .82); font-size: var(--font-size-lead, var(--step-1));
     max-width: 640px; margin: 0 auto;
 }
 .site-content > section.cms-block--cta:first-of-type .block-cta .block-cta__button,
 .page-blocks > section.cms-block--cta:first-of-type .block-cta .block-cta__button {
     margin-top: 26px; padding: 15px 36px; font-size: var(--step-0);
-    background: #fff; color: var(--ink);
     box-shadow: 0 10px 26px rgba(5, 10, 30, .35);
+}/* Метрики кнопки полотна остаются всем, цвет уступает своему. */
+
+.site-content > section.cms-block--cta:first-of-type .block-cta:where(:not(.block-cta--custom-btn)) .block-cta__button,
+.page-blocks > section.cms-block--cta:first-of-type .block-cta:where(:not(.block-cta--custom-btn)) .block-cta__button {
+    background: #fff; color: var(--ink);
 }
 .site-content > section.cms-block--cta:first-of-type .block-cta .block-cta__button:hover,
 .page-blocks > section.cms-block--cta:first-of-type .block-cta .block-cta__button:hover {
