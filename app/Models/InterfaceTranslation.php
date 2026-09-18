@@ -90,6 +90,7 @@ final class InterfaceTranslation
             }
             $pdo->commit();
             self::flush();
+            self::bustPageCache();
         } catch (\Throwable $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
@@ -110,6 +111,7 @@ final class InterfaceTranslation
             'UPDATE interface_translations SET lang = :to WHERE lang = :from'
         )->execute([':to' => $to, ':from' => $from]);
         self::flush();
+        self::bustPageCache();
     }
 
     public static function deleteLanguage(string $lang): void
@@ -122,12 +124,29 @@ final class InterfaceTranslation
         Database::pdo()->prepare('DELETE FROM interface_translations WHERE lang = :lang')
             ->execute([':lang' => $lang]);
         self::flush();
+        self::bustPageCache();
     }
 
     public static function flush(): void
     {
         self::$cache = null;
         Cache::forget('i18n:interface-translations');
+    }
+
+    /**
+     * Забыть словарь мало: подписи уже впечатаны в собранные страницы.
+     *
+     * Страница кешируется ключом `page:<id>:<lang>`, а TTL берётся из
+     * `perf_cache_ttl`, у которого умолчание — 0, то есть «живёт до правки
+     * контента» (истечения при нулевом TTL Cache::getFresh не делает вовсе).
+     * Без этого сброса редактор менял подпись, видел «сохранено» и не находил
+     * её на сайте — до правки любого другого материала или ручного «Сброса
+     * кэша». Перевод такой же публичный контент, как новость или проект, и
+     * зовёт тот же сброс, что News, Project, PhotoAlbum, TeamMember и Video.
+     */
+    private static function bustPageCache(): void
+    {
+        Cache::forgetPrefix('page:');
     }
 
     /** @return array<string, array<string,string>> */

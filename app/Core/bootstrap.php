@@ -131,8 +131,19 @@ if (is_file($configFile)) {
 
                 http_response_code(503);
                 header('Retry-After: 60');
+                // Страница выполняется, а не отдаётся текстом: её подписи
+                // переводятся, а file_get_contents вывел бы исходник вместе с
+                // именами классов. Обращаться к базе ей нечем — она и есть то,
+                // что упало, — но и не приходится: без соединения
+                // Language::default() и InterfaceTranslation::forLanguage()
+                // отвечают запасным значением, то есть 503 говорит на исходном
+                // языке по словарю релиза.
                 $view = APP_ROOT . '/app/Views/errors/503.php';
-                echo is_file($view) ? file_get_contents($view) : 'Сервис временно недоступен.';
+                if (is_file($view)) {
+                    require $view;
+                } else {
+                    echo 'Сервис временно недоступен.';
+                }
                 exit;
             }
             throw $e;
