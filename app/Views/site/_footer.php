@@ -292,6 +292,13 @@ $renderFooterWidget = function (array $col) use ($footerLogo, $siteName, $addres
 <script type="application/json" id="consent-config"><?= json_encode([
     'required' => $consentRequired,
     'privacyUrl' => $privacyUrl,
+    'labels' => [
+        'aria' => t('Согласие на использование cookie'),
+        'text' => t('Мы используем cookie для аналитики. Продолжая, вы соглашаетесь с их использованием.'),
+        'privacy' => t('Политика конфиденциальности'),
+        'accept' => t('Принять'),
+        'decline' => t('Отклонить'),
+    ],
 ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?></script>
 <script src="<?= htmlspecialchars(\App\Core\Asset::url('/assets/js/consent.js'), ENT_QUOTES) ?>" defer></script>
 <?php endif; ?>
