@@ -140,16 +140,21 @@ final class Captcha
     /** Разметка поля для публичной формы (картинка + обновление + ввод). */
     public static function field(string $inputId): string
     {
+        $label = htmlspecialchars(Lang::t('Код с картинки'), ENT_QUOTES);
+        $alt = htmlspecialchars(Lang::t('Защитный код'), ENT_QUOTES);
+        $refresh = htmlspecialchars(Lang::t('Обновить код'), ENT_QUOTES);
+        $hint = htmlspecialchars(Lang::t('Введите символы с картинки (регистр не важен).'), ENT_QUOTES);
+
         return '<div class="block-form__field block-form__captcha">'
-            . '<label for="' . htmlspecialchars($inputId, ENT_QUOTES) . '">Код с картинки</label>'
+            . '<label for="' . htmlspecialchars($inputId, ENT_QUOTES) . '">' . $label . '</label>'
             . '<div class="captcha-row">'
-            . '<img class="captcha-row__img" src="/captcha.png?ts=' . time() . '" width="190" height="62" alt="Защитный код">'
+            . '<img class="captcha-row__img" src="/captcha.png?ts=' . time() . '" width="190" height="62" alt="' . $alt . '">'
             // Без инлайн-обработчика (CSP): клик обрабатывает frontend.js по data-атрибуту.
-            . '<button type="button" class="captcha-row__refresh" data-captcha-refresh aria-label="Обновить код">&#8635;</button>'
+            . '<button type="button" class="captcha-row__refresh" data-captcha-refresh aria-label="' . $refresh . '">&#8635;</button>'
             . '<input type="text" id="' . htmlspecialchars($inputId, ENT_QUOTES) . '" name="_captcha" inputmode="latin"'
             . ' autocomplete="off" spellcheck="false" maxlength="5" required aria-describedby="' . htmlspecialchars($inputId, ENT_QUOTES) . '-hint">'
             . '</div>'
-            . '<span class="form-hint" id="' . htmlspecialchars($inputId, ENT_QUOTES) . '-hint">Введите символы с картинки (регистр не важен).</span>'
+            . '<span class="form-hint" id="' . htmlspecialchars($inputId, ENT_QUOTES) . '-hint">' . $hint . '</span>'
             . '</div>';
     }
 
