@@ -8910,3 +8910,121 @@ table.table--compact th, table.table--compact td,
     color: var(--admin-danger, #b32d2e);
     font-weight: var(--admin-fw-medium);
 }
+
+/* Конструктор формы обратной связи.
+
+   Поля правились списком одинаковых строк: ширины у поля не было вовсе (её
+   вычислял публичный шаблон по типу), порядок менялся только перенабором, а
+   раскладку будущей формы редактор видел впервые уже на сайте. Здесь карточки
+   стоят в той же сетке из шести дорожек, что и сама форма, и занимают ровно
+   ту долю ряда, которая выбрана у поля: раскладка показывается, а не
+   называется — тот же приём, что у вариантов отображения блоков. */
+.formb {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.formb__head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.formb__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: start;
+}
+.formb-cell {
+    margin-bottom: 0;
+    gap: 8px;
+}
+/* Карточка в перетаскивании бледнеет: иначе по ней не видно, что «поехала»
+   именно она, — в сетке из десятка одинаковых карточек это единственный
+   признак. */
+.formb-cell.is-dragging {
+    opacity: .45;
+}
+.formb-cell__actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+.formb-card {
+    border: 0;
+    padding: 0;
+}
+.formb-card__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    list-style: none;
+    font-size: var(--admin-fs-sm);
+    font-weight: var(--admin-fw-semibold);
+    color: var(--admin-text);
+}
+.formb-card__head::-webkit-details-marker {
+    display: none;
+}
+.formb-card__grip {
+    display: inline-flex;
+    color: var(--admin-muted);
+    cursor: grab;
+}
+.formb-card__title {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.formb-card__type {
+    flex: 0 0 auto;
+    font-size: var(--admin-fs-xs);
+    font-weight: var(--admin-fw-normal);
+    color: var(--admin-muted);
+}
+.formb-card__body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--admin-border);
+}
+.formb-card__cond {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.formb-card__cond input {
+    flex: 1 1 160px;
+}
+
+@media (min-width: 901px) {
+    .formb__grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    .formb-cell {
+        grid-column: span 6;
+    }
+    /* «Как в сетке» и «во всю ширину» в конструкторе выглядят одинаково: сетку
+       формы задаёт блок на странице, а здесь показывается сама форма. */
+    .formb-cell--w-auto,
+    .formb-cell--w-full { grid-column: span 6; }
+    .formb-cell--w-two-thirds { grid-column: span 4; }
+    .formb-cell--w-half { grid-column: span 3; }
+    .formb-cell--w-third { grid-column: span 2; }
+    /* Раскрытая карточка занимает ряд целиком: в трети ряда подпись поля и
+       выпадающий список типа не помещаются, а резать их ради «честной»
+       ширины значит сделать редактирование хуже показа. */
+    .formb-cell:has(.formb-card[open]) {
+        grid-column: span 6;
+    }
+    .formb-card__body {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .formb-card__full {
+        grid-column: span 2;
+    }
+}

@@ -516,10 +516,12 @@ final class BlockController
                 );
             case 'form':
                 $formId = (int) ($_POST['form_id'] ?? 0);
-                $layout = in_array($_POST['layout'] ?? '1col', ['1col', '2col'], true) ? (string) $_POST['layout'] : '1col';
                 return [
                     'form_id' => $formId > 0 ? $formId : null,
-                    'layout' => $layout,
+                    // Сетка формы: то же число читает и публичный шаблон.
+                    // Прежний ключ `layout` (1col/2col) разбирает FormLayout,
+                    // поэтому у собранных страниц вид не меняется.
+                    'columns' => \App\Core\FormLayout::columns(['columns' => $_POST['columns'] ?? null]),
                 ];
             case 'columns':
                 $columnsData = BlockFieldSchema::normalize('columns', $_POST, $locale);

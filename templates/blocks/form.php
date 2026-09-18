@@ -41,10 +41,11 @@ $getFieldIcon = static function (string $fieldType, string $fieldName, string $f
     <?php else: ?>
         <?php if (!empty($form['name'])): ?><h2><?= htmlspecialchars($form['name'], ENT_QUOTES) ?></h2><?php endif; ?>
         <?php $hasFile = false; foreach ($form['fields'] as $f) { if (($f['type'] ?? '') === 'file') { $hasFile = true; break; } } ?>
-        <?php 
-        $formLayoutClass = ($data['layout'] ?? '1col') === '2col' ? ' block-form__form--2col' : '';
-        ?>
-        <form method="post" action="/forms/<?= htmlspecialchars($form['slug'], ENT_QUOTES) ?>/submit" class="block-form__form<?= $formLayoutClass ?>"<?= $hasFile ? ' enctype="multipart/form-data"' : '' ?>>
+        <?php // Сетка формы и ширина поля объявлены один раз — в FormLayout:
+              // шаблон только печатает классы, чтобы редактор и сайт считали
+              // раскладку по одним и тем же правилам. ?>
+        <?php $formClass = \App\Core\FormLayout::formClass($data); ?>
+        <form method="post" action="/forms/<?= htmlspecialchars($form['slug'], ENT_QUOTES) ?>/submit" class="<?= $formClass ?>"<?= $hasFile ? ' enctype="multipart/form-data"' : '' ?>>
             <?= Csrf::field() ?>
             <?= Csrf::honeypotField() ?>
             <?php foreach ($form['fields'] as $field): ?>
@@ -66,8 +67,7 @@ $getFieldIcon = static function (string $fieldType, string $fieldName, string $f
                     $hiddenAttr = ' hidden';
                 }
 
-                $isFullWidth = in_array($fieldType, ['textarea', 'file', 'checkbox_group', 'checkbox'], true);
-                $fieldClass = 'block-form__field' . ($isFullWidth ? ' block-form__field--full' : '');
+                $fieldClass = \App\Core\FormLayout::fieldClass($field);
                 ?>
                 <div class="<?= $fieldClass ?>"<?= $condAttrs ?><?= $hiddenAttr ?>>
                     <?php if ($fieldType !== 'checkbox'): ?>

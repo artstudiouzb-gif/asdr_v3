@@ -452,22 +452,33 @@ summary:focus-visible {
 .block-form__consent a { color: var(--gov-teal); }
 .block-form__field { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
 
-/* Двухколоночный макет формы на десктопах */
+/* Сетка формы: шесть дорожек — делятся и на две колонки, и на три, поэтому
+   одна шкала ширин (FormLayout::WIDTHS) годится любой раскладке. Ширина поля
+   не выводится из типа, как раньше: её задаёт редактор, а «как в сетке»
+   повторяет прежнее поведение — ряд целиком в одноколоночной форме, половина
+   в двухколоночной. На узком экране сетки нет вовсе: поле ввода не бывает
+   уже своей подписи. */
 @media (min-width: 721px) {
-    .block-form__form--2col {
+    .block-form__form {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(6, 1fr);
         gap: 16px 24px;
         align-items: start;
     }
-    .block-form__form--2col .block-form__field--full,
-    .block-form__form--2col .block-form__consent,
-    .block-form__form--2col .block-form__captcha,
-    .block-form__form--2col .block-form__submit {
-        grid-column: span 2;
-    }
-    .block-form__form--2col .block-form__field {
+    .block-form__field {
         margin-bottom: 0;
+        grid-column: span 6;
+    }
+    .block-form__form--cols-2 .block-form__field--w-auto { grid-column: span 3; }
+    .block-form__form--cols-3 .block-form__field--w-auto { grid-column: span 2; }
+    .block-form__field--w-full { grid-column: span 6; }
+    .block-form__field--w-two-thirds { grid-column: span 4; }
+    .block-form__field--w-half { grid-column: span 3; }
+    .block-form__field--w-third { grid-column: span 2; }
+    .block-form__consent,
+    .block-form__captcha,
+    .block-form__submit {
+        grid-column: span 6;
     }
 }
 
