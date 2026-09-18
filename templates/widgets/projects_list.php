@@ -11,5 +11,5 @@ $items = $data['items'] ?? [];
             <span><?= htmlspecialchars($item['title'], ENT_QUOTES) ?></span>
         </li>
     <?php endforeach; ?>
-    <?php if (empty($items)): ?><li class="widget-empty">Нет проектов.</li><?php endif; ?>
+    <?php if (empty($items)): ?><li class="widget-empty"><?= htmlspecialchars(t('Нет проектов.'), ENT_QUOTES) ?></li><?php endif; ?>
 </ul>
