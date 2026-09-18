@@ -7,11 +7,21 @@ namespace App\Controllers\Admin;
 use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Flash;
+use App\Core\RbacGuard;
 use App\Core\View;
 use App\Models\News;
 use App\Models\Page;
 use App\Models\Project;
 
+/**
+ * Корзина — административный раздел. Право `manage_trash` объявлено в
+ * `RbacGuard` вместе с `manage_users` и `manage_settings`, но потребителя у
+ * него не было ни одного: контроллер проверял только факт входа, и роль
+ * `editor` доходила до безвозвратного удаления страниц, новостей и проектов
+ * (`Page::forceDelete()` — это физический DELETE вместе с ревизиями).
+ * Объявленный и никем не прочитанный запрет — тот же тихий отказ, что и
+ * настройка без потребителя: правило есть, а не действует.
+ */
 final class TrashController
 {
     private const TYPES = ['pages', 'news', 'projects'];
@@ -19,6 +29,7 @@ final class TrashController
     public function index(): void
     {
         Auth::requireLogin();
+        RbacGuard::requirePermission('manage_trash');
         View::render('admin/trash/index', [
             'pages' => Page::trashed(),
             'news' => News::trashed(),
@@ -30,6 +41,7 @@ final class TrashController
     public function restore(array $params): void
     {
         Auth::requireLogin();
+        RbacGuard::requirePermission('manage_trash');
         Csrf::verifyRequest();
 
         $type = (string) ($params['type'] ?? '');
@@ -55,6 +67,7 @@ final class TrashController
     public function forceDelete(array $params): void
     {
         Auth::requireLogin();
+        RbacGuard::requirePermission('manage_trash');
         Csrf::verifyRequest();
 
         $type = (string) ($params['type'] ?? '');
@@ -89,6 +102,7 @@ final class TrashController
     public function emptyAll(): void
     {
         Auth::requireLogin();
+        RbacGuard::requirePermission('manage_trash');
         Csrf::verifyRequest();
 
         $this->purgeAll();
@@ -103,7 +117,7 @@ final class TrashController
      * больше никто не ссылается.
      *
      * Вынесено из emptyAll() отдельным методом ради проверяемости: обработчик
-     * начинается с Auth::requireLogin() и заканчивается redirect + exit, а exit
+     * начинается с проверок доступа и заканчивается redirect + exit, а exit
      * не является исключением и не перехватывается try/catch. Из-за этого вызов
      * действия напрямую завершал процесс тест-раннера вместе со всем прогоном.
      *
