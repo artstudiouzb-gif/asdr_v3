@@ -2137,9 +2137,14 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             <input type="hidden" name="custom_css" value="<?= htmlspecialchars($block['custom_css'] ?? '', ENT_QUOTES) ?>">
         <?php endif; ?>
 
+        <?php // Возврат стоит в самой панели сохранения: ссылка наверху формы
+              // уезжает за экран, а форма блока бывает в тысячи пикселей —
+              // закончив правку, редактор искал выход прокруткой вверх.
+              // Вторая ссылка на тот же адрес рядом не нужна, поэтому прежняя
+              // «Отмена» стала подписанным возвратом. ?>
         <div class="form-actions form-actions--sticky">
             <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить блок</button>
-            <a href="<?= htmlspecialchars($backUrl, ENT_QUOTES) ?>" class="btn">Отмена</a>
+            <a href="<?= htmlspecialchars($backUrl, ENT_QUOTES) ?>" class="btn">&larr; <?= htmlspecialchars($backLabel, ENT_QUOTES) ?></a>
         </div>
     </form>
 </div>
