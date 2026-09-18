@@ -1,6 +1,8 @@
 <?php
 
 use App\Core\Csrf;
+use App\Core\FormBuilder;
+use App\Core\FormLayout;
 
 $isEdit = !empty($form['id']);
 $pageTitle = $isEdit ? 'Редактирование формы' : 'Новая форма';
@@ -12,6 +14,7 @@ require __DIR__ . '/../layout/header.php';
 
 $action = $isEdit ? '/admin/forms/' . (int) $form['id'] . '/edit' : '/admin/forms/create';
 $fields = $form['fields'] ?? [];
+
 ?>
 <div class="form-card">
     <?php if ($error): ?><div class="alert alert--error"><?= htmlspecialchars($error, ENT_QUOTES) ?></div><?php endif; ?>
@@ -38,98 +41,26 @@ $fields = $form['fields'] ?? [];
             <input type="text" id="success_message" name="success_message" value="<?= htmlspecialchars($form['success_message'] ?? 'Спасибо! Ваша заявка отправлена.', ENT_QUOTES) ?>">
         </div>
 
-        <div>
-            <label>Поля формы</label>
-            <div data-repeater="fields">
+        <?php // Конструктор: карточки полей стоят в той же сетке из шести
+              // дорожек, что и сама форма на сайте, и занимают выбранную
+              // ширину. Порядок карточек — порядок полей: сервер читает
+              // fields[] в том виде, в каком их прислал браузер, поэтому
+              // перетаскивание и стрелки ничего больше сохранять не должны. ?>
+        <div class="formb" data-form-builder>
+            <div class="formb__head">
+                <label>Поля формы</label>
+                <span class="form-hint">Карточку можно перетащить — так же встанут поля на сайте. Ширина «как в сетке формы» зависит от настройки блока, где форма выводится.</span>
+            </div>
+            <div class="formb__grid" data-repeater="fields">
                 <?php foreach ($fields as $i => $field): ?>
-                    <div class="repeater-row">
-                        <div class="form-field">
-                            <label>Имя поля (латиница, для БД)</label>
-                            <input type="text" name="fields[<?= $i ?>][name]" value="<?= htmlspecialchars($field['name'] ?? '', ENT_QUOTES) ?>">
-                        </div>
-                        <div class="form-field">
-                            <label>Подпись поля</label>
-                            <input type="text" name="fields[<?= $i ?>][label]" value="<?= htmlspecialchars($field['label'] ?? '', ENT_QUOTES) ?>">
-                        </div>
-                        <div class="form-field">
-                            <label>Тип поля</label>
-                            <select name="fields[<?= $i ?>][type]">
-                                <?php foreach ([
-                                    'text' => 'Текст',
-                                    'email' => 'Email',
-                                    'tel' => 'Телефон',
-                                    'textarea' => 'Многострочный текст',
-                                    'file' => 'Файл',
-                                    'select' => 'Выпадающий список',
-                                    'radio' => 'Радио-кнопки',
-                                    'checkbox_group' => 'Группа чекбоксов',
-                                    'checkbox' => 'Одиночный чекбокс',
-                                    'date' => 'Дата'
-                                ] as $val => $label): ?>
-                                    <option value="<?= $val ?>" <?= ($field['type'] ?? 'text') === $val ? 'selected' : '' ?>><?= $label ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-field u-inline-c8be1ccba6" data-field-options-container>
-                            <label>Варианты выбора (через запятую)</label>
-                            <input type="text" name="fields[<?= $i ?>][options]" value="<?= htmlspecialchars($field['options'] ?? '', ENT_QUOTES) ?>" placeholder="Вариант 1, Вариант 2, Вариант 3">
-                        </div>
-                        <div class="form-field form-field--checkbox">
-                            <input type="checkbox" name="fields[<?= $i ?>][required]" value="1" <?= !empty($field['required']) ? 'checked' : '' ?>>
-                            <label>Обязательное поле</label>
-                        </div>
-                        <div class="form-field">
-                            <label>Условие показа (необязательно)</label>
-                            <div class="u-inline-b9bbe540d3">
-                                <input type="text" name="fields[<?= $i ?>][condition_field]" placeholder="имя другого поля" value="<?= htmlspecialchars($field['condition']['field'] ?? '', ENT_QUOTES) ?>">
-                                <input type="text" name="fields[<?= $i ?>][condition_value]" placeholder="= значение" value="<?= htmlspecialchars($field['condition']['value'] ?? '', ENT_QUOTES) ?>">
-                            </div>
-                            <span class="form-hint">Поле показывается только если указанное поле равно значению.</span>
-                        </div>
-                        <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить поле</button>
+                    <?php $field = is_array($field) ? $field : []; ?>
+                    <div class="<?= htmlspecialchars(FormBuilder::cellClass(FormLayout::widthOf($field)), ENT_QUOTES) ?>" draggable="true">
+                        <?= FormBuilder::fieldCard($field, (string) $i) ?>
                     </div>
                 <?php endforeach; ?>
             </div>
             <template data-repeater-template="fields">
-                <div class="form-field">
-                    <label>Имя поля (латиница, для БД)</label>
-                    <input type="text" name="fields[__INDEX__][name]">
-                </div>
-                <div class="form-field">
-                    <label>Подпись поля</label>
-                    <input type="text" name="fields[__INDEX__][label]">
-                </div>
-                <div class="form-field">
-                    <label>Тип поля</label>
-                    <select name="fields[__INDEX__][type]">
-                        <option value="text">Текст</option>
-                        <option value="email">Email</option>
-                        <option value="tel">Телефон</option>
-                        <option value="textarea">Многострочный текст</option>
-                        <option value="file">Файл</option>
-                        <option value="select">Выпадающий список</option>
-                        <option value="radio">Радио-кнопки</option>
-                        <option value="checkbox_group">Группа чекбоксов</option>
-                        <option value="checkbox">Одиночный чекбокс</option>
-                        <option value="date">Дата</option>
-                    </select>
-                </div>
-                <div class="form-field u-inline-c8be1ccba6" data-field-options-container>
-                    <label>Варианты выбора (через запятую)</label>
-                    <input type="text" name="fields[__INDEX__][options]" placeholder="Вариант 1, Вариант 2, Вариант 3">
-                </div>
-                <div class="form-field form-field--checkbox">
-                    <input type="checkbox" name="fields[__INDEX__][required]" value="1">
-                    <label>Обязательное поле</label>
-                </div>
-                <div class="form-field">
-                    <label>Условие показа (необязательно)</label>
-                    <div class="u-inline-b9bbe540d3">
-                        <input type="text" name="fields[__INDEX__][condition_field]" placeholder="имя другого поля">
-                        <input type="text" name="fields[__INDEX__][condition_value]" placeholder="= значение">
-                    </div>
-                </div>
-                <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить поле</button>
+                <?= FormBuilder::fieldCard([], '__INDEX__') ?>
             </template>
             <div class="repeater-actions">
                 <button type="button" class="btn btn--small" data-repeater-add="fields"><?= \App\Core\AdminUi::icon('plus') ?>Добавить поле</button>
@@ -138,56 +69,10 @@ $fields = $form['fields'] ?? [];
 
         <div class="form-actions form-actions--sticky">
             <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить</button>
+            <a href="/admin/forms" class="btn">&larr; Назад к формам</a>
             <a href="/admin/forms" class="btn">Отмена</a>
         </div>
     </form>
 </div>
-
-<script nonce="<?= \App\Core\SecurityHeaders::nonce() ?>">
-(function () {
-    'use strict';
-
-    function toggleOptions(row) {
-        var select = row.querySelector('select[name$="[type]"]');
-        var container = row.querySelector('[data-field-options-container]');
-        if (select && container) {
-            var val = select.value;
-            if (val === 'select' || val === 'radio' || val === 'checkbox_group') {
-                container.style.display = 'block';
-            } else {
-                container.style.display = 'none';
-            }
-        }
-    }
-
-    // Toggle on load for existing fields
-    document.querySelectorAll('.repeater-row').forEach(toggleOptions);
-
-    // Toggle on change
-    document.addEventListener('change', function (e) {
-        if (e.target && e.target.name && e.target.name.match(/^fields\[\d+\]\[type\]/)) {
-            var row = e.target.closest('.repeater-row');
-            if (row) {
-                toggleOptions(row);
-            }
-        }
-    });
-
-    // Toggle when a new field is added
-    var observer = new MutationObserver(function (mutations) {
-        mutations.forEach(function (mutation) {
-            mutation.addedNodes.forEach(function (node) {
-                if (node.nodeType === 1 && node.classList.contains('repeater-row')) {
-                    toggleOptions(node);
-                }
-            });
-        });
-    });
-    var repeater = document.querySelector('[data-repeater="fields"]');
-    if (repeater) {
-        observer.observe(repeater, { childList: true });
-    }
-})();
-</script>
 
 <?php require __DIR__ . '/../layout/footer.php'; ?>

@@ -4747,3 +4747,128 @@ document.addEventListener('change', function (event) {
         restoreScroll();
     }
 })();
+
+/* Конструктор формы обратной связи: карточки полей стоят в сетке и занимают
+   выбранную долю ряда, поэтому раскладку видно до публикации. Порядок полей —
+   порядок карточек: сервер читает `fields[]` в том виде, в каком их прислал
+   браузер, поэтому перетаскивание и стрелки ничего не сохраняют отдельно. */
+(function () {
+    'use strict';
+
+    var builder = document.querySelector('[data-form-builder]');
+    if (!builder) { return; }
+    var list = builder.querySelector('[data-repeater="fields"]');
+    if (!list) { return; }
+
+    function widthClass(value) {
+        return 'formb-cell--w-' + String(value || 'auto').replace(/_/g, '-');
+    }
+
+    // Карточка, добавленная общим репитером, приезжает голым `.repeater-row`:
+    // класс ячейки, ширина и подпись в шапке проставляются здесь, а не в
+    // шаблоне, — иначе пришлось бы держать вторую копию разметки.
+    function sync(cell) {
+        cell.classList.add('formb-cell');
+        cell.setAttribute('draggable', 'true');
+
+        var width = cell.querySelector('[data-fb-width]');
+        Array.prototype.slice.call(cell.classList).forEach(function (name) {
+            if (name.indexOf('formb-cell--w-') === 0) { cell.classList.remove(name); }
+        });
+        cell.classList.add(widthClass(width ? width.value : 'auto'));
+
+        var type = cell.querySelector('[data-fb-type]');
+        var typeLabel = cell.querySelector('[data-fb-type-label]');
+        var options = cell.querySelector('[data-field-options-container]');
+        if (type) {
+            var selected = type.options[type.selectedIndex];
+            if (typeLabel && selected) { typeLabel.textContent = selected.textContent; }
+            // Нужны ли варианты выбора, знает сам тип: признак приезжает
+            // атрибутом из PHP, где список типов и объявлен.
+            if (options) {
+                options.classList.toggle('is-hidden', !(selected && selected.hasAttribute('data-has-options')));
+            }
+        }
+
+        var label = cell.querySelector('[data-fb-label]');
+        var title = cell.querySelector('[data-fb-title]');
+        if (label && title) {
+            title.textContent = label.value.trim() !== '' ? label.value.trim() : 'Новое поле';
+        }
+    }
+
+    function syncAll() {
+        Array.prototype.forEach.call(list.children, sync);
+    }
+
+    syncAll();
+
+    list.addEventListener('change', function (e) {
+        var cell = e.target.closest ? e.target.closest('.repeater-row') : null;
+        if (cell) { sync(cell); }
+    });
+    list.addEventListener('input', function (e) {
+        if (!e.target.matches || !e.target.matches('[data-fb-label]')) { return; }
+        var cell = e.target.closest('.repeater-row');
+        if (cell) { sync(cell); }
+    });
+
+    if (window.MutationObserver) {
+        new MutationObserver(function (records) {
+            records.forEach(function (record) {
+                Array.prototype.forEach.call(record.addedNodes, function (node) {
+                    if (node.nodeType === 1 && node.classList.contains('repeater-row')) { sync(node); }
+                });
+            });
+        }).observe(list, { childList: true });
+    }
+
+    // Перетаскивание. Карточки стоят сеткой, поэтому ближайшая цель ищется по
+    // обеим осям: сравнение только по вертикали (как в списке блоков) в ряду
+    // из трёх карточек всегда возвращало бы первую.
+    var dragged = null;
+
+    list.addEventListener('dragstart', function (e) {
+        var cell = e.target.closest ? e.target.closest('.repeater-row') : null;
+        if (!cell) { return; }
+        // Из поля ввода тянут текст, а не карточку.
+        if (e.target.closest('input, select, textarea')) {
+            e.preventDefault();
+            return;
+        }
+        dragged = cell;
+        cell.classList.add('is-dragging');
+        try {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', '');
+        } catch (err) {}
+    });
+
+    list.addEventListener('dragend', function () {
+        if (dragged) { dragged.classList.remove('is-dragging'); }
+        dragged = null;
+    });
+
+    list.addEventListener('dragover', function (e) {
+        if (!dragged) { return; }
+        e.preventDefault();
+        var cells = Array.prototype.filter.call(list.children, function (cell) {
+            return cell !== dragged;
+        });
+        var target = null;
+        var best = Infinity;
+        cells.forEach(function (cell) {
+            var box = cell.getBoundingClientRect();
+            var dx = e.clientX - (box.left + box.width / 2);
+            var dy = e.clientY - (box.top + box.height / 2);
+            var distance = dx * dx + dy * dy;
+            if (distance < best) {
+                best = distance;
+                target = { cell: cell, before: dy < 0 || (Math.abs(dy) < box.height / 2 && dx < 0) };
+            }
+        });
+        if (!target) { return; }
+        if (target.before) { list.insertBefore(dragged, target.cell); }
+        else { list.insertBefore(dragged, target.cell.nextSibling); }
+    });
+})();
