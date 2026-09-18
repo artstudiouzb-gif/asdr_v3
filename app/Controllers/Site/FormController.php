@@ -71,7 +71,7 @@ final class FormController
                 $file = $_FILES[$name] ?? null;
                 $uploaded = $file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK;
                 if (!empty($field['required']) && !$uploaded) {
-                    $errors[$name] = sprintf(t('Приложите файл к полю «%s».'), (string) $field['label']);
+                    $errors[$name] = tf('Приложите файл к полю «%s».', (string) $field['label']);
                 } elseif ($uploaded) {
                     try {
                         // Вложения публичных форм могут содержать персональные
@@ -94,14 +94,14 @@ final class FormController
                 $values = array_map('trim', $_POST[$name]);
                 $values = array_filter($values, static fn($v) => $v !== '');
                 if (!empty($field['required']) && empty($values)) {
-                    $errors[$name] = sprintf(t('Поле «%s» обязательно.'), (string) $field['label']);
+                    $errors[$name] = tf('Поле «%s» обязательно.', (string) $field['label']);
                     continue;
                 }
                 $data[$name] = implode(', ', $values);
             } else {
                 $value = trim((string) ($_POST[$name] ?? ''));
                 if (!empty($field['required']) && $value === '') {
-                    $errors[$name] = sprintf(t('Поле «%s» обязательно.'), (string) $field['label']);
+                    $errors[$name] = tf('Поле «%s» обязательно.', (string) $field['label']);
                     continue;
                 }
                 $isEmailField = ($field['type'] === 'email') || str_contains(mb_strtolower($field['name'] . ' ' . ($field['label'] ?? '')), 'email') || str_contains(mb_strtolower($field['name'] . ' ' . ($field['label'] ?? '')), 'mail') || str_contains(mb_strtolower($field['name'] . ' ' . ($field['label'] ?? '')), 'почта');

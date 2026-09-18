@@ -22,7 +22,9 @@ test('Все строки t() публичных шаблонов есть в у
             }
             $code = (string) file_get_contents($file->getPathname());
             // Только строковые литералы: t($var) проверить статически нельзя.
-            if (preg_match_all("/\\bt\\(\\s*'((?:[^'\\\\]|\\\\.)*)'/u", $code, $matches) === 0) {
+            // tf() — перевод с подстановкой; его ключ так же обязан быть в
+            // словаре, иначе подпись формы выйдет по-русски на /uz.
+            if (preg_match_all("/\\btf?\\(\\s*'((?:[^'\\\\]|\\\\.)*)'/u", $code, $matches) === 0) {
                 continue;
             }
             foreach ($matches[1] as $key) {
@@ -75,4 +77,48 @@ test('Ключи словаря — русские: узбекский текс�
     }
 
     assert_same([], $suspicious, 'ключ словаря должен быть русской строкой');
+});
+
+test('Негодный перевод с подстановкой не роняет страницу, а откатывается на исходную строку', function () {
+    // Формат приезжает из словаря, а словарь правит редактор в админке:
+    // sprintf(t('…%s…')) превращал лишний «%» в переводе в ArgumentCountError,
+    // то есть в 500 на отправке публичной формы. Замерено: «(100%)» падает.
+    $key = 'Поле «%s» обязательно.';
+    assert_same('Поле «Имя» обязательно.', tf($key, 'Имя'));
+
+    foreach (['«%s» maydoni majburiy (100%).', '«%s» / «%s» majburiy.'] as $broken) {
+        $threw = false;
+        try {
+            sprintf($broken, 'Имя');
+        } catch (\Throwable $e) {
+            $threw = true;
+        }
+        assert_true($threw, 'проверка бессмысленна, если такой формат больше не падает: ' . $broken);
+    }
+
+    // Перевод без подстановки законен — значение просто не показывается.
+    assert_same('Maydon majburiy.', tf('Maydon majburiy.'));
+
+    // Голый sprintf(t(…)) возвращать нельзя: он и есть та самая мина.
+    foreach (['app/Controllers/Site', 'app/Core', 'app/Views/site', 'templates'] as $dir) {
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(APP_ROOT . '/' . $dir));
+        foreach ($files as $file) {
+            if (!$file->isFile() || $file->getExtension() !== 'php') {
+                continue;
+            }
+            // Комментарии снимаем: приём назван текстом там, где объясняется,
+            // почему его нельзя писать, — и список исключений тут не нужен.
+            $code = '';
+            foreach (token_get_all((string) file_get_contents($file->getPathname())) as $token) {
+                if (is_array($token) && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], true)) {
+                    continue;
+                }
+                $code .= is_array($token) ? $token[1] : $token;
+            }
+            assert_false(
+                (bool) preg_match('/(?:v?s?printf)\(\s*(?:Lang::)?t\(/u', $code),
+                'перевод с подстановкой пишется через tf(): ' . str_replace(APP_ROOT . '/', '', $file->getPathname())
+            );
+        }
+    }
 });
