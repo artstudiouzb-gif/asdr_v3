@@ -249,6 +249,12 @@ $renderFooterWidget = function (array $col) use ($footerLogo, $siteName, $addres
     'copied' => t('Скопировано'),
     'totalVotes' => t('Всего голосов:'),
     'shareAllPhotos' => t('Поделиться всеми фото'),
+    'formInvalidPhone' => t('Введите корректный номер телефона (не менее 7 цифр)'),
+    'formSending' => t('Отправка…'),
+    'formServerError' => t('Ошибка сервера.'),
+    'formSuccess' => t('Спасибо! Ваша заявка отправлена.'),
+    'formCheck' => t('Проверьте форму.'),
+    'formNetworkError' => t('Сетевая ошибка. Попробуйте ещё раз.'),
 ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>
 </script>
 <?php foreach (\App\Core\FrontendAssets::scripts() as $script): ?>
