@@ -436,4 +436,8 @@ return [
     'Будьте в курсе главных событий! Подпишитесь на мгновенные push-уведомления о новых публикациях.' => 'Stay on top of the news: subscribe to instant push notifications about new publications.',
     'Включить уведомления' => 'Enable notifications',
     'Позже' => 'Later',
+    'Код с картинки' => 'Code from the image',
+    'Защитный код' => 'Security code',
+    'Обновить код' => 'Refresh code',
+    'Введите символы с картинки (регистр не важен).' => 'Enter the characters from the image (case-insensitive).',
 ];
