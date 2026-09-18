@@ -90,9 +90,9 @@ final class NewsController
         echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         echo '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">' . "\n";
         echo '<channel>' . "\n";
-        echo '  <title>' . htmlspecialchars($siteName . ' — Новости', ENT_XML1) . '</title>' . "\n";
+        echo '  <title>' . htmlspecialchars($siteName . ' — ' . t('Новости'), ENT_XML1) . '</title>' . "\n";
         echo '  <link>' . htmlspecialchars($base . Locale::url('news', $lang), ENT_XML1) . '</link>' . "\n";
-        echo '  <description>' . htmlspecialchars((string) Setting::get('default_meta_description', 'Новости'), ENT_XML1) . '</description>' . "\n";
+        echo '  <description>' . htmlspecialchars((string) Setting::get('default_meta_description', t('Новости')), ENT_XML1) . '</description>' . "\n";
         echo '  <language>' . htmlspecialchars($lang, ENT_XML1) . '</language>' . "\n";
         echo '  <atom:link href="' . htmlspecialchars($selfUrl, ENT_XML1) . '" rel="self" type="application/rss+xml"/>' . "\n";
         foreach ($items as $item) {
