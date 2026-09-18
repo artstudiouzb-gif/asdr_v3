@@ -138,6 +138,11 @@ final class HeroBlockNormalizer
             'button_url' => BlockDataInput::safeLink($input['button_url'] ?? ''),
             'button_icon' => \App\Core\Icon::cleanName($input['button_icon'] ?? ''),
             'button_icon_image' => self::iconImage($input['button_icon_image'] ?? ''),
+            // Размер иконки — один на обе кнопки блока и на кнопки слайдов:
+            // это зона иконки, а не свойство отдельной кнопки, и вторым полем
+            // редактор развёл бы их по разным размерам в одном ряду.
+            // 0 — размер темы (46px), поэтому вид собранных страниц не меняется.
+            'button_icon_size' => BlockDataInput::int($input, 'button_icon_size', 0, 72, 0),
             'button2_text' => trim((string) ($input['button2_text'] ?? '')),
             'button2_url' => BlockDataInput::safeLink($input['button2_url'] ?? ''),
             'button2_icon' => \App\Core\Icon::cleanName($input['button2_icon'] ?? ''),

@@ -1091,6 +1091,11 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                 'label' => 'Кнопка 1 — своя иконка (SVG или картинка)',
                 'hint' => 'Загруженный SVG очищается от скриптов. Показывается вместо иконки из библиотеки.',
             ]) ?>
+            <div class="form-field">
+                <label for="button_icon_size">Размер иконок кнопок, px</label>
+                <input type="number" id="button_icon_size" name="button_icon_size" min="0" max="72" step="1" value="<?= (int) ($data['button_icon_size'] ?? 0) ?>">
+                <span class="form-hint">0 — размер темы (46px). Одно значение на обе кнопки блока и на кнопки слайдов: это зона иконки, а не свойство отдельной кнопки.</span>
+            </div>
             <div class="form-field"><label for="button2_text">Кнопка 2 — текст (контурная)</label><input type="text" id="button2_text" name="button2_text" value="<?= htmlspecialchars($data['button2_text'] ?? '', ENT_QUOTES) ?>"></div>
             <div class="form-field"><label for="button2_url">Кнопка 2 — ссылка</label><input type="text" id="button2_url" name="button2_url" value="<?= htmlspecialchars($data['button2_url'] ?? '', ENT_QUOTES) ?>"></div>
             <?= \App\Core\AdminUi::iconField('button2_icon', $data['button2_icon'] ?? '', [

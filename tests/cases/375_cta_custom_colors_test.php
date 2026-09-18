@@ -145,3 +145,76 @@ test('«Иконка и текст» участвует в появлении к
     assert_contains('icon-text__grid', $markup, 'сетка блока называется так');
     assert_contains('.icon-text__grid,', $js, 'сетка перечислена в GRIDS');
 });
+
+test('Полотно первого CTA уступает выбранным цветам, а не перебивает их', function () {
+    // Первый CTA страницы превращается в полотно: своя палитра и белый текст.
+    // Веса у этих правил (0,3,1) и (0,3,2), у классов-признаков — (0,1,0) и
+    // (0,1,1), поэтому полотно перебивало выбор редактора целиком. Замерено в
+    // Chromium на собранном бандле: при заказанных #ffdd00 / #ff0000 выходило
+    // rgb(15,39,86) и rgb(255,255,255) — то есть все три поля не делали ничего
+    // ровно на самом заметном месте страницы.
+    $frontend = (string) file_get_contents(APP_ROOT . '/public/assets/css/frontend.css');
+    $theme = \theme_css();
+
+    $hero = '(?:site-content|page-blocks) > section\.cms-block--cta:first-of-type \.block-cta';
+
+    foreach ([
+        [$theme, 'custom-bg', 'фон полотна'],
+        [$frontend, 'custom-text', 'цвет текста полотна'],
+    ] as [$css, $flag, $what]) {
+        assert_true(
+            (bool) preg_match('/' . $hero . ':where\(:not\(\.block-cta--' . $flag . '\)\)/', $css),
+            $what . ' уступает своему'
+        );
+    }
+
+    foreach (['h2', 'p'] as $tag) {
+        assert_true(
+            (bool) preg_match('/' . $hero . ':where\(:not\(\.block-cta--custom-text\)\) ' . $tag . '/', $frontend),
+            'заголовок и лид полотна уступают своему цвету: ' . $tag
+        );
+    }
+
+    assert_true(
+        (bool) preg_match('/' . $hero . ':where\(:not\(\.block-cta--custom-btn\)\) \.block-cta__button/', $frontend),
+        'кнопка полотна уступает своему цвету'
+    );
+
+    // Исключение пишется через :where() и только так: голый :not() добавляет
+    // класс к весу селектора и переворачивает межфайловые споры. Замерено:
+    // без :where() лид первого CTA уезжал с 20px на 18px, потому что правило
+    // frontend.css начинало перебивать кегль темы.
+    assert_false(
+        (bool) preg_match('/' . $hero . ':not\(/', $frontend . $theme),
+        'исключение не поднимает вес селектора'
+    );
+});
+
+test('Подпись кнопки со своим цветом не закрашивается флагом приоритета', function () {
+    // Общее правило кнопок красит подпись в белый через !important, и расчёт
+    // по контрасту (--cta-btn-fg) ему проигрывал: жёлтая кнопка получала белую
+    // подпись — замерено rgb(255,255,255) при заказанном #000.
+    $theme = \theme_css();
+    $rules = (string) preg_replace('#/\*.*?\*/#s', '', $theme);
+
+    // Находим объявления `color: #fff !important` и убеждаемся, что кнопка CTA
+    // попадает туда только с оговоркой про свой цвет.
+    assert_true(
+        (bool) preg_match_all('/([^{}]*)\{[^{}]*color:\s*#fff\s*!important[^{}]*\}/i', $rules, $m),
+        'правило белой подписи найдено'
+    );
+
+    foreach ($m[1] as $selectors) {
+        foreach (explode(',', $selectors) as $selector) {
+            $selector = trim($selector);
+            if (!str_contains($selector, 'block-cta')) {
+                continue;
+            }
+            assert_contains(
+                ':where(:not(.block-cta--custom-btn))',
+                $selector,
+                'белая подпись не адресована кнопке со своим цветом: ' . $selector
+            );
+        }
+    }
+});

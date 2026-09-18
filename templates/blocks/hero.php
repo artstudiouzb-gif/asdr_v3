@@ -145,16 +145,23 @@ $btn2Url = trim((string) ($data['button2_url'] ?? ''));
  * Иконка кнопки: своя картинка (SVG из медиабиблиотеки) важнее ключа Tabler.
  * Без иконки возвращается пустая строка — разметка кнопки не меняется.
  */
-$heroButtonIcon = static function (string $iconName, string $iconImage): string {
+// Размер зоны иконки: 0 — как в теме. Число уходит и в разметку, и в scoped
+// CSS: атрибуты width/height резервируют место до загрузки картинки, а размер
+// рисует правило, и разъехавшись, они дали бы прыжок раскладки при загрузке.
+$btnIconSize = (int) ($data['button_icon_size'] ?? 0);
+$btnIconSize = $btnIconSize > 0 ? max(16, min(72, $btnIconSize)) : 0;
+$btnIconPx = $btnIconSize > 0 ? $btnIconSize : 46;
+
+$heroButtonIcon = static function (string $iconName, string $iconImage) use ($btnIconPx): string {
     $iconImage = trim($iconImage);
     if ($iconImage !== '' && UrlGuard::isSafeMedia($iconImage)) {
         return '<img class="block-hero__button-icon" src="' . htmlspecialchars($iconImage, ENT_QUOTES)
-            . '" alt="" aria-hidden="true" width="46" height="46">';
+            . '" alt="" aria-hidden="true" width="' . $btnIconPx . '" height="' . $btnIconPx . '">';
     }
     $iconName = \App\Core\Icon::cleanName($iconName);
 
     return $iconName !== ''
-        ? '<span class="block-hero__button-icon" aria-hidden="true">' . \App\Core\Icon::render($iconName, 46, '', 2) . '</span>'
+        ? '<span class="block-hero__button-icon" aria-hidden="true">' . \App\Core\Icon::render($iconName, $btnIconPx, '', 2) . '</span>'
         : '';
 };
 $btnIcon = $heroButtonIcon((string) ($data['button_icon'] ?? ''), (string) ($data['button_icon_image'] ?? ''));
@@ -239,7 +246,10 @@ if ($mobileHeightMode === 'custom') {
 $templateCss = ($heroRootStyle !== '' ? '#block-' . $blockId . ' .block-hero{' . $heroRootStyle . '}' : '')
     . ($mobileHeightCss !== '' ? "\n" . $mobileHeightCss : '')
     . (($hasMedia || $isSlider) && $overlayEnabled ? "\n#block-" . $blockId . ' .block-hero__scrim{' . $scrimStyle . '}' : '')
-    . ($textStyle !== '' ? "\n#block-" . $blockId . ' .block-hero__text{' . $textStyle . '}' : '');
+    . ($textStyle !== '' ? "\n#block-" . $blockId . ' .block-hero__text{' . $textStyle . '}' : '')
+    // При размере темы переменная не печатается вовсе: у «Героев», собранных
+    // до появления настройки, своего CSS от неё не появляется.
+    . ($btnIconSize > 0 ? "\n#block-" . $blockId . '{--hero-btn-icon:' . $btnIconSize . 'px}' : '');
 
 $youtubeEmbed = static function (string $id): string {
     $youtubeParams = [
