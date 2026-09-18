@@ -29,5 +29,5 @@ $showThumb = !empty($data['show_thumb']);
             </div>
         </li>
     <?php endforeach; ?>
-    <?php if (empty($items)): ?><li class="widget-empty">Нет новостей.</li><?php endif; ?>
+    <?php if (empty($items)): ?><li class="widget-empty"><?= htmlspecialchars(t('Нет новостей.'), ENT_QUOTES) ?></li><?php endif; ?>
 </ul>
