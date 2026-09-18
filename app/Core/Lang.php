@@ -114,7 +114,11 @@ final class Lang
                 $count = count($tokens);
                 for ($i = 0; $i < $count - 2; $i++) {
                     $token = $tokens[$i];
-                    if (!is_array($token) || $token[0] !== T_STRING || $token[1] !== 't') {
+                    // tf() — тот же перевод, только с подстановкой значения:
+                    // пропусти его здесь, и ключи форм исчезли бы из таблицы
+                    // редактора, оставшись переводимыми только правкой файла.
+                    if (!is_array($token) || $token[0] !== T_STRING
+                        || !in_array($token[1], ['t', 'tf'], true)) {
                         continue;
                     }
                     $j = $i + 1;

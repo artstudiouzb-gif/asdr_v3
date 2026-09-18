@@ -14,5 +14,5 @@ $items = $data['items'] ?? [];
             </div>
         </li>
     <?php endforeach; ?>
-    <?php if (empty($items)): ?><li class="widget-empty">Список пуст.</li><?php endif; ?>
+    <?php if (empty($items)): ?><li class="widget-empty"><?= htmlspecialchars(t('Список пуст.'), ENT_QUOTES) ?></li><?php endif; ?>
 </ul>

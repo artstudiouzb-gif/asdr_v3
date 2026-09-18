@@ -248,6 +248,13 @@ $renderFooterWidget = function (array $col) use ($footerLogo, $siteName, $addres
     'copy' => t('Копировать'),
     'copied' => t('Скопировано'),
     'totalVotes' => t('Всего голосов:'),
+    'shareAllPhotos' => t('Поделиться всеми фото'),
+    'formInvalidPhone' => t('Введите корректный номер телефона (не менее 7 цифр)'),
+    'formSending' => t('Отправка…'),
+    'formServerError' => t('Ошибка сервера.'),
+    'formSuccess' => t('Спасибо! Ваша заявка отправлена.'),
+    'formCheck' => t('Проверьте форму.'),
+    'formNetworkError' => t('Сетевая ошибка. Попробуйте ещё раз.'),
 ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>
 </script>
 <?php foreach (\App\Core\FrontendAssets::scripts() as $script): ?>
@@ -292,6 +299,13 @@ $renderFooterWidget = function (array $col) use ($footerLogo, $siteName, $addres
 <script type="application/json" id="consent-config"><?= json_encode([
     'required' => $consentRequired,
     'privacyUrl' => $privacyUrl,
+    'labels' => [
+        'aria' => t('Согласие на использование cookie'),
+        'text' => t('Мы используем cookie для аналитики. Продолжая, вы соглашаетесь с их использованием.'),
+        'privacy' => t('Политика конфиденциальности'),
+        'accept' => t('Принять'),
+        'decline' => t('Отклонить'),
+    ],
 ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?></script>
 <script src="<?= htmlspecialchars(\App\Core\Asset::url('/assets/js/consent.js'), ENT_QUOTES) ?>" defer></script>
 <?php endif; ?>

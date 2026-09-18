@@ -26,11 +26,11 @@
       "/assets/js/frontend.js",
       "/assets/js/forms.js"
     ],
-    "sourceSha256": "fd2595878151808d4e08adfca8535cc584dc979b64f15dbd2587114a8fc13c8a",
-    "sha256": "34c37e48cae38b9a1e259db5328479587d4f9270e76d1eb3b31b0b6785f4459e",
-    "raw": 63182,
-    "gzip": 16625,
-    "brotli": 14615
+    "sourceSha256": "16d805c3dcb84432c78c63efaee7f283e712ee353f7d7e0cbba556bdb059da3e",
+    "sha256": "1d20ba7afa8cf5ac3c0956fb97b4d206d9ec7de874d6f6e7a06b04abbe4ad177",
+    "raw": 63284,
+    "gzip": 16579,
+    "brotli": 14575
   },
   "blocks": {
     "/assets/css/blocks/buttons.css": {

@@ -55,4 +55,14 @@ test('Captcha::field: разметка с картинкой, инпутом и 
     assert_contains('name="_captcha"', $html);
     assert_contains('maxlength="5"', $html);
     assert_contains('id="captcha-7"', $html);
+    foreach ([
+        'Код с картинки',
+        'Защитный код',
+        'Обновить код',
+        'Введите символы с картинки (регистр не важен).',
+    ] as $key) {
+        assert_true(in_array($key, \App\Core\Lang::sourceKeys(), true), "CAPTCHA-строка доступна редактору переводов: {$key}");
+        assert_true(\App\Core\Lang::t($key, 'uz') !== $key, "CAPTCHA переведена на uz: {$key}");
+        assert_true(\App\Core\Lang::t($key, 'en') !== $key, "CAPTCHA переведена на en: {$key}");
+    }
 });

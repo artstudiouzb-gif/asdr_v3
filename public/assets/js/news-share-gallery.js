@@ -5,14 +5,17 @@
     // This page-only helper uses Web Share API File[] to hand the complete
     // news gallery to the operating-system share sheet when supported.
 
-    function labelForCurrentLanguage() {
-        var lang = (document.documentElement.lang || 'ru').toLowerCase();
-        if (lang.indexOf('uz') === 0) { return 'Barcha rasmlarni ulashish'; }
-        if (lang.indexOf('en') === 0) { return 'Share all photos'; }
-        if (lang.indexOf('kk') === 0) { return 'Барлық фотолармен бөлісу'; }
-        if (lang.indexOf('tr') === 0) { return 'Tüm fotoğrafları paylaş'; }
-        if (lang.indexOf('de') === 0) { return 'Alle Fotos teilen'; }
-        return 'Поделиться всеми фото';
+    function shareLabel() {
+        var node = document.getElementById('frontend-labels');
+        if (node) {
+            try {
+                var labels = JSON.parse(node.textContent || '{}');
+                if (labels.shareAllPhotos) { return labels.shareAllPhotos; }
+            } catch (error) {
+                // Broken optional labels must not disable native sharing.
+            }
+        }
+        return 'Share all photos';
     }
 
     function collectOpenGraphImages() {
@@ -135,7 +138,7 @@
         var imageUrls = collectOpenGraphImages();
         if (imageUrls.length === 0) { return; }
 
-        var label = labelForCurrentLanguage();
+        var label = shareLabel();
         var preparedFiles = null;
         var preparePromise = null;
 

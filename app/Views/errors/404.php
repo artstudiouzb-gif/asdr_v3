@@ -14,12 +14,17 @@ $hasLocale = class_exists(Locale::class);
 $lang = $hasLocale ? Locale::current() : 'ru';
 $dbOn = Database::isConnected();
 
-$L = [
-    'ru' => ['Страница не найдена', 'Возможно, страница была перемещена или удалена. Попробуйте поиск или разделы ниже.', 'На главную', 'Поиск по сайту', 'Найти', 'Возможно, вы искали', 'Последние новости', 'Разделы сайта'],
-    'uz' => ['Sahifa topilmadi', 'Sahifa koʻchirilgan yoki oʻchirilgan boʻlishi mumkin. Qidiruv yoki quyidagi boʻlimlardan foydalaning.', 'Bosh sahifaga', 'Sayt boʻyicha qidiruv', 'Qidirish', 'Balki siz izlagansiz', 'Soʻnggi yangiliklar', 'Sayt boʻlimlari'],
-    'en' => ['Page not found', 'The page may have been moved or removed. Try searching or the sections below.', 'Home', 'Search the site', 'Search', 'You may be looking for', 'Latest news', 'Site sections'],
-];
-[$title, $text, $homeLabel, $searchTitle, $searchBtn, $didYou, $latestT, $sectionsT] = $L[$lang] ?? $L['ru'];
+// Подписи идут через общий словарь, а не своей таблицей языков рядом: та
+// знала ровно три языка, редактор переводов в админке её не видел вовсе, и
+// четвёртый язык вышел бы здесь по-русски, ничего об этом не сообщив.
+$title = t('Страница не найдена', $lang);
+$text = t('Возможно, страница была перемещена или удалена. Попробуйте поиск или разделы ниже.', $lang);
+$homeLabel = t('На главную', $lang);
+$searchTitle = t('Поиск по сайту', $lang);
+$searchBtn = t('Найти', $lang);
+$didYou = t('Возможно, вы искали', $lang);
+$latestT = t('Последние новости', $lang);
+$sectionsT = t('Разделы сайта', $lang);
 $homeUrl = $hasLocale ? Locale::url('/') : '/';
 $searchUrl = $hasLocale ? Locale::url('search') : '/search';
 

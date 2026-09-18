@@ -76,7 +76,7 @@ final class Search
             self::bindSeq($stmt, [$lang, ...$params, $limit]);
             $stmt->execute();
             foreach ($stmt->fetchAll() as $row) {
-                self::append($results, $term, 'Новость', $row, Locale::url('news/' . $row['slug'], $lang));
+                self::append($results, $term, Lang::t('Новость'), $row, Locale::url('news/' . $row['slug'], $lang));
             }
         } catch (\Throwable $e) {
             Logger::error('Quick search (news) failed: ' . $e->getMessage());
@@ -97,7 +97,7 @@ final class Search
             self::bindSeq($stmt, [$lang, ...$params, $limit]);
             $stmt->execute();
             foreach ($stmt->fetchAll() as $row) {
-                self::append($results, $term, 'Страница', $row, Locale::url((string) $row['slug'], $lang));
+                self::append($results, $term, Lang::t('Страница'), $row, Locale::url((string) $row['slug'], $lang));
             }
         } catch (\Throwable $e) {
             Logger::error('Quick search (pages) failed: ' . $e->getMessage());
@@ -138,7 +138,7 @@ final class Search
             self::bindSeq($stmt, [$lang, ...$params, $candidateLimit]);
             $stmt->execute();
             foreach ($stmt->fetchAll() as $row) {
-                self::append($results, $term, 'Страница', $row, Locale::url((string) $row['slug'], $lang));
+                self::append($results, $term, Lang::t('Страница'), $row, Locale::url((string) $row['slug'], $lang));
             }
         } catch (\Throwable $e) {
             Logger::error('Site search (pages) failed: ' . $e->getMessage());
@@ -159,7 +159,7 @@ final class Search
             self::bindSeq($stmt, [$lang, ...$params, $candidateLimit]);
             $stmt->execute();
             foreach ($stmt->fetchAll() as $row) {
-                self::append($results, $term, 'Новость', $row, Locale::url('news/' . $row['slug'], $lang));
+                self::append($results, $term, Lang::t('Новость'), $row, Locale::url('news/' . $row['slug'], $lang));
             }
         } catch (\Throwable $e) {
             Logger::error('Site search (news) failed: ' . $e->getMessage());
@@ -181,7 +181,7 @@ final class Search
             self::bindSeq($stmt, [$lang, ...$params, $candidateLimit]);
             $stmt->execute();
             foreach ($stmt->fetchAll() as $row) {
-                self::append($results, $term, 'Проект', $row, Locale::url('projects/' . $row['slug'], $lang));
+                self::append($results, $term, Lang::t('Проект'), $row, Locale::url('projects/' . $row['slug'], $lang));
             }
         } catch (\Throwable $e) {
             Logger::error('Site search (projects) failed: ' . $e->getMessage());
@@ -211,7 +211,7 @@ final class Search
                     $anchor = trim((string) ($row['department_base'] ?? '')) !== ''
                         ? '#team-' . Slug::make((string) $row['department_base'])
                         : '';
-                    self::append($results, $term, 'Сотрудник', $row, Locale::url($teamPage, $lang) . $anchor);
+                    self::append($results, $term, Lang::t('Сотрудник'), $row, Locale::url($teamPage, $lang) . $anchor);
                 }
             }
         } catch (\Throwable $e) {
