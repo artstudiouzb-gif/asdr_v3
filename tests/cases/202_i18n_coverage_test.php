@@ -33,6 +33,23 @@ test('Все строки t() публичных шаблонов есть в у
     }
 
     assert_same([], array_values(array_unique($missing)), 'строка публичной части без перевода на узбекский');
+
+    // Эти места прежде обходили t(): PHP/JS показывали русский литерал даже
+    // на /uz и /en. Держим короткий сторож именно на пользовательском выводе.
+    foreach ([
+        'app/Core/Captcha.php' => ['>Код с картинки<', '>Введите символы с картинки (регистр не важен).<'],
+        'templates/widgets/latest_news.php' => ['>Нет новостей.</li>'],
+        'templates/widgets/projects_list.php' => ['>Нет проектов.</li>'],
+        'templates/widgets/team_list.php' => ['>Список пуст.</li>'],
+        'public/assets/js/consent.js' => ["textContent = 'Мы используем cookie", "textContent = 'Принять'"],
+        'public/assets/js/forms.js' => ["textContent = 'Отправка", "showTopMessage(form, 'Сетевая ошибка"],
+        'public/assets/js/news-share-gallery.js' => ["return 'Поделиться всеми фото'"],
+    ] as $path => $needles) {
+        $source = (string) file_get_contents(APP_ROOT . '/' . $path);
+        foreach ($needles as $needle) {
+            assert_not_contains($needle, $source, "публичная фраза снова захардкожена: {$path}");
+        }
+    }
 });
 
 test('Ключи словаря — русские: узбекский текст ключом даёт узбекский на RU-версии', function () {
