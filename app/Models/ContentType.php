@@ -198,6 +198,7 @@ final class ContentType
         foreach ($rows as &$r) {
             $r['options'] = $r['options'] ? (json_decode((string) $r['options'], true) ?: []) : [];
         }
+        unset($r);
 
         return $rows;
     }
