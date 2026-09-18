@@ -9,7 +9,7 @@ require __DIR__ . '/../layout/header.php';
 /** @var array $items */
 ?>
 <div class="admin-page-actions">
-    <a class="btn btn--primary" href="/admin/languages/translations"><?= \\App\\Core\\AdminUi::icon('language') ?>Переводы интерфейса</a>
+    <a class="btn btn--primary" href="/admin/languages/translations"><?= \App\Core\AdminUi::icon('language') ?>Переводы интерфейса</a>
 </div>
 <p class="form-hint">Язык по умолчанию доступен на сайте без префикса в URL; остальные активные языки — по префиксу <code>/код/…</code>.</p>
 
