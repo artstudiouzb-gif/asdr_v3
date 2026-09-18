@@ -464,4 +464,13 @@ return [
     'Принять' => 'Accept',
     'Отклонить' => 'Decline',
     'Поделиться всеми фото' => 'Share all photos',
+    'Внутренняя ошибка сервера' => 'Internal server error',
+    'Произошла внутренняя ошибка сервера. Мы уже работаем над её устранением.' => 'An internal server error occurred. We are already working to resolve it.',
+    'Сервис временно недоступен' => 'Service temporarily unavailable',
+    'Временные технические работы' => 'Temporary maintenance',
+    'Не удалось подключиться к одному из компонентов сайта. Пожалуйста, повторите попытку через минуту.' => 'One of the site components is unavailable. Please try again in a minute.',
+    'Повторить попытку' => 'Try again',
+    'Код состояния:' => 'Status code:',
+    'Сайт временно закрыт на техническое обслуживание. Мы скоро вернёмся.' => 'The site is temporarily closed for maintenance. We will be back soon.',
+    'Техническое обслуживание' => 'Maintenance',
 ];
