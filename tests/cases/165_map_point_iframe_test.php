@@ -106,4 +106,21 @@ test('map_point: парсинг и нормализация карт Google/Ян
     assert_contains('src="https://yandex.com/map-widget/v1/?', $yandexOrg['html']);
     assert_contains('oid=123456789', $yandexOrg['html']);
     assert_contains('ol=biz', $yandexOrg['html']);
+
+    // 8. Размеры карты задаются на блок и отдельно на телефон.
+    $sizedMap = BlockRenderer::render([
+        'id' => 1658,
+        'type' => 'map_point',
+        'custom_css' => '',
+        'data' => json_encode([
+            'embed_url' => 'https://yandex.uz/map-widget/v1/-/CDqQyB8D',
+            'load_mode' => 'immediate',
+            'map_width' => 72,
+            'map_height' => 560,
+            'map_width_mobile' => 100,
+            'map_height_mobile' => 380,
+        ]),
+    ]);
+    assert_contains('#block-1658 .block-map__canvas{width:72%;max-width:100%;margin-inline:auto;height:560px;}', $sizedMap['css']);
+    assert_contains('@media(max-width:720px){#block-1658 .block-map__canvas{width:100%;height:380px;}}', $sizedMap['css']);
 });
