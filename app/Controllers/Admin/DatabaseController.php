@@ -121,7 +121,7 @@ final class DatabaseController
 
             $validTables = [];
             foreach ($tables as $table) {
-                $cleanName = preg_replace('/[^a-zA-Z0-9_]/', '', (string) $table);
+                $cleanName = (string) preg_replace('/[^a-zA-Z0-9_]/', '', (string) $table);
                 if ($cleanName !== '') {
                     $validTables[] = $cleanName;
                 }

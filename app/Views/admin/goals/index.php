@@ -24,7 +24,7 @@ $pageUrl = static fn (int $n): string => '/admin/goals?' . http_build_query(arra
 ]));
 
 $siteLangs = array_map(static fn (array $l): string => (string) $l['code'], Language::active());
-$langMap = \App\Models\Goal::availableLangsForIds(array_map(static fn ($g): int => (int) $g['id'], $goals));
+$langMap = \App\Models\Goal::availableLangsForIds(array_values(array_map(static fn ($g): int => (int) $g['id'], $goals)));
 ?>
 <div class="form-card">
     <p class="form-hint">

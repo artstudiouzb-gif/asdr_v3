@@ -59,7 +59,7 @@ final class TeamMember
     private static function localizeRows(array $rows, string $lang): array
     {
         $translations = TeamMemberTranslation::forMemberIds(
-            array_map(static fn (array $row): int => (int) $row['id'], $rows),
+            array_values(array_map(static fn (array $row): int => (int) $row['id'], $rows)),
             $lang
         );
         return array_map(

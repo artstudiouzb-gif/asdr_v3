@@ -96,11 +96,15 @@ final class Http
         return self::requestSafeRemote('GET', $url, '', $headers, $timeout, $maxResponseBytes);
     }
 
+    /**
+     * @param array<int, string> $headers
+     * @return array{status:int, body:string, error:string}
+     */
     private static function viaCurl(string $method, string $url, string $body, array $headers, int $timeout): array
     {
         $ch = curl_init($url);
         curl_setopt_array($ch, [
-            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_CUSTOMREQUEST => $method !== '' ? $method : 'GET',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_TIMEOUT => $timeout,
@@ -151,7 +155,7 @@ final class Http
 
         $ch = curl_init($url);
         curl_setopt_array($ch, [
-            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_CUSTOMREQUEST => $method !== '' ? $method : 'GET',
             CURLOPT_RETURNTRANSFER => false,
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_TIMEOUT => $timeout,
@@ -205,6 +209,10 @@ final class Http
         ];
     }
 
+    /**
+     * @param array<int, string> $headers
+     * @return array{status:int, body:string, error:string}
+     */
     private static function viaStream(string $method, string $url, string $body, array $headers, int $timeout): array
     {
         $context = stream_context_create([

@@ -94,7 +94,7 @@ final class HeroSlide
 
         if ($lang !== null && $lang !== '' && $lang !== Language::defaultCode()) {
             $translations = HeroSlideTranslation::forSlides(
-                array_map(static fn (array $s): int => (int) $s['id'], $slides),
+                array_values(array_map(static fn (array $s): int => (int) $s['id'], $slides)),
                 $lang
             );
             $slides = array_map(

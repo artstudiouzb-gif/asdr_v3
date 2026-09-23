@@ -264,7 +264,10 @@ final class Search
         return [implode(' AND ', $parts), $params];
     }
 
-    /** @param array<int,array<string,mixed>> $results @param array<string,mixed> $row */
+    /**
+     * @param list<array{type:string,title:string,url:string,excerpt:string,_score:int,_date:string}> $results
+     * @param array<string,mixed> $row
+     */
     private static function append(array &$results, string $term, string $type, array $row, string $url): void
     {
         $title = (string) ($row['title'] ?? '');

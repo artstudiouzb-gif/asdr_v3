@@ -70,7 +70,7 @@ final class SeoAudit
                 'warnings' => (int) $row['warnings'],
                 'created_at' => (string) $row['created_at'],
             ],
-            $stmt->fetchAll(\PDO::FETCH_ASSOC)
+            Database::rows($stmt)
         );
     }
 

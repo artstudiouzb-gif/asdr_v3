@@ -43,7 +43,7 @@ final class WebPushSubscription
         $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
     public static function count(): int
@@ -71,7 +71,7 @@ final class WebPushSubscription
         $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
     public static function markQueueSent(int $id): void
