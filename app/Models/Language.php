@@ -107,9 +107,10 @@ final class Language
         return (string) self::default()['code'];
     }
 
+    /** @return list<string> */
     public static function activeCodes(): array
     {
-        return array_map(static fn (array $l) => (string) $l['code'], self::active());
+        return array_values(array_map(static fn (array $l) => (string) $l['code'], self::active()));
     }
 
     public static function isActive(string $code): bool

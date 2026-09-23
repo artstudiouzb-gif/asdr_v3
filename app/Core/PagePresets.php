@@ -23,6 +23,8 @@ namespace App\Core;
  *    (контакты, документы под текстом) — small.
  *  - Анимация появления — только у карточных секций ниже первого экрана;
  *    hero анимировать нельзя, он виден сразу и мигал бы при загрузке.
+ *
+ * @phpstan-type Preset array{name:string, description:string, outline:list<string>, blocks:list<array<string,mixed>>}
  */
 final class PagePresets
 {
@@ -115,7 +117,11 @@ final class PagePresets
         return self::all($lang)[$id] ?? null;
     }
 
-    /** Готовая сборка: Главная страница (эталонный макет из демо-комплекта). */
+    /**
+     * Готовая сборка: Главная страница (эталонный макет из демо-комплекта).
+     *
+     * @return Preset
+     */
     private static function home(string $lang = 'ru'): array
     {
         $fixtureName = $lang === 'uz' ? 'home_blocks_uz.json' : 'home_blocks.json';
@@ -124,10 +130,10 @@ final class PagePresets
         if (is_file($fixture)) {
             $raw = json_decode((string) file_get_contents($fixture), true);
             if (is_array($raw)) {
-                $looks = self::rhythmFor(array_map(
+                $looks = self::rhythmFor(array_values(array_map(
                     static fn (array $block): string => (string) ($block['type'] ?? ''),
                     $raw
-                ));
+                )));
                 foreach ($raw as $index => $b) {
                     if (isset($b['type'], $b['data'])) {
                         $data = (array) $b['data'];
@@ -213,7 +219,11 @@ final class PagePresets
         ];
     }
 
-    /** Страница структурного подразделения. */
+    /**
+     * Страница структурного подразделения.
+     *
+     * @return Preset
+     */
     private static function department(): array
     {
         return [
@@ -296,7 +306,11 @@ final class PagePresets
         ];
     }
 
-    /** Страница услуги или направления деятельности. */
+    /**
+     * Страница услуги или направления деятельности.
+     *
+     * @return Preset
+     */
     private static function service(): array
     {
         return [
@@ -373,7 +387,11 @@ final class PagePresets
         ];
     }
 
-    /** Страница «О ведомстве». */
+    /**
+     * Страница «О ведомстве».
+     *
+     * @return Preset
+     */
     private static function about(): array
     {
         return [
@@ -458,7 +476,11 @@ final class PagePresets
         ];
     }
 
-    /** Пресс-центр. */
+    /**
+     * Пресс-центр.
+     *
+     * @return Preset
+     */
     private static function press(): array
     {
         return [
@@ -513,7 +535,11 @@ final class PagePresets
         ];
     }
 
-    /** Контакты. */
+    /**
+     * Контакты.
+     *
+     * @return Preset
+     */
     private static function contacts(): array
     {
         return [
@@ -572,7 +598,11 @@ final class PagePresets
         ];
     }
 
-    /** Проект или программа. */
+    /**
+     * Проект или программа.
+     *
+     * @return Preset
+     */
     private static function project(): array
     {
         return [

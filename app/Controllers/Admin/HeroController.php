@@ -355,7 +355,7 @@ final class HeroController
             exit;
         }
 
-        $order = array_map('intval', (array) ($_POST['order'] ?? []));
+        $order = array_values(array_map('intval', (array) ($_POST['order'] ?? [])));
         HeroSlide::reorder($heroId, $order);
         echo json_encode(['ok' => true]);
         exit;

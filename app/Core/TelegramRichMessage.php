@@ -16,6 +16,8 @@ namespace App\Core;
  *
  * Класс ничего не отправляет: отдаёт готовый HTML, а транспорт и откат на
  * старый формат — забота SocialPublisher.
+ *
+ * @phpstan-type RichLang array{code:string,label:string,title:string,excerpt:string,lead_html?:string,link:string,read_more:string}
  */
 final class TelegramRichMessage
 {
@@ -28,7 +30,7 @@ final class TelegramRichMessage
      * снимки указываются ссылками `tg://photo?id=…`, а сами файлы уходят
      * отдельным полем `media` — так требует InputRichMessage.
      *
-     * @param list<array{code:string,label:string,title:string,excerpt:string,lead_html?:string,link:string,read_more:string}> $langs
+     * @param list<RichLang> $langs
      * @param list<string> $photos абсолютные https-адреса
      * @param array<string, array{caption:string, credit:string}> $photoMeta подписи по адресу снимка
      * @return array{html:string, media:list<array{id:string,media:array{type:string,media:string}}>}
@@ -186,7 +188,7 @@ final class TelegramRichMessage
      * Полный языковой раздел. Открытый и сворачиваемый режимы используют
      * один результат и отличаются только внешней оболочкой <details>.
      *
-     * @param array<string,mixed> $lang
+     * @param RichLang $lang
      * @param callable(array):string $metaLine
      */
     private static function languageSection(array $lang, callable $esc, callable $metaLine): string

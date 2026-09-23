@@ -17,6 +17,8 @@ use App\Models\Redirect;
  * По умолчанию импортирует как ЧЕРНОВИКИ (безопасно: контент-редактор
  * просматривает перед публикацией). Идемпотентно: посты с уже существующим
  * slug пропускаются, повторный запуск не плодит дубли.
+ *
+ * @phpstan-type ImportReport array{imported:int,skipped:int,images:int,redirects:int,translations:int,errors:array<int,string>}
  */
 final class LegacyCmsImporter
 {
@@ -31,7 +33,7 @@ final class LegacyCmsImporter
      *   langs — карта «код языка источника => код языка ArtStudio», первый = основной
      *   (в него пишется базовая строка новости, остальные — переводы). Пусто —
      *   одноязычный импорт.
-     * @return array{imported:int,skipped:int,images:int,redirects:int,translations:int,errors:array<int,string>}
+     * @return ImportReport
      */
     public static function importAll(string $baseUrl, array $opts = []): array
     {
@@ -127,7 +129,7 @@ final class LegacyCmsImporter
      * обложку, пишет News, галерею и редирект. Возвращает id новости.
      *
      * @param array{title:string,slug:string,excerpt:string,content:string,published_at:string,featured_url:string,link:string} $mapped
-     * @param array<string,mixed> $out
+     * @param ImportReport $out
      */
     private static function createFromPost(array $mapped, string $status, ?int $authorId, string $base, array &$out): int
     {
@@ -174,7 +176,7 @@ final class LegacyCmsImporter
      * Переносит все картинки тела статьи (только с исходного домена) и возвращает
      * карту [старый src => новый URL] для перезаписи.
      *
-     * @param array<string,mixed> $out
+     * @param ImportReport $out
      * @return array<string,string>
      */
     private static function transferAll(string $html, string $base, ?int $authorId, array &$out): array

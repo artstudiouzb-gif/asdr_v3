@@ -415,7 +415,7 @@ final class BlockRenderer
         // FAQPage на страницу допускается ровно один — флаг живёт там же, где
         // счётчик h1, и сбрасывается вместе с ним.
         \App\Core\SchemaOrg::resetPageState();
-        self::$pageSections = self::collectSections($blocks);
+        self::$pageSections = self::collectSections(array_values($blocks));
 
         foreach ($blocks as $block) {
             $rendered = self::render($block);

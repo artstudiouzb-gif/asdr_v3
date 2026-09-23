@@ -9,6 +9,8 @@ use App\Models\Notification;
 /**
  * High-level notification API. Callers provide a safe summary, recipients and
  * an internal admin URL; the model handles deduplication and channel queues.
+ *
+ * @phpstan-import-type NotificationData from Notification
  */
 final class NotificationCenter
 {
@@ -85,7 +87,7 @@ final class NotificationCenter
         );
     }
 
-    /** @param array<string,mixed> $payload */
+    /** @param NotificationData $payload */
     private static function emit(array $payload): int
     {
         try {

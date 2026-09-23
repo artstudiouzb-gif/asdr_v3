@@ -108,7 +108,7 @@ final class NewsCategory
         }
 
         $names = NewsCategoryTranslation::namesForIds(
-            array_map(static fn (array $row): int => (int) $row['id'], $rows),
+            array_values(array_map(static fn (array $row): int => (int) $row['id'], $rows)),
             $lang
         );
 

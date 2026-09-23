@@ -43,12 +43,6 @@ parameters:
 			path: app/Controllers/Admin/ContentRevisionController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(non\-empty\-string\|null\)\: mixed\)\|null, Closure\(string\)\: non\-falsy\-string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Controllers/Admin/DatabaseController.php
-
-		-
 			message: '#^Method App\\Controllers\\Admin\\FileController\:\:libraryItem\(\) has parameter \$file with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -65,12 +59,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Controllers/Admin/FormController.php
-
-		-
-			message: '#^Parameter \#2 \$ids of static method App\\Models\\HeroSlide\:\:reorder\(\) expects list\<int\>, array\<int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Controllers/Admin/HeroController.php
 
 		-
 			message: '#^Method App\\Controllers\\Admin\\LanguageController\:\:collectInput\(\) return type has no value type specified in iterable type array\.$#'
@@ -127,24 +115,6 @@ parameters:
 			path: app/Controllers/Admin/NewsController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(string\|false\)\: mixed\)\|null, ''trim'' given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Controllers/Admin/NewsController.php
-
-		-
-			message: '#^Parameter \#1 \$langs of static method App\\Core\\TelegramRichMessage\:\:build\(\) expects list\<array\{code\: string, label\: string, title\: string, excerpt\: string, lead_html\?\: string, link\: string, read_more\: string\}\>, list\<array\<string, mixed\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Controllers/Admin/NewsController.php
-
-		-
-			message: '#^Parameter \#2 \$gallery of static method App\\Core\\ContentChecklist\:\:forNews\(\) expects list\<array\<string, mixed\>\>, array\<int, array\<string, mixed\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Controllers/Admin/NewsController.php
-
-		-
 			message: '#^Method App\\Controllers\\Admin\\PageController\:\:collectInput\(\) has parameter \$existing with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -167,18 +137,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Controllers/Admin/ProjectController.php
-
-		-
-			message: '#^Parameter \#2 \$blocks of static method App\\Models\\BlockSnippet\:\:create\(\) expects array\<int, array\{type\: string, title\: string\|null, data\: array, custom_css\: string\}\>, array\<int, array\<string, mixed\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Controllers/Admin/SnippetController.php
-
-		-
-			message: '#^Parameter \#2 \$blocks of static method App\\Models\\BlockSnippet\:\:create\(\) expects array\<int, array\{type\: string, title\: string\|null, data\: array, custom_css\: string\}\>, non\-empty\-array\<int, array\<string, mixed\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Controllers/Admin/SnippetController.php
 
 		-
 			message: '#^Method App\\Controllers\\Admin\\TeamController\:\:collectInput\(\) has parameter \$existing with no value type specified in iterable type array\.$#'
@@ -353,12 +311,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Core/AgencyContentSeeder.php
-
-		-
-			message: '#^Method App\\Core\\AiAssistantService\:\:generateNewsField\(\) should return array\{excerpt\: string, hashtags\: string, meta_title\: string, meta_description\: string, provider\: string, model\: string, notice\: string\} but returns non\-empty\-array\<string, string\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Core/AiAssistantService.php
 
 		-
 			message: '#^Method App\\Core\\AppToolbar\:\:renderHtml\(\) has parameter \$context with no value type specified in iterable type array\.$#'
@@ -583,12 +535,6 @@ parameters:
 			path: app/Core/BlockRenderer.php
 
 		-
-			message: '#^Parameter \#1 \$blocks of static method App\\Core\\BlockRenderer\:\:collectSections\(\) expects list\<array\<string, mixed\>\>, array\<int, array\<string, mixed\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Core/BlockRenderer.php
-
-		-
 			message: '#^Method App\\Core\\Config\:\:merge\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -739,12 +685,6 @@ parameters:
 			path: app/Core/DocumentPresenter.php
 
 		-
-			message: '#^Parameter \#3 \$context of static method App\\Core\\TelegramNotifier\:\:send\(\) expects array\<string, mixed\>, array\<int\|string, mixed\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Core/ErrorHandler.php
-
-		-
 			message: '#^Method App\\Core\\FooterConfig\:\:get\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -779,12 +719,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Core/FooterConfig.php
-
-		-
-			message: '#^Parameter \#2 \$options of function curl_setopt_array expects array\{47\: bool, 10015\: array\|string, 10023\: array\<int, string\>, 19913\: bool, 13\: int, 78\: int, 64\: bool, 81\: 0\|2\}, array\{47\: true, 10015\: non\-empty\-string\|false, 10023\: array\{''Content\-Type\:…''\}, 19913\: true, 13\: 3, 78\: 2, 64\: true, 81\: 2\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Core/FormNotifier.php
 
 		-
 			message: '#^Method App\\Core\\HeaderConfig\:\:get\(\) return type has no value type specified in iterable type array\.$#'
@@ -871,57 +805,9 @@ parameters:
 			path: app/Core/Http.php
 
 		-
-			message: '#^Method App\\Core\\Http\:\:request\(\) should return array\{status\: int, body\: string, error\: string\} but returns array\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Core/Http.php
-
-		-
-			message: '#^Method App\\Core\\Http\:\:viaCurl\(\) has parameter \$headers with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/Http.php
-
-		-
-			message: '#^Method App\\Core\\Http\:\:viaCurl\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/Http.php
-
-		-
-			message: '#^Method App\\Core\\Http\:\:viaStream\(\) has parameter \$headers with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/Http.php
-
-		-
-			message: '#^Method App\\Core\\Http\:\:viaStream\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/Http.php
-
-		-
-			message: '#^Parameter \#2 \$options of function curl_setopt_array expects array\{10036\: non\-empty\-string\|null, 19913\: bool, 10023\: array\<int, string\>, 13\: int, 78\: int, 64\: bool, 81\: 0\|2, 52\: bool, \.\.\.\}, array\{10036\: string, 19913\: false, 10023\: array\<int, string\>, 13\: int, 78\: int\<min, 10\>, 64\: true, 81\: 2, 52\: false, \.\.\.\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Core/Http.php
-
-		-
-			message: '#^Parameter \#2 \$options of function curl_setopt_array expects array\{10036\: non\-empty\-string\|null, 19913\: bool, 10023\: array\<int, string\>, 13\: int, 78\: int, 64\: bool, 81\: 0\|2, 52\: bool\}, array\{10036\: string, 19913\: true, 10023\: array, 13\: int, 78\: 10, 64\: true, 81\: 2, 52\: false\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Core/Http.php
-
-		-
 			message: '#^Method App\\Core\\LegacyCmsImporter\:\:fetchPost\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: app/Core/LegacyCmsImporter.php
-
-		-
-			message: '#^Method App\\Core\\LegacyCmsImporter\:\:importAll\(\) should return array\{imported\: int, skipped\: int, images\: int, redirects\: int, translations\: int, errors\: array\<int, string\>\} but returns non\-empty\-array\<string, mixed\>\.$#'
-			identifier: return.type
-			count: 2
 			path: app/Core/LegacyCmsImporter.php
 
 		-
@@ -991,12 +877,6 @@ parameters:
 			path: app/Core/Logger.php
 
 		-
-			message: '#^Parameter \#3 \$context of static method App\\Core\\TelegramNotifier\:\:send\(\) expects array\<string, mixed\>, array\<int\|string, mixed\> given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Core/Logger.php
-
-		-
 			message: '#^Method App\\Core\\Mailer\:\:__construct\(\) has parameter \$config with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1033,43 +913,7 @@ parameters:
 			path: app/Core/NewsCard.php
 
 		-
-			message: '#^Parameter \#1 \$data of static method App\\Models\\Notification\:\:create\(\) expects array\{category\?\: string, severity\?\: string, title\: string, message\: string, action_url\?\: string\|null, dedupe_key\?\: string\|null, requires_ack\?\: bool, created_by\?\: int\|null, \.\.\.\}, array\<string, mixed\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Core/NotificationCenter.php
-
-		-
-			message: '#^Method App\\Core\\PagePresets\:\:about\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/PagePresets.php
-
-		-
-			message: '#^Method App\\Core\\PagePresets\:\:all\(\) should return array\<string, array\{name\: string, description\: string, outline\: list\<string\>, blocks\: list\<array\<string, mixed\>\>\}\> but returns array\{home\: array, department\: array, service\: array, about\: array, press\: array, contacts\: array, project\: array\}\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Core/PagePresets.php
-
-		-
-			message: '#^Method App\\Core\\PagePresets\:\:contacts\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/PagePresets.php
-
-		-
 			message: '#^Method App\\Core\\PagePresets\:\:ctaBand\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/PagePresets.php
-
-		-
-			message: '#^Method App\\Core\\PagePresets\:\:department\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/PagePresets.php
-
-		-
-			message: '#^Method App\\Core\\PagePresets\:\:home\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Core/PagePresets.php
@@ -1077,30 +921,6 @@ parameters:
 		-
 			message: '#^Method App\\Core\\PagePresets\:\:look\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/PagePresets.php
-
-		-
-			message: '#^Method App\\Core\\PagePresets\:\:press\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/PagePresets.php
-
-		-
-			message: '#^Method App\\Core\\PagePresets\:\:project\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/PagePresets.php
-
-		-
-			message: '#^Method App\\Core\\PagePresets\:\:service\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/PagePresets.php
-
-		-
-			message: '#^Parameter \#1 \$types of static method App\\Core\\PagePresets\:\:rhythmFor\(\) expects list\<string\>, array\<string\> given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Core/PagePresets.php
 
@@ -1113,12 +933,6 @@ parameters:
 		-
 			message: '#^Method App\\Core\\PublicResponseCache\:\:isLanguageRootPath\(\) has parameter \$activeCodes with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/PublicResponseCache.php
-
-		-
-			message: '#^Parameter \#6 \$activeCodes of static method App\\Core\\PublicResponseCache\:\:isCacheableRequest\(\) expects list\<string\>\|null, array given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Core/PublicResponseCache.php
 
@@ -1267,18 +1081,6 @@ parameters:
 			path: app/Core/RepoAuth.php
 
 		-
-			message: '#^Method App\\Core\\RestoreDrill\:\:run\(\) should return array\{ok\: bool, archive\: string, database\: string, tables\: int, files\: int, messages\: list\<string\>\} but returns array\{messages\: list\<string\>, \.\.\.\}\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Core/RestoreDrill.php
-
-		-
-			message: '#^Method App\\Core\\RestoreDrill\:\:run\(\) should return array\{ok\: bool, archive\: string, database\: string, tables\: int, files\: int, messages\: list\<string\>\} but returns array\{messages\: list\<string\>, tables\: int, files\: int, \.\.\.\}\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Core/RestoreDrill.php
-
-		-
 			message: '#^Method App\\Core\\Router\:\:add\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1315,22 +1117,10 @@ parameters:
 			path: app/Core/Router.php
 
 		-
-			message: '#^Parameter \#2 \$options of function curl_setopt_array expects array\{10002\: non\-empty\-string, 54\: bool, 10009\: resource, 14\: int, 10023\: array\<int, string\>, 19913\: bool, 13\: int\}, array\{10002\: non\-falsy\-string, 54\: true, 10009\: resource, 14\: int\<0, max\>\|false, 10023\: array\{non\-falsy\-string, ''Content\-Type\:…'', non\-falsy\-string\}, 19913\: true, 13\: 30\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Core/S3BackupAdapter.php
-
-		-
 			message: '#^Method App\\Core\\SchemaOrg\:\:render\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Core/SchemaOrg.php
-
-		-
-			message: '#^Method App\\Core\\Search\:\:append\(\) has parameter \$row with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/Search.php
 
 		-
 			message: '#^Method App\\Core\\Search\:\:bindSeq\(\) has parameter \$params with no value type specified in iterable type array\.$#'
@@ -1343,30 +1133,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Core/Search.php
-
-		-
-			message: '#^Method App\\Core\\Search\:\:quick\(\) should return array\<int, array\{type\: string, title\: string, url\: string, excerpt\: string\}\> but returns list\<array\<string, mixed\>\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Core/Search.php
-
-		-
-			message: '#^Method App\\Core\\Search\:\:site\(\) should return array\<int, array\{type\: string, title\: string, url\: string, excerpt\: string\}\> but returns list\<array\<string, mixed\>\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Core/Search.php
-
-		-
-			message: '#^Parameter \#6 \$samples of class App\\Core\\Seo\\SeoFinding constructor expects list\<string\>, array given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Core/Seo/SeoAudit.php
-
-		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:err\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialPublisher.php
 
 		-
 			message: '#^Method App\\Core\\SocialPublisher\:\:extractError\(\) has parameter \$res with no value type specified in iterable type array\.$#'
@@ -1387,12 +1153,6 @@ parameters:
 			path: app/Core/SocialPublisher.php
 
 		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:facebook\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
 			message: '#^Method App\\Core\\SocialPublisher\:\:instagram\(\) has parameter \$cfg with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1405,31 +1165,13 @@ parameters:
 			path: app/Core/SocialPublisher.php
 
 		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:instagram\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
 			message: '#^Method App\\Core\\SocialPublisher\:\:interpretGraph\(\) has parameter \$res with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Core/SocialPublisher.php
 
 		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:interpretGraph\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
 			message: '#^Method App\\Core\\SocialPublisher\:\:interpretTelegram\(\) has parameter \$res with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:interpretTelegram\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Core/SocialPublisher.php
@@ -1447,74 +1189,8 @@ parameters:
 			path: app/Core/SocialPublisher.php
 
 		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:linkedin\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:publish\(\) should return array\{ok\: bool, remote_id\: string\|null, error\: string\|null\} but returns array\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:sendChannelMessage\(\) should return array\{ok\: bool, remote_id\: string\|null, error\: string\|null\} but returns array\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Core/SocialPublisher.php
-
-		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:sendChannelMessage\(\) should return array\{ok\: bool, remote_id\: string\|null, error\: string\|null\} but returns non\-empty\-array\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:telegram\(\) has parameter \$cfg with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:telegram\(\) has parameter \$post with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:telegram\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
 			message: '#^Method App\\Core\\SocialPublisher\:\:telegramButtons\(\) has parameter \$cfg with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:telegramRich\(\) should return array\{ok\: bool, remote_id\: string\|null, error\: string\|null\}\|null but returns array\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
-			message: '#^Method App\\Core\\SocialPublisher\:\:telegramText\(\) should return array\{ok\: bool, remote_id\: string\|null, error\: string\|null\} but returns array\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
-			message: '#^Parameter \#1 \$langs of static method App\\Core\\TelegramRichMessage\:\:build\(\) expects list\<array\{code\: string, label\: string, title\: string, excerpt\: string, lead_html\?\: string, link\: string, read_more\: string\}\>, non\-empty\-array\<mixed, mixed\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Core/SocialPublisher.php
-
-		-
-			message: '#^Parameter \#1 \$langs of static method App\\Core\\TelegramRichMessage\:\:hashtagLines\(\) expects list\<array\<string, mixed\>\>, non\-empty\-array\<mixed\> given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Core/SocialPublisher.php
 
@@ -1525,32 +1201,8 @@ parameters:
 			path: app/Core/SocialPublisher.php
 
 		-
-			message: '#^Method App\\Core\\SocialSettings\:\:buildPost\(\) should return array\{message\: string, link\: string, image_url\: string, title\: string, hashtags\: string\|null, category\: string, date\: string, gallery\: list\<string\>, \.\.\.\} but returns array\{message\: string, link\: non\-falsy\-string, image_url\: string, title\: string, hashtags\: string\|null, category\: string, date\: string, gallery\: list\<non\-falsy\-string\>, \.\.\.\}\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Core/SocialSettings.php
-
-		-
 			message: '#^Method App\\Core\\SocialSettings\:\:categoryName\(\) has parameter \$row with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialSettings.php
-
-		-
-			message: '#^Method App\\Core\\SocialSettings\:\:languageBlocks\(\) has parameter \$news with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialSettings.php
-
-		-
-			message: '#^Method App\\Core\\SocialSettings\:\:languageBlocks\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/SocialSettings.php
-
-		-
-			message: '#^Parameter \#2 \$langs of static method App\\Core\\SocialSettings\:\:mergeHashtags\(\) expects list\<array\<string, mixed\>\>, array given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Core/SocialSettings.php
 
@@ -1573,18 +1225,6 @@ parameters:
 			path: app/Core/TelegramBot.php
 
 		-
-			message: '#^Parameter \#2 \$options of function curl_setopt_array expects array\{47\: bool, 10015\: array\|string, 10023\: array\<int, string\>, 19913\: bool, 13\: int, 78\: int, 64\: bool, 81\: 0\|2\}, array\{47\: true, 10015\: non\-empty\-string\|false, 10023\: array\{''Content\-Type\:…''\}, 19913\: true, 13\: 10, 78\: 10, 64\: true, 81\: 2\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Core/TelegramBot.php
-
-		-
-			message: '#^Parameter \#2 \$options of function curl_setopt_array expects array\{47\: bool, 10015\: array\|string, 10023\: array\<int, string\>, 19913\: bool, 13\: int, 78\: int, 64\: bool, 81\: 0\|2\}, array\{47\: true, 10015\: non\-empty\-string\|false, 10023\: array\{non\-falsy\-string, ''Content\-Type\:…''\}, 19913\: true, 13\: 10, 78\: 10, 64\: true, 81\: 2\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Core/TelegramGateway.php
-
-		-
 			message: '#^Method App\\Core\\TelegramNotifier\:\:setTransport\(\) has parameter \$transport with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1599,12 +1239,6 @@ parameters:
 		-
 			message: '#^Method App\\Core\\TelegramRichMessage\:\:languageSection\(\) has parameter \$metaLine with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/TelegramRichMessage.php
-
-		-
-			message: '#^Parameter \#1 \$lang of static method App\\Core\\TelegramRichMessage\:\:body\(\) expects array\{excerpt\: string, lead_html\?\: string, link\: string, read_more\: string\}, array\<string, mixed\> given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Core/TelegramRichMessage.php
 
@@ -1795,20 +1429,8 @@ parameters:
 			path: app/Models/BlockRevision.php
 
 		-
-			message: '#^Method App\\Models\\BlockSnippet\:\:create\(\) has parameter \$blocks with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/BlockSnippet.php
-
-		-
 			message: '#^Method App\\Models\\BlockSnippet\:\:findById\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/BlockSnippet.php
-
-		-
-			message: '#^Parameter \#2 \$blocks of static method App\\Models\\BlockSnippet\:\:create\(\) expects array\<int, array\{type\: string, title\: string\|null, data\: array, custom_css\: string\}\>, non\-empty\-array\<int, array\<string, mixed\>\> given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Models/BlockSnippet.php
 
@@ -1963,12 +1585,6 @@ parameters:
 			path: app/Models/FileEntry.php
 
 		-
-			message: '#^Method App\\Models\\FileEntry\:\:filtered\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/FileEntry.php
-
-		-
 			message: '#^Method App\\Models\\FileEntry\:\:filtered\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2059,28 +1675,10 @@ parameters:
 			path: app/Models/FormSubmission.php
 
 		-
-			message: '#^Parameter \#1 \$goalIds of static method App\\Models\\GoalTranslation\:\:forGoalIds\(\) expects list\<int\>, array\<int, int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Models/Goal.php
-
-		-
 			message: '#^Method App\\Models\\Hero\:\:saveSettings\(\) has parameter \$settings with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Hero.php
-
-		-
-			message: '#^Parameter \#1 \$slideIds of static method App\\Models\\HeroSlideTranslation\:\:forSlides\(\) expects list\<int\>, non\-empty\-array\<int, int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Models/HeroSlide.php
-
-		-
-			message: '#^Method App\\Models\\Language\:\:activeCodes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Language.php
 
 		-
 			message: '#^Method App\\Models\\Language\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -2211,12 +1809,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\News\:\:adminListFrom\(\) has parameter \$filters with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/News.php
-
-		-
-			message: '#^Method App\\Models\\News\:\:adminListFrom\(\) should return array\{string, array\<string, string\>\} but returns array\{literal\-string&non\-falsy\-string, array\{\}\|array\{''\:lang''\: non\-empty\-string, ''\:lang_neq''\: non\-empty\-string, ''\:lang_nt''\: non\-empty\-string, ''\:lang_n2''\: non\-empty\-string, ''\:status''\?\: ''draft''\|''published'', ''\:category''\?\: int\<1, max\>, ''\:date_from''\?\: non\-falsy\-string, ''\:date_to''\?\: non\-falsy\-string\}\|array\{''\:lang''\: non\-empty\-string, ''\:lang_neq''\: non\-empty\-string, ''\:lang_nt''\: non\-empty\-string, ''\:lang_n2''\: non\-empty\-string, ''\:status''\?\: ''draft''\|''published'', ''\:category''\?\: int\<1, max\>, ''\:q_title''\: non\-falsy\-string, ''\:q_slug''\: non\-falsy\-string, \.\.\.\}\|array\{''\:status''\?\: ''draft''\|''published'', ''\:category''\?\: int\<1, max\>, ''\:date_from''\?\: non\-falsy\-string, ''\:date_to''\?\: non\-falsy\-string\}\|array\{''\:status''\?\: ''draft''\|''published'', ''\:category''\?\: int\<1, max\>, ''\:q_title''\: non\-falsy\-string, ''\:q_slug''\: non\-falsy\-string, ''\:q_translation''\: non\-falsy\-string, ''\:date_from''\?\: non\-falsy\-string, ''\:date_to''\?\: non\-falsy\-string\}\}\.$#'
-			identifier: return.type
 			count: 1
 			path: app/Models/News.php
 
@@ -2371,12 +1963,6 @@ parameters:
 			path: app/Models/NewsCategory.php
 
 		-
-			message: '#^Parameter \#1 \$categoryIds of static method App\\Models\\NewsCategoryTranslation\:\:namesForIds\(\) expects list\<int\>, non\-empty\-array\<int, int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Models/NewsCategory.php
-
-		-
 			message: '#^Method App\\Models\\NewsPoll\:\:findByNews\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2419,12 +2005,6 @@ parameters:
 			path: app/Models/NewsTranslation.php
 
 		-
-			message: '#^Method App\\Models\\Notification\:\:forUser\(\) should return list\<array\<string, mixed\>\> but returns array\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Notification.php
-
-		-
 			message: '#^Method App\\Models\\Notification\:\:recipientIds\(\) has parameter \$rawRoles with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2435,12 +2015,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Notification.php
-
-		-
-			message: '#^Method App\\Models\\NotificationDelivery\:\:claimBatch\(\) should return list\<array\<string, mixed\>\> but returns array\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Models/NotificationDelivery.php
 
 		-
 			message: '#^Method App\\Models\\NotificationPreference\:\:allowsSeverity\(\) has parameter \$preference with no value type specified in iterable type array\.$#'
@@ -2665,12 +2239,6 @@ parameters:
 			path: app/Models/PhotoAlbum.php
 
 		-
-			message: '#^Parameter \#1 \$albumIds of static method App\\Models\\PhotoAlbumTranslation\:\:forAlbumIds\(\) expects list\<int\>, array\<int, int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Models/PhotoAlbum.php
-
-		-
 			message: '#^Method App\\Models\\PhotoAlbumTranslation\:\:find\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2761,12 +2329,6 @@ parameters:
 			path: app/Models/SearchLog.php
 
 		-
-			message: '#^Method App\\Models\\SeoAudit\:\:history\(\) should return list\<array\{id\: int, errors\: int, warnings\: int, created_at\: string\}\> but returns array\<array\{id\: int, errors\: int, warnings\: int, created_at\: string\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/SeoAudit.php
-
-		-
 			message: '#^Method App\\Models\\Setting\:\:all\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2853,12 +2415,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\TeamMember\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/TeamMember.php
-
-		-
-			message: '#^Parameter \#1 \$memberIds of static method App\\Models\\TeamMemberTranslation\:\:forMemberIds\(\) expects list\<int\>, array\<int, int\> given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Models/TeamMember.php
 
@@ -2959,12 +2515,6 @@ parameters:
 			path: app/Models/Video.php
 
 		-
-			message: '#^Parameter \#1 \$videoIds of static method App\\Models\\VideoTranslation\:\:forVideoIds\(\) expects list\<int\>, array\<int, int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Models/Video.php
-
-		-
 			message: '#^Method App\\Models\\VideoTranslation\:\:find\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2975,18 +2525,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/VideoTranslation.php
-
-		-
-			message: '#^Method App\\Models\\WebPushSubscription\:\:all\(\) should return list\<array\<string, mixed\>\> but returns array\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/WebPushSubscription.php
-
-		-
-			message: '#^Method App\\Models\\WebPushSubscription\:\:pendingQueue\(\) should return list\<array\<string, mixed\>\> but returns array\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/WebPushSubscription.php
 
 		-
 			message: '#^Method App\\Models\\Webhook\:\:decryptSecrets\(\) return type has no value type specified in iterable type array\.$#'
@@ -3097,12 +2635,6 @@ parameters:
 			path: app/Views/admin/goals/index.php
 
 		-
-			message: '#^Parameter \#1 \$ids of static method App\\Models\\Goal\:\:availableLangsForIds\(\) expects list\<int\>, array\<int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Views/admin/goals/index.php
-
-		-
 			message: '#^PHPDoc tag @var for variable \$config has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -3131,12 +2663,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Views/admin/news/form.php
-
-		-
-			message: '#^Parameter \#1 \$ids of static method App\\Models\\News\:\:availableLangsForIds\(\) expects list\<int\>, array\<int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Views/admin/news/index.php
 
 		-
 			message: '#^PHPDoc tag @var for variable \$parentOptions has no value type specified in iterable type array\.$#'

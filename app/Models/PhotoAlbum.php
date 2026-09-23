@@ -75,7 +75,7 @@ final class PhotoAlbum
     private static function localizeRows(array $rows, string $lang): array
     {
         $translations = PhotoAlbumTranslation::forAlbumIds(
-            array_map(static fn (array $row): int => (int) $row['id'], $rows),
+            array_values(array_map(static fn (array $row): int => (int) $row['id'], $rows)),
             $lang
         );
         return array_map(

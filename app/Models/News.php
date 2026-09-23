@@ -146,7 +146,7 @@ final class News
         return (int) $stmt->fetchColumn();
     }
 
-    /** @return array{0:string,1:array<string,string>} */
+    /** @return array{0:string,1:array<string,string|int>} */
     private static function adminListFrom(array $filters): array
     {
         $from = 'FROM news n';

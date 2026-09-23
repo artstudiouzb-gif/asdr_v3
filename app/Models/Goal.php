@@ -95,7 +95,7 @@ final class Goal
     public static function localizeRows(array $rows, string $lang): array
     {
         $translations = GoalTranslation::forGoalIds(
-            array_map(static fn (array $row): int => (int) $row['id'], $rows),
+            array_values(array_map(static fn (array $row): int => (int) $row['id'], $rows)),
             $lang
         );
 

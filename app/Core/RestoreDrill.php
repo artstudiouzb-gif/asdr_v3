@@ -16,6 +16,8 @@ namespace App\Core;
  * Боевую базу и боевые загрузки репетиция не трогает **никогда**: она работает
  * в отдельной базе, имя которой обязано отличаться от рабочей, и в своём
  * временном каталоге. Проверка этого — первое, что делает `run()`.
+ *
+ * @phpstan-type DrillResult array{ok: bool, archive: string, database: string, tables: int, files: int, messages: list<string>}
  */
 final class RestoreDrill
 {
@@ -23,7 +25,7 @@ final class RestoreDrill
     private const CORE_TABLES = ['users', 'pages', 'news', 'settings', 'migrations'];
 
     /**
-     * @return array{ok: bool, archive: string, database: string, tables: int, files: int, messages: list<string>}
+     * @return DrillResult
      */
     public static function run(string $targetDb = '', string $archive = ''): array
     {
@@ -122,7 +124,7 @@ final class RestoreDrill
 
     /**
      * @param array<string, string> $db
-     * @param array{messages: list<string>, ...} $result
+     * @param DrillResult $result
      * @return bool|null true — базу создали мы, false — она уже была, null — нельзя
      */
     private static function ensureDatabase(array $db, array &$result): ?bool
@@ -168,7 +170,7 @@ final class RestoreDrill
      * пустой дамп: таблицы созданы, строк нет.
      *
      * @param array<string, string> $db
-     * @param array{messages: list<string>, ...} $result
+     * @param DrillResult $result
      */
     private static function verifyContent(array $db, array &$result): bool
     {

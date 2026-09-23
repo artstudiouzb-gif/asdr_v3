@@ -271,8 +271,13 @@ final class Logger
      * Рекурсивно очищает контекст логов. Значение чувствительного ключа
      * заменяется целиком, остальные строки проходят маскирование шаблонов.
      *
-     * @param array<string|int, mixed> $context
-     * @return array<string|int, mixed>
+     * Ключи сохраняются как есть, поэтому тип ключей у результата тот же, что
+     * у входа: контекст со строковыми ключами остаётся таким и для
+     * `TelegramNotifier::send()`.
+     *
+     * @template TKey of array-key
+     * @param array<TKey, mixed> $context
+     * @return array<TKey, mixed>
      */
     public static function redactContext(array $context): array
     {
