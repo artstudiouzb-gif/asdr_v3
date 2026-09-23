@@ -14,7 +14,8 @@ namespace App\Core;
  * HTTP-транспорт инжектируется (callable), что делает адаптеры тестируемыми
  * без реальных запросов к сетям.
  *
- * @phpstan-type Post array{message:string, link:string, image_url?:string, title?:string, gallery?:list<string>}
+ * @phpstan-import-type PostLang from SocialSettings
+ * @phpstan-type Post array{message:string, link:string, image_url?:string, title?:string, gallery?:list<string>, langs?:list<PostLang>, ...}
  * @phpstan-type Result array{ok:bool, remote_id:?string, error:?string}
  */
 final class SocialPublisher
@@ -70,6 +71,9 @@ final class SocialPublisher
      * Telegram-канал: галерея — sendMediaGroup (до 10 фото, подпись у первого),
      * одно фото — sendPhoto, без фото — sendMessage. Подпись: жирный заголовок,
      * анонс и ссылка «Читать на сайте» (HTML-разметка).
+     * @param array<string,string> $cfg
+     * @param Post $post
+     * @return Result
      */
     private function telegram(array $cfg, array $post): array
     {
@@ -295,12 +299,12 @@ final class SocialPublisher
      * прежний путь.
      *
      * @param array<string,string> $cfg
-     * @param array<string,mixed> $post
-     * @return array{ok:bool, remote_id:?string, error:?string}|null
+     * @param Post $post
+     * @return Result|null
      */
     private function telegramRich(array $cfg, array $post): ?array
     {
-        $langs = (array) ($post['langs'] ?? []);
+        $langs = $post['langs'] ?? [];
         if ($langs === []) {
             return null;
         }
@@ -486,7 +490,11 @@ final class SocialPublisher
         return $description;
     }
 
-    /** Разбор ответа Bot API; для sendMediaGroup result — массив сообщений. */
+    /**
+     * Разбор ответа Bot API; для sendMediaGroup result — массив сообщений.
+     *
+     * @return Result
+     */
     private function interpretTelegram(array $res, bool $group = false): array
     {
         $data = json_decode($res['body'] ?? '', true);
@@ -515,12 +523,12 @@ final class SocialPublisher
      * 1024 символа с фото, поэтому фиксированная часть (заголовки, ссылки,
      * подпись) резервируется, а остаток делится поровну между анонсами.
      *
-     * @param array<string,mixed> $post
+     * @param Post $post
      * @param callable(string):string $esc
      */
     private static function telegramCaption(array $post, string $signature, int $limit, callable $esc): string
     {
-        $langs = (array) ($post['langs'] ?? []);
+        $langs = $post['langs'] ?? [];
         if ($langs === []) {
             // Запасной вариант для старых вызовов без языковых блоков.
             $langs = [[
@@ -629,6 +637,7 @@ final class SocialPublisher
         return trim($text . $tail);
     }
 
+    /** @return Result */
     private function facebook(array $cfg, array $post): array
     {
         if (empty($cfg['token']) || empty($cfg['page_id'])) {
@@ -645,6 +654,7 @@ final class SocialPublisher
         return $this->interpretGraph($res);
     }
 
+    /** @return Result */
     private function linkedin(array $cfg, array $post): array
     {
         if (empty($cfg['token']) || empty($cfg['author'])) {
@@ -685,6 +695,7 @@ final class SocialPublisher
         return self::err(self::extractError($res, $data));
     }
 
+    /** @return Result */
     private function instagram(array $cfg, array $post): array
     {
         if (empty($cfg['token']) || empty($cfg['user_id'])) {
@@ -719,7 +730,11 @@ final class SocialPublisher
         return $this->interpretGraph($p);
     }
 
-    /** Общий разбор ответа Graph API (Facebook/Instagram publish). */
+    /**
+     * Общий разбор ответа Graph API (Facebook/Instagram publish).
+     *
+     * @return Result
+     */
     private function interpretGraph(array $res): array
     {
         $data = json_decode($res['body'] ?? '', true);
@@ -742,6 +757,7 @@ final class SocialPublisher
         return 'HTTP ' . (int) ($res['status'] ?? 0);
     }
 
+    /** @return Result */
     private static function err(string $message): array
     {
         return ['ok' => false, 'remote_id' => null, 'error' => $message];

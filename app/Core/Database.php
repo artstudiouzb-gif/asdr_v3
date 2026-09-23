@@ -60,6 +60,21 @@ final class Database
         }
     }
 
+    /**
+     * Все строки выполненного запроса. PDO объявляет `fetchAll()` просто как
+     * `array`, хотя возвращает список строк; тип сообщается здесь, один раз,
+     * а не докблоком у каждого вызова.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function rows(\PDOStatement $stmt): array
+    {
+        /** @var list<array<string, mixed>> $rows */
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $rows;
+    }
+
     public static function isConnected(): bool
     {
         return self::$connection !== null;

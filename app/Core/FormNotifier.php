@@ -144,7 +144,7 @@ final class FormNotifier
                 'chat_id' => $chatId,
                 'text' => $text,
                 'parse_mode' => 'HTML',
-            ], JSON_UNESCAPED_UNICODE);
+            ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR);
 
             curl_setopt_array($ch, [
                 CURLOPT_POST => true,

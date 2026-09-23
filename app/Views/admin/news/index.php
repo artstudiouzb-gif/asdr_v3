@@ -86,7 +86,7 @@ $langs = Language::active();
         <?php
         // Языки контента для всех строк одним запросом (без N+1) и список
         // активных языков сайта — чтобы показать и недостающие переводы.
-        $itemIds = array_map(static fn ($i): int => (int) $i['id'], $items);
+        $itemIds = array_values(array_map(static fn ($i): int => (int) $i['id'], $items));
         $langMap = \App\Models\News::availableLangsForIds($itemIds, true);
         $siteLangs = array_map(static fn (array $l): string => (string) $l['code'], $langs);
         $readyNets = \App\Core\SocialSettings::readyNetworks();

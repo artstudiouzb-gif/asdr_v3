@@ -170,7 +170,7 @@ final class SeoAudit
             'Редирект перекрывает опубликованную страницу',
             'По этим адресам есть и страница, и правило переадресации. Поисковик увидит переадресацию, а страницу — нет.',
             count($rows),
-            array_slice($rows, 0, self::MAX_SAMPLES),
+            array_values(array_map('strval', array_slice($rows, 0, self::MAX_SAMPLES))),
             '/admin/redirects'
         )];
     }

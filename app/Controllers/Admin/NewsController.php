@@ -163,7 +163,7 @@ final class NewsController
             // Напоминания о незаполненном: ничего не блокируют, просто список.
             'checklist' => \App\Core\ContentChecklist::forNews(
                 $news,
-                $gallery,
+                array_values($gallery),
                 array_map('strval', array_keys($translations))
             ),
             'error' => null,
@@ -357,7 +357,7 @@ final class NewsController
         $cfg = \App\Core\SocialSettings::configFor('telegram');
         $post = \App\Core\SocialSettings::buildPost($news);
         $doc = \App\Core\TelegramRichMessage::build(
-            (array) $post['langs'],
+            $post['langs'],
             \App\Core\SocialSettings::telegramPhotoUrls($post),
             (string) ($cfg['signature'] ?? ''),
             (string) ($post['category'] ?? ''),
@@ -849,7 +849,7 @@ final class NewsController
     {
         $pollQuestion = trim((string) ($_POST['poll_question'] ?? ''));
         $pollOptionsRaw = trim((string) ($_POST['poll_options'] ?? ''));
-        $pollOptions = array_values(array_filter(array_map('trim', (array) preg_split('/[\r\n,]+/u', $pollOptionsRaw)), static fn ($v) => $v !== ''));
+        $pollOptions = array_values(array_filter(array_map('trim', preg_split('/[\r\n,]+/u', $pollOptionsRaw) ?: []), static fn ($v) => $v !== ''));
         \App\Models\NewsPoll::saveForNews($newsId, $pollQuestion, $pollOptions);
     }
 
