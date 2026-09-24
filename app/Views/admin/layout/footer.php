@@ -255,7 +255,7 @@ window.addEventListener('DOMContentLoaded', function () {
 </script>
 <script src="<?= htmlspecialchars(\App\Core\Asset::url('/assets/js/vendor/editor.js'), ENT_QUOTES) ?>"></script>
 <script src="<?= htmlspecialchars(\App\Core\Asset::url('/assets/vendor/coloris/coloris.min.js'), ENT_QUOTES) ?>"></script>
-<script src="<?= htmlspecialchars(\App\Core\Asset::url('/assets/js/admin.js'), ENT_QUOTES) ?>"></script>
+<script src="<?= htmlspecialchars(\App\Core\Asset::url('/assets/admin/admin.min.js'), ENT_QUOTES) ?>"></script>
 <?php if (!empty($heroEditor)): ?>
 <script src="<?= htmlspecialchars(\App\Core\Asset::url('/assets/js/admin-hero-settings.js'), ENT_QUOTES) ?>"></script>
 <?php endif; ?>

@@ -64,14 +64,11 @@ final class AdminBrand
                 . '}</style>';
         }
 
+        // Три слоя одним файлом (порядок внутри тот же: уведомления, оболочка,
+        // редактор слайда). Метка уведомлений остаётся на ссылке: по ней
+        // admin-notifications.js понимает, что его стили уже подключены.
         $html .= '<link rel="stylesheet" data-admin-notifications-css="1" href="'
-            . htmlspecialchars(Asset::url('/assets/css/admin-notifications.css'), ENT_QUOTES)
-            . '">';
-        $html .= '<link rel="stylesheet" data-admin-shell-stability-css="1" href="'
-            . htmlspecialchars(Asset::url('/assets/css/admin-shell-stability.css'), ENT_QUOTES)
-            . '">';
-        $html .= '<link rel="stylesheet" data-admin-hero-slide-editor-css="1" href="'
-            . htmlspecialchars(Asset::url('/assets/css/admin-hero-slide-editor.css'), ENT_QUOTES)
+            . htmlspecialchars(Asset::url('/assets/admin/admin-brand.min.css'), ENT_QUOTES)
             . '">';
         $html .= '<script nonce="' . htmlspecialchars(SecurityHeaders::nonce(), ENT_QUOTES)
             . '" src="' . htmlspecialchars(Asset::url('/assets/js/admin-notifications.js'), ENT_QUOTES)

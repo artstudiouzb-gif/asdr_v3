@@ -4292,52 +4292,6 @@ document.addEventListener('click', function (event) {
     toggle.textContent = open ? 'скрыть' : 'показать';
 });
 
-// --- Автоматическое скрытие Toast-уведомлений и управление выпадающими меню ---
-document.addEventListener('DOMContentLoaded', function () {
-    // 1. Авто-скрытие Toast через 4 секунды
-    var toasts = document.querySelectorAll('.admin-toast, [data-toast]');
-    toasts.forEach(function (toast) {
-        toast.classList.add('is-show');
-        var timer = setTimeout(function () {
-            toast.classList.remove('is-show');
-            setTimeout(function () { if (toast.parentNode) toast.remove(); }, 300);
-        }, 4000);
-        
-        var closeBtn = toast.querySelector('.admin-toast__close, [data-toast-close]');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', function () {
-                clearTimeout(timer);
-                toast.classList.remove('is-show');
-                setTimeout(function () { if (toast.parentNode) toast.remove(); }, 300);
-            });
-        }
-    });
-
-    // 2. Делегирование кликов для Dropdown Kebab Menu (.admin-dropdown)
-    document.addEventListener('click', function (event) {
-        var toggle = event.target.closest('[data-dropdown-toggle], .admin-dropdown__toggle');
-        if (toggle) {
-            event.preventDefault();
-            var dropdown = toggle.closest('.admin-dropdown');
-            if (dropdown) {
-                var isOpen = dropdown.classList.contains('is-open');
-                document.querySelectorAll('.admin-dropdown.is-open').forEach(function (d) {
-                    if (d !== dropdown) d.classList.remove('is-open');
-                });
-                dropdown.classList.toggle('is-open', !isOpen);
-            }
-            return;
-        }
-
-        // Закрывать выпадающие меню при клике вне
-        if (!event.target.closest('.admin-dropdown')) {
-            document.querySelectorAll('.admin-dropdown.is-open').forEach(function (d) {
-                d.classList.remove('is-open');
-            });
-        }
-    });
-});
-
 /* Оргструктура: выбор сектора из списка дописывает готовую строку
    «Название | /страница#team-slug» в поле подразделений этой же ветки.
    Раньше адрес собирали руками, и переименование сектора молча ломало ссылку. */
