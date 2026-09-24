@@ -892,6 +892,7 @@ final class BlockRenderer
 
     private static function enrichNewsLatest(array $data): array
     {
+        self::noteBoundary(\App\Models\News::nextScheduledAt());
         $limit = (int) ($data['limit'] ?? 3);
         if ($limit <= 0) {
             $limit = 3;
@@ -922,6 +923,7 @@ final class BlockRenderer
 
     private static function enrichNewsFeature(array $data): array
     {
+        self::noteBoundary(\App\Models\News::nextScheduledAt());
         $limit = (int) ($data['limit'] ?? 6);
         if ($limit <= 0) {
             $limit = 6;
@@ -960,6 +962,7 @@ final class BlockRenderer
 
     private static function enrichNewsDocs(array $data): array
     {
+        self::noteBoundary(\App\Models\News::nextScheduledAt());
         $limit = (int) ($data['limit'] ?? 3);
         if ($limit <= 0) {
             $limit = 3;

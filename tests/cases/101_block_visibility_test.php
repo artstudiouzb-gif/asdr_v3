@@ -111,3 +111,37 @@ test('BlockVisibility: подпись условий для списка бло�
     assert_contains('только мобильные', BlockVisibility::label(['_visible_device' => 'mobile']));
     assert_same('', BlockVisibility::label([]));
 });
+
+test('BlockRenderer: отложенная новость ограничивает срок кэша страницы с новостями (БД)', function () {
+    ensure_test_db();
+    $pdo = \App\Core\Database::pdo();
+    $memo = new ReflectionProperty(\App\Models\News::class, 'nextScheduledMemo');
+    $memo->setValue(null, false);
+
+    $slug = 'scheduled-' . bin2hex(random_bytes(3));
+    $pdo->exec("INSERT INTO news (title, slug, status, lang, published_at, created_at)
+                VALUES ('Отложенная', '{$slug}', 'published', 'ru', NOW() + INTERVAL 2 HOUR, NOW())");
+    $id = (int) $pdo->lastInsertId();
+    try {
+        $due = (int) $pdo->query("SELECT UNIX_TIMESTAMP(published_at) FROM news WHERE id = {$id}")->fetchColumn();
+        $page = BlockRenderer::renderPage([
+            ['id' => 41, 'type' => 'news_latest', 'data' => json_encode(['limit' => 3]), 'custom_css' => ''],
+        ]);
+        $expires = $page['expires_at'];
+        assert_true(is_int($expires) && $expires > time() && $expires <= $due,
+            'кэш с блоком новостей обязан истечь к дате отложенной новости, иначе она не появится до правки контента');
+
+        // Страница без новостей о чужом расписании не знает.
+        $plain = BlockRenderer::renderPage([
+            ['id' => 42, 'type' => 'text', 'data' => json_encode(['content' => 'x']), 'custom_css' => ''],
+        ]);
+        assert_same(null, $plain['expires_at']);
+    } finally {
+        $pdo->exec("DELETE FROM news WHERE id = {$id}");
+        $memo->setValue(null, false);
+    }
+
+    // Виджет последних новостей бывает внутри блока — то есть в том же кэше.
+    $src = (string) file_get_contents(dirname(__DIR__, 2) . '/app/Core/WidgetRenderer.php');
+    assert_contains('BlockRenderer::noteBoundary(News::nextScheduledAt())', $src);
+});
