@@ -6,7 +6,7 @@ test('Бренд админки находится в крупной зоне si
     $header = (string) file_get_contents(APP_ROOT . '/app/Views/admin/layout/header.php');
     $shellCss = (string) file_get_contents(APP_ROOT . '/public/assets/css/admin-shell-v2.css');
 
-    assert_contains("/assets/css/admin-shell-v2.css", $header, 'Новая оболочка подключена после основного admin.css');
+    assert_contains("/assets/admin/admin-shell.min.css", $header, 'Новая оболочка подключена после основного admin.css');
     assert_contains('class="admin-sidebar__brand"', $header, 'Бренд размещён внутри боковой панели');
     assert_contains("AdminBrand::badgeHtml('admin-sidebar__logoimg', 'admin-sidebar__logo')", $header, 'Логотип использует отдельные крупные sidebar-классы');
     assert_not_contains('class="admin-topbar__brand"', $header, 'Верхняя панель больше не дублирует логотип');

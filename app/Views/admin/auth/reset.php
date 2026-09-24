@@ -13,7 +13,7 @@ use App\Core\Csrf;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Новый пароль</title>
 <?= \App\Core\AdminUi::fontLinks() ?>
-<link rel="stylesheet" href="<?= htmlspecialchars(\App\Core\Asset::url('/assets/css/admin.css'), ENT_QUOTES) ?>">
+<link rel="stylesheet" href="<?= htmlspecialchars(\App\Core\Asset::url('/assets/admin/admin-core.min.css'), ENT_QUOTES) ?>">
 <?= \App\Core\AdminBrand::styleTag() ?>
 <?= \App\Core\AdminBrand::faviconHtml() ?>
 </head>

@@ -64,7 +64,7 @@ test('редактор слайда использует отдельную чи
     assert_contains('.settings-jump-nav a[href="#', $script, 'вместе с секцией уходит и ссылка на неё в навигации');
     assert_contains('.settings-jump-nav a[hidden]', $admin, 'скрытой ссылке навигации нужен явный display: none');
 
-    assert_contains('/assets/css/admin-hero-slide-editor.css', $brand, 'слой подключён через версионируемый Asset::url');
+    assert_contains('/assets/admin/admin-brand.min.css', $brand, 'слой подключён через версионируемый Asset::url (бандл слоёв AdminBrand, состав — тест 389)');
 
     // Мёртвый слой не возвращается: этих структур в форме нет.
     foreach (['details.form-section', '.form-section__state', '.form-section__body--grid', '.form-field--wide'] as $gone) {
