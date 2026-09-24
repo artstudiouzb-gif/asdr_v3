@@ -186,6 +186,8 @@ final class WidgetRenderer
     {
         switch ($type) {
             case 'latest_news':
+                // Виджет бывает и внутри блока, то есть в кэше страницы.
+                BlockRenderer::noteBoundary(News::nextScheduledAt());
                 $data['items'] = News::published((int) ($data['count'] ?? 5), 0, $lang);
                 break;
             case 'projects_list':
