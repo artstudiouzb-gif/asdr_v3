@@ -59,7 +59,7 @@ final class BlockTypeRegistry
         'html' => ['html' => ''],
         'cta' => [], // схема: BlockFieldSchema
         'slider' => [], // схема: BlockFieldSchema
-        'form' => ['form_id' => null, 'layout' => '1col'],
+        'form' => [],
         'columns' => [], // схема: BlockFieldSchema
         // Вкладки — такой же контейнер, как columns: содержимое вкладки это
         // вложенные блоки любого типа (column_index = номер вкладки), а сам

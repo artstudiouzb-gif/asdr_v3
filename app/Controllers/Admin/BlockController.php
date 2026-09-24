@@ -516,12 +516,11 @@ final class BlockController
                 );
             case 'form':
                 $formId = (int) ($_POST['form_id'] ?? 0);
-                return [
-                    'form_id' => $formId > 0 ? $formId : null,
-                    // Сетка формы: набор значений объявлен в FormLayout, там же
-                    // его читает публичный шаблон.
-                    'layout' => \App\Core\FormLayout::normalizeLayout((string) ($_POST['layout'] ?? '')),
-                ];
+                return array_merge(
+                    BlockFieldSchema::normalize('form', $_POST, $locale),
+                    // Форма — ссылка на запись в БД, поэтому мимо схемы.
+                    ['form_id' => $formId > 0 ? $formId : null]
+                );
             case 'columns':
                 $columnsData = BlockFieldSchema::normalize('columns', $_POST, $locale);
                 // Ширина колонок идёт мимо схемы: список допустимых пропорций
