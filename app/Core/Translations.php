@@ -115,12 +115,24 @@ final class Translations
      *
      * Результат обязан совпадать с поштучным rows(): сверяет тест 294.
      *
+     * $columns сужает выборку до названных колонок (служебные — id, язык,
+     * группа, статус, удаление — добавляются сами): карта сайта перебирает
+     * до тысячи новостей, и SELECT * возил бы тело каждой трижды — в базовой
+     * строке, в участниках группы и в строке перевода, — ради одного slug.
+     * Из таблицы переводов тогда берутся только владелец, язык и заголовок:
+     * заголовок решает, есть ли перевод. Сужение разрешено лишь сущностям со
+     * связанными записями — у остальных статус не обязателен, и молча
+     * выпавшая колонка поменяла бы ответ publishedOnly.
+     *
      * @param array<array-key, mixed> $ids fetchAll() отдаёт нетипизированные
      *        строки, поэтому значения приводятся здесь, а не у вызывающего
+     * @param list<string>|null $columns null — строка целиком
      * @return array<int, array<string, array<string,mixed>>> id → язык → строка
      */
-    public static function rowsBatch(string $table, array $ids, bool $publishedOnly = true): array
+    public static function rowsBatch(string $table, array $ids, bool $publishedOnly = true, ?array $columns = null): array
     {
+        // Ошибка вызывающего видна сразу, а не только при живой базе.
+        $select = self::selectList($table, $columns);
         $clean = [];
         foreach ($ids as $id) {
             $id = (int) $id;
@@ -138,7 +150,7 @@ final class Translations
         $bases = [];
         foreach (array_chunk($clean, self::CHUNK, true) as $chunk) {
             $stmt = $pdo->prepare(
-                "SELECT * FROM {$source} WHERE id IN (" . self::marks($chunk) . "){$typeWhere}"
+                "SELECT {$select} FROM {$source} WHERE id IN (" . self::marks($chunk) . "){$typeWhere}"
             );
             $stmt->execute(array_values($chunk));
             foreach ($stmt->fetchAll() as $row) {
@@ -159,7 +171,7 @@ final class Translations
             }
             foreach (array_chunk($groupIds, self::CHUNK) as $chunk) {
                 $stmt = $pdo->prepare(
-                    "SELECT * FROM {$source}
+                    "SELECT {$select} FROM {$source}
                      WHERE COALESCE(NULLIF(translation_group_id, 0), id) IN (" . self::marks($chunk) . ")
                        AND deleted_at IS NULL{$typeWhere}
                      ORDER BY id"
@@ -176,7 +188,7 @@ final class Translations
         }
 
         // Механизм А: строки таблицы переводов, все разом.
-        $byOwner = self::translationRowsBatch($table, $clean);
+        $byOwner = self::translationRowsBatch($table, $clean, $columns !== null);
 
         $result = [];
         foreach ($clean as $id) {
@@ -220,20 +232,23 @@ final class Translations
      * Строки таблицы переводов для набора владельцев.
      *
      * @param array<int,int> $ids
+     * @param bool $narrow только владелец, язык и заголовок (см. rowsBatch)
      * @return array<int, array<string, array<string,mixed>>>
      */
-    private static function translationRowsBatch(string $table, array $ids): array
+    private static function translationRowsBatch(string $table, array $ids, bool $narrow = false): array
     {
         [$translationTable, $ownerKey] = self::TRANSLATION_TABLES[$table];
         if ($translationTable === null || $ownerKey === null) {
             return [];
         }
+        $headline = $table === 'team_members' ? 'name' : 'title';
+        $select = $narrow ? "{$ownerKey}, lang, {$headline}" : '*';
 
         $result = [];
         foreach (array_chunk($ids, self::CHUNK, true) as $chunk) {
             try {
                 $stmt = Database::pdo()->prepare(
-                    "SELECT * FROM {$translationTable}
+                    "SELECT {$select} FROM {$translationTable}
                      WHERE {$ownerKey} IN (" . self::marks($chunk) . ")
                      ORDER BY id"
                 );
@@ -257,6 +272,32 @@ final class Translations
         }
 
         return $result;
+    }
+
+    /**
+     * Список колонок для rowsBatch(): служебные добавляются всегда, имена
+     * сверяются набором символов — они уходят в текст запроса.
+     *
+     * @param list<string>|null $columns
+     */
+    private static function selectList(string $table, ?array $columns): string
+    {
+        if ($columns === null) {
+            return '*';
+        }
+        if (!self::supportsLinkedRecords($table)) {
+            throw new \InvalidArgumentException("Сужение колонок не поддерживается для {$table}");
+        }
+        $all = array_values(array_unique([
+            'id', 'lang', 'translation_group_id', 'status', 'deleted_at', ...$columns,
+        ]));
+        foreach ($all as $column) {
+            if (preg_match('/^[a-z_]+$/', $column) !== 1) {
+                throw new \InvalidArgumentException("Недопустимое имя колонки: {$column}");
+            }
+        }
+
+        return implode(', ', $all);
     }
 
     /** @param array<string,mixed> $row */

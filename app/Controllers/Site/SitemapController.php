@@ -15,6 +15,25 @@ use App\Models\Project;
 
 final class SitemapController
 {
+    /*
+     * Колонки, которые карта сайта и RSS действительно читают. Строка целиком
+     * возил тело каждой записи (LONGTEXT content) — до тысячи новостей на
+     * запрос, а карта не кэшируется и её обходят все поисковики. Служебные
+     * колонки для проверки публикации версий rowsBatch() добавляет сам.
+     */
+    private const PAGE_COLUMNS = ['id', 'slug', 'lang', 'is_home', 'updated_at'];
+    private const NEWS_COLUMNS = ['id', 'slug', 'lang', 'published_at', 'created_at'];
+    private const PROJECT_COLUMNS = ['id', 'slug', 'lang', 'updated_at'];
+    private const RSS_COLUMNS = ['id', 'slug', 'lang', 'title', 'excerpt', 'image', 'published_at'];
+
+    /** @param list<string> $columns */
+    private static function columns(array $columns, string $alias = ''): string
+    {
+        $prefix = $alias !== '' ? $alias . '.' : '';
+
+        return implode(', ', array_map(static fn (string $column): string => $prefix . $column, $columns));
+    }
+
     public function xml(): void
     {
         $this->sitemap();
@@ -36,9 +55,9 @@ final class SitemapController
         header('Content-Type: application/xml; charset=utf-8');
 
         $baseUrl = AppUrl::base();
-        $pages = Database::pdo()->query("SELECT p.* FROM pages p WHERE p.status = 'published' AND p.deleted_at IS NULL AND p.entity_type = 'page' ORDER BY p.updated_at DESC")->fetchAll();
-        $news = Database::pdo()->query("SELECT n.* FROM news n WHERE n.status = 'published' AND n.published_at <= NOW() AND n.deleted_at IS NULL ORDER BY n.published_at DESC LIMIT 1000")->fetchAll();
-        $projects = Database::pdo()->query("SELECT pr.* FROM pages pr WHERE pr.entity_type = 'project' AND pr.status = 'published' AND pr.deleted_at IS NULL ORDER BY pr.updated_at DESC")->fetchAll();
+        $pages = Database::pdo()->query("SELECT " . self::columns(self::PAGE_COLUMNS) . " FROM pages WHERE status = 'published' AND deleted_at IS NULL AND entity_type = 'page' ORDER BY updated_at DESC")->fetchAll();
+        $news = Database::pdo()->query("SELECT " . self::columns(self::NEWS_COLUMNS) . " FROM news WHERE status = 'published' AND published_at <= NOW() AND deleted_at IS NULL ORDER BY published_at DESC LIMIT 1000")->fetchAll();
+        $projects = Database::pdo()->query("SELECT " . self::columns(self::PROJECT_COLUMNS) . " FROM pages WHERE entity_type = 'project' AND status = 'published' AND deleted_at IS NULL ORDER BY updated_at DESC")->fetchAll();
 
         // Языковые версии читаются пакетом на каждый тип: поштучный запрос давал
         // по два обращения к базе на запись. Спрашиваем App\Core\Translations —
@@ -47,9 +66,9 @@ final class SitemapController
         // publishedOnly здесь false: у карты сайта своя, более строгая проверка
         // (у новости учитывается ещё и published_at).
         $groups = [
-            'pages' => Translations::rowsBatch('pages', array_column($pages, 'id'), false),
-            'news' => Translations::rowsBatch('news', array_column($news, 'id'), false),
-            'projects' => Translations::rowsBatch('projects', array_column($projects, 'id'), false),
+            'pages' => Translations::rowsBatch('pages', array_column($pages, 'id'), false, self::PAGE_COLUMNS),
+            'news' => Translations::rowsBatch('news', array_column($news, 'id'), false, self::NEWS_COLUMNS),
+            'projects' => Translations::rowsBatch('projects', array_column($projects, 'id'), false, self::PROJECT_COLUMNS),
         ];
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -187,7 +206,7 @@ final class SitemapController
         $siteTitle = \App\Models\Setting::get('site_name', 'ArtStudio');
 
         $lang = (string) ($params['lang'] ?? '');
-        $sql = "SELECT n.* FROM news n WHERE n.status = 'published' AND n.published_at <= NOW() AND n.deleted_at IS NULL";
+        $sql = "SELECT " . self::columns(self::RSS_COLUMNS, 'n') . " FROM news n WHERE n.status = 'published' AND n.published_at <= NOW() AND n.deleted_at IS NULL";
         $sqlParams = [];
         if ($lang !== '') {
             $sql .= " AND n.lang = :lang";
