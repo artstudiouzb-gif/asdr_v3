@@ -10,11 +10,14 @@ use App\Core\MediaMetadataSchema;
 
 final class FileEntry
 {
+    /**
+     * @return list<array<string, mixed>>
+     */
     public static function all(): array
     {
         $stmt = Database::pdo()->query('SELECT * FROM files ORDER BY created_at DESC');
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
     /**
@@ -57,6 +60,7 @@ final class FileEntry
 
     /**
      * Постраничная выборка файлов для модальной медиабиблиотеки с фильтром по типу и поиску.
+     * @return list<array<string, mixed>>
      */
     public static function libraryFiltered(string $type = 'image', int $limit = 300, int $offset = 0, string $query = '', string $sort = 'date_desc'): array
     {
@@ -80,7 +84,7 @@ final class FileEntry
         $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
     /**
@@ -136,7 +140,11 @@ final class FileEntry
         return $counts;
     }
 
-    /** @param array<string, mixed> $params */
+    /**
+     * @param array<string, mixed> $params
+     *
+     * @return list<array<string, mixed>>
+     */
     public static function filtered(
         array $params,
         bool $includeProtected = true,
@@ -171,7 +179,7 @@ final class FileEntry
         }
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
     /** @param array<string, mixed> $params */
@@ -224,6 +232,9 @@ final class FileEntry
         return [$where, $bind];
     }
 
+    /**
+     * @return array<int, string>
+     */
     public static function availableDates(): array
     {
         $stmt = Database::pdo()->query("SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') AS date_val FROM files ORDER BY date_val DESC");
@@ -251,7 +262,7 @@ final class FileEntry
         $stmt->bindValue(':offset', max(0, $offset), \PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
     public static function countMissingAltText(): int
@@ -268,6 +279,9 @@ final class FileEntry
 
     private const RASTER_IMAGE = "mime_type LIKE 'image/%' AND mime_type <> 'image/svg+xml'";
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public static function findById(int $id): ?array
     {
         $stmt = Database::pdo()->prepare('SELECT * FROM files WHERE id = :id LIMIT 1');
@@ -280,6 +294,7 @@ final class FileEntry
     /**
      * Находит публичный файл по каноническому URL медиабиблиотеки.
      * Внешние URL и произвольные пути намеренно не сопоставляются.
+     * @return array<string, mixed>|null
      */
     public static function findPublicByUrl(string $url): ?array
     {
@@ -303,6 +318,9 @@ final class FileEntry
         return $row ?: null;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function create(array $data): int
     {
         $stmt = Database::pdo()->prepare(
@@ -326,6 +344,7 @@ final class FileEntry
      * Обновляет редакционные метаданные уже загруженного файла.
      *
      * @param array{alt_text?:?string,caption?:?string,description?:?string,credit?:?string,focal_x?:?int,focal_y?:?int} $metadata
+     * @return array<string, mixed>|null
      */
     public static function updateMetadata(int $id, array $metadata): ?array
     {
@@ -393,11 +412,17 @@ final class FileEntry
         $stmt->execute([':id' => $id]);
     }
 
+    /**
+     * @param array<string, mixed> $file
+     */
     public static function publicUrl(array $file): string
     {
         return rtrim((string) Config::get('paths.public_uploads_url'), '/') . '/' . $file['stored_name'];
     }
 
+    /**
+     * @param array<string, mixed> $file
+     */
     public static function protectedUrl(array $file): string
     {
         if (($file['access_type'] ?? '') !== 'protected' || empty($file['access_token'])) {

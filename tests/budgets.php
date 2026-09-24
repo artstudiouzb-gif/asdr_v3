@@ -821,10 +821,10 @@ function quality_budgets(): array
             'guard' => 'tests/cases/293_phpstan_baseline_budget_test.php',
             'why' => 'новый код проверяется целиком, старый долг посчитан и виден; '
                 . 'дописать находку в эталон вместо починки нельзя',
-            // 724 -> 578 -> 577 -> 570 -> 565 -> 480 -> 427: каждая закрытая находка
+            // 724 -> 578 -> 577 -> 570 -> 565 -> 480 -> 427 -> 360: каждая закрытая находка
             // оказывалась настоящим отказом под strict_types (см. коммиты). В
             // эталоне остались только «нет типа значений массива».
-            'ceiling' => static fn (): int => 427,
+            'ceiling' => static fn (): int => 360,
             'measure' => static function (): array {
                 $baseline = APP_ROOT . '/phpstan-baseline.neon';
                 if (!is_file($baseline)) {

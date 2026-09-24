@@ -99,9 +99,12 @@ final class ContentRevision
         );
         $stmt->execute([':deleted_user' => 'Системный пользователь', ':type' => $type, ':entity_id' => $entityId]);
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public static function find(int $revisionId): ?array
     {
         $stmt = Database::pdo()->prepare('SELECT * FROM content_revisions WHERE id = :id LIMIT 1');
@@ -162,6 +165,9 @@ final class ContentRevision
         return $actual === false || hash_equals((string) $actual, $expectedUpdatedAt);
     }
 
+    /**
+     * @return array{type: string, entity_id: int}|null
+     */
     public static function restore(int $revisionId, ?int $userId): ?array
     {
         $revision = self::find($revisionId);
@@ -228,6 +234,9 @@ final class ContentRevision
         return ['type' => $type, 'entity_id' => $entityId];
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     private static function snapshot(string $type, int $entityId): ?array
     {
         if (!self::supports($type)) {
@@ -247,7 +256,7 @@ final class ContentRevision
             $cols = implode(', ', $child['columns']);
             $stmt = $pdo->prepare('SELECT ' . $cols . ' FROM ' . $child['table'] . ' WHERE ' . $child['fk'] . ' = :id ORDER BY id ASC');
             $stmt->execute([':id' => $entityId]);
-            $children[$child['table']] = $stmt->fetchAll();
+            $children[$child['table']] = Database::rows($stmt);
         }
 
         return [
@@ -284,6 +293,10 @@ final class ContentRevision
         return $entity;
     }
 
+    /**
+     * @param list<string> $columns
+     * @param array<string, mixed> $data
+     */
     private static function updateRow(string $table, array $columns, int $id, array $data): void
     {
         $sets = [];
@@ -297,6 +310,10 @@ final class ContentRevision
         Database::pdo()->prepare('UPDATE ' . $table . ' SET ' . implode(', ', $sets) . ' WHERE id = :id')->execute($params);
     }
 
+    /**
+     * @param list<string> $columns
+     * @param array<string, mixed> $data
+     */
     private static function insertChild(string $table, string $fk, array $columns, int $entityId, array $data): void
     {
         $allColumns = array_merge([$fk], $columns);
