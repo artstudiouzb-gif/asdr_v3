@@ -80,6 +80,9 @@ async function mountNews(page) {
         });
     });
     await page.addScriptTag({ path: path.join(projectRoot, 'public/assets/js/frontend.js') });
+    // Галерея и режим чтения живут в news.js: страница новости подключает его
+    // после общего бандла (AssetCollector::requireJs('news')), стенд — так же.
+    await page.addScriptTag({ path: path.join(projectRoot, 'public/assets/js/news.js') });
 }
 
 test('медиазона не схлопывается, а скругление управляет всеми блоками новости', async ({ page }) => {
