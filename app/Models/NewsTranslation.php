@@ -9,6 +9,21 @@ use App\Core\Database;
 final class NewsTranslation
 {
     /**
+     * Колонки перевода, которые не нужны при локализации списков: тело новости
+     * списки не печатают (см. `News::LIST_EXCLUDED_COLUMNS`). Перечень колонок
+     * строки ниже тест 390 сверяет со схемой.
+     */
+    public const LIST_EXCLUDED_COLUMNS = ['content'];
+
+    /** Колонки перевода для списков: все колонки `news_translations`, кроме исключённых. */
+    public const LIST_COLUMNS = [
+        'id', 'news_id', 'lang', 'title', 'badge', 'card_title', 'card_badge',
+        'card_stats', 'card_signature', 'card_note', 'excerpt', 'lead_html',
+        'hashtags', 'key_points', 'event_meta', 'timeline_json', 'docs',
+        'poll_question', 'poll_options_json', 'meta_title', 'meta_description',
+    ];
+
+    /**
      * @return array<string, array<string, mixed>> переводы по коду языка
      */
     public static function forNews(int $newsId): array
@@ -49,7 +64,8 @@ final class NewsTranslation
 
         $placeholders = implode(',', array_fill(0, count($newsIds), '?'));
         $stmt = Database::pdo()->prepare(
-            "SELECT * FROM news_translations WHERE news_id IN ({$placeholders}) AND lang = ?"
+            'SELECT ' . implode(', ', self::LIST_COLUMNS)
+            . " FROM news_translations WHERE news_id IN ({$placeholders}) AND lang = ?"
         );
         $stmt->execute([...$newsIds, $lang]);
 
