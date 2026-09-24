@@ -14,11 +14,14 @@ final class MenuItem
     /** @var array<string, array<int, array<string, mixed>>> */
     private static array $activeRequestCache = [];
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     public static function all(): array
     {
         $stmt = Database::pdo()->query('SELECT * FROM menu_items ORDER BY sort_order ASC, id ASC');
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
     /**
@@ -26,6 +29,7 @@ final class MenuItem
      *
      * Общие пункты и fallback на основной язык намеренно запрещены: иначе
      * локализованная шапка может вести посетителя на чужой контент.
+     * @return array<int, array<string, mixed>>
      */
     public static function activeForLang(string $lang): array
     {
@@ -38,7 +42,7 @@ final class MenuItem
              ORDER BY sort_order ASC, id ASC"
         );
         $stmt->execute([':lang' => $lang]);
-        $items = $stmt->fetchAll();
+        $items = Database::rows($stmt);
 
         // Цели пунктов разрешаются пакетом: поштучно это давало по запросу на
         // пункт, то есть 36 обращений к базе на каждой странице сайта.
@@ -102,6 +106,9 @@ final class MenuItem
         return $stmt->rowCount();
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public static function findById(int $id): ?array
     {
         $stmt = Database::pdo()->prepare('SELECT * FROM menu_items WHERE id = :id LIMIT 1');
@@ -111,6 +118,9 @@ final class MenuItem
         return $row ?: null;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function create(array $data): int
     {
         $lang = self::normalizeLang($data['lang'] ?? '');
@@ -150,6 +160,9 @@ final class MenuItem
         return $id;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function update(int $id, array $data): void
     {
         $lang = self::normalizeLang($data['lang'] ?? '');
@@ -310,7 +323,7 @@ final class MenuItem
              ORDER BY sort_order ASC, id ASC'
         );
         $stmt->execute([':lang' => $lang]);
-        $rows = $stmt->fetchAll();
+        $rows = Database::rows($stmt);
 
         return array_values(array_filter($rows, static fn ($r) => $excludeId === null || (int) $r['id'] !== $excludeId));
     }
@@ -466,13 +479,13 @@ final class MenuItem
             'SELECT * FROM menu_items WHERE lang = :lang ORDER BY sort_order ASC, id ASC'
         );
         $stmt->execute([':lang' => $sourceLang]);
-        $sourceRows = $stmt->fetchAll();
+        $sourceRows = Database::rows($stmt);
         if ($sourceRows === []) {
             throw new \DomainException('В исходном языке нет пунктов для синхронизации.');
         }
 
         $stmt->execute([':lang' => $targetLang]);
-        $targetRows = $stmt->fetchAll();
+        $targetRows = Database::rows($stmt);
         $boundary = $pdo->prepare(
             'SELECT 1
              FROM menu_items child
@@ -559,6 +572,7 @@ final class MenuItem
     /**
      * @param array<string,array<int,array<string,mixed>>> $targetByKey
      * @return array<string,mixed>|null
+     * @param array<string, mixed> $source
      */
     private static function synchronizedRow(
         array $source,
@@ -599,6 +613,9 @@ final class MenuItem
         return $source;
     }
 
+    /**
+     * @param array<string, mixed> $item
+     */
     private static function synchronizationKey(array $item, string $lang): ?string
     {
         if (!empty($item['is_divider'])) {
@@ -623,6 +640,9 @@ final class MenuItem
         };
     }
 
+    /**
+     * @param array<string, mixed> $item
+     */
     private static function insertSynchronizedRow(
         \PDO $pdo,
         array $item,
@@ -657,7 +677,11 @@ final class MenuItem
         return (int) $pdo->lastInsertId();
     }
 
-    /** Все пункты в виде дерева (для админки). */
+    /**
+     * Все пункты в виде дерева (для админки).
+     *
+     * @return array<int, array<string, mixed>>
+     */
     public static function allTree(): array
     {
         return self::buildTree(self::all());
@@ -714,6 +738,7 @@ final class MenuItem
 
     /**
      * Разрешает конечный URL пункта меню с учётом языкового префикса.
+     * @param array<string, mixed> $item
      */
     public static function resolveUrl(array $item, string $lang): string
     {
