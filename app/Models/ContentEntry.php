@@ -25,9 +25,13 @@ final class ContentEntry
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
+    /**
+     * @param array<string, mixed> $filters
+     * @return list<array<string, mixed>>
+     */
     public static function adminList(int $typeId, array $filters): array
     {
         [$where, $params] = self::adminListWhere($typeId, $filters);
@@ -47,9 +51,12 @@ final class ContentEntry
         $stmt->bindValue(':offset', (int) $filters['offset'], \PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
+    /**
+     * @param array<string, mixed> $filters
+     */
     public static function adminCount(int $typeId, array $filters): int
     {
         [$where, $params] = self::adminListWhere($typeId, $filters);
@@ -59,7 +66,11 @@ final class ContentEntry
         return (int) $stmt->fetchColumn();
     }
 
-    /** @return array{0:string,1:array<string,string>} */
+    /**
+     * @return array{0:string,1:array<string,string>}
+     *
+     * @param array<string, mixed> $filters
+     */
     private static function adminListWhere(int $typeId, array $filters): array
     {
         $where = 'WHERE ce.type_id = :type_id AND ce.deleted_at IS NULL';
@@ -192,7 +203,10 @@ final class ContentEntry
         return [$join, $where, $params, $titleExpression];
     }
 
-    /** @param array<string,mixed> $row @return array<string,mixed> */
+    /**
+     * @param array<string,mixed> $row
+     * @return array<string,mixed>
+     */
     private static function decodePublicRow(array $row): array
     {
         $baseData = json_decode((string) ($row['data'] ?? ''), true) ?: [];
@@ -212,6 +226,9 @@ final class ContentEntry
         return $row;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public static function findById(int $id): ?array
     {
         $stmt = Database::pdo()->prepare('SELECT * FROM content_entries WHERE id = :id LIMIT 1');
@@ -225,6 +242,9 @@ final class ContentEntry
         return $row;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public static function findPublishedBySlug(int $typeId, string $slug): ?array
     {
         $stmt = Database::pdo()->prepare(
@@ -303,6 +323,9 @@ final class ContentEntry
         return (int) $stmt->fetchColumn() > 0;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function create(int $typeId, string $title, string $slug, string $status, array $data): int
     {
         $stmt = Database::pdo()->prepare(
@@ -320,6 +343,9 @@ final class ContentEntry
         return (int) Database::pdo()->lastInsertId();
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function update(int $id, string $title, string $slug, string $status, array $data): void
     {
         $stmt = Database::pdo()->prepare(
@@ -358,6 +384,9 @@ final class ContentEntry
         return $out;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function upsertTranslation(int $entryId, string $lang, ?string $title, array $data): void
     {
         $data = self::normalizeTranslationData($data);
@@ -374,7 +403,10 @@ final class ContentEntry
         ]);
     }
 
-    /** @param array<string,mixed> $data @return array<string,mixed> */
+    /**
+     * @param array<string,mixed> $data
+     * @return array<string,mixed>
+     */
     private static function normalizeTranslationData(array $data): array
     {
         return array_filter(
