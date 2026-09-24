@@ -60,8 +60,9 @@ test('reader, lightbox and quick search preserve keyboard focus', function (): v
     assert_contains('aria-live="polite"', $view);
     assert_contains('aria-hidden="true">ESC</span>', $header);
 
-    assert_contains("setReaderIsolation(true)", $js);
-    assert_contains("readerLastFocus.focus()", $js);
+    $newsJs = (string) file_get_contents(APP_ROOT . '/public/assets/js/news.js');
+    assert_contains("setReaderIsolation(true)", $newsJs, 'режим чтения живёт в news.js — он нужен только новости');
+    assert_contains("readerLastFocus.focus()", $newsJs);
     assert_contains("lightboxLastFocus.focus()", $js);
     assert_contains("e.key === 'Tab' && !modal.hidden", $js);
     assert_contains("img.setAttribute('tabindex', '0')", $js);
