@@ -8,9 +8,9 @@ use App\Core\Video;
 /** @var array $data */
 $title = $data['title'] ?? '';
 $content = \App\Core\HtmlSanitizer::sanitizeText((string) ($data['content'] ?? ''));
-$variant = in_array($data['variant'] ?? 'default', ['default', 'section', 'intro', 'system', 'spotlight'], true)
-    ? (string) $data['variant']
-    : 'default';
+// Значения из закрытых наборов и границы приводит схема (BlockFieldSchema::
+// apply() на выводе), поэтому здесь они читаются как есть.
+$variant = (string) $data['variant'];
 $asideTitle = trim((string) ($data['aside_title'] ?? ''));
 $items = is_array($data['items'] ?? null) ? array_values($data['items']) : [];
 $quote = trim((string) ($data['quote'] ?? ''));
@@ -18,13 +18,9 @@ $quote = trim((string) ($data['quote'] ?? ''));
 // переменная не объявляется вовсе, и работает запасное значение из gov-theme.
 $quoteBg = trim((string) ($data['quote_bg'] ?? ''));
 $quoteFg = trim((string) ($data['quote_color'] ?? ''));
-$quoteMark = in_array($data['quote_mark'] ?? 'text', ['text', 'icon', 'none'], true)
-    ? (string) $data['quote_mark']
-    : 'text';
-$quoteMarkPosition = in_array($data['quote_mark_position'] ?? 'top-left', ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'above'], true)
-    ? (string) $data['quote_mark_position']
-    : 'top-left';
-$quoteMarkSize = max(0, min(240, (int) ($data['quote_mark_size'] ?? 0)));
+$quoteMark = (string) $data['quote_mark'];
+$quoteMarkPosition = (string) $data['quote_mark_position'];
+$quoteMarkSize = (int) $data['quote_mark_size'];
 $quoteMarkColor = trim((string) ($data['quote_mark_color'] ?? ''));
 $quoteMarkHtml = '';
 if ($quoteMark === 'icon') {

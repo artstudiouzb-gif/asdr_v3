@@ -108,29 +108,26 @@ test('Цвет текста подбирается по фону, если ре�
 });
 
 test('Настройки цитаты объявлены в умолчаниях, в форме и при сохранении', function (): void {
-    // Тип «Текст» живёт по-старому (без BlockFieldSchema), поэтому у настройки
-    // четыре места, и разойтись они могут молча: поле формы есть, а ветка
-    // сохранения о нём не знает — значение теряется при первом сохранении.
+    // «Текст» переехал на схему полей: настройка объявляется там один раз, а
+    // мимо схемы идёт только символ знака (без типографа, см. EXTRA). Сторож
+    // проверяет итог, а не место: у каждой настройки есть умолчание, поле в
+    // отрисованной форме и путь сохранения — иначе значение терялось бы при
+    // первом же сохранении блока.
     $defaults = BlockTypeRegistry::defaultsFor('text');
-    $editor = block_editor_markup();
+    $editor = block_editor_markup() . "\n" . \App\Core\BlockData\BlockFieldSchema::formHtml('text', $defaults);
     $saving = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/BlockController.php');
-
-    // Готовые виджеты админки печатают `name` уже на рендере, поэтому в
-    // разметке формы они видны вызовом, а не атрибутом.
-    $widgets = ['quote_bg' => 'colorField', 'quote_color' => 'colorField',
-        'quote_mark_color' => 'colorField', 'quote_mark_icon' => 'iconField'];
+    $schema = \App\Core\BlockData\BlockFieldSchema::fields('text');
 
     foreach ([
         'quote_bg', 'quote_color', 'quote_mark', 'quote_mark_text',
         'quote_mark_icon', 'quote_mark_size', 'quote_mark_color', 'quote_mark_position',
     ] as $key) {
         assert_true(array_key_exists($key, $defaults), "нет умолчания: {$key}");
-        assert_contains(
-            isset($widgets[$key]) ? $widgets[$key] . "('" . $key . "'" : 'name="' . $key . '"',
-            $editor,
-            "поле {$key} недоступно редактору"
+        assert_contains('name="' . $key . '"', $editor, "поле {$key} недоступно редактору");
+        assert_true(
+            isset($schema[$key]) || str_contains($saving, "'{$key}' => "),
+            "значение {$key} не сохраняется"
         );
-        assert_contains("'{$key}' => ", $saving, "значение {$key} не сохраняется");
     }
 });
 
