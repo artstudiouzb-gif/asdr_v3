@@ -15,6 +15,28 @@ final class News
 {
     public const LAYOUTS = ['standard', 'gallery', 'video', 'side_image', 'premium', 'card'];
 
+    /**
+     * Колонки, которые спискам новостей не нужны. Тело новости (LONGTEXT) не
+     * читает ни лента, ни блоки новостей, ни RSS, ни виджеты, ни открытые
+     * данные — они печатают заголовок, анонс и обложку, — а `n.*` тянул его в
+     * каждой строке списка. Перечень колонок строки списка стоит ниже, и тест
+     * 390 сверяет его со схемой: новая колонка обязана попасть либо туда, либо
+     * сюда, иначе карточки молча остались бы без неё.
+     */
+    public const LIST_EXCLUDED_COLUMNS = ['content'];
+
+    /** Колонки строки списка: все колонки `news`, кроме исключённых выше. */
+    public const LIST_COLUMNS = [
+        'id', 'title', 'slug', 'excerpt', 'lead_html', 'badge', 'badge_color',
+        'card_title', 'card_badge', 'card_stats', 'card_signature', 'card_note',
+        'category_id', 'image', 'video_url', 'audio_url', 'audio_title',
+        'hashtags', 'press_release_url', 'key_points', 'event_meta',
+        'timeline_json', 'docs', 'source_note', 'views', 'layout_type',
+        'sidebar_layout', 'focal_x', 'focal_y', 'meta_title', 'meta_description',
+        'status', 'published_at', 'author_id', 'created_at', 'updated_at',
+        'lock_version', 'deleted_at', 'lang', 'translation_group_id',
+    ];
+
     /** @var array<string, list<array<string, mixed>>> */
     private static array $publishedRequestCache = [];
 
@@ -362,6 +384,15 @@ final class News
         ];
     }
 
+    /** Колонки строки списка для SELECT с псевдонимом таблицы. */
+    private static function listColumns(string $alias): string
+    {
+        return implode(', ', array_map(
+            static fn (string $column): string => $alias . '.' . $column,
+            self::LIST_COLUMNS
+        ));
+    }
+
     /**
      * Накладывает legacy-перевод только на резервные базовые строки. Поля
      * самостоятельной языковой записи никогда не заменяются legacy-данными.
@@ -420,7 +451,7 @@ final class News
             $params['category'] = $categoryId;
         }
         $stmt = Database::pdo()->prepare(
-            "SELECT n.*,
+            "SELECT " . self::listColumns('n') . ",
                     (SELECT ni.path FROM news_images ni WHERE ni.news_id = n.id
                      ORDER BY ni.sort_order ASC, ni.id ASC LIMIT 1) AS first_gallery_image
              FROM news n{$parts['join']}
@@ -1107,7 +1138,7 @@ final class News
         $params = $parts['params'];
         $params[':excluded_id'] = $excludeId;
         $stmt = Database::pdo()->prepare(
-            "SELECT n.*,
+            "SELECT " . self::listColumns('n') . ",
                     (SELECT ni.path FROM news_images ni WHERE ni.news_id = n.id
                      ORDER BY ni.sort_order ASC, ni.id ASC LIMIT 1) AS first_gallery_image
              FROM news n{$parts['join']}
