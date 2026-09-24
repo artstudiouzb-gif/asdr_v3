@@ -186,9 +186,15 @@ if (is_file($configFile)) {
     $prepareHttpSecurity();
 }
 
-// Для обычного публичного GET без cookie сессию не создаём. Компоненты,
-// которым она нужна (Auth, CSRF, Flash, CAPTCHA), запускают её сами.
-if (PHP_SAPI !== 'cli' && \App\Core\Session::hasCookie()) {
+// Для обычного публичного GET сессию заранее не поднимаем — ни без cookie,
+// ни с ней: компоненты, которым она нужна (Auth, CSRF, Flash, CAPTCHA),
+// запускают её сами (см. Session::deferrable).
+if (PHP_SAPI !== 'cli'
+    && \App\Core\Session::hasCookie()
+    && !\App\Core\Session::deferrable(
+        (string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'),
+        (string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/')
+    )) {
     \App\Core\Session::start();
 }
 

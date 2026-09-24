@@ -11,7 +11,19 @@ final class AppToolbar
 {
     public static function isVisible(): bool
     {
-        return Auth::sessionUser() !== null;
+        return self::user() !== null;
+    }
+
+    /**
+     * Вошедший пользователь или null. Без метки входа сессию не поднимаем:
+     * шапка спрашивает это на каждой странице, и поднятая сессия сделала бы
+     * страницу некешируемой у всякого, у кого есть её cookie.
+     *
+     * @return array{id:int,username:string,role:string}|null
+     */
+    private static function user(): ?array
+    {
+        return Auth::mightBeSignedIn() ? Auth::sessionUser() : null;
     }
 
     /**
@@ -19,7 +31,7 @@ final class AppToolbar
      */
     public static function renderHtml(array $context = []): string
     {
-        $user = Auth::sessionUser();
+        $user = self::user();
         if ($user === null) {
             return '';
         }

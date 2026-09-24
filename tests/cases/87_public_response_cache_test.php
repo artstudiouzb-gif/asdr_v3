@@ -125,3 +125,36 @@ test('ETag считается от готового тела, а не от вр�
         'View::render обязан выйти без вывода тела, когда отправлен 304'
     );
 });
+
+test('Главная хранится в кеше браузера, но не в общем', function () {
+    // Корень уводит по cookie языка, поэтому в CDN ему не место. Но без
+    // правил кеширования главная качалась целиком при каждом переходе на неё.
+    $codes = ['ru', 'uz'];
+    $session = session_status() === PHP_SESSION_ACTIVE;
+    if (!$session) {
+        assert_true(\App\Core\PublicResponseCache::isBrowserCacheableRoot('/', 'GET', 200, $codes));
+        assert_true(\App\Core\PublicResponseCache::isBrowserCacheableRoot('/uz', 'HEAD', 200, $codes));
+    }
+    assert_false(\App\Core\PublicResponseCache::isBrowserCacheableRoot('/news', 'GET', 200, $codes), 'не корень');
+    assert_false(\App\Core\PublicResponseCache::isBrowserCacheableRoot('/', 'POST', 200, $codes));
+    assert_false(\App\Core\PublicResponseCache::isBrowserCacheableRoot('/', 'GET', 404, $codes));
+    assert_false(
+        \App\Core\PublicResponseCache::isCacheableRequest('/', 'GET', false, 200, false, $codes),
+        'в общий кеш корень по-прежнему не идёт'
+    );
+
+    $source = (string) file_get_contents(APP_ROOT . '/app/Core/PublicResponseCache.php');
+    assert_contains("Cache-Control: private, max-age=%d", $source);
+    assert_contains('self::sendVary(true)', $source, 'ответ корня зависит от cookie языка');
+});
+
+test('Страница с сессией персональна, но не запрещена к хранению', function () {
+    // no-store запрещает браузеру и кеш, и восстановление по «Назад»;
+    // private + no-cache держит копию и перепроверяет её по ETag.
+    $source = (string) file_get_contents(APP_ROOT . '/app/Core/PublicResponseCache.php');
+    assert_contains("Cache-Control: private, no-cache", $source);
+    assert_contains('!self::isPrivateRequestPath($path)', $source, 'служебные пути остаются no-store');
+    assert_true(\App\Core\PublicResponseCache::isPrivateRequestPath('/uz/search'));
+    assert_true(\App\Core\PublicResponseCache::isPrivateRequestPath('/admin/pages'));
+    assert_false(\App\Core\PublicResponseCache::isPrivateRequestPath('/uz/news'));
+});
