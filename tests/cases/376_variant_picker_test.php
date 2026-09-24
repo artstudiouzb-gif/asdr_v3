@@ -132,12 +132,13 @@ test('Схема рисует вариант плитками, а остальн
 });
 
 test('Блок «Текст» выбирает вариант тем же виджетом, что и блоки на схеме', function (): void {
-    // Четыре типа остались вне схемы полей, и «Текст» — один из них. Свой
-    // выпадающий список там означал бы, что один и тот же выбор показан двумя
-    // разными способами.
-    $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/pages/block_form.php');
+    // «Текст» переехал на схему, и вариант объявлен там вместе с рисунками.
+    // Свой выпадающий список в форме означал бы, что один и тот же выбор
+    // показан двумя разными способами.
+    $variant = \App\Core\BlockData\BlockFieldSchema::fields('text')['variant'] ?? null;
+    assert_true($variant !== null && $variant->variants !== [], 'вариант «Текста» объявлен схемой с рисунками');
 
-    assert_contains('AdminUi::variantField(', $form, 'вариант «Текста» рисуется общим виджетом');
+    $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/pages/block_form.php');
     assert_not_contains('<select id="text_variant"', $form, 'старого выпадающего списка быть не должно');
 });
 

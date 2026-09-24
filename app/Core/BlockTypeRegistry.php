@@ -27,35 +27,7 @@ final class BlockTypeRegistry
      * @var array<string, array<string, mixed>>
      */
     public const BASE_DEFAULTS = [
-        'text' => [
-            'variant' => 'default',
-            'title' => '',
-            'content' => '',
-            'aside_title' => '',
-            'items' => [],
-            'quote' => '',
-            // Оформление акцентной цитаты. Пустой цвет и нулевой размер — это
-            // «как в теме»: у блоков, собранных до появления настроек, вид не
-            // меняется. Знак кавычки бывает символом (любым, из документа) или
-            // значком Tabler — пресетом «крупная/мелкая» нужный кегль не
-            // угадать, поэтому размер числом, в пикселях.
-            'quote_bg' => '',
-            'quote_color' => '',
-            'quote_mark' => 'text',
-            'quote_mark_text' => "\u{201c}",
-            'quote_mark_icon' => '',
-            'quote_mark_size' => 0,
-            'quote_mark_color' => '',
-            'quote_mark_position' => 'top-left',
-            'media_type' => 'none',
-            'media_image' => '',
-            'media_video' => '',
-            'media_youtube' => '',
-            'media_alt' => '',
-            'media_caption' => '',
-            'image_position' => 'center-center',
-            'image_position_mobile' => 'center-center',
-        ],
+        'text' => [], // схема: BlockFieldSchema
         'html' => ['html' => ''],
         'cta' => [], // схема: BlockFieldSchema
         'slider' => [], // схема: BlockFieldSchema

@@ -435,57 +435,34 @@ final class BlockController
                         'title' => TextProcessor::typographPlain($itemTitle, $locale),
                     ];
                 }
-                $textVariant = (string) ($_POST['variant'] ?? 'default');
+                $textData = BlockFieldSchema::normalize('text', $_POST, $locale);
                 $mediaType = (string) ($_POST['media_type'] ?? 'none');
                 $mediaType = in_array($mediaType, ['none', 'image', 'video', 'youtube'], true)
                     ? $mediaType
                     : 'none';
-                $mediaImage = \App\Core\BlockData\BlockDataInput::safeMedia($_POST['media_image'] ?? '');
                 $mediaVideo = \App\Core\BlockData\BlockDataInput::safeMedia($_POST['media_video'] ?? '');
                 $mediaYoutube = trim((string) ($_POST['media_youtube'] ?? ''));
+                // Тип медиа не выбран — выводим его из заполненного поля: у
+                // вводного блока справа то, что редактор туда положил.
                 if ($mediaType === 'none') {
                     if (\App\Core\Video::youtubeId($mediaYoutube) !== null) {
                         $mediaType = 'youtube';
                     } elseif ($mediaVideo !== '') {
                         $mediaType = 'video';
-                    } elseif ($mediaImage !== '') {
+                    } elseif ($textData['media_image'] !== '') {
                         $mediaType = 'image';
                     }
                 }
-                return [
-                    'variant' => in_array($textVariant, ['default', 'section', 'intro', 'system', 'spotlight'], true) ? $textVariant : 'default',
-                    'title' => TextProcessor::typographPlain(trim((string) ($_POST['title_field'] ?? '')), $locale),
-                    'content' => TextProcessor::process(
-                        \App\Core\HtmlSanitizer::sanitizeText((string) ($_POST['content'] ?? '')),
-                        $locale
-                    ),
-                    'aside_title' => TextProcessor::typographPlain(trim((string) ($_POST['aside_title'] ?? '')), $locale),
+                // Мимо схемы — только то, что схема не выражает (см. EXTRA).
+                return array_merge($textData, [
                     'items' => $items,
-                    'quote' => TextProcessor::typographPlain(trim((string) ($_POST['quote'] ?? '')), $locale),
-                    'quote_bg' => \App\Core\BlockData\BlockDataInput::optionalColor($_POST, 'quote_bg'),
-                    'quote_color' => \App\Core\BlockData\BlockDataInput::optionalColor($_POST, 'quote_color'),
-                    'quote_mark' => \App\Core\BlockData\BlockDataInput::enum($_POST, 'quote_mark', ['text', 'icon', 'none'], 'text'),
+                    'media_type' => $mediaType,
+                    'media_video' => $mediaVideo,
+                    'media_youtube' => \App\Core\Video::youtubeId($mediaYoutube) !== null ? $mediaYoutube : '',
                     // Символ набирается редактором: подрезаем до одного знака —
                     // в углу карточки стоит кавычка, а не строка текста.
                     'quote_mark_text' => mb_substr(trim((string) ($_POST['quote_mark_text'] ?? '')), 0, 2),
-                    'quote_mark_icon' => \App\Core\Icon::cleanName($_POST['quote_mark_icon'] ?? ''),
-                    'quote_mark_size' => \App\Core\BlockData\BlockDataInput::int($_POST, 'quote_mark_size', 0, 240, 0),
-                    'quote_mark_color' => \App\Core\BlockData\BlockDataInput::optionalColor($_POST, 'quote_mark_color'),
-                    'quote_mark_position' => \App\Core\BlockData\BlockDataInput::enum(
-                        $_POST,
-                        'quote_mark_position',
-                        ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'above'],
-                        'top-left'
-                    ),
-                    'media_type' => $mediaType,
-                    'media_image' => $mediaImage,
-                    'media_video' => $mediaVideo,
-                    'media_youtube' => \App\Core\Video::youtubeId($mediaYoutube) !== null ? $mediaYoutube : '',
-                    'media_alt' => TextProcessor::typographPlain(trim((string) ($_POST['media_alt'] ?? '')), $locale),
-                    'media_caption' => TextProcessor::typographPlain(trim((string) ($_POST['media_caption'] ?? '')), $locale),
-                    'image_position' => \App\Core\MediaPosition::normalize($_POST['image_position'] ?? null),
-                    'image_position_mobile' => \App\Core\MediaPosition::normalize($_POST['image_position_mobile'] ?? null),
-                ];
+                ]);
             case 'html':
                 // Даже супер-администратор сохраняет только безопасную
                 // разметку: скрипты, inline-стили, on* и опасные URI запрещены.
