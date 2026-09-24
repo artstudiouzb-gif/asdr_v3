@@ -23,13 +23,16 @@ final class Page
      */
     private static array $menuTargetMemo = [];
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     public static function all(): array
     {
         $stmt = Database::pdo()->query(
             "SELECT * FROM pages WHERE deleted_at IS NULL AND entity_type = 'page' ORDER BY created_at DESC"
         );
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
     /**
@@ -41,6 +44,7 @@ final class Page
      *
      * $entityType: 'page' — обычные страницы (по умолчанию), 'project' — только
      * проекты, 'all' — и то и другое (конструктор меню предлагает оба раздела).
+     * @return list<array<string, mixed>>
      */
     public static function filter(?string $status = null, ?string $lang = null, string $entityType = 'page'): array
     {
@@ -64,9 +68,13 @@ final class Page
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
+    /**
+     * @param array<string, mixed> $filters
+     * @return list<array<string, mixed>>
+     */
     public static function adminList(array $filters): array
     {
         [$from, $params] = self::adminListFrom($filters);
@@ -92,7 +100,7 @@ final class Page
         $stmt->bindValue(':offset', (int) $filters['offset'], \PDO::PARAM_INT);
         $stmt->execute();
 
-        $items = $stmt->fetchAll();
+        $items = Database::rows($stmt);
         $langFilter = (string) ($filters['lang'] ?? '');
         if ($langFilter !== '' && $langFilter !== 'all' && $items !== []) {
             $ids = array_map(static fn ($item): int => (int) $item['id'], $items);
@@ -113,6 +121,9 @@ final class Page
         return $items;
     }
 
+    /**
+     * @param array<string, mixed> $filters
+     */
     public static function adminCount(array $filters): int
     {
         [$from, $params] = self::adminListFrom($filters);
@@ -122,7 +133,11 @@ final class Page
         return (int) $stmt->fetchColumn();
     }
 
-    /** @return array{0:string,1:array<string,string>} */
+    /**
+     * @return array{0:string,1:array<string,string>}
+     *
+     * @param array<string, mixed> $filters
+     */
     private static function adminListFrom(array $filters): array
     {
         $from = 'FROM pages p';
@@ -210,13 +225,16 @@ final class Page
         }
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     public static function trashed(): array
     {
         $stmt = Database::pdo()->query(
             "SELECT * FROM pages WHERE deleted_at IS NOT NULL AND entity_type = 'page' ORDER BY deleted_at DESC"
         );
 
-        return $stmt->fetchAll();
+        return Database::rows($stmt);
     }
 
     public static function restore(int $id): void
@@ -232,6 +250,9 @@ final class Page
         ContentRevision::deleteForEntity('page', $id);
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public static function findBySlug(string $slug, ?string $lang = null): ?array
     {
         $lang = $lang ?? Language::defaultCode();
@@ -286,6 +307,7 @@ final class Page
      *
      * Проект адресуется как `projects/<slug>` — тем же значением, каким пункт
      * меню и хранится, поэтому публичная ссылка собирается без особых случаев.
+     * @return array<string, mixed>|null
      */
     public static function findPublishedMenuTarget(string $slug, string $lang): ?array
     {
@@ -438,7 +460,11 @@ final class Page
         return $found;
     }
 
-    /** Значение пункта меню для найденной цели: у проекта адрес с префиксом. */
+    /**
+     * Значение пункта меню для найденной цели: у проекта адрес с префиксом.
+     *
+     * @param array<string, mixed> $target
+     */
     public static function menuTargetValue(array $target): string
     {
         $slug = (string) ($target['slug'] ?? '');
@@ -475,6 +501,7 @@ final class Page
      * Следствие для редактора: роль достаточно назначить один раз, на любой
      * языковой версии. Раньше её приходилось проставлять на каждой, и забытый
      * язык молча показывал чужой текст.
+     * @return array<string, mixed>|null
      */
     public static function forSection(string $section, ?string $lang = null): ?array
     {
@@ -575,6 +602,9 @@ final class Page
             : '';
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public static function findHome(?string $lang = null): ?array
     {
         $targetLang = $lang ?? \App\Core\Locale::current();
@@ -645,6 +675,7 @@ final class Page
 
     /**
      * Точно определяет, является ли страница Главной страницей для указанного языка (или для своего языка).
+     * @param array<string, mixed>|int $page
      */
     public static function isHomePage(array|int $page, ?string $lang = null): bool
     {
@@ -696,6 +727,8 @@ final class Page
 
     /**
      * Накладывает перевод (title/meta) на базовую строку страницы.
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
      */
     public static function localize(array $row, string $lang): array
     {
@@ -720,6 +753,9 @@ final class Page
         return $row;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public static function findById(int $id): ?array
     {
         $stmt = Database::pdo()->prepare('SELECT * FROM pages WHERE id = :id LIMIT 1');
@@ -845,6 +881,9 @@ final class Page
         return 'Превышена допустимая глубина иерархии страниц.';
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     private static function hierarchyRow(int $id, bool $lockRow): ?array
     {
         $sql = 'SELECT * FROM pages WHERE id = :id AND deleted_at IS NULL LIMIT 1';
@@ -863,6 +902,7 @@ final class Page
      * Заголовки локализуются, а URL остаются плоскими.
      *
      * @return list<array<string,mixed>>
+     * @param array<string, mixed> $page
      */
     public static function ancestorTrail(array $page, string $lang): array
     {
@@ -903,6 +943,10 @@ final class Page
         return (int) (($row['translation_group_id'] ?? null) ?: $row['id']);
     }
 
+    /**
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
     private static function hierarchyNodeForLanguage(array $row, string $lang): array
     {
         $groupId = (int) (($row['translation_group_id'] ?? null) ?: $row['id']);
@@ -1016,6 +1060,9 @@ final class Page
         return $map;
     }
 
+    /**
+     * @return list<string>
+     */
     public static function availableLangs(int $id): array
     {
         $langs = [Language::defaultCode()];
@@ -1059,6 +1106,9 @@ final class Page
         return array_values(array_unique($langs));
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function create(array $data): int
     {
         // Адреса страниц изменились — память целей меню в этом запросе устарела.
@@ -1124,6 +1174,9 @@ final class Page
         });
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function update(int $id, array $data, ?int $expectedLockVersion = null): void
     {
         // Адреса страниц изменились — память целей меню в этом запросе устарела.
@@ -1235,6 +1288,9 @@ final class Page
         return (int) $stmt->fetchColumn() > 0;
     }
 
+    /**
+     * @return array<string, int>
+     */
     public static function langCounts(): array
     {
         $pdo = Database::pdo();
