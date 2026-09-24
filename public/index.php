@@ -585,7 +585,10 @@ if (\App\Core\Session::hasCookie()) {
 // Telegram получает ограниченную сессию и может открыть только профиль,
 // настройки доставки кода и выход. Остальная админка остаётся закрытой.
 $guardPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
-if (\App\Core\Session::hasCookie()
+// Путь проверяется первым: проверка входа поднимает сессию, а на публичной
+// странице она не нужна и сделала бы ответ некешируемым.
+if (str_starts_with($guardPath, '/admin')
+    && \App\Core\Session::hasCookie()
     && \App\Core\Auth::check()
     && \App\Core\Auth::requiresTwoFactorSetup()
     && (string) \App\Core\Config::get('app.env') !== 'development') {
@@ -606,7 +609,7 @@ if (\App\Core\Session::hasCookie()
         '/admin/logout',
     ];
     $allowed = in_array($guardPath, $allowedSetupPaths, true);
-    if (!$allowed && str_starts_with($guardPath, '/admin')) {
+    if (!$allowed) {
         header('Location: /admin/profile');
         exit;
     }

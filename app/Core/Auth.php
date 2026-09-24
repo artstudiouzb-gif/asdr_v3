@@ -284,9 +284,45 @@ final class Auth
         return true;
     }
 
+    /**
+     * Метка «в этом браузере выполнен вход». Не доступ — только подсказка:
+     * сама проверка по-прежнему идёт по сессии. Она нужна публичной странице,
+     * чтобы спросить про панель администратора, не поднимая сессию у каждого,
+     * у кого есть её cookie (например, после отправки формы): поднятая сессия
+     * делает ответ персональным, и браузер перестаёт брать его из кеша.
+     */
+    public const SIGNED_IN_COOKIE = 'asc_signed_in';
+
+    /** Стоит ли вообще проверять вход на публичной странице. */
+    public static function mightBeSignedIn(): bool
+    {
+        return !empty($_SESSION['user_id'])
+            || (Session::hasCookie() && isset($_COOKIE[self::SIGNED_IN_COOKIE]));
+    }
+
+    private static function signedInMarker(bool $on): void
+    {
+        if (PHP_SAPI === 'cli' || headers_sent() || isset($_COOKIE[self::SIGNED_IN_COOKIE]) === $on) {
+            return;
+        }
+        setcookie(self::SIGNED_IN_COOKIE, $on ? '1' : '', [
+            'expires' => $on ? 0 : time() - 3600,
+            'path' => '/',
+            'secure' => RequestUrl::isHttps(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+        if ($on) {
+            $_COOKIE[self::SIGNED_IN_COOKIE] = '1';
+        } else {
+            unset($_COOKIE[self::SIGNED_IN_COOKIE]);
+        }
+    }
+
     public static function establishSession(array $user): void
     {
         session_regenerate_id(true);
+        self::signedInMarker(true);
         $_SESSION['user_id'] = (int) $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['role'] = $user['role'];
@@ -376,6 +412,7 @@ final class Auth
 
         Session::start();
         if (empty($_SESSION['user_id'])) {
+            self::signedInMarker(false);
             return false;
         }
 
@@ -407,6 +444,10 @@ final class Auth
             // уже проверен; логируем и пропускаем.
             Logger::error('SessionRegistry check failed: ' . $e->getMessage());
         }
+
+        // Вход, выполненный до появления метки, получает её при первой же
+        // проверке — иначе панель на сайте пропала бы до повторного входа.
+        self::signedInMarker(true);
 
         return true;
     }
@@ -600,6 +641,7 @@ final class Auth
         }
 
         $_SESSION = [];
+        self::signedInMarker(false);
 
         // Всё, что ниже, имеет смысл только при живой сессии. Session::start()
         // ничего не открывает в CLI, а без этой проверки session_destroy()
