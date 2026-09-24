@@ -65,7 +65,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             </span>
         </div>
 
-        <?php if (in_array($type, ['text', 'hero'], true)): ?>
+        <?php if ($type === 'hero'): ?>
             <div class="form-field">
                 <label for="title_field">Заголовок, показываемый на сайте</label>
                 <input type="text" id="title_field" name="title_field" value="<?= htmlspecialchars($data['title'] ?? '', ENT_QUOTES) ?>">
@@ -73,35 +73,10 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
         <?php endif; ?>
 
         <?php if ($type === 'text'): ?>
-            <?php // «Текст» — один из четырёх типов, оставшихся вне схемы полей,
-                  // поэтому вариант здесь объявлен вручную. Виджет тот же, что у
-                  // схемных блоков: второй способ показать тот же выбор
-                  // разъехался бы с первым при первой правке. ?>
-            <?= \App\Core\AdminUi::variantField(
-                'variant',
-                (string) ($data['variant'] ?? 'default'),
-                [
-                    'default' => 'Обычный текст',
-                    'section' => 'Вступление к разделу',
-                    'intro' => 'С принципами',
-                    'system' => 'С системным списком',
-                    'spotlight' => 'С акцентной цитатой',
-                ],
-                [
-                    'default' => ['text:5', 'Сплошной текст с заголовком — обычная статья'],
-                    'section' => ['text:3+frame', 'Короткий лид перед разделом, крупнее основного текста'],
-                    'intro' => ['grid:3+icon+plain', 'Текст, под ним ряд принципов с иконками'],
-                    'system' => ['list:4+dot', 'Текст и список с маркерами-значками сбоку'],
-                    'spotlight' => ['quote', 'Текст и карточка цитаты рядом'],
-                ],
-                'Вариант отображения',
-                'Специальные варианты остаются обычными системными блоками и адаптируются автоматически.',
-                'text_variant'
-            ) ?>
-            <div class="form-field">
-                <label for="content">Текст</label>
-                <textarea class="u-inline-9bef318bc9" id="content" name="content" data-wysiwyg><?= htmlspecialchars($data['content'] ?? '', ENT_QUOTES) ?></textarea>
-            </div>
+            <?php // Поля «Текста» объявлены схемой; мимо неё — только то, что
+                  // схема не выражает (BlockFieldSchema::EXTRA). Схема печатается
+                  // кусками, чтобы эти поля стояли рядом со своими соседями. ?>
+            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('text', $data, ['title', 'variant', 'content']) ?>
             <?php
             $textMediaType = (string) ($data['media_type'] ?? 'none');
             $textMediaType = in_array($textMediaType, ['none', 'image', 'video', 'youtube'], true) ? $textMediaType : 'none';
@@ -116,11 +91,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                 </select>
                 <span class="form-hint">Показывается у варианта «Вводный блок с принципами». Если файл не выбран, справа остаётся аккуратная фирменная композиция.</span>
             </div>
-            <?= \App\Core\AdminUi::imageField('media_image', (string) ($data['media_image'] ?? ''), [
-                'label' => 'Фотография / постер видео',
-                'hint' => 'Выберите изображение из медиабиблиотеки. Для видео оно используется как заставка.',
-            ]) ?>
-            <?= \App\Core\AdminUi::mediaPositionFields($data['image_position'] ?? 'center-center', $data['image_position_mobile'] ?? 'center-center') ?>
+            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('text', $data, ['media_image', 'image_position']) ?>
             <div class="form-field">
                 <label for="text_media_video">Видео из медиабиблиотеки (mp4)</label>
                 <div class="image-field__controls">
@@ -132,20 +103,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                 <label for="text_media_youtube">Ссылка на YouTube</label>
                 <input type="text" id="text_media_youtube" name="media_youtube" value="<?= htmlspecialchars($data['media_youtube'] ?? '', ENT_QUOTES) ?>" placeholder="https://www.youtube.com/watch?v=…">
             </div>
-            <div class="form-field">
-                <label for="text_media_alt">Описание изображения</label>
-                <input type="text" id="text_media_alt" name="media_alt" value="<?= htmlspecialchars($data['media_alt'] ?? '', ENT_QUOTES) ?>" placeholder="Что изображено на фотографии">
-                <span class="form-hint">Нужно для доступности. Для декоративной фотографии можно оставить пустым.</span>
-            </div>
-            <div class="form-field">
-                <label for="text_media_caption">Подпись под медиа</label>
-                <input type="text" id="text_media_caption" name="media_caption" value="<?= htmlspecialchars($data['media_caption'] ?? '', ENT_QUOTES) ?>" placeholder="Необязательная подпись или источник">
-            </div>
-            <div class="form-field">
-                <label for="aside_title">Заголовок структурированного списка</label>
-                <input type="text" id="aside_title" name="aside_title" value="<?= htmlspecialchars($data['aside_title'] ?? '', ENT_QUOTES) ?>">
-                <span class="form-hint">Используется вариантом «Текст + системный список».</span>
-            </div>
+            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('text', $data, ['media_alt', 'media_caption', 'aside_title']) ?>
             <div>
                 <label>Структурированные пункты</label>
                 <div data-repeater="items">
@@ -168,66 +126,13 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                 </template>
                 <div class="repeater-actions"><button type="button" class="btn btn--small" data-repeater-add="items"><?= \App\Core\AdminUi::icon('plus') ?>Добавить пункт</button></div>
             </div>
-            <div class="form-field" data-field-when="variant" data-field-value="spotlight">
-                <label for="quote">Акцентная цитата</label>
-                <textarea id="quote" name="quote" rows="4"><?= htmlspecialchars($data['quote'] ?? '', ENT_QUOTES) ?></textarea>
-                <span class="form-hint">Используется вариантом «Текст + акцентная цитата».</span>
-            </div>
-            <?php
-            // Оформление цитаты. Поля показываются только у своего варианта:
-            // скрытие — подсказка редактору, а не условие сохранения (без JS
-            // они остаются видимыми и работают по-прежнему).
-            $quoteMark = (string) ($data['quote_mark'] ?? 'text');
-            $quoteMark = in_array($quoteMark, ['text', 'icon', 'none'], true) ? $quoteMark : 'text';
-            $quoteMarkPos = (string) ($data['quote_mark_position'] ?? 'top-left');
-            $quoteMarkPositions = [
-                'top-left' => 'Сверху слева',
-                'top-right' => 'Сверху справа',
-                'bottom-left' => 'Снизу слева',
-                'bottom-right' => 'Снизу справа',
-                'above' => 'Над текстом цитаты',
-            ];
-            $quoteMarkPos = isset($quoteMarkPositions[$quoteMarkPos]) ? $quoteMarkPos : 'top-left';
-            ?>
-            <div data-field-when="variant" data-field-value="spotlight">
-                <div class="colorfield-row">
-                    <?= \App\Core\AdminUi::colorField('quote_bg', $data['quote_bg'] ?? '', 'Фон цитаты', '#173a63', 'Как в теме') ?>
-                    <?= \App\Core\AdminUi::colorField('quote_color', $data['quote_color'] ?? '', 'Цвет текста цитаты', '#ffffff', 'Подобрать по фону') ?>
-                </div>
-                <span class="form-hint">Пустой цвет текста подбирается по контрасту с выбранным фоном.</span>
-            </div>
-            <div class="form-field" data-field-when="variant" data-field-value="spotlight">
-                <label for="quote_mark">Знак кавычки</label>
-                <select id="quote_mark" name="quote_mark">
-                    <option value="text" <?= $quoteMark === 'text' ? 'selected' : '' ?>>Символ</option>
-                    <option value="icon" <?= $quoteMark === 'icon' ? 'selected' : '' ?>>Значок из набора</option>
-                    <option value="none" <?= $quoteMark === 'none' ? 'selected' : '' ?>>Без знака</option>
-                </select>
-            </div>
+            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('text', $data, ['quote', 'quote_bg', 'quote_color', 'quote_mark']) ?>
             <div class="form-field" data-field-when="variant" data-field-value="spotlight">
                 <label for="quote_mark_text">Символ знака</label>
                 <input type="text" id="quote_mark_text" name="quote_mark_text" value="<?= htmlspecialchars((string) ($data['quote_mark_text'] ?? '“'), ENT_QUOTES) ?>" placeholder="“">
                 <span class="form-hint">Любой знак из документа: “ « „ ❝ ". Показывается при варианте «Символ».</span>
             </div>
-            <div data-field-when="variant" data-field-value="spotlight">
-                <?= \App\Core\AdminUi::iconField('quote_mark_icon', $data['quote_mark_icon'] ?? '', ['label' => 'Значок знака', 'hint' => 'Показывается при варианте «Значок из набора».']) ?>
-            </div>
-            <div class="form-field" data-field-when="variant" data-field-value="spotlight">
-                <label for="quote_mark_size">Размер знака, px</label>
-                <input type="number" id="quote_mark_size" name="quote_mark_size" min="0" max="240" step="1" value="<?= (int) ($data['quote_mark_size'] ?? 0) ?>">
-                <span class="form-hint">0 — размер из темы (80px). Нужный кегль зависит от знака, поэтому задаётся числом.</span>
-            </div>
-            <div class="form-field" data-field-when="variant" data-field-value="spotlight">
-                <label for="quote_mark_position">Расположение знака</label>
-                <select id="quote_mark_position" name="quote_mark_position">
-                    <?php foreach ($quoteMarkPositions as $value => $label): ?>
-                        <option value="<?= $value ?>" <?= $quoteMarkPos === $value ? 'selected' : '' ?>><?= $label ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div data-field-when="variant" data-field-value="spotlight">
-                <?= \App\Core\AdminUi::colorField('quote_mark_color', $data['quote_mark_color'] ?? '', 'Цвет знака', '#17999b', 'Акцент темы') ?>
-            </div>
+            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('text', $data, ['quote_mark_icon', 'quote_mark_size', 'quote_mark_position', 'quote_mark_color']) ?>
         <?php endif; ?>
 
         <?php if ($type === 'html'): ?>

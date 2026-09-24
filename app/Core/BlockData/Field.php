@@ -150,10 +150,15 @@ final class Field
      * Необязательный цвет. Пустое значение — «как в теме», поэтому у поля есть
      * отдельный флажок «по умолчанию»; `$swatch` — цвет, который показывает
      * пипетка, пока своего значения нет.
+     *
+     * `$offLabel` — подпись состояния «по умолчанию», которую поле показывает
+     * на месте значения. Она объясняет, что будет без своего цвета («Подобрать
+     * по фону» — не то же самое, что «Как в теме»), поэтому своя у поля, а
+     * хранится там же, где у текстового поля текст-подсказка пустого значения.
      */
-    public static function color(string $label, string $swatch, string $hint = ''): self
+    public static function color(string $label, string $swatch, string $hint = '', string $offLabel = ''): self
     {
-        return new self('color', $label, '', hint: $hint, swatch: $swatch);
+        return new self('color', $label, '', hint: $hint, placeholder: $offLabel, swatch: $swatch);
     }
 
     /**

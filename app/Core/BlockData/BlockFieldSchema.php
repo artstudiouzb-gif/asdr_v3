@@ -76,6 +76,18 @@ final class BlockFieldSchema
         // Форма — ссылка на запись в БД (раздел «Формы»), как рубрика у блоков
         // новостей: перечислять её значения схеме неоткуда.
         'form' => ['form_id' => null],
+        // «Текст»: пункты — репитер; тип медиа выводится из соседних полей,
+        // если редактор его не выбрал; видео выбирается из медиатеки своим
+        // пикером (поле картинки видео не покажет); ссылка YouTube принимается
+        // только разбираемой; символ кавычки хранится как набран, без
+        // типографа — иначе прямая кавычка сама превращалась бы в «ёлочку».
+        'text' => [
+            'items' => [],
+            'media_type' => 'none',
+            'media_video' => '',
+            'media_youtube' => '',
+            'quote_mark_text' => "\u{201c}",
+        ],
     ];
 
     /** @var array<string, array<string, Field>>|null */
@@ -117,6 +129,78 @@ final class BlockFieldSchema
                     'normal' => 'Как в редакторе',
                     'reverse' => 'В обратном порядке',
                 ], 'normal', 'Обратный порядок нужен паре «текст + фото»: на широком экране фото слева, а на телефоне первым читается текст.'),
+            ],
+            'text' => [
+                'title' => Field::text('Заголовок, показываемый на сайте')->named('title_field'),
+                'variant' => Field::enum(
+                    'Вариант отображения',
+                    [
+                        'default' => 'Обычный текст',
+                        'section' => 'Вступление к разделу',
+                        'intro' => 'С принципами',
+                        'system' => 'С системным списком',
+                        'spotlight' => 'С акцентной цитатой',
+                    ],
+                    'default',
+                    'Специальные варианты остаются обычными системными блоками и адаптируются автоматически.'
+                )->variants([
+                    'default' => ['text:5', 'Сплошной текст с заголовком — обычная статья'],
+                    'section' => ['text:3+frame', 'Короткий лид перед разделом, крупнее основного текста'],
+                    'intro' => ['grid:3+icon+plain', 'Текст, под ним ряд принципов с иконками'],
+                    'system' => ['list:4+dot', 'Текст и список с маркерами-значками сбоку'],
+                    'spotlight' => ['quote', 'Текст и карточка цитаты рядом'],
+                ]),
+                'content' => Field::richtext('Текст'),
+                'media_image' => Field::media(
+                    'Фотография / постер видео',
+                    'Выберите изображение из медиабиблиотеки. Для видео оно используется как заставка.'
+                ),
+                'image_position' => Field::mediaPosition(),
+                'media_alt' => Field::text(
+                    'Описание изображения',
+                    '',
+                    'Нужно для доступности. Для декоративной фотографии можно оставить пустым.',
+                    'Что изображено на фотографии'
+                ),
+                'media_caption' => Field::text('Подпись под медиа', '', '', 'Необязательная подпись или источник'),
+                'aside_title' => Field::text(
+                    'Заголовок структурированного списка',
+                    '',
+                    'Используется вариантом «Текст + системный список».'
+                ),
+                // Оформление цитаты. Пустой цвет и нулевой размер — «как в
+                // теме»: у блоков, собранных до появления настроек, вид не
+                // меняется. Нужный кегль знака зависит от самого знака, поэтому
+                // размер числом, а не пресетом.
+                'quote' => Field::textarea('Акцентная цитата', 'Используется вариантом «Текст + акцентная цитата».')
+                    ->onlyWhen('variant', ['spotlight']),
+                'quote_bg' => Field::color('Фон цитаты', '#173a63', '', 'Как в теме')
+                    ->onlyWhen('variant', ['spotlight']),
+                'quote_color' => Field::color('Цвет текста цитаты', '#ffffff', '', 'Подобрать по фону')
+                    ->onlyWhen('variant', ['spotlight']),
+                'quote_mark' => Field::enum('Знак кавычки', [
+                    'text' => 'Символ',
+                    'icon' => 'Значок из набора',
+                    'none' => 'Без знака',
+                ], 'text')->onlyWhen('variant', ['spotlight']),
+                'quote_mark_icon' => Field::icon('Значок знака', 'Показывается при варианте «Значок из набора».')
+                    ->onlyWhen('variant', ['spotlight']),
+                'quote_mark_size' => Field::int(
+                    'Размер знака, px',
+                    0,
+                    240,
+                    0,
+                    '0 — размер из темы (80px). Нужный кегль зависит от знака, поэтому задаётся числом.'
+                )->onlyWhen('variant', ['spotlight']),
+                'quote_mark_position' => Field::enum('Расположение знака', [
+                    'top-left' => 'Сверху слева',
+                    'top-right' => 'Сверху справа',
+                    'bottom-left' => 'Снизу слева',
+                    'bottom-right' => 'Снизу справа',
+                    'above' => 'Над текстом цитаты',
+                ], 'top-left')->onlyWhen('variant', ['spotlight']),
+                'quote_mark_color' => Field::color('Цвет знака', '#17999b', '', 'Акцент темы')
+                    ->onlyWhen('variant', ['spotlight']),
             ],
             'form' => [
                 // Набор колонок объявлен в FormLayout: там же его читает
@@ -1352,7 +1436,9 @@ final class BlockFieldSchema
                     MediaPosition::normalize($data[$key] ?? null),
                     MediaPosition::normalize($data[$key . '_mobile'] ?? null)
                 ),
-                default => AdminUi::colorField($name, (string) ($data[$key] ?? ''), $field->label, $field->swatch),
+                default => $field->placeholder !== ''
+                    ? AdminUi::colorField($name, (string) ($data[$key] ?? ''), $field->label, $field->swatch, $field->placeholder)
+                    : AdminUi::colorField($name, (string) ($data[$key] ?? ''), $field->label, $field->swatch),
             };
 
             // Поле цвета раскладывает своя строка (`.colorfield-row`), и
