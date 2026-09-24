@@ -233,5 +233,66 @@
       "gzip": 1247,
       "brotli": 1025
     }
+  },
+  "admin": {
+    "/assets/admin/admin-core.min.css": {
+      "sources": [
+        "/assets/css/admin.css"
+      ],
+      "sourceSha256": "c12aba4eb7a4d9d7fde9f5a64a921f1ffedcd87b9d8a1ebb6880d642dcc1a8b6",
+      "sha256": "de39c5f8518d31e853315955904c07c28688fbdf78a4b633e0ca490c253bb518",
+      "raw": 276954,
+      "gzip": 47068,
+      "brotli": 38230
+    },
+    "/assets/admin/admin-shell.min.css": {
+      "sources": [
+        "/assets/css/admin-shell-v2.css"
+      ],
+      "sourceSha256": "351156e0e25f2182ab1bc18c39b43b17ae7b06984cee54d1b4d00862de82b57c",
+      "sha256": "c80b63cfd2a193081386b925331c12b0e0ac01798b6bd2eecbb45ff698c977b9",
+      "raw": 11471,
+      "gzip": 2685,
+      "brotli": 2337
+    },
+    "/assets/admin/admin-brand.min.css": {
+      "sources": [
+        "/assets/css/admin-notifications.css",
+        "/assets/css/admin-shell-stability.css",
+        "/assets/css/admin-hero-slide-editor.css"
+      ],
+      "sourceSha256": "ecf187b5259910c424b64a12c2cc71277336d3adbb913836b3a567a61706b59c",
+      "sha256": "531ee9aaa2019e2b2c1b084fd5e671e0dff4a0d52828f08e07fe4e34f2221595",
+      "raw": 20315,
+      "gzip": 3787,
+      "brotli": 3317
+    },
+    "/assets/admin/admin-panel.min.css": {
+      "sources": [
+        "/assets/css/admin-workflow-fixes.css",
+        "/assets/css/admin-media-unified.css",
+        "/assets/css/admin-slider-settings-layout.css"
+      ],
+      "sourceSha256": "c9c7bc1bf49032b98986874c279303808cee8aeefc0801c6f60b2d727f013348",
+      "sha256": "2660fa3a3433a7f6569cf59ae3fe84619d3de92e0ba769ec904aa9c5d1009c5a",
+      "raw": 14609,
+      "gzip": 2873,
+      "brotli": 2512
+    },
+    "/assets/admin/admin.min.js": {
+      "sources": [
+        "/assets/js/admin.js",
+        "/assets/js/admin-media-bridge.js",
+        "/assets/js/admin-workflow-fixes.js",
+        "/assets/js/admin-slider-settings-layout.js",
+        "/assets/js/admin-gallery-dropzone.js",
+        "/assets/js/admin-media-loadmore.js"
+      ],
+      "sourceSha256": "59883c777b55ab4afe3ccd998590706d4af639c611103dd32f08c3b03ecd25ca",
+      "sha256": "4e1635ad213ae52a2d2556fb3df18fc5ef4f4661a253ae9a268c64d6799e4a63",
+      "raw": 132002,
+      "gzip": 35434,
+      "brotli": 29769
+    }
   }
 }

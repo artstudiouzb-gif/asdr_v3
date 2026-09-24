@@ -29,56 +29,11 @@ final class Asset
         $root = defined('APP_ROOT') ? APP_ROOT : dirname(__DIR__, 2);
         $publicRoot = $root . '/public';
 
-        // Админский JS состоит из стабильного основного admin.js и небольших
-        // workflow-слоёв. Footer по-прежнему запрашивает admin.js, а Asset
-        // прозрачно отдаёт loader. В отпечаток включаем все связанные файлы,
-        // чтобы CDN не оставлял старую комбинацию после изменения любого слоя.
-        $fingerprintPaths = [$path];
-        if ($path === '/assets/js/admin.js') {
-            $loader = '/assets/js/admin-media-loader.js';
-            $bridge = '/assets/js/admin-media-bridge.js';
-            $workflowJs = '/assets/js/admin-workflow-fixes.js';
-            $galleryDropzoneJs = '/assets/js/admin-gallery-dropzone.js';
-            $loadMoreJs = '/assets/js/admin-media-loadmore.js';
-            $workflowCss = '/assets/css/admin-workflow-fixes.css';
-            $unifiedMediaCss = '/assets/css/admin-media-unified.css';
-            $adminBundle = [
-                '/assets/js/admin.js',
-                $loader,
-                $bridge,
-                $workflowJs,
-                $galleryDropzoneJs,
-                $loadMoreJs,
-                $workflowCss,
-                $unifiedMediaCss,
-            ];
-            $bundleReady = true;
-            foreach ($adminBundle as $bundleFile) {
-                if (!is_file($publicRoot . $bundleFile)) {
-                    $bundleReady = false;
-                    break;
-                }
-            }
-            if ($bundleReady) {
-                $path = $loader;
-                $fingerprintPaths = $adminBundle;
-            }
-        }
-
         $out = $path;
         $signature = '';
-        foreach ($fingerprintPaths as $fingerprintPath) {
-            $file = $publicRoot . $fingerprintPath;
-            if (!is_file($file)) {
-                $signature = '';
-                break;
-            }
-            $stat = @stat($file);
-            if ($stat === false) {
-                $signature = '';
-                break;
-            }
-            $signature .= $fingerprintPath . ':' . $stat['mtime'] . '-' . $stat['size'] . ';';
+        $stat = @stat($publicRoot . $path);
+        if ($stat !== false && is_file($publicRoot . $path)) {
+            $signature = $path . ':' . $stat['mtime'] . '-' . $stat['size'] . ';';
         }
         if ($signature !== '') {
             $v = substr(hash('crc32b', $signature), 0, 8);

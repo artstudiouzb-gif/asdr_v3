@@ -15,7 +15,7 @@ test('Центр уведомлений подключён к защищённо
     assert_true($gatePos !== false && $notificationsPos !== false, 'Gateway и notification dispatcher подключены');
     assert_true($gatePos < $notificationsPos, 'Скрытый admin gateway выполняется раньше notification routes');
 
-    assert_contains('admin-notifications.css', $brand, 'Стили колокольчика загружаются в head');
+    assert_contains('admin-brand.min.css', $brand, 'Стили колокольчика загружаются в head (бандл слоёв AdminBrand)');
     assert_contains('admin-notifications.js', $brand, 'Клиент колокольчика загружается в head');
     assert_contains('Auth::requireLogin()', $controller, 'Все endpoints требуют авторизацию');
     assert_contains('Csrf::verifyRequest()', $controller, 'Изменяющие endpoints требуют CSRF');

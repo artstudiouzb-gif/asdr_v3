@@ -19,7 +19,7 @@ test('AdminBrand: значения по умолчанию', function () {
 
     $head = AdminBrand::styleTag();
     assert_not_contains('<style>', $head, 'при стандартном акценте инлайн-стилей нет');
-    assert_contains('admin-notifications.css', $head, 'внешние стили Центра уведомлений подключены');
+    assert_contains('admin-brand.min.css', $head, 'внешние стили Центра уведомлений подключены');
     assert_contains('admin-notifications.js', $head, 'клиент Центра уведомлений подключён');
 });
 
@@ -48,7 +48,7 @@ test('AdminBrand: мусорный акцент откатывается к ст
 
     $head = AdminBrand::styleTag();
     assert_not_contains('<style>', $head, 'невалидный акцент не создаёт инлайн-CSS');
-    assert_contains('admin-notifications.css', $head, 'безопасные внешние ассеты сохраняются');
+    assert_contains('admin-brand.min.css', $head, 'безопасные внешние ассеты сохраняются');
     assert_contains('admin-notifications.js', $head, 'безопасный клиент сохраняется');
     Setting::set('admin_brand_accent', '');
 });

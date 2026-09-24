@@ -144,11 +144,14 @@ $navBrandSubtitle = $navBrandHost !== '' ? $navBrandHost : t('Панель уп�
 <title><?= htmlspecialchars($pageTitle, ENT_QUOTES) ?> — <?= htmlspecialchars(\App\Core\AdminBrand::name(), ENT_QUOTES) ?></title>
 <link rel="stylesheet" href="<?= htmlspecialchars(\App\Core\Asset::url('/assets/vendor/coloris/coloris.min.css'), ENT_QUOTES) ?>">
 <?= \App\Core\AdminUi::fontLinks() ?>
-<link rel="stylesheet" href="<?= htmlspecialchars(\App\Core\Asset::url('/assets/css/admin.css'), ENT_QUOTES) ?>">
-<link rel="stylesheet" href="<?= htmlspecialchars(\App\Core\Asset::url('/assets/css/admin-shell-v2.css'), ENT_QUOTES) ?>">
+<link rel="stylesheet" href="<?= htmlspecialchars(\App\Core\Asset::url('/assets/admin/admin-core.min.css'), ENT_QUOTES) ?>">
+<link rel="stylesheet" href="<?= htmlspecialchars(\App\Core\Asset::url('/assets/admin/admin-shell.min.css'), ENT_QUOTES) ?>">
 <?= \App\Core\Icon::browserConfigHtml() ?>
 <?= \App\Core\AdminBrand::styleTag() ?>
 <?= \App\Core\AdminBrand::faviconHtml() ?>
+<?php // Слои панели: прежде их добавлял загрузчик скриптов в конец <head>, то есть
+      // уже после первой отрисовки. Место в каскаде то же — последними. ?>
+<link rel="stylesheet" href="<?= htmlspecialchars(\App\Core\Asset::url('/assets/admin/admin-panel.min.css'), ENT_QUOTES) ?>">
 <script nonce="<?= \App\Core\SecurityHeaders::nonce() ?>">
 try {
     if (localStorage.getItem('artstudio:admin-sidebar-collapsed') === '1') {

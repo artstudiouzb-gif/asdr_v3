@@ -44,6 +44,55 @@ const blockSources = [
     'public/assets/js/news.js',
 ];
 
+// Админка. Прежде её CSS и JS уходили браузеру исходниками (447 КБ стилей и
+// 291 КБ скриптов), а скрипты к тому же грузились цепочкой: подвал подключал
+// загрузчик, тот — admin.js, и каждый следующий слой запрашивался только после
+// загрузки предыдущего, то есть пять сетевых кругов подряд. Два CSS-слоя
+// добавлял тот же загрузчик, уже после первой отрисовки.
+//
+// Бандлы собраны по местам подключения, а не одной кучей: каскад админки держится
+// на порядке файлов, и между ними стоят вещи, которые в бандл не входят
+// (акцентный <style> из AdminBrand сидит между оболочкой и её слоями). Поэтому
+// каждый бандл — это ровно те файлы, что и раньше шли подряд, в том же порядке:
+//   admin-core   — ядро; его же берут экраны входа, отсюда отдельный файл;
+//   admin-shell  — оболочка панели, сразу за ядром;
+//   admin-brand  — слои AdminBrand::styleTag() (после акцентного <style>);
+//   admin-panel  — слои, которые прежде добавлял загрузчик в конец <head>;
+//   admin.min.js — скрипты в том порядке, в каком их исполняла цепочка.
+// Бандлы лежат в своём каталоге: маски тестов и бюджетов (`css/admin*.css`)
+// считают исходники, и собранная копия рядом посчиталась бы вторично.
+const adminBundles = [
+    { out: 'public/assets/admin/admin-core.min.css', sources: ['public/assets/css/admin.css'] },
+    { out: 'public/assets/admin/admin-shell.min.css', sources: ['public/assets/css/admin-shell-v2.css'] },
+    {
+        out: 'public/assets/admin/admin-brand.min.css',
+        sources: [
+            'public/assets/css/admin-notifications.css',
+            'public/assets/css/admin-shell-stability.css',
+            'public/assets/css/admin-hero-slide-editor.css',
+        ],
+    },
+    {
+        out: 'public/assets/admin/admin-panel.min.css',
+        sources: [
+            'public/assets/css/admin-workflow-fixes.css',
+            'public/assets/css/admin-media-unified.css',
+            'public/assets/css/admin-slider-settings-layout.css',
+        ],
+    },
+    {
+        out: 'public/assets/admin/admin.min.js',
+        sources: [
+            'public/assets/js/admin.js',
+            'public/assets/js/admin-media-bridge.js',
+            'public/assets/js/admin-workflow-fixes.js',
+            'public/assets/js/admin-slider-settings-layout.js',
+            'public/assets/js/admin-gallery-dropzone.js',
+            'public/assets/js/admin-media-loadmore.js',
+        ],
+    },
+];
+
 const minifiedName = (path) => path.replace(/\.(css|js)$/, '.min.$1');
 
 const outputs = {
@@ -69,6 +118,9 @@ const outputs = {
 const budgets = {
     cssBrotli: 52 * 1024, // факт на момент установки порога — 49.3 КБ
     jsBrotli: 15 * 1024, // факт — 13.3 КБ
+    // Админка: сумма её бандлов. Порог по факту на момент заведения.
+    adminCssBrotli: 46 * 1024, // факт — 45.3 КБ (было 71.8 КБ исходниками)
+    adminJsBrotli: 30 * 1024, // факт — 29.1 КБ (было 55.7 КБ цепочкой)
 };
 
 // Файлы отдельных блоков грузятся только на страницах, где такой блок есть,
@@ -115,18 +167,28 @@ function sourceFingerprint(sources) {
     return hash.digest('hex');
 }
 
-async function buildCss(sources) {
+async function buildCss(sources, { safe = false } = {}) {
     const input = sources.map(({ path, content }) => `/* ${path} */\n${content}`).join('\n');
+    // Админке — только первый уровень: он сжимает запись, но не трогает
+    // порядок правил. Второй уровень сливает разнесённые @media и соседние
+    // правила, а CSS панели держится на порядке и на !important — проверить
+    // каждое слияние там нечем, а выигрыш — единицы процентов.
+    // Сортировку селекторов внутри правила тоже снимаем: на каскад она не
+    // влияет, но тогда разбор браузером совпадает с исходниками правило в
+    // правило, и это можно проверить, а не принять на веру.
+    const level = safe
+        ? { 1: { selectorsSortingMethod: 'none' } }
+        : {
+            1: {},
+            2: { restructureRules: false, mergeSemantically: false },
+        };
     const result = new CleanCSS({
         // Level 2 доводит оптимизацию до слияния и удаления дублирующихся
         // правил (около 8 KiB на текущем наборе). Реструктуризацию отключаем
         // осознанно: она переупорядочивает правила и при равной специфичности
         // способна изменить победителя каскада — для темы с большим числом
         // переопределений это неприемлемый риск ради нескольких байт.
-        level: {
-            1: {},
-            2: { restructureRules: false, mergeSemantically: false },
-        },
+        level,
         rebase: false,
         returnPromise: false,
     }).minify(input);
@@ -199,6 +261,21 @@ async function buildBlockAsset(path) {
 const [cssInput, jsInput] = await Promise.all([readSources(cssSources), readSources(jsSources)]);
 const [css, js] = await Promise.all([buildCss(cssInput), buildJs(jsInput)]);
 const blocks = Object.fromEntries(await Promise.all(blockSources.map(buildBlockAsset)));
+const admin = Object.fromEntries(await Promise.all(adminBundles.map(async ({ out, sources }) => {
+    const input = await readSources(sources);
+    const built = out.endsWith('.css') ? await buildCss(input, { safe: true }) : await buildJs(input);
+    await verifyOrWrite(out, built);
+
+    return [`/${out.replace(/^public\//, '')}`, {
+        sources: sources.map((path) => `/${path.replace(/^public\//, '')}`),
+        sourceSha256: sourceFingerprint(input),
+        sha256: sha256(built),
+        ...sizeReport(built),
+    }];
+})));
+const adminTotal = (ext) => Object.entries(admin)
+    .filter(([path]) => path.endsWith(ext))
+    .reduce((sum, [, entry]) => sum + entry.brotli, 0);
 const cssSize = sizeReport(css);
 const jsSize = sizeReport(js);
 const manifest = `${JSON.stringify({
@@ -222,6 +299,8 @@ const manifest = `${JSON.stringify({
     // минифицированный файл. FrontendAssets::blockAsset() подставляет его,
     // когда включена сборка бандлов.
     blocks,
+    // Бандлы админки: ключ — собранный файл, подключается напрямую.
+    admin,
 }, null, 2)}\n`;
 await Promise.all([
     verifyOrWrite(outputs.css, css),
@@ -233,6 +312,9 @@ const mode = checkOnly ? 'verified' : 'built';
 console.log(`Public assets ${mode}:`);
 console.log(`  CSS ${cssSize.raw} raw / ${cssSize.gzip} gzip / ${cssSize.brotli} brotli`);
 console.log(`  JS  ${jsSize.raw} raw / ${jsSize.gzip} gzip / ${jsSize.brotli} brotli`);
+for (const [path, entry] of Object.entries(admin)) {
+    console.log(`  админка ${path} -> ${entry.raw} raw / ${entry.gzip} gzip / ${entry.brotli} brotli`);
+}
 for (const [source, entry] of Object.entries(blocks)) {
     console.log(`  блок ${source} -> ${entry.raw} raw / ${entry.gzip} gzip / ${entry.brotli} brotli`);
 }
@@ -255,6 +337,12 @@ if (cssSize.brotli > budgets.cssBrotli) {
 }
 if (jsSize.brotli > budgets.jsBrotli) {
     overruns.push(`JS ${jsSize.brotli} Б brotli — выше бюджета ${budgets.jsBrotli} Б`);
+}
+if (adminTotal('.css') > budgets.adminCssBrotli) {
+    overruns.push(`CSS админки ${adminTotal('.css')} Б brotli — выше бюджета ${budgets.adminCssBrotli} Б`);
+}
+if (adminTotal('.js') > budgets.adminJsBrotli) {
+    overruns.push(`JS админки ${adminTotal('.js')} Б brotli — выше бюджета ${budgets.adminJsBrotli} Б`);
 }
 
 if (overruns.length > 0) {
