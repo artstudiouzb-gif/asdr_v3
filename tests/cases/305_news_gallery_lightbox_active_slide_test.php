@@ -29,7 +29,9 @@ test('Frontend JS: лайтбокс галереи новости открыва
     $root = dirname(__DIR__, 2);
     $js = (string) file_get_contents($root . '/public/assets/js/frontend.js');
 
-    assert_contains('root.__ndgShow = show;', $js, 'Слайдер должен публиковать функцию переключения слайда');
+    // Слайдер живёт в news.js (его грузит только страница новости), лайтбокс — в общем бандле.
+    $newsJs = (string) file_get_contents($root . '/public/assets/js/news.js');
+    assert_contains('root.__ndgShow = show;', $newsJs, 'Слайдер должен публиковать функцию переключения слайда');
     assert_contains("var activeImg = gallery.querySelector('.newsdetail-gallery__slide.is-active');", $js, 'Клик по фото должен разрешаться в активный слайд галереи');
     assert_contains("[data-ndgallery] .newsdetail-gallery__main", $js, 'Контейнер слайдера должен открывать активный слайд');
     assert_contains("typeof gallery.__ndgShow === 'function'", $js, 'Навигация в лайтбоксе должна синхронизировать слайдер');

@@ -52,7 +52,7 @@ test('Страница новости: подпись и автор под га�
     assert_contains('data-ndg-captions', $view);
     assert_contains("t('Фото:')", $view);
     // Подпись подставляется скриптом при листании слайдов.
-    $js = (string) file_get_contents(APP_ROOT . '/public/assets/js/frontend.js');
+    $js = (string) file_get_contents(APP_ROOT . '/public/assets/js/news.js');
     assert_contains('data-ndg-caption-text', $js);
     assert_contains("label('photoCredit'", $js);
 });
