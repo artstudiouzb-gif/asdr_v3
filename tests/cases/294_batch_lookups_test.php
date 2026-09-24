@@ -154,3 +154,51 @@ test('Карта сайта видит оба механизма перевод�
     $pdo->exec('DELETE FROM news_translations');
     $pdo->exec('DELETE FROM news');
 });
+
+test('Суженная выборка карты сайта даёт те же версии, что и полная (БД)', function () {
+    ensure_test_db();
+    $pdo = App\Core\Database::pdo();
+    $pdo->exec('DELETE FROM news_translations');
+    $pdo->exec('DELETE FROM news');
+
+    // Связанная запись (механизм Б), перевод полями (механизм А) и черновик
+    // в группе: суженная выборка обязана отдать те же языки, адреса и статусы.
+    $insert = $pdo->prepare("INSERT INTO news (title, slug, content, status, lang, translation_group_id, published_at, created_at, updated_at)
+                             VALUES (:title, :slug, 'тело', :status, :lang, :grp, NOW() - INTERVAL 1 HOUR, NOW(), NOW())");
+    $insert->execute([':title' => 'Новость', ':slug' => 'n-ru', ':status' => 'published', ':lang' => 'ru', ':grp' => 0]);
+    $ruId = (int) $pdo->lastInsertId();
+    $insert->execute([':title' => 'News', ':slug' => 'n-en', ':status' => 'draft', ':lang' => 'en', ':grp' => $ruId]);
+    $pdo->prepare("INSERT INTO news_translations (news_id, lang, title, excerpt, content) VALUES (:id, 'uz', 'Yangilik', '', 'matn')")
+        ->execute([':id' => $ruId]);
+
+    $full = App\Core\Translations::rowsBatch('news', [$ruId], false)[$ruId] ?? [];
+    $narrow = App\Core\Translations::rowsBatch('news', [$ruId], false, ['id', 'slug', 'lang', 'published_at'])[$ruId] ?? [];
+
+    assert_same(array_keys($full), array_keys($narrow), 'наборы языков совпадают');
+    foreach ($full as $lang => $row) {
+        foreach (['id', 'slug', 'status', 'deleted_at', 'published_at'] as $key) {
+            assert_same((string) $row[$key], (string) $narrow[$lang][$key], "{$lang}.{$key} совпадает");
+        }
+        assert_false(array_key_exists('content', $narrow[$lang]), "{$lang}: тело записи не выбрано");
+    }
+
+    $pdo->exec('DELETE FROM news_translations');
+    $pdo->exec('DELETE FROM news');
+});
+
+test('Сужение колонок не разрешено сущностям без связанных записей', function () {
+    try {
+        App\Core\Translations::rowsBatch('videos', [1], false, ['id']);
+        assert_true(false, 'должно было упасть');
+    } catch (InvalidArgumentException) {
+        assert_true(true);
+    }
+});
+
+test('Карта сайта и RSS не выбирают строки целиком', function () {
+    $source = (string) file_get_contents(APP_ROOT . '/app/Controllers/Site/SitemapController.php');
+    foreach (['SELECT p.*', 'SELECT n.*', 'SELECT pr.*', 'SELECT *'] as $wide) {
+        assert_not_contains($wide, $source, $wide . ' возил бы тело каждой записи');
+    }
+    assert_same(3, substr_count($source, 'false, self::'), 'все три пакета версий сужены');
+});
