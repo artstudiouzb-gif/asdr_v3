@@ -313,21 +313,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     <span class="form-hint">Сначала создайте форму в разделе «Формы».</span>
                 <?php endif; ?>
             </div>
-            <?php // «Форма» тоже вне схемы полей — виджет общий с остальными.
-                  // Настройка задаёт сетку, в которой считается ширина «как в
-                  // сетке формы»; поле со своей шириной её не слушает. ?>
-            <?= \App\Core\AdminUi::variantField(
-                'layout',
-                \App\Core\FormLayout::normalizeLayout((string) ($data['layout'] ?? '')),
-                \App\Core\FormLayout::COLUMNS,
-                [
-                    '1col' => ['list:4+frame', 'Поля идут друг под другом — привычно и работает на любом экране'],
-                    '2col' => ['grid:2+frame', 'Короткие поля встают парами — форма занимает вдвое меньше высоты'],
-                    '3col' => ['grid:3+frame', 'Плотный ряд для коротких полей: индекс, район, дата'],
-                ],
-                'Сетка формы'
-            ) ?>
-            <span class="form-hint">Ширина каждого поля задаётся в самой форме («Формы» → конструктор): поле может занять половину, треть или весь ряд.</span>
+            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('form', $data) ?>
         <?php endif; ?>
 
         <?php if ($type === 'columns'): ?>

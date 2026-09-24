@@ -904,7 +904,7 @@ function quality_budgets(): array
             'guard' => 'tests/cases/354_readme_facts_test.php',
             'why' => 'у типа без схемы настройка объявлена в четырёх местах — реестр, форма, '
                 . 'collectData(), шаблон — и списки значений расходятся молча',
-            'ceiling' => static fn (): int => 4,
+            'ceiling' => static fn (): int => 3,
             'measure' => static function (): array {
                 $off = array_values(array_diff(
                     array_keys(\App\Core\BlockTypeRegistry::BASE_DEFAULTS),
