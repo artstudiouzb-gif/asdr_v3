@@ -20,9 +20,11 @@ final class Database
     private const PING_IDLE_SECONDS = 2.0;
 
     private static ?PDO $connection = null;
+    /** @var array<string, mixed>|null */
     private static ?array $lastConfig = null;
     private static float $lastUsedAt = 0.0;
 
+    /** @param array<string, mixed> $config */
     public static function init(array $config): void
     {
         self::$lastConfig = $config;
@@ -65,10 +67,18 @@ final class Database
      * `array`, хотя возвращает список строк; тип сообщается здесь, один раз,
      * а не докблоком у каждого вызова.
      *
+     * `query()` объявлен как `PDOStatement|false`, но соединение открыто в режиме
+     * исключений, и `false` оттуда не приходит — ошибка бросается раньше.
+     * Поэтому принимается и `false`: проверка стоит здесь одна, а не у каждого
+     * вызова, где она читалась бы как рабочая обработка ошибки.
+     *
      * @return list<array<string, mixed>>
      */
-    public static function rows(\PDOStatement $stmt): array
+    public static function rows(\PDOStatement|false $stmt): array
     {
+        if ($stmt === false) {
+            throw new \RuntimeException('Запрос к базе не выполнен.');
+        }
         /** @var list<array<string, mixed>> $rows */
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
