@@ -69,8 +69,49 @@ final class PublicResponseCache
             $hasAuthorization,
             Language::activeCodes()
         )) {
+            // Страница с активной сессией (вошедший администратор видит свою
+            // панель, у формы — свой CSRF-токен) персональна: в общий кеш её
+            // нельзя. Но `no-store` здесь лишний: он запрещает браузеру и
+            // кеш, и восстановление страницы по кнопке «Назад» (bfcache), и
+            // каждый возврат на главную шёл через сервер целиком. `no-cache`
+            // хранит копию, но перепроверяет её по ETag на каждом переходе —
+            // изменилась страница или сессия, и приходит новая.
+            if ($sessionActive
+                && !$hasAuthorization
+                && $status === 200
+                && in_array(strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')), ['GET', 'HEAD'], true)
+                && !self::isPrivateRequestPath($path)) {
+                header('Cache-Control: private, no-cache');
+                self::$cacheable = true;
+                return;
+            }
             if ($sessionActive || $hasAuthorization) {
                 header('Cache-Control: private, no-store');
+                return;
+            }
+            // Корень сайта и корни языков в общий кеш не годятся: они
+            // уводят по cookie сохранённого языка. Но браузеру посетителя
+            // хранить их можно — cookie у него та же, пока он не сменил
+            // язык, а смена меняет заголовок Cookie, и `Vary` отправит за
+            // свежим ответом. Без этого главная приходила без единого
+            // правила кеширования и качалась целиком при каждом переходе на
+            // неё, тогда как любая внутренняя страница бралась из кеша.
+            if (self::isBrowserCacheableRoot(
+                $path,
+                (string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'),
+                $status,
+                Language::activeCodes()
+            )) {
+                $rootTtl = max(0, min(3600, (int) Setting::get('perf_public_cache_ttl', '60')));
+                if ($rootTtl > 0) {
+                    header(sprintf('Cache-Control: private, max-age=%d', $rootTtl));
+                    // Ответ корня и правда зависит от cookie (языка), а в
+                    // общий кеш он не идёт — дробить там нечего.
+                    self::sendVary(true);
+                    // ETag нужен и здесь: по истечении max-age браузер
+                    // перепроверит главную и получит пустой 304.
+                    self::$cacheable = true;
+                }
             }
             return;
         }
@@ -118,11 +159,20 @@ final class PublicResponseCache
         // Исключение — узбекская кириллица: её даёт транслитерация готовой
         // страницы на сервере (View::wantsCyrillic), клиент это повторить не
         // может, поэтому узбекские ответы по-прежнему зависят от cookie.
-        $varyCookie = Locale::current() === 'uz';
-        header('Vary: Accept-Encoding' . ($varyCookie ? ', Cookie' : ''));
+        self::sendVary(Locale::current() === 'uz');
         self::$cacheable = true;
         self::$snapshotable = !$personalized
             && ((string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_QUERY) ?? '')) === '';
+    }
+
+    /**
+     * Заголовок Vary. Cookie в нём только там, где ответ от неё зависит:
+     * в общем кеше лишний Vary: Cookie дробит попадания по любой cookie,
+     * включая метки аналитики.
+     */
+    private static function sendVary(bool $varyCookie): void
+    {
+        header('Vary: Accept-Encoding' . ($varyCookie ? ', Cookie' : ''));
     }
 
     /**
@@ -237,6 +287,21 @@ final class PublicResponseCache
      * обычная страница со slug из двух-восьми букв (/news, /contacts) тоже
      * считалась бы корнем и потеряла кеширование.
      */
+    /**
+     * Корень, который можно хранить в кеше браузера (но не в общем): обычный
+     * GET без сессии и авторизации с ответом 200.
+     *
+     * @param list<string> $activeCodes
+     */
+    public static function isBrowserCacheableRoot(string $path, string $method, int $status, array $activeCodes): bool
+    {
+        return in_array(strtoupper($method), ['GET', 'HEAD'], true)
+            && $status === 200
+            && session_status() !== PHP_SESSION_ACTIVE
+            && !isset($_SERVER['HTTP_AUTHORIZATION'])
+            && self::isLanguageRootPath($path, $activeCodes);
+    }
+
     public static function isLanguageRootPath(string $path, array $activeCodes): bool
     {
         $trimmed = rtrim($path, '/');
@@ -259,6 +324,20 @@ final class PublicResponseCache
     public static function privatePaths(): array
     {
         return self::PRIVATE_PATHS;
+    }
+
+    /**
+     * Приватный путь с учётом языкового префикса (`/uz/search` — тот же поиск).
+     * Базы не спрашивает: зовётся из bootstrap до разрешения языка.
+     */
+    public static function isPrivateRequestPath(string $path): bool
+    {
+        if (self::isPrivatePath($path)) {
+            return true;
+        }
+        $localizedPath = preg_replace('#^/[a-zA-Z]{2,8}(?=/|$)#', '', $path) ?: '/';
+
+        return self::isPrivatePath($localizedPath);
     }
 
     private static function isPrivatePath(string $path): bool

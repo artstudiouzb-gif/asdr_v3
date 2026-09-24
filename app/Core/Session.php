@@ -13,6 +13,27 @@ final class Session
         return isset($_COOKIE[$name]) && is_string($_COOKIE[$name]) && $_COOKIE[$name] !== '';
     }
 
+    /**
+     * Можно ли не поднимать сессию заранее, хотя её cookie пришла.
+     *
+     * Публичный GET сессии не читает: формы, капча, вход и flash поднимают её
+     * сами, когда она нужна (`Session::start()` у каждого из них). Заранее
+     * запущенная сессия делала каждую страницу ответом `private, no-store`:
+     * у всякого, кто заходил в панель или отправлял форму, браузер не
+     * кешировал сайт вовсе и не держал страницу для кнопки «Назад» (bfcache
+     * отказывает на `no-store`) — возврат на главную шёл через сервер.
+     *
+     * Служебные разделы (панель, портал, установщик и прочие приватные пути
+     * `PublicResponseCache`) читают `$_SESSION` напрямую, и изменения —
+     * это POST, где проверяется CSRF, — поэтому там сессия по-прежнему
+     * поднимается сразу.
+     */
+    public static function deferrable(string $method, string $path): bool
+    {
+        return in_array(strtoupper($method), ['GET', 'HEAD'], true)
+            && !PublicResponseCache::isPrivateRequestPath($path);
+    }
+
     public static function start(): void
     {
         if (PHP_SAPI === 'cli' || session_status() === PHP_SESSION_ACTIVE) {
