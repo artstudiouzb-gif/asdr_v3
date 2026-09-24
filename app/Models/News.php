@@ -40,6 +40,9 @@ final class News
     /** @var array<string, list<array<string, mixed>>> */
     private static array $publishedRequestCache = [];
 
+    /** false — ещё не спрашивали в этом запросе. */
+    private static int|null|false $nextScheduledMemo = false;
+
     public static function normalizeLayout(mixed $layout): string
     {
         $layout = is_string($layout) ? $layout : 'standard';
@@ -315,6 +318,7 @@ final class News
     private static function bustPageCache(): void
     {
         self::$publishedRequestCache = [];
+        self::$nextScheduledMemo = false;
         \App\Core\Cache::forgetPrefix('page:');
     }
 
@@ -423,6 +427,28 @@ final class News
         unset($row);
 
         return $rows;
+    }
+
+    /**
+     * Момент, когда появится ближайшая новость с отложенной датой, или null.
+     *
+     * Кэш страницы живёт до правки контента, а наступление даты правкой не
+     * является: новость, поставленная на 9:00, появилась бы на главной только
+     * при следующем сохранении чего-нибудь. Блоки новостей сообщают этот
+     * момент кэшу как границу (`BlockRenderer::noteBoundary`) — так же, как
+     * блок с расписанием показа.
+     */
+    public static function nextScheduledAt(): ?int
+    {
+        if (self::$nextScheduledMemo !== false) {
+            return self::$nextScheduledMemo;
+        }
+        $value = Database::pdo()->query(
+            "SELECT UNIX_TIMESTAMP(MIN(published_at)) FROM news
+             WHERE status = 'published' AND deleted_at IS NULL AND published_at > NOW()"
+        )->fetchColumn();
+
+        return self::$nextScheduledMemo = ($value === null || $value === false) ? null : (int) $value;
     }
 
     /**
