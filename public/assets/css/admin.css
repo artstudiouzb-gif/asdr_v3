@@ -381,13 +381,13 @@ body.auth-page {
 .auth-card {
     position: relative;
     width: 100%;
-    max-width: 420px;
-    padding: 40px 36px;
+    max-width: 460px;
+    padding: 44px 44px 36px;
     border-radius: 3px;
-    background: rgba(15, 23, 42, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    /* Акцентная кромка сверху — цвет панели из настроек, а не свой синий. */
+    box-shadow: inset 0 3px 0 var(--admin-primary, #2563eb), 0 24px 48px -12px rgba(0, 0, 0, 0.55);
     animation: authCardEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .auth-card--wide { max-width: 520px; }
@@ -401,33 +401,35 @@ body.auth-page {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 24px;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     text-align: center;
 }
 .auth-brand__logo {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 56px;
+    height: 56px;
     border-radius: 3px;
-    font-size: var(--admin-fs-xl);
+    font-size: var(--admin-fs-2xl);
     font-weight: var(--admin-fw-semibold);
     background: rgba(37, 99, 235, 0.15);
     color: #60a5fa;
     border: 1px solid rgba(37, 99, 235, 0.25);
 }
 .auth-brand__logoimg {
-    height: 56px;
-    max-width: 220px;
+    height: 64px;
+    max-width: 260px;
     object-fit: contain;
 }
 .auth-brand__name {
     font-size: var(--admin-fs-xl);
     font-weight: var(--admin-fw-semibold);
-    color: #f1f5f9;
-    letter-spacing: -0.02em;
+    color: #ffffff;
+    letter-spacing: 0.02em;
 }
 
 .auth-head {
@@ -437,15 +439,15 @@ body.auth-page {
 .auth-head h1 {
     font-size: var(--admin-fs-2xl);
     font-weight: var(--admin-fw-semibold);
-    color: #f1f5f9;
-    margin: 0 0 6px;
+    color: #ffffff;
+    margin: 0 0 8px;
     letter-spacing: -0.02em;
 }
 .auth-sub {
     font-size: var(--admin-fs-md);
-    color: #94a3b8;
+    color: #cbd5e1;
     margin: 0;
-    line-height: 1.45;
+    line-height: 1.5;
 }
 
 .auth-card .alert {
@@ -487,14 +489,14 @@ body.auth-page {
     justify-content: space-between;
 }
 .auth-field label {
-    font-size: var(--admin-fs-base);
-    font-weight: var(--admin-fw-semibold);
-    color: #cbd5e1;
+    font-size: var(--admin-fs-md);
+    font-weight: var(--admin-fw-medium);
+    color: #e2e8f0;
     margin: 0;
     letter-spacing: -0.01em;
 }
 .auth-forgot-link {
-    font-size: var(--admin-fs-base);
+    font-size: var(--admin-fs-md);
     font-weight: var(--admin-fw-medium);
     color: #60a5fa;
     text-decoration: none;
@@ -513,9 +515,9 @@ body.auth-page {
 }
 .auth-input-icon {
     position: absolute;
-    left: 15px;
+    left: 16px;
     z-index: 2;
-    color: #64748b;
+    color: #94a3b8;
     pointer-events: none;
     transition: color 0.2s ease, transform 0.2s ease;
 }
@@ -524,24 +526,37 @@ body.auth-page {
 .auth-card input[type="email"] {
     width: 100%;
     box-sizing: border-box;
-    padding: 12px 44px 12px 44px !important;
+    min-height: 50px;
+    padding: 13px 46px 13px 46px !important;
+    /* 16px — ещё и порог, ниже которого iOS увеличивает страницу на фокусе. */
     font-size: var(--admin-fs-lg);
     font-weight: var(--admin-fw-medium);
-    color: #f1f5f9;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    background: #0f172a;
+    border: 1px solid #334155;
     border-radius: 3px;
     outline: none;
     transition: all 0.2s ease;
 }
 .auth-card input::placeholder {
-    color: #64748b;
+    color: #94a3b8;
     font-weight: var(--admin-fw-normal);
 }
 .auth-card input:focus {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: #2563eb;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+    background: #0f172a;
+    border-color: var(--admin-primary, #3b82f6);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-primary, #3b82f6) 30%, transparent);
+}
+/* Код подтверждения читается по цифрам: крупно, вразрядку, по центру. */
+.auth-card input.auth-input--code {
+    font-size: var(--admin-fs-2xl);
+    font-weight: var(--admin-fw-semibold);
+    letter-spacing: 0.35em;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+.auth-card input.auth-input--code::placeholder {
+    color: #475569;
 }
 .auth-input-wrap:focus-within .auth-input-icon {
     color: #60a5fa;
@@ -601,26 +616,69 @@ body.auth-page {
     justify-content: center;
     gap: 10px;
     width: 100%;
-    margin-top: 8px;
+    min-height: 50px;
+    margin-top: 6px;
     padding: 13px 22px;
-    border: 0;
+    border: 1px solid var(--admin-primary, #2563eb);
     border-radius: 3px;
-    background: #2563eb;
+    background: var(--admin-primary, #2563eb);
     color: #ffffff;
     font-size: var(--admin-fs-lg);
     font-weight: var(--admin-fw-semibold);
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
-    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--admin-primary, #2563eb) 30%, transparent);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 .auth-submit-btn:hover {
-    background: #3b82f6;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 22px rgba(37, 99, 235, 0.45);
+    background: color-mix(in srgb, var(--admin-primary, #2563eb) 85%, #000);
+    border-color: color-mix(in srgb, var(--admin-primary, #2563eb) 85%, #000);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--admin-primary, #2563eb) 40%, transparent);
+}
+.auth-submit-btn:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
 }
 .auth-submit-btn:active {
     transform: translateY(1px);
     box-shadow: none;
+}
+
+/* Второстепенное действие под главной кнопкой («Отправить код повторно»).
+   Прежде это была кнопка светлой панели — серый текст на тёмной карточке
+   почти не читался. */
+.auth-resend {
+    margin-top: 12px;
+}
+.auth-secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1px solid #475569;
+    border-radius: 3px;
+    background: transparent;
+    color: #e2e8f0;
+    font-family: inherit;
+    font-size: var(--admin-fs-md);
+    font-weight: var(--admin-fw-medium);
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.auth-secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: #64748b;
+}
+.auth-secondary-btn:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+    .auth-card { padding: 32px 22px 28px; }
+    .auth-brand { margin-bottom: 22px; padding-bottom: 22px; }
 }
 .auth-submit-btn svg {
     transition: transform 0.2s ease;
@@ -4936,7 +4994,6 @@ details.design-manual[open] > summary::before { transform: rotate(90deg); }
 .u-inline-3e52776664{margin-top:0;font-size:var(--admin-fs-lg);font-weight:var(--admin-fw-semibold);display:flex;align-items:center;gap:8px;margin-bottom:14px;}
 .u-inline-3e8ce2fc5a{margin-top:0;font-size:var(--admin-fs-lg);font-weight:var(--admin-fw-semibold);}
 .u-inline-3ef1fa1aa1{margin-bottom:12px;}
-.u-inline-3f5e202c68{margin-top:16px;text-align:center;}
 .u-inline-3f6331b9d1{font-size:var(--admin-fs-sm);color:#64748b;margin-top:6px;font-weight:var(--admin-fw-medium);text-align:right;}
 .u-inline-3f7fce4b31{font-weight:var(--admin-fw-medium);font-size:var(--admin-fs-lg);color:#0f172a;}
 .u-inline-41724d9228{margin:8px 0 0;}
@@ -5016,7 +5073,6 @@ details.design-manual[open] > summary::before { transform: rotate(90deg); }
 .u-inline-7e30d285d2{display:flex;align-items:center;gap:10px;}
 .u-inline-8001b29eb4{font-weight:var(--admin-fw-normal);font-size:0.85em;color:var(--admin-text-muted);}
 .u-inline-821081bbf8{height:100%;width:0%;background:#ef4444;transition:all 0.3s ease;}
-.u-inline-8233e9f287{width:auto;background:transparent;border:1px solid #cbd5e1;color:#475569;}
 .u-inline-837a4c07e9{margin-bottom:24px;border-left:4px solid #d97706;}
 .u-inline-85b0fc8a65{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;}
 .u-inline-85b4085512{font-size:var(--admin-fs-sm);margin-top:3px;}
@@ -8259,7 +8315,7 @@ body.auth-page label,
     justify-content: center;
     gap: 8px;
     margin-top: 24px;
-    color: var(--admin-muted, #94a3b8);
+    color: #94a3b8;
     font-size: var(--admin-fs-sm);
     font-weight: var(--admin-fw-medium);
 }
@@ -8309,83 +8365,12 @@ body.auth-page label,
    WCAG AA Contrast, Spacing Normalization & Header Builder Refinement
    ============================================================================ */
 
-/* 1. Форма входа (/admin/login) - Высокая контрастность и четкие отступы */
+/* 1. Форма входа (/admin/login): размеры и цвета карточки, полей и кнопок
+   объявлены в начале файла одним местом. Здесь их второй копии нет — она
+   перебивала первую по порядку и возвращала мелкие 13px. */
 body.auth-page {
     background: #0b1120;
     color: #f8fafc;
-}
-
-.auth-card {
-    background: #1e293b;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 3px;
-    padding: 36px 32px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-}
-
-.auth-card h1 {
-    color: #ffffff;
-    font-size: var(--admin-fs-xl);
-    font-weight: var(--admin-fw-semibold);
-}
-
-.auth-card .auth-sub {
-    color: #cbd5e1;
-    font-size: var(--admin-fs-base);
-}
-
-.auth-card .auth-brand__name {
-    color: #ffffff;
-    font-weight: var(--admin-fw-semibold);
-}
-
-.auth-card .auth-field label {
-    color: #e2e8f0;
-    font-size: var(--admin-fs-base);
-    font-weight: var(--admin-fw-medium);
-    margin-bottom: 6px;
-}
-
-.auth-card input[type="text"],
-.auth-card input[type="password"],
-.auth-card input[type="email"] {
-    background: #0f172a;
-    border: 1px solid #334155;
-    color: #ffffff;
-    border-radius: 3px;
-    font-size: var(--admin-fs-base);
-    padding: 10px 40px;
-}
-
-.auth-card input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-}
-
-.auth-card input::placeholder {
-    color: var(--admin-muted, #64748b);
-}
-
-.auth-submit-btn {
-    background: #2563eb;
-    color: #ffffff;
-    border: 1px solid #2563eb;
-    border-radius: 3px;
-    font-size: var(--admin-fs-base);
-    font-weight: var(--admin-fw-medium);
-    padding: 10px 18px;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
-}
-
-.auth-submit-btn:hover {
-    background: #1d4ed8;
-    border-color: #1d4ed8;
-}
-
-.auth-forgot-link {
-    color: #60a5fa;
-    font-size: var(--admin-fs-sm);
-    font-weight: var(--admin-fw-medium);
 }
 
 .auth-site-link:hover {
@@ -8404,9 +8389,7 @@ body.auth-page .install-card label,
 body.auth-page .install-card .form-field label,
 body.auth-page .install-card .form-field > label,
 body.auth-page .install-card label.u-inline-aa1820469b,
-body.auth-page .auth-card label,
 body.auth-page .auth-card .form-field label,
-body.auth-page .auth-card .auth-field label,
 .install-wrapper label,
 .install-card label,
 .install-card .form-field label,

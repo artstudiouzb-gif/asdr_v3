@@ -64,7 +64,7 @@ use App\Core\Csrf;
             <label for="code">Код подтверждения</label>
             <div class="auth-input-wrap">
                 <?= \App\Core\AdminUi::icon('lock', 18, 'auth-input-icon') ?>
-                <input type="text" id="code" name="code" inputmode="numeric" pattern="[0-9 ]*" maxlength="7" placeholder="123456" autocomplete="one-time-code" autocapitalize="off" spellcheck="false" required autofocus>
+                <input type="text" id="code" name="code" class="auth-input--code" inputmode="numeric" pattern="[0-9 ]*" maxlength="7" placeholder="123456" autocomplete="one-time-code" autocapitalize="off" spellcheck="false" required autofocus>
             </div>
         </div>
 
@@ -76,9 +76,9 @@ use App\Core\Csrf;
 
     <?php if ($channels['telegram']): ?>
         <?php // Коду из приложения повторная отправка не нужна — он там уже есть. ?>
-        <form class="u-inline-3f5e202c68" method="post" action="/admin/login/2fa/resend">
+        <form class="auth-resend" method="post" action="/admin/login/2fa/resend">
             <?= Csrf::field() ?>
-            <button type="submit" class="btn btn--small u-inline-8233e9f287">Отправить код повторно</button>
+            <button type="submit" class="auth-secondary-btn">Отправить код повторно</button>
         </form>
     <?php endif; ?>
 </div>
