@@ -133,6 +133,7 @@ final class SettingsController
 
         // --- Брендинг панели управления (white-label) ---
         Setting::set('admin_brand_name', mb_substr(trim((string) ($_POST['admin_brand_name'] ?? '')), 0, 60));
+        Setting::set('admin_brand_full_name', mb_substr(trim((string) ($_POST['admin_brand_full_name'] ?? '')), 0, 200));
         $brandLogo = ImageField::resolve('admin_brand_logo_file', 'admin_brand_logo', Setting::get('admin_brand_logo'), Auth::id());
         Setting::set('admin_brand_logo', $brandLogo ?? '');
         Setting::set('admin_brand_accent', SettingsValidator::hexColor(
