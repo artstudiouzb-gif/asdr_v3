@@ -31,7 +31,7 @@ use App\Core\Csrf;
 <div class="auth-card">
     <div class="auth-brand">
         <?= \App\Core\AdminBrand::badgeHtml('auth-brand__logoimg', 'auth-brand__logo') ?>
-        <span class="auth-brand__name"><?= htmlspecialchars(\App\Core\AdminBrand::name(), ENT_QUOTES) ?></span>
+        <span class="auth-brand__name"><?= htmlspecialchars(\App\Core\AdminBrand::fullName(), ENT_QUOTES) ?></span>
     </div>
 
     <?php

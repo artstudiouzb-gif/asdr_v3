@@ -421,15 +421,17 @@ body.auth-page {
     border: 1px solid rgba(37, 99, 235, 0.25);
 }
 .auth-brand__logoimg {
-    height: 64px;
-    max-width: 260px;
+    height: 120px;
+    max-width: 320px;
     object-fit: contain;
 }
 .auth-brand__name {
-    font-size: var(--admin-fs-xl);
+    max-width: 34ch;
+    font-size: var(--admin-fs-lg);
     font-weight: var(--admin-fw-semibold);
+    line-height: 1.4;
     color: #ffffff;
-    letter-spacing: 0.02em;
+    text-wrap: balance;
 }
 
 .auth-head {
@@ -679,6 +681,7 @@ body.auth-page {
 @media (max-width: 480px) {
     .auth-card { padding: 32px 22px 28px; }
     .auth-brand { margin-bottom: 22px; padding-bottom: 22px; }
+    .auth-brand__logoimg { height: 96px; }
 }
 .auth-submit-btn svg {
     transition: transform 0.2s ease;

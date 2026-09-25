@@ -30,6 +30,19 @@ test('AdminBrand: свои название и буква бейджа', functio
     Setting::set('admin_brand_name', '');
 });
 
+test('AdminBrand: полное название входа откатывается к короткому', function () {
+    Setting::set('admin_brand_name', 'АСР');
+    Setting::set('admin_brand_full_name', '');
+    assert_same('АСР', AdminBrand::fullName(), 'пусто — короткое имя');
+
+    Setting::set('admin_brand_full_name', '  Агентство стратегического развития  ');
+    assert_same('Агентство стратегического развития', AdminBrand::fullName());
+    assert_same('АСР', AdminBrand::name(), 'шапка панели остаётся короткой');
+
+    Setting::set('admin_brand_full_name', '');
+    Setting::set('admin_brand_name', '');
+});
+
 test('AdminBrand: свой акцент рождает переменные с оттенками', function () {
     Setting::set('admin_brand_accent', '#17999B');
     assert_same('#17999b', AdminBrand::accent(), 'hex нормализован в нижний регистр');

@@ -122,7 +122,7 @@ require __DIR__ . '/../layout/header.php';
                     <input type="text" id="admin_brand_name" name="admin_brand_name" maxlength="60"
                            value="<?= htmlspecialchars($settings['admin_brand_name'] ?? '', ENT_QUOTES) ?>"
                            placeholder="<?= \App\Core\AdminBrand::DEFAULT_NAME ?>">
-                    <span class="form-hint">Показывается в шапке админки, заголовке вкладки и на странице входа. Пусто — «<?= \App\Core\AdminBrand::DEFAULT_NAME ?>».</span>
+                    <span class="form-hint">Короткое имя для шапки админки и заголовка вкладки. Пусто — «<?= \App\Core\AdminBrand::DEFAULT_NAME ?>».</span>
                 </div>
 
                 <div class="form-field col-4">
@@ -130,6 +130,14 @@ require __DIR__ . '/../layout/header.php';
                     <input class="u-inline-cb38de4646" type="color" id="admin_brand_accent" name="admin_brand_accent"
                            value="<?= htmlspecialchars(\App\Core\AdminBrand::accent(), ENT_QUOTES) ?>">
                     <span class="form-hint">Стандартный синий: <?= \App\Core\AdminBrand::DEFAULT_ACCENT ?>.</span>
+                </div>
+
+                <div class="form-field col-12">
+                    <label for="admin_brand_full_name">Полное название на странице входа</label>
+                    <input type="text" id="admin_brand_full_name" name="admin_brand_full_name" maxlength="200"
+                           value="<?= htmlspecialchars($settings['admin_brand_full_name'] ?? '', ENT_QUOTES) ?>"
+                           placeholder="Агентство стратегического развития…">
+                    <span class="form-hint">Показывается под логотипом на экранах входа, кода подтверждения и восстановления пароля. Пусто — короткое название.</span>
                 </div>
 
                 <div class="col-12">
