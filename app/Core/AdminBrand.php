@@ -23,6 +23,17 @@ final class AdminBrand
         return $name !== '' ? $name : self::DEFAULT_NAME;
     }
 
+    /**
+     * Полное название для экранов входа. В шапке панели места на одну строку,
+     * поэтому там короткое имя, а карточка входа вмещает полное название
+     * ведомства. Не задано — то же короткое имя.
+     */
+    public static function fullName(): string
+    {
+        $name = trim(self::setting('admin_brand_full_name'));
+        return $name !== '' ? $name : self::name();
+    }
+
     /** URL логотипа панели; null — рисуем буквенный бейдж. */
     public static function logo(): ?string
     {
