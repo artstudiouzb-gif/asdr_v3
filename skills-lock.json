@@ -18,6 +18,12 @@
       "sourceType": "github",
       "skillPath": "plugins/open-code-review/skills/open-code-review-delegate/SKILL.md",
       "computedHash": "0c504bed0bc09cca30963d660ca8a1833dcba34f8e54671e42a7ac44e6b4ad5d"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "89496d5dd00f4810205f351759594fc2742bf8eea85a2f2b2d1de59f4bd91576"
     }
   }
 }
