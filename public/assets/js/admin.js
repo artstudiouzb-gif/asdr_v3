@@ -4498,8 +4498,11 @@ document.addEventListener('change', function (event) {
         return radio ? null : group[0].value;
     }
 
+    // Поля ищутся заново на каждом проходе: строка репитера, добавленная
+    // кнопкой после загрузки (группа «Путь к цели» у показателя), иначе
+    // осталась бы видимой при любом варианте.
     function apply() {
-        fields.forEach(function (field) {
+        document.querySelectorAll('[data-field-when]').forEach(function (field) {
             var value = sourceValue(field.getAttribute('data-field-when'));
             if (value === null) return;
             var allowed = (field.getAttribute('data-field-value') || '').split(',');
@@ -4515,6 +4518,11 @@ document.addEventListener('change', function (event) {
         document.querySelectorAll('[name="' + name + '"]').forEach(function (input) {
             input.addEventListener('change', apply);
         });
+    });
+    document.addEventListener('click', function (event) {
+        if (event.target instanceof Element && event.target.closest('[data-repeater-add]')) {
+            window.setTimeout(apply, 0);
+        }
     });
     apply();
 })();

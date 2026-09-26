@@ -484,4 +484,6 @@ return [
     'Возможно, вы искали' => 'Balki siz izlagansiz',
     'Последние новости' => 'Soʻnggi yangiliklar',
     'Разделы сайта' => 'Sayt boʻlimlari',
+    'Путь к цели' => 'Maqsad sari yoʻl',
+    'цель' => 'maqsad',
 ];

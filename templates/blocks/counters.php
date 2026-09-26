@@ -17,6 +17,11 @@ $cstyle = '--counter-icon-size:' . $iconSize . 'px;--counter-icon-box-size:' . $
     . ($cardBg !== '' ? '--counters-bg:' . $cardBg . ';' : '')
     . ($textColor !== '' ? '--counters-text:' . $textColor . ';' : '');
 $templateCss = '#block-' . $blockId . ' .block-counters{' . $cstyle . '}';
+// «Полоса к цели» и «Шкала по годам» показывают путь от базы к цели
+// (CounterGoal). Показатель без цели остаётся обычным числом: полоса без
+// смысла хуже, чем её отсутствие. Доля уходит переменной в scoped CSS —
+// инлайн-стили в блоках запрещены тестами.
+$goalVariant = in_array($variant, ['progress', 'scale'], true);
 $blockClasses = ($iconBackground === 'off' ? ' block-counters--icons-no-bg' : '')
     . ' block-counters--panel-' . $panel
     . ' block-counters--icon-pos-' . $iconPosition
@@ -27,8 +32,16 @@ $blockClasses = ($iconBackground === 'off' ? ' block-counters--icons-no-bg' : ''
 <div class="block-counters<?= $blockClasses ?>">
     <?= \App\Core\SectionHead::render(['title' => $title]) ?>
     <div class="block-counters__grid">
-        <?php foreach ($items as $item):
+        <?php foreach (array_values($items) as $n => $item):
             $value = (string) ($item['value'] ?? '');
+            $suffix = (string) ($item['suffix'] ?? '');
+            $goal = $goalVariant
+                ? \App\Core\CounterGoal::progress($value, (string) ($item['target'] ?? ''), (string) ($item['base'] ?? ''))
+                : null;
+            if ($goal !== null) {
+                $templateCss .= '#block-' . $blockId . ' .block-counters__grid>:nth-child(' . ($n + 1) . '){--counter-goal:'
+                    . \App\Core\CounterGoal::css($goal) . '}';
+            }
             // Отсчёт включается только для чистого числа: «24/7» и «№1»
             // анимировать нечем, а разряды в «1 200» скрипт бы потерял.
             $countable = preg_match('/^\d{1,9}$/', $value) === 1;
@@ -41,7 +54,8 @@ $blockClasses = ($iconBackground === 'off' ? ' block-counters--icons-no-bg' : ''
             }
             $tag = $link !== '' ? 'a' : 'div';
         ?>
-            <<?= $tag ?> class="counter<?= $link !== '' ? ' counter--link' : '' ?>"<?= $link !== '' ? ' href="' . htmlspecialchars($link, ENT_QUOTES) . '"' : '' ?>>
+            <<?= $tag ?> class="counter<?= $link !== '' ? ' counter--link' : '' ?><?= $goal !== null ? ' counter--goal' : '' ?>"<?= $link !== '' ? ' href="' . htmlspecialchars($link, ENT_QUOTES) . '"' : '' ?>>
+                <?php if ($goal !== null): ?><div class="counter__head"><?php endif; ?>
                 <?php if ($iconImage !== ''): ?>
                     <span class="counter__icon" aria-hidden="true"><img class="counter__icon-img" src="<?= htmlspecialchars($iconImage, ENT_QUOTES) ?>" alt="" width="<?= $iconSize ?>" height="<?= $iconSize ?>"></span>
                 <?php elseif (!empty($item['icon_svg'])): ?>
@@ -51,11 +65,46 @@ $blockClasses = ($iconBackground === 'off' ? ' block-counters--icons-no-bg' : ''
                     <div class="counter__num">
                         <?php if ($prefix !== ''): ?><span class="counter__prefix"><?= htmlspecialchars($prefix, ENT_QUOTES) ?></span><?php endif; ?>
                         <span class="counter__value"<?= $countable ? ' data-counter-target="' . htmlspecialchars($value, ENT_QUOTES) . '"' : '' ?>><?= htmlspecialchars($value, ENT_QUOTES) ?></span>
-                        <?php if (!empty($item['suffix'])): ?><span class="counter__suffix"><?= htmlspecialchars($item['suffix'], ENT_QUOTES) ?></span><?php endif; ?>
+                        <?php if ($suffix !== ''): ?><span class="counter__suffix"><?= htmlspecialchars($suffix, ENT_QUOTES) ?></span><?php endif; ?>
                     </div>
                     <div class="counter__label"><?= htmlspecialchars($item['label'] ?? '', ENT_QUOTES) ?></div>
                     <?php if ($note !== ''): ?><div class="counter__note"><?= htmlspecialchars($note, ENT_QUOTES) ?></div><?php endif; ?>
                 </div>
+                <?php if ($goal !== null):
+                    $target = (string) ($item['target'] ?? '');
+                    $base = (string) ($item['base'] ?? '');
+                    $delta = (string) ($item['delta'] ?? '');
+                    // Единица («%», «млрд») относится и к цели, а «из 55» —
+                    // нет: суффикс с цифрой к цели не приклеивается, иначе
+                    // выходило бы «цель — 55 из 55».
+                    $targetUnit = $suffix !== '' && preg_match('/\d/', $suffix) !== 1 ? "\u{00A0}" . $suffix : '';
+                    // Полоса — рисунок, а не текст: диктору её заменяет подпись
+                    // с долей пути, а цифры цели и базы он читает строкой ниже.
+                    $goalLabel = t('Путь к цели') . ': ' . \App\Core\ChartData::formatNumber($goal) . "\u{00A0}%";
+                    $point = static fn (string $label, string $number): string => ($label !== '' ? '<span class="counter__axis-year">' . htmlspecialchars($label, ENT_QUOTES) . '</span>' : '')
+                        . htmlspecialchars($number, ENT_QUOTES);
+                ?>
+                    </div>
+                    <?php if ($variant === 'progress'): ?>
+                        <div class="counter__goal">
+                            <span class="counter__track" role="img" aria-label="<?= htmlspecialchars($goalLabel, ENT_QUOTES) ?>"><span class="counter__fill"></span><span class="counter__tick"></span></span>
+                            <span class="counter__goal-foot">
+                                <span><?= htmlspecialchars(trim(t('цель') . ' ' . (string) ($item['target_label'] ?? '')) . ' — ' . $target . $targetUnit, ENT_QUOTES) ?></span>
+                                <?php if ($delta !== ''): ?><span class="counter__delta"><?= htmlspecialchars($delta, ENT_QUOTES) ?></span><?php endif; ?>
+                            </span>
+                        </div>
+                    <?php else: ?>
+                        <div class="counter__goal counter__goal--scale">
+                            <span class="counter__axis" role="img" aria-label="<?= htmlspecialchars($goalLabel, ENT_QUOTES) ?>"><span class="counter__fill"></span><span class="counter__point counter__point--base"></span><span class="counter__point counter__point--now"></span><span class="counter__point counter__point--target"></span></span>
+                            <span class="counter__axis-labels">
+                                <span><?= $point((string) ($item['base_label'] ?? ''), $base !== '' ? $base : '0') ?></span>
+                                <span class="counter__axis-now"><?= $point((string) ($item['now_label'] ?? ''), $value) ?></span>
+                                <span><?= $point((string) ($item['target_label'] ?? ''), $target) ?></span>
+                            </span>
+                            <?php if ($delta !== ''): ?><span class="counter__delta"><?= htmlspecialchars($delta, ENT_QUOTES) ?></span><?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
             </<?= $tag ?>>
         <?php endforeach; ?>
     </div>
