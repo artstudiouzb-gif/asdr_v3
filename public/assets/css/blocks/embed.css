@@ -9,7 +9,7 @@
 .block-embed__frame {
     position: relative;
     overflow: hidden;
-    border-radius: var(--radius, 14px);
+    border-radius: var(--radius);
     background: var(--gov-surface);
     border: 1px solid var(--gov-border);
 }

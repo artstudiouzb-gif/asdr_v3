@@ -6,7 +6,7 @@
 :root {
     --page-reading-width: 880px;
     --page-section-gap: clamp(38px, 5vw, 68px);
-    --page-card-radius: max(var(--radius, 12px), 14px);
+    --page-card-radius: max(var(--radius), 14px);
     --page-soft-shadow: 0 18px 50px -34px rgba(15, 39, 86, .28);
     --editorial-media-filter: saturate(.9) contrast(1.025);
 }
@@ -336,7 +336,7 @@
 .bio-edu {
     padding: 26px;
     border: 1px solid color-mix(in srgb, var(--gov-navy) 8%, var(--gov-border));
-    border-radius: var(--radius, 16px);
+    border-radius: var(--radius);
     background: color-mix(in srgb, var(--gov-navy) 4%, var(--gov-surface));
     box-shadow: var(--page-soft-shadow);
 }
@@ -361,7 +361,7 @@
 }
 
 .doc-card {
-    border-radius: var(--radius, 15px);
+    border-radius: var(--radius);
     box-shadow: var(--page-soft-shadow);
 }
 

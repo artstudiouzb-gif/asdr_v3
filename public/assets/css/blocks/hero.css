@@ -380,7 +380,7 @@
     min-height: 50px;
     max-height: 50px;
     box-sizing: border-box;
-    border-radius: var(--btn-radius, var(--radius-pill));
+    border-radius: var(--btn-radius);
     font-size: var(--step--3);
     font-weight: 700;
     letter-spacing: .06em;

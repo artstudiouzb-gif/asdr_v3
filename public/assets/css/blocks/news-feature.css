@@ -150,7 +150,7 @@
     min-height: 44px;
     padding: 10px 24px;
     border: 1px solid color-mix(in srgb, var(--gov-border) 85%, transparent);
-    border-radius: var(--radius, 12px);
+    border-radius: var(--radius);
     background: var(--gov-surface);
     color: var(--gov-title);
     font-weight: 600;
@@ -214,7 +214,7 @@
     overflow: hidden;
     border: 1px solid var(--gov-border);
     border-bottom: 3px solid transparent;
-    border-radius: var(--radius, 14px);
+    border-radius: var(--radius);
     background: var(--gov-surface);
     box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
     backface-visibility: hidden;

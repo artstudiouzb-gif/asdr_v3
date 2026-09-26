@@ -111,3 +111,60 @@ test('Заголовки берут межстрочный интервал из
     assert_contains('var(--heading-font-weight', $rule);
     assert_contains('var(--heading-letter-spacing', $rule);
 });
+
+/** @return array<string, string> Исходники публичного CSS: путь => содержимое. */
+function radius_public_css_sources(): array
+{
+    $out = [];
+    foreach (array_merge(
+        (array) glob(APP_ROOT . '/public/assets/css/*.css'),
+        (array) glob(APP_ROOT . '/public/assets/css/blocks/*.css')
+    ) as $file) {
+        $file = (string) $file;
+        if (str_ends_with($file, '.min.css') || str_starts_with(basename($file), 'admin')) {
+            continue;
+        }
+        $out[substr($file, strlen(APP_ROOT) + 1)] = (string) file_get_contents($file);
+    }
+
+    return $out;
+}
+
+test('Токены скругления используются без запасных значений', function () {
+    // Тот же довод, что у цвета (тест 345): запасное значение срабатывает
+    // только там, где :root переменной не объявил, то есть никогда, — и
+    // потому разъезжается молча. У --radius их было восемь, от 8 до 20px.
+    foreach (radius_public_css_sources() as $path => $css) {
+        foreach (['--radius', '--radius-sm', '--btn-radius', '--radius-pill'] as $token) {
+            assert_same(
+                0,
+                preg_match_all('/var\(\s*' . preg_quote($token, '/') . '\s*,/', $css),
+                "$path: у var($token, …) есть запасное значение — число живёт в :root темы"
+            );
+        }
+    }
+});
+
+test('Токены скругления объявлены один раз и равны умолчанию «Дизайна»', function () {
+    $declared = [];
+    foreach (radius_public_css_sources() as $path => $css) {
+        preg_match_all('/(?<![\w-])(--radius|--radius-sm|--btn-radius|--radius-pill)\s*:\s*([^;]+);/', $css, $m, PREG_SET_ORDER);
+        foreach ($m as $decl) {
+            $declared[$decl[1]][] = $path . ' → ' . trim($decl[2]);
+        }
+    }
+    foreach (['--radius', '--radius-sm', '--btn-radius', '--radius-pill'] as $token) {
+        assert_same(1, count($declared[$token] ?? []), "$token объявлен не один раз: " . implode('; ', $declared[$token] ?? ['нигде']));
+        assert_contains('gov-theme.css', $declared[$token][0], "$token объявляется в :root темы");
+    }
+
+    // Портал /repo слоя настроек не получает, и там действуют числа из :root.
+    // Они обязаны совпадать с тем, что «Дизайн» печатает по умолчанию, иначе
+    // портал и сайт скруглены по-разному при одних и тех же настройках.
+    $defaults = DesignSettings::cssVariables([]);
+    preg_match('/--radius:([^;]+);/', $defaults, $radius);
+    preg_match('/--btn-radius:([^;]+);/', $defaults, $btn);
+    assert_contains('→ ' . $radius[1], $declared['--radius'][0], '--radius в :root равен умолчанию «Дизайна»');
+    assert_contains('→ ' . $btn[1], $declared['--btn-radius'][0], '--btn-radius в :root равен умолчанию «Дизайна»');
+    assert_contains('calc(var(--radius) * .6)', $declared['--radius-sm'][0], '--radius-sm считается от --radius той же долей, что в «Дизайне»');
+});

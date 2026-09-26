@@ -52,7 +52,7 @@ test('Прозрачная шапка использует компактный 
     assert_contains('body .site-header--transparent:not(.is-scrolled) .site-burger,', $css);
     assert_contains('body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-toggle {', $css);
     assert_contains('width: 36px;', $css);
-    assert_contains('border-radius: var(--radius-sm, 6px);', $css);
+    assert_contains('border-radius: var(--radius-sm);', $css);
     assert_contains('background: transparent;', $css);
     assert_contains('box-shadow: none;', $css);
 });

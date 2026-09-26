@@ -77,9 +77,10 @@ test('Токены: один радиус и подвал по числу кол
     $base = (string) file_get_contents(dirname(__DIR__, 2) . '/public/assets/css/frontend.css');
     $theme = theme_css();
 
-    preg_match('/--radius:\s*(\d+)px/', $base, $baseRadius);
-    preg_match('/--radius:\s*(\d+)px/', $theme, $themeRadius);
-    assert_same($themeRadius[1] ?? '', $baseRadius[1] ?? '', 'радиус в базе и теме должен совпадать');
+    // Радиус объявляется один раз — в :root темы (тест 309); вторая копия в
+    // базе совпадала бы с ней только до первой правки.
+    assert_same(0, preg_match('/--radius:\s*\d/', $base), 'база не объявляет свой --radius');
+    assert_same(1, preg_match('/--radius:\s*\d+px/', $theme), 'радиус объявлен в теме');
 
     // Жёсткие три колонки оставляли пустую треть, когда настроены две.
     assert_contains('grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));', $base);
