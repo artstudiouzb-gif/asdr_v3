@@ -24,8 +24,10 @@ $category = static fn (array $i): string => trim((string) ($i['category'] ?? '')
 // «Читать подробнее» остаётся только у «Карточек»: там материалов три-четыре и
 // ссылка отделяет их от текста. В мозаике карточка сама является ссылкой, и
 // подпись повторяла бы очевидное на каждой из шести.
-$more = '<span class="card-more">' . htmlspecialchars(t('Читать подробнее'), ENT_QUOTES)
-    . '<span class="card-more__arrow" aria-hidden="true">→</span></span>';
+// Стрелки у подписи нет: она стоит в карточке-ссылке и повторяла бы
+// очевидное (DESIGN_PLAN 4.4). Стрелка кнопки «ко всем материалам» ниже
+// остаётся — там она означает направление.
+$more = '<span class="card-more">' . htmlspecialchars(t('Читать подробнее'), ENT_QUOTES) . '</span>';
 
 // Раскладку мозаики задаёт сетка ленты (.newslist-grid) — та же, что на
 // /news, поэтому scoped-правило только мешало бы: оно грузится последним и
@@ -58,7 +60,6 @@ $templateCss = '';
                             <?php if ($category($item) !== ''): ?><span class="news-category"><?= htmlspecialchars($category($item), ENT_QUOTES) ?></span><?php endif; ?>
                         </span>
                         <span class="news-column__title"><?= htmlspecialchars((string) $item['title'], ENT_QUOTES) ?></span>
-                        <span class="news-column__arrow" aria-hidden="true">→</span>
                     </span>
                 </a>
             <?php endforeach; ?>

@@ -5,42 +5,28 @@ declare(strict_types=1);
 use App\Core\BlockData\BlockPresentationNormalizer as Presentation;
 use App\Core\BlockRenderer;
 
-test('Новый блок получает появление при прокрутке', function (): void {
-    // Без этого длинная страница читается как один снимок: ничто не сообщает,
-    // что ниже есть продолжение.
-    $reveal = Presentation::newBlockPresentation(false, false);
-    assert_same(['enabled' => true, 'type' => 'fade'], $reveal['_reveal'] ?? null);
-});
-
-test('Первый блок страницы и вложенный блок не анимируются', function (): void {
-    // Первый блок — первый экран: прятать его до появления значит задержать то,
-    // ради чего страницу открыли. Вложенный появляется вместе с контейнером.
+test('Новый блок создаётся без появления при прокрутке', function (): void {
+    // Появление — решение редактора. Умолчание «у всех, кроме первого и
+    // вложенного» давало на демо-главной пять въезжающих секций из шести —
+    // признак шаблонной страницы (навык frontend-design, DESIGN_PLAN 4.3).
+    assert_same([], Presentation::newBlockPresentation(false, false));
     assert_same([], Presentation::newBlockPresentation(true, false));
     assert_same([], Presentation::newBlockPresentation(false, true));
-    assert_same([], Presentation::newBlockPresentation(true, true));
 });
 
-test('Умолчание доезжает до вывода, а не теряется по дороге', function (): void {
+test('Появление, выбранное редактором, доезжает до вывода', function (): void {
     // Форма и рендерер читают _reveal своей формой записи. Разъедется shape —
     // блок сохранится «с анимацией», а на странице её не будет.
-    $render = static function (int $id, array $presentation): string {
-        $data = array_merge(['title' => 'Проба', 'text' => '<p>Текст</p>'], $presentation);
-        $out = BlockRenderer::render([
-            'id' => $id,
-            'type' => 'text',
-            'title' => 'Проба',
-            'data' => json_encode($data, JSON_UNESCAPED_UNICODE),
-        ]);
-
-        return (string) ($out['html'] ?? '');
-    };
-
-    $html = $render(1, Presentation::newBlockPresentation(false, false));
+    $data = ['title' => 'Проба', 'text' => '<p>Текст</p>', '_reveal' => ['enabled' => true, 'type' => 'fade']];
+    $out = BlockRenderer::render([
+        'id' => 1,
+        'type' => 'text',
+        'title' => 'Проба',
+        'data' => json_encode($data, JSON_UNESCAPED_UNICODE),
+    ]);
+    $html = (string) ($out['html'] ?? '');
     assert_contains('data-reveal', $html);
     assert_contains('data-reveal-type="fade"', $html);
-
-    $firstHtml = $render(2, Presentation::newBlockPresentation(true, false));
-    assert_false(str_contains($firstHtml, 'data-reveal'), 'первый блок анимируется');
 });
 
 test('Редактор добавляет блок с этим умолчанием, а не мимо него', function (): void {
