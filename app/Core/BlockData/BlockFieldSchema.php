@@ -174,7 +174,7 @@ final class BlockFieldSchema
                 // размер числом, а не пресетом.
                 'quote' => Field::textarea('Акцентная цитата', 'Используется вариантом «Текст + акцентная цитата».')
                     ->onlyWhen('variant', ['spotlight']),
-                'quote_bg' => Field::color('Фон цитаты', '#173a63', '', 'Как в теме')
+                'quote_bg' => Field::color('Фон цитаты', '#173a63', 'Своя заливка превращает цитату в карточку; без неё цитата стоит прямо на фоне секции.', 'Без подложки')
                     ->onlyWhen('variant', ['spotlight']),
                 'quote_color' => Field::color('Цвет текста цитаты', '#ffffff', '', 'Подобрать по фону')
                     ->onlyWhen('variant', ['spotlight']),
@@ -190,7 +190,7 @@ final class BlockFieldSchema
                     0,
                     240,
                     0,
-                    '0 — размер из темы (80px). Нужный кегль зависит от знака, поэтому задаётся числом.'
+                    '0 — размер из темы (112px, в карточке 80px). Нужный кегль зависит от знака, поэтому задаётся числом.'
                 )->onlyWhen('variant', ['spotlight']),
                 'quote_mark_position' => Field::enum('Расположение знака', [
                     'top-left' => 'Сверху слева',

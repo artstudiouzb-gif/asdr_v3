@@ -42,7 +42,7 @@
     margin-block: 1.8em .65em;
     color: var(--rich-title);
     font-family: var(--font-heading, 'Noto Serif', Georgia, serif);
-    font-weight: 700;
+    font-weight: var(--heading-font-weight, 700);
     line-height: 1.25;
     letter-spacing: 0;
     scroll-margin-block-start: 7rem;
@@ -112,33 +112,29 @@
 :where(.rich-content) li > ol { margin-block: .5em 0; }
 
 :where(.rich-content) blockquote {
+    /* Та же цитата, что у блока «Текст»: без подложки и рамки, знак крупно
+       цветом акцента слева, текст полужирным. Прежде цитата в статье была
+       плашкой с градиентом, тенью и ховером — то есть выглядела карточкой,
+       на которую можно нажать, а бледный знак Georgia в углу не читался. */
+    --rich-quote-mark: 3.4em;
     position: relative;
     margin-block: 2em;
-    padding: 1.4rem 2.8rem 1.4rem 1.8rem;
-    border-inline-start: 4px solid var(--rich-accent, #0d9488);
-    border-radius: 0 var(--radius) var(--radius) 0;
-    background: linear-gradient(135deg, color-mix(in srgb, var(--rich-accent, #0d9488) 7%, transparent), color-mix(in srgb, var(--rich-accent, #0d9488) 2%, transparent));
+    padding-inline-start: calc(var(--rich-quote-mark) * .62);
     color: var(--rich-title, #1e293b);
     font-size: var(--font-size-lead, 1.08em);
-    line-height: 1.68;
-    box-shadow: var(--card-shadow);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-:where(.rich-content) blockquote:hover {
-    box-shadow: var(--shadow-hover);
+    font-weight: 500;
+    line-height: 1.5;
 }
 
 :where(.rich-content) blockquote::before {
     content: "\201C";
     position: absolute;
-    top: -0.25rem;
-    right: 1.2rem;
+    top: 0;
+    left: 0;
     color: var(--rich-accent, #0d9488);
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: var(--font-size-h1, var(--step-11));
-    line-height: 1;
-    opacity: 0.2;
+    font-size: var(--rich-quote-mark);
+    font-weight: 700;
+    line-height: .82;
     pointer-events: none;
     user-select: none;
 }
