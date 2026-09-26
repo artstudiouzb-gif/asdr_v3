@@ -129,10 +129,6 @@
 
     /* Тени: четыре ступени вместо 159 разных значений в теме. Цвет —
        от чернильного, а не чистый чёрный: на светлом фоне так мягче. */
-    --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.1);
-    --shadow-2: 0 4px 12px rgba(15, 23, 42, 0.08);
-    --shadow-3: 0 12px 32px rgba(15, 23, 42, 0.12);
-    --shadow-4: 0 24px 60px rgba(15, 23, 42, 0.16);
 }
 :root[data-theme="dark"] {
     /* Тёмная тема: одна синевато-сланцевая гамма, ступени по светлоте ровные.
@@ -1675,7 +1671,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     border: 1px solid color-mix(in srgb, var(--gov-border) 45%, transparent);
     border-radius: var(--radius);
-    box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
+    box-shadow: var(--card-shadow);
     transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s ease, background-color 0.35s ease;
 }
 .news-card:hover, .content-card:hover, .contact-card:hover, .cat-tile:hover, .team-card:hover, .project-card:hover, .album-card:hover,
@@ -2473,7 +2469,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     background: var(--gov-surface);
     text-decoration: none;
     color: var(--gov-ink);
-    box-shadow: var(--card-shadow, 0 2px 8px rgba(15, 23, 42, 0.03));
+    box-shadow: var(--card-shadow);
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
 }
 .relnews-card:hover,
@@ -3834,7 +3830,7 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
     border-radius: var(--radius);
     text-decoration: none;
     color: var(--gov-ink);
-    box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
+    box-shadow: var(--card-shadow);
     transition: transform var(--feature-card-motion-duration) var(--feature-card-motion-ease),
         box-shadow var(--feature-card-motion-duration) var(--feature-card-motion-ease),
         border-color .46s ease, background-color .46s ease;
@@ -6239,7 +6235,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 }
 .faq-item[open] {
     border-color: color-mix(in srgb, var(--gov-teal) 45%, var(--gov-border));
-    box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
+    box-shadow: var(--card-shadow);
 }
 .faq-item__q {
     padding: 20px 24px; font-weight: 700; font-size: var(--step-0);
@@ -6304,7 +6300,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
     padding: 16px 18px; border: 1px solid var(--gov-border); border-radius: var(--radius);
     background: var(--gov-surface); text-decoration: none; color: var(--gov-ink);
-    box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
+    box-shadow: var(--card-shadow);
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 .doc-card:hover {
@@ -6345,7 +6341,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 .contact-card {
     display: flex; flex-direction: column; gap: 14px; padding: 24px;
     border: 1px solid var(--gov-border); border-radius: var(--radius);
-    background: var(--gov-surface); box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
+    background: var(--gov-surface); box-shadow: var(--card-shadow);
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 .contact-card:hover {
@@ -6373,7 +6369,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     border-radius: var(--radius);
     background: var(--gov-surface);
     color: var(--gov-ink);
-    box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
+    box-shadow: var(--card-shadow);
     transition: transform var(--feature-card-motion-duration) var(--feature-card-motion-ease),
         box-shadow var(--feature-card-motion-duration) var(--feature-card-motion-ease),
         border-color .46s ease, border-bottom-color .46s ease,

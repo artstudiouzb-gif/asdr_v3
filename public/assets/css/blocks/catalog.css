@@ -47,7 +47,7 @@ body.design-catalog-list .catcard { display: flex; flex-direction: row; align-it
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     border: 1px solid color-mix(in srgb, var(--gov-border) 60%, transparent);
-    box-shadow: var(--card-shadow, 0 4px 20px -6px rgba(15, 27, 45, 0.05));
+    box-shadow: var(--card-shadow);
     transition: transform 0.35s cubic-bezier(0.165, 0.84, 0.44, 1),
                 box-shadow 0.35s cubic-bezier(0.165, 0.84, 0.44, 1),
                 border-color 0.3s ease,
