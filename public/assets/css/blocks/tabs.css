@@ -21,7 +21,7 @@
     gap: 8px;
     min-height: 44px;
     padding: 10px 18px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     color: var(--gov-muted, var(--text-muted));
     font-size: var(--step--1);
     font-weight: 600;
@@ -51,7 +51,7 @@
 /* --- Вариант «переключатель»: общая дорожка --- */
 .cms-tabs--segmented .cms-tabs__list {
     padding: 6px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: color-mix(in srgb, var(--gov-border, var(--line)) 74%, var(--gov-surface, var(--surface)));
 }
 
@@ -172,7 +172,7 @@
     right: 14px;
     bottom: 5px;
     height: 2px;
-    border-radius: 2px;
+    border-radius: var(--radius-pill);
     background: currentColor;
     opacity: .5;
     transform: scaleX(var(--cms-tabs-progress, 0));

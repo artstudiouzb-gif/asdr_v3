@@ -19,6 +19,7 @@ $a11yAttributes = \App\Core\A11ySettings::htmlAttributes(
     <meta name="robots" content="noindex, nofollow">
     <?= \App\Core\Icon::browserConfigHtml() ?>
     <title>Вход — Защищённое хранилище</title>
+    <link rel="stylesheet" href="/assets/css/tokens.css">
     <link rel="stylesheet" href="/assets/css/repo.css">
     <link rel="stylesheet" href="/assets/css/a11y.css">
 </head>

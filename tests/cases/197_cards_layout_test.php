@@ -77,10 +77,12 @@ test('Токены: один радиус и подвал по числу кол
     $base = (string) file_get_contents(dirname(__DIR__, 2) . '/public/assets/css/frontend.css');
     $theme = theme_css();
 
-    // Радиус объявляется один раз — в :root темы (тест 309); вторая копия в
-    // базе совпадала бы с ней только до первой правки.
+    // Радиус объявляется один раз — в tokens.css (тест 309); вторая копия в
+    // базе или теме совпадала бы с первой только до первой правки.
+    $tokens = (string) file_get_contents(dirname(__DIR__, 2) . '/public/assets/css/tokens.css');
     assert_same(0, preg_match('/--radius:\s*\d/', $base), 'база не объявляет свой --radius');
-    assert_same(1, preg_match('/--radius:\s*\d+px/', $theme), 'радиус объявлен в теме');
+    assert_same(0, preg_match('/--radius:\s*\d/', $theme), 'тема не объявляет свой --radius');
+    assert_same(1, preg_match('/--radius:\s*\d+px/', $tokens), 'радиус объявлен в токенах');
 
     // Жёсткие три колонки оставляли пустую треть, когда настроены две.
     assert_contains('grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));', $base);

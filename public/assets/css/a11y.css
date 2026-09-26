@@ -158,7 +158,7 @@ html[data-a11y-contrast="mono"] input,
 html[data-a11y-contrast="mono"] select,
 html[data-a11y-contrast="mono"] textarea {
     border: 2px solid var(--a11y-fg) !important;
-    border-radius: 6px !important;
+    border-radius: var(--radius-sm) !important;
 }
 html[data-a11y-contrast="mono"] [aria-pressed="true"] {
     background-color: var(--a11y-fg) !important;
@@ -284,7 +284,7 @@ html[data-a11y-reading="on"] .cms-block {
 .a11y-toggle {
     background: transparent;
     border: 1px solid currentColor;
-    border-radius: 6px;
+    border-radius: var(--btn-radius);
     padding: 6px 12px;
     cursor: pointer;
     font: inherit;
@@ -400,7 +400,7 @@ html[data-a11y-reading="on"] .cms-block {
     cursor: pointer;
     color: var(--text-muted, #64748b);
     padding: 0;
-    border-radius: 10px;
+    border-radius: var(--btn-radius);
     transition: background 0.2s ease, color 0.2s ease;
 }
 .a11y-drawer__close:hover {
@@ -499,7 +499,7 @@ html[data-a11y-reading="on"] .cms-block {
        Раньше рамку носили все тринадцать кнопок сразу — панель читалась
        как решётка, в которой выбранное не выделялось. */
     border: 1.5px solid transparent;
-    border-radius: 12px;
+    border-radius: var(--radius);
     background: transparent;
     color: var(--text-main, #1a1a1a);
     font: inherit;
@@ -539,7 +539,7 @@ html[data-a11y-reading="on"] .cms-block {
     place-items: center;
     width: 48px;
     height: 48px;
-    border-radius: 12px;
+    border-radius: var(--radius);
     font-size: var(--step-2);
     font-weight: 800;
     font-family: var(--font-heading, inherit);
@@ -600,7 +600,7 @@ html[data-a11y-reading="on"] .cms-block {
     width: 22px;
     height: 3px;
     background: currentColor;
-    border-radius: 2px;
+    border-radius: var(--radius-pill);
     opacity: 0.85;
 }
 .a11y-spacing-icon--normal { gap: 3px; }
@@ -714,7 +714,7 @@ html[data-a11y-reading="on"] .cms-block {
        справа, и рамка вокруг каждой строки была третьим способом сказать
        то же самое. */
     border: 0;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     background: transparent;
     color: var(--text-main, #0f172a);
     font: inherit;
@@ -757,7 +757,7 @@ html[data-a11y-reading="on"] .cms-block {
 .a11y-switch__track {
     position: absolute;
     inset: 0;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: #cbd5e1;
     transition: background 0.2s ease;
 }
@@ -794,7 +794,7 @@ html[data-a11y-reading="on"] .cms-block {
     width: 100%;
     min-height: 52px;
     border: 1px solid var(--border-color, #e1e3e8);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: transparent;
     color: var(--text-main, #0f172a);
     font: inherit;

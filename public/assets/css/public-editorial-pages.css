@@ -213,7 +213,7 @@
     inset-block: .16em;
     left: 0;
     width: var(--section-marker-width, 3px);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--gov-teal);
 }
 

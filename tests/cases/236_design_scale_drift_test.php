@@ -86,7 +86,9 @@ test('Число !important в публичной теме не растёт', f
 });
 
 test('Шкалы объявлены и не конфликтуют с переменными админки', function (): void {
-    $theme = (string) file_get_contents(APP_ROOT . '/public/assets/css/gov-theme.css');
+    // Токены скругления лежат в tokens.css: их читают и страницы без темы.
+    $theme = (string) file_get_contents(APP_ROOT . '/public/assets/css/gov-theme.css')
+        . (string) file_get_contents(APP_ROOT . '/public/assets/css/tokens.css');
 
     foreach (['--step-0', '--step-1', '--space-s', '--space-l', '--shadow-1', '--shadow-3', '--radius-pill'] as $token) {
         assert_contains($token . ':', $theme, 'токен ' . $token . ' объявлен');
