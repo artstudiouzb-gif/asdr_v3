@@ -903,7 +903,7 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .faq-item[open] {
     border-color: color-mix(in srgb, var(--gov-teal) 45%, var(--gov-border));
     background: var(--gov-surface);
-    box-shadow: var(--card-shadow, 0 4px 16px -2px rgba(15, 23, 42, .04));
+    box-shadow: var(--card-shadow);
 }
 .faq-item__a {
     padding: 0 24px 22px;
@@ -1050,9 +1050,6 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
     --card-gap: 24px;
     --section-pad: 68px;
     --surface: #ffffff;
-    --shadow-sm: 0 1px 2px rgba(16,24,40,.05);
-    --shadow-md: 0 6px 22px rgba(16,24,40,.08);
-    --shadow-lg: 0 18px 48px rgba(16,24,40,.12);
 }
 :root[data-theme="dark"] { --surface: #273143; }/* Ширина контейнеров из настроек */
 
@@ -1227,7 +1224,7 @@ h1, h2 { letter-spacing: -.015em; }/* --- Блок «Партнёры» (лог�
 }/* --- Стиль карточек и положение сайдбара (настройки дизайна) --- */
 
 .content-card, .news-card, .site-search-results__item, .block-partners__item {
-    box-shadow: var(--card-shadow, none);
+    box-shadow: var(--card-shadow);
 }/* Плоские карточки — опираемся на обводку, тень убрана. */
 
 body.design-cards-flat .content-card,
@@ -1316,7 +1313,7 @@ body.site-search-open { overflow: hidden; }
 body.design-detail-sidebar .content-detail__grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; align-items: start; }
 body.design-detail-sidebar .content-detail__aside {
     background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius);
-    padding: 20px 22px; box-shadow: var(--card-shadow, none);
+    padding: 20px 22px; box-shadow: var(--card-shadow);
 }
 body.design-detail-sidebar .content-detail__aside .content-detail__row { grid-template-columns: 1fr; gap: 2px; padding: 10px 0; }
 body.design-detail-sidebar .content-detail__aside .content-detail__row dt { color: var(--text-muted); font-size: var(--step--2); }
@@ -1599,7 +1596,6 @@ body.mobile-menu-open .site-burger span:nth-child(3) { transform: translateY(-7p
     --ink: color-mix(in srgb, var(--gov-navy) 88%, #0b1020);
     --tint-2: color-mix(in srgb, var(--gov-navy) 3%, var(--bg-primary));
     --tint-6: color-mix(in srgb, var(--gov-navy) 7%, var(--bg-primary));
-    --shadow-primary: 0 14px 40px color-mix(in srgb, var(--gov-navy) 16%, transparent);
 }
 /* Плавная прокрутка только при отсутствии prefers-reduced-motion (WCAG). */
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }/* Якорь не должен уезжать под закреплённую шапку: браузер останавливает
