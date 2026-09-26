@@ -12,7 +12,7 @@
     background: var(--gov-surface);
     border: 1px solid var(--gov-border);
     border-radius: var(--radius);
-    box-shadow: var(--shadow-2, 0 4px 12px rgba(15, 23, 42, .08));
+    box-shadow: var(--shadow-2);
 }
 .leader-card::after {
     content: "";
@@ -51,7 +51,7 @@
     aspect-ratio: 1;
     border-radius: var(--radius-sm);
     background: var(--gov-navy);
-    box-shadow: var(--shadow-2, 0 4px 12px rgba(15, 23, 42, .08));
+    box-shadow: var(--shadow-2);
 }
 .leader-card__photo img,
 .leader-card__img {
