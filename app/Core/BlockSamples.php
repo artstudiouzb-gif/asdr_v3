@@ -121,7 +121,11 @@ final class BlockSamples
                 'overlay_mode' => 'gradient',
                 'overlay_opacity' => 35,
             ],
-            'cards_grid' => ['title' => 'Разделы', 'columns' => 3, 'items' => [
+            // Номер 01/02/03 — знак последовательности, а направления, разделы
+            // и услуги ею не являются (DESIGN_PLAN 4.2, навык frontend-design).
+            // Умолчание схемы остаётся «включено»: у собранных страниц ключа в
+            // данных нет, и смена умолчания молча сняла бы номера у них.
+            'cards_grid' => ['title' => 'Разделы', 'columns' => 3, 'numbering' => false, 'items' => [
                 ['title' => 'Название карточки', 'text' => self::LEAD, 'url' => $news, 'icon_svg' => ''],
                 ['title' => 'Вторая карточка', 'text' => self::LEAD, 'url' => $news, 'icon_svg' => ''],
                 ['title' => 'Третья карточка', 'text' => self::LEAD, 'url' => $news, 'icon_svg' => ''],

@@ -635,7 +635,6 @@ body {
 
 /* Editorial Eyebrows, Categories and Badges */
 :where(
-    .block-hero__eyebrow,
     .news-card__category,
     .section-head__eyebrow,
     .content-badge,

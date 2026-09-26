@@ -110,7 +110,6 @@ $qs = static function (array $overrides) use ($q, $sort): string {
                         <?php endforeach; ?>
                         <a class="catcard__more" href="<?= htmlspecialchars($url, ENT_QUOTES) ?>">
                             <span><?= htmlspecialchars(t('Подробнее'), ENT_QUOTES) ?></span>
-                            <span class="catcard__arrow" aria-hidden="true">→</span>
                         </a>
                     </div>
                 </div>

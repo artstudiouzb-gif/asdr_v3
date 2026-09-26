@@ -41,7 +41,9 @@
         text-wrap: balance;
     }
     .site-home .hero__subtitle { font-size: var(--step-0); line-height: 1.5; max-width: 58ch; }
-    .site-home .hero__eyebrow { font-size: var(--step--4); letter-spacing: .18em; }
+    /* Надзаголовок — в обычном регистре и без разрядки (DESIGN_PLAN 4.4):
+       разрядка .18em была нужна капслоку, строчным она только мешает. */
+    .site-home .hero__eyebrow { font-size: var(--step--2); }
     .site-home .hero__cta { min-height: 44px; padding: 10px 20px; font-size: var(--step--2); box-shadow: none; }
 
     .site-home .cards-grid,
