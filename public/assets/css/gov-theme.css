@@ -125,17 +125,7 @@
     --space-2xl: 4rem;
     --space-3xl: 6rem;
 
-    /* Радиусы — одно объявление на весь публичный CSS (тест 309). Числа
-       равны умолчанию «Дизайна» (скругление «Среднее», кнопки «Скруглённые»):
-       на сайте их перекрывает слой настроек, а без него — портал /repo, куда
-       слой не подключается, — действуют эти же значения, а не свои. Точки
-       использования пишут голое var(--radius): запасное значение там
-       срабатывало бы только без :root, то есть никогда, и потому молча
-       разъезжалось — у --radius их набралось восемь (8–20px). */
-    --radius: 14px;
-    --radius-sm: calc(var(--radius) * .6);
-    --btn-radius: 10px;
-    --radius-pill: 999px;
+    /* Радиусы объявлены в tokens.css: их читают и страницы без темы. */
 
     /* Тени: четыре ступени вместо 159 разных значений в теме. Цвет —
        от чернильного, а не чистый чёрный: на светлом фоне так мягче. */
@@ -345,7 +335,7 @@ body.design-scrolltop .scroll-top:focus-visible { outline: 2px solid var(--gov-t
         var(--menu-active-color, var(--gov-teal)) 65%,
         transparent 100%
     );
-    border-radius: 99px;
+    border-radius: var(--radius-pill);
     transform: scaleX(0);
     transform-origin: center;
     transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
@@ -475,7 +465,7 @@ body.design-scrolltop .scroll-top:focus-visible { outline: 2px solid var(--gov-t
 .site-menu--padding-spacious .site-menu__link { padding-inline: 18px; padding-block: 16px; }/* Style Type Modifiers */
 
 .site-menu--style-pill .site-menu__link {
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     padding-inline: 14px;
     padding-block: 6px;
     transition: all 0.2s ease;
@@ -600,7 +590,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu--style-dot .site-men
 body .site-header--container-floating.site-header--sticky.is-scrolled {
     margin: 10px auto !important;
     max-width: min(calc(100% - 32px), var(--container-max, 1440px)) !important;
-    border-radius: 50px !important;
+    border-radius: var(--radius-pill) !important;
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
 }
 :root[data-theme="light"] body .site-header--container-floating.site-header--sticky.is-scrolled,
@@ -629,7 +619,7 @@ body .site-header--container-floating.site-header--sticky-full.is-scrolled {
 .site-menu__badge {
     position: absolute; top: 4px; right: 0px; z-index: 10;
     display: inline-flex; align-items: center; justify-content: center;
-    padding: 1.5px 5px; border-radius: 3px;
+    padding: 1.5px 5px; border-radius: var(--radius-xs);
     /* Не ниже 12px: капслок с разрядкой на 9.6px переставал читаться. */
     font-size: var(--step--4); font-weight: 800; line-height: 1;
     letter-spacing: 0.04em; text-transform: uppercase; color: #ffffff;
@@ -740,7 +730,7 @@ body .site-header--container-floating.site-header--sticky-full.is-scrolled {
 
 :root[data-theme="dark"] .site-lang-dropdown__item.is-active { background: rgba(63, 193, 192, 0.12); color: var(--gov-teal-text); }
 .a11y-toggle, .site-theme-toggle, .site-search, .site-search input, .site-search-toggle { color: var(--gov-title); }
-.site-search { border: 1px solid var(--gov-border); border-radius: 999px; background: var(--gov-surface); }
+.site-search { border: 1px solid var(--gov-border); border-radius: var(--radius-pill); background: var(--gov-surface); }
 .site-search input { border: 0; background: transparent; background-image: none; border-radius: 0; }
 .site-search button { border: 0 !important; background: transparent !important; }
 .site-burger { color: var(--gov-title); border-color: var(--gov-border); }/* Тёмная тема: элементы управления в сплошной (непрозрачной) шапке. Без этих
@@ -1234,7 +1224,7 @@ body .site-header--transparent:not(.is-scrolled) .site-burger { border-color: va
     align-items: center;
     gap: 6px;
     padding: 4px 10px 4px 16px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--gov-surface, #ffffff);
     border: 1.5px solid var(--gov-border, #cbd5e1);
     box-shadow: 0 10px 30px rgba(15, 27, 45, 0.14);
@@ -1666,7 +1656,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
     /* В тёмной теме поверхность карточки сама тёмная — акцент снова светлый. */
     --gov-teal-text: var(--gov-teal-on-dark);
 }
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline-offset: 2px; border-radius: 4px; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline-offset: 2px; border-radius: var(--radius-xs); }
 .cms-block--bg-navy a:focus-visible, .block-ctaband a:focus-visible, .featband a:focus-visible, .timeline-cta a:focus-visible { outline-color: #fff; }
 .media-tabs button, .media-tabs a { min-height: 32px; }
 @media (prefers-reduced-motion: reduce) {
@@ -1800,14 +1790,14 @@ body.reader-mode-active { overflow: hidden; }
 .reader-mode-controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .reader-mode-themes, .reader-mode-fonts {
     display: flex; align-items: center; gap: 4px;
-    background: rgba(0, 0, 0, 0.06); padding: 3px; border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.06); padding: 3px; border-radius: var(--radius-pill);
 }
 .reader-mode-overlay[data-reader-theme="dark"] :is(.reader-mode-themes, .reader-mode-fonts) {
     background: rgba(255, 255, 255, 0.12);
 }
 .reader-theme-btn, .reader-font-btn {
     border: 0; background: transparent; cursor: pointer;
-    padding: 4px 8px; border-radius: 9999px; font-size: var(--step--3);
+    padding: 4px 8px; border-radius: var(--radius-pill); font-size: var(--step--3);
     font-family: inherit; font-weight: 700; color: inherit; transition: all 0.15s ease;
 }
 .reader-theme-btn.is-active, .reader-font-btn:hover {
@@ -1875,7 +1865,7 @@ body.reader-mode-active { overflow: hidden; }
 .social-embed-card__title { font-weight: 700; font-size: var(--step--1); color: var(--gov-title, #1e293b); }
 .social-embed-card__url { font-size: var(--step--3); color: var(--gov-subtext, #64748b); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .social-embed-card__btn {
-    font-size: var(--step--3); font-weight: 700; padding: 6px 14px; border-radius: 9999px;
+    font-size: var(--step--3); font-weight: 700; padding: 6px 14px; border-radius: var(--radius-pill);
     background: var(--gov-bg, #f1f5f9); color: var(--gov-teal);
     white-space: nowrap; transition: all 0.2s ease;
 }
@@ -1941,7 +1931,7 @@ body.lightbox-active { overflow: hidden; }
 .rich-lightbox-caption {
     margin-top: 14px; font-size: var(--step--1); color: rgba(255, 255, 255, 0.9);
     max-width: 700px; font-weight: 500; line-height: 1.5;
-    background: rgba(0, 0, 0, 0.4); padding: 8px 18px; border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.4); padding: 8px 18px; border-radius: var(--radius-pill);
 }
 .rich-lightbox-nav {
     position: relative; z-index: 10;
@@ -2825,7 +2815,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 
 .stage__body { display: flex; flex-direction: column; gap: 7px; color: inherit; text-decoration: none; }
 .stage__body--link:hover .stage__title { color: var(--gov-teal-text); }
-.stage__body--link:focus-visible { outline: 2px solid var(--gov-teal); outline-offset: 4px; border-radius: 8px; }
+.stage__body--link:focus-visible { outline: 2px solid var(--gov-teal); outline-offset: 4px; border-radius: var(--radius-sm); }
 .stage__dot {
     position: absolute; z-index: 2; top: 0; left: 0; width: 12px; height: 12px; border-radius: 50%;
     background: var(--gov-surface); border: 2px solid var(--gov-border);
@@ -2877,7 +2867,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .stage__label { color: var(--gov-muted); font-size: var(--step--3); text-transform: uppercase; letter-spacing: .05em; }
 .stage__title { font-weight: 700; color: var(--section-title-fg); font-size: var(--step-0); }
 .stage__text { color: var(--gov-muted); font-size: var(--step--2); line-height: var(--base-line-height, 1.5); flex: 1; }
-.stage__status { align-self: flex-start; padding: 5px 12px; border-radius: 999px; font-size: var(--step--4); font-weight: 700; background: color-mix(in srgb, var(--gov-navy) 7%, var(--gov-bg)); color: var(--gov-muted); transition: background 0.3s, color 0.3s; }
+.stage__status { align-self: flex-start; padding: 5px 12px; border-radius: var(--radius-pill); font-size: var(--step--4); font-weight: 700; background: color-mix(in srgb, var(--gov-navy) 7%, var(--gov-bg)); color: var(--gov-muted); transition: background 0.3s, color 0.3s; }
 .stage--done .stage__status { background: color-mix(in srgb, var(--gov-teal) 14%, var(--gov-bg)); color: color-mix(in srgb, var(--gov-teal-text) 82%, #000); }
 .stage--active .stage__status { background: color-mix(in srgb, var(--gov-teal) 13%, var(--gov-bg)); color: #2465c6; }/* Тёмная тема: синий текста рассчитан на светлый фон, на тёмном он давал
    3.22:1. Берём светлый оттенок той же линейки. */
@@ -2925,7 +2915,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     .textimage__button:hover, .textimage__button:focus-visible { transform: none; }
 }
 .textimage__title { position: relative; font-size: var(--font-size-h2, var(--step-5)); margin: 0 0 18px; padding-left: 16px; }
-.textimage__title::before { content: ''; position: absolute; left: 0; top: .18em; bottom: .18em; width: 4px; border-radius: 2px; background: var(--gov-teal); }
+.textimage__title::before { content: ''; position: absolute; left: 0; top: .18em; bottom: .18em; width: 4px; border-radius: var(--radius-pill); background: var(--gov-teal); }
 .textimage__text { color: var(--gov-muted); line-height: var(--base-line-height, 1.6); margin-bottom: 24px; }
 .textimage__features { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 18px; }
 .textimage__feature { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
@@ -3430,7 +3420,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .newsfeat-more { display: flex; justify-content: center; margin-top: clamp(20px, 2.6vw, 32px); }
 .newsfeat-more__btn {
     display: inline-flex; align-items: center; gap: 10px;
-    padding: 14px 28px; border-radius: 999px;
+    padding: 14px 28px; border-radius: var(--radius-pill);
     border: 1px solid var(--gov-border); background: var(--gov-surface);
     color: var(--gov-title); font-weight: 700; font-size: var(--step--1);
     text-decoration: none;
@@ -3480,7 +3470,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 }/* ===== Рубрикатор по бейджам (страница «Новости») ===== */
 
 .listing-filter { display: flex; flex-wrap: wrap; gap: 10px; margin-top: -8px; }
-.listing-filter__item { display: inline-flex; align-items: center; min-height: 40px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--gov-border); background: var(--gov-surface); color: var(--gov-title); font-weight: 600; font-size: var(--step--2); text-decoration: none; transition: border-color .15s ease, color .15s ease; }
+.listing-filter__item { display: inline-flex; align-items: center; min-height: 40px; padding: 0 18px; border-radius: var(--radius-pill); border: 1px solid var(--gov-border); background: var(--gov-surface); color: var(--gov-title); font-weight: 600; font-size: var(--step--2); text-decoration: none; transition: border-color .15s ease, color .15s ease; }
 .listing-filter__item:hover { border-color: var(--gov-teal); color: var(--gov-teal-text); }/* Значок рубрики: слева от названия, с левым отступом чуть меньше — иначе
    кнопка с иконкой выглядит шире соседних. */
 
@@ -4140,7 +4130,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
     content: '';
     width: 7px;
     height: 7px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: color-mix(in srgb, var(--gov-muted) 42%, transparent);
     transition: width .2s ease, background-color .2s ease, transform .2s ease;
 }
@@ -4245,7 +4235,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
     transform: scale(1.1);
     box-shadow: 0 0 15px var(--gov-teal);
 }
-.mediacard__duration { position: absolute; right: 10px; bottom: 10px; background: rgba(11,26,48,.8); color: #fff; font-size: var(--step--4); padding: 2px 8px; border-radius: 4px; }
+.mediacard__duration { position: absolute; right: 10px; bottom: 10px; background: rgba(11,26,48,.8); color: #fff; font-size: var(--step--4); padding: 2px 8px; border-radius: var(--radius-xs); }
 .mediacard__title { 
     display: block; font-weight: 700; font-family: var(--font-heading, 'Noto Serif', serif); 
     color: var(--gov-title); line-height: 1.35; font-size: var(--step-0); 
@@ -4661,7 +4651,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
    заливке в 12 % акцента обычный --gov-teal-text давал 2.85:1 при норме 4.5,
    axe ловил это на детальной новости и странице проекта. */
 
-.newsdetail__badge { display: inline-block; padding: 6px 14px; border-radius: 999px; background: color-mix(in srgb, var(--gov-teal) 12%, transparent); color: var(--gov-teal-on-tint, #00697d); text-transform: uppercase; font-size: 11.5px; letter-spacing: .1em; font-weight: 700; }/* Рубрика на детальной — ссылка в отфильтрованную ленту. Подчёркивание
+.newsdetail__badge { display: inline-block; padding: 6px 14px; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--gov-teal) 12%, transparent); color: var(--gov-teal-on-tint, #00697d); text-transform: uppercase; font-size: 11.5px; letter-spacing: .1em; font-weight: 700; }/* Рубрика на детальной — ссылка в отфильтрованную ленту. Подчёркивание
    появляется только при наведении: иначе плашка выглядит сломанной. */
 
 a.newsdetail__badge { text-decoration: none; }
@@ -4751,7 +4741,7 @@ body:has(.site-header--transparent) .cms-block--hero:first-child .block-hero--h-
 
 .news-badge {
     display: inline-flex; align-items: center; min-width: 0; max-width: 100%;
-    padding: 2px 8px; border-radius: 4px;
+    padding: 2px 8px; border-radius: var(--radius-xs);
     background: var(--news-badge-bg, color-mix(in srgb, var(--gov-teal) 14%, transparent));
     color: var(--news-badge-fg, var(--gov-teal-text));
     font-size: var(--step--3); font-weight: 700; line-height: 1.35;
@@ -4762,7 +4752,7 @@ body:has(.site-header--transparent) .cms-block--hero:first-child .block-hero--h-
 
 .news-badge--overlay {
     position: absolute; top: 12px; left: 12px; z-index: 2;
-    padding: 5px 12px; border-radius: 999px;
+    padding: 5px 12px; border-radius: var(--radius-pill);
     background: var(--news-badge-bg, var(--gov-navy));
     color: var(--news-badge-fg, #fff);
     box-shadow: var(--shadow-2);
@@ -5088,9 +5078,9 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
 .site-footer--columns .site-footer__text h4 { color: #fff; }/* --- Форма подписки в подвале --- */
 
 .footer-subscribe { display: flex; flex-wrap: wrap; margin-top: 12px; max-width: 320px; }
-.footer-subscribe input[type=email] { flex: 1; min-width: 0; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06); color: #fff; border-radius: 8px 0 0 8px; padding: 11px 14px; }
+.footer-subscribe input[type=email] { flex: 1; min-width: 0; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06); color: #fff; border-radius: var(--radius-sm) 0 0 var(--radius-sm); padding: 11px 14px; }
 .footer-subscribe input[type=email]::placeholder { color: rgba(255,255,255,.55); }
-.footer-subscribe button { display: inline-grid; place-items: center; border: 0; background: var(--gov-teal); color: #fff; padding: 0 18px; border-radius: 0 8px 8px 0; cursor: pointer; }
+.footer-subscribe button { display: inline-grid; place-items: center; border: 0; background: var(--gov-teal); color: #fff; padding: 0 18px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; cursor: pointer; }
 .footer-subscribe button:hover { background: color-mix(in srgb, var(--gov-teal) 85%, #000); }
 .footer-subscribe__consent { display: flex; flex: 1 0 100%; align-items: flex-start; gap: 8px; margin-top: 10px; color: rgba(255,255,255,.72); font-size: var(--step--4); line-height: var(--base-line-height, 1.45); cursor: pointer; }
 .footer-subscribe__consent input { flex: 0 0 auto; margin-top: 2px; accent-color: var(--gov-teal); }
@@ -5105,7 +5095,7 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
 .widget--pad-compact:not(.widget--style-card):not(.widget--style-tinted):not(.widget--style-navy) { padding: 0; }
 .widget--pad-spacious.widget--style-card, .widget--pad-spacious.widget--style-tinted, .widget--pad-spacious.widget--style-navy { padding: 32px; }
 .widget--accent .widget__title { padding-bottom: 10px; position: relative; }
-.widget--accent .widget__title::after { content: ''; position: absolute; left: 0; bottom: 0; width: 44px; height: 3px; border-radius: 2px; background: var(--gov-teal); }/* Карусель «случайная цель»: название и описание над кадрами. Название —
+.widget--accent .widget__title::after { content: ''; position: absolute; left: 0; bottom: 0; width: 44px; height: 3px; border-radius: var(--radius-pill); background: var(--gov-teal); }/* Карусель «случайная цель»: название и описание над кадрами. Название —
    не заголовок разметки (виджет встаёт в любое место страницы, и уровень
    заголовка тут не предсказать), поэтому размер задаётся здесь, а диктору
    имя приходит подписью самой карусели. Цвет берётся у виджета: на его
@@ -5123,7 +5113,7 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
 }
 .widget--style-navy .goal-carousel__desc { color: rgba(255, 255, 255, .72); }/* ===== Кнопка webpush-подписки (футер) ===== */
 
-.push-optin { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; min-height: 40px; padding: 0 16px; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; background: transparent; color: #fff; font: inherit; font-size: var(--step--2); font-weight: 600; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+.push-optin { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; min-height: 40px; padding: 0 16px; border: 1px solid rgba(255,255,255,.35); border-radius: var(--radius-pill); background: transparent; color: #fff; font: inherit; font-size: var(--step--2); font-weight: 600; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
 .push-optin:hover { border-color: var(--gov-teal); background: rgba(23,153,155,.15); }
 .push-optin.is-on { border-color: var(--gov-teal); background: var(--gov-teal); }
 .push-optin[disabled] { opacity: .6; cursor: default; }/* ===== Капча публичных форм ===== */
@@ -5374,7 +5364,7 @@ body .site-header--transparent:not(.is-scrolled) .site-theme-toggle__moon {
     width: 20px;
     height: 2px;
     background: currentColor;
-    border-radius: 2px;
+    border-radius: var(--radius-pill);
     transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease, width 0.25s ease;
 }
 .site-burger:hover span:nth-child(2) {
@@ -5605,7 +5595,7 @@ body.quick-search-active { overflow: hidden; }
     font-weight: 700;
     background: var(--gov-surface);
     border: 1px solid var(--gov-border);
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     padding: 1px 5px;
 }
 
@@ -6082,7 +6072,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
        WCAG AA для мелкого текста. Акцент остаётся в заливке и левой грани. */
     color: var(--gov-title);
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: color-mix(in srgb, var(--gov-teal) 14%, transparent);
 }
 .act-card__date { color: var(--gov-muted); font-size: var(--font-size-meta, var(--step--2)); }
@@ -6287,7 +6277,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 }
 .faq-item__category {
     font-size: var(--step--4); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
-    padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, var(--gov-teal) 10%, transparent);
+    padding: 4px 10px; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--gov-teal) 10%, transparent);
     color: var(--gov-teal-text); margin-left: auto;
 }/* --- Документы и списки актов (Docs Grid / List) --- */
 

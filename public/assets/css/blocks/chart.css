@@ -49,7 +49,7 @@
     grid-column: 1 / -1;
     display: block;
     height: 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--chart-track);
     overflow: hidden;
 }
@@ -57,7 +57,7 @@
     display: block;
     height: 100%;
     width: var(--chart-share, 0%);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--gov-teal);
 }
 
@@ -73,7 +73,7 @@
     display: flex;
     gap: 2px;
     height: 18px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     overflow: hidden;
 }
 .chart__seg { display: block; flex: 0 0 var(--chart-share, 0%); min-width: 2px; }
@@ -92,7 +92,7 @@
     flex: 0 0 auto;
     width: 10px;
     height: 10px;
-    border-radius: 3px;
+    border-radius: var(--radius-xs);
     transform: translateY(1px);
 }
 

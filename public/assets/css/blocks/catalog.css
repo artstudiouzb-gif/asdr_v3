@@ -93,7 +93,7 @@ body.design-catalog-list .catcard { display: flex; flex-direction: row; align-it
     display: inline-flex;
     align-items: center;
     padding: 4px 12px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: color-mix(in srgb, var(--gov-teal) 12%, transparent);
     color: var(--gov-teal-text);
     font-size: var(--step--4);
@@ -234,7 +234,7 @@ body.design-catalog-list .catcard { display: flex; flex-direction: row; align-it
 .catdetail__eyebrow { display: inline-block; color: var(--gov-teal-text); font-size: var(--step--3); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .catdetail__title { margin: 12px 0 10px; font-size: var(--step-8); line-height: 1.15; color: var(--section-title-fg); }
 .catdetail__date { color: var(--gov-muted); font-size: var(--step--2); }
-.catdetail__event-banner { width: 100%; margin: 0; overflow: hidden; border-radius: clamp(14px, 2vw, 22px); aspect-ratio: 16 / 7; background: var(--gov-bg); box-shadow: var(--card-shadow); }
+.catdetail__event-banner { width: 100%; margin: 0; overflow: hidden; border-radius: clamp(var(--radius), 2vw, calc(var(--radius) * 1.6)); aspect-ratio: 16 / 7; background: var(--gov-bg); box-shadow: var(--card-shadow); }
 .catdetail__event-banner picture { display: block; width: 100%; height: 100%; }
 .catdetail__event-image { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--media-object-position, center); }
 .catdetail__grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: clamp(24px, 3.4vw, 48px); align-items: start; }

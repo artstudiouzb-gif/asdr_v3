@@ -78,7 +78,7 @@
 :where(.rich-content) a:focus-visible {
     outline: 3px solid color-mix(in srgb, var(--rich-accent) 45%, transparent);
     outline-offset: 3px;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
 }
 
 :where(.rich-content) ul,
