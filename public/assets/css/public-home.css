@@ -76,7 +76,7 @@
     @media (hover: hover) and (pointer: fine) {
         .site-home :is(.news-column, .news-card, .newslist-lead, .relnews-card):hover {
             text-decoration: none;
-            box-shadow: 0 16px 36px color-mix(in srgb, var(--gov-navy) 14%, transparent);
+            box-shadow: var(--shadow-hover);
             transform: translateY(var(--feature-card-hover-lift, -4px));
             border-color: var(--gov-teal);
         }/* Крупные карточки ленты исключены: их заголовок лежит на фотографии

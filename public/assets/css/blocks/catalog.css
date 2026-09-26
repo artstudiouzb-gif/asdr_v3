@@ -56,7 +56,7 @@ body.design-catalog-list .catcard { display: flex; flex-direction: row; align-it
 .catcard:hover {
     transform: translateY(-4px);
     border-color: color-mix(in srgb, var(--gov-teal) 60%, var(--gov-border));
-    box-shadow: 0 12px 32px -8px rgba(15, 27, 45, 0.10);
+    box-shadow: var(--shadow-hover);
     background: color-mix(in srgb, var(--gov-surface) 92%, transparent);
 }
 .catcard--archived {

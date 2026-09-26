@@ -40,11 +40,11 @@
 .block-buttons__btn--primary {
     background: linear-gradient(to bottom, var(--gov-navy) 0%, color-mix(in srgb, var(--gov-navy) 90%, #000) 100%);
     color: #fff;
-    box-shadow: 0 2px 4px rgba(19, 42, 92, .1);
+    box-shadow: var(--shadow-control);
 }
 .block-buttons__btn--primary:hover {
     background: linear-gradient(to bottom, color-mix(in srgb, var(--gov-navy) 95%, #fff) 0%, var(--gov-navy) 100%);
-    box-shadow: 0 6px 16px rgba(19, 42, 92, .25);
+    box-shadow: var(--shadow-hover);
     transform: translateY(-1px);
 }
 /* Контурная и текстовая берут цвет текста секции: на тёмной секции акцентная

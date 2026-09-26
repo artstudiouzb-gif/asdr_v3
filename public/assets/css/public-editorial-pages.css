@@ -408,7 +408,7 @@
 .editorial-page__content .act-card:not(.feature-card):hover,
 .editorial-page__content .doc-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 14px 30px -22px rgba(15, 43, 70, .45);
+    box-shadow: var(--shadow-hover);
 }
 
 /* Reusable editorial variants ------------------------------------------- */
@@ -451,7 +451,7 @@
     border: 1px solid color-mix(in srgb, var(--gov-navy) 9%, var(--editorial-line));
     border-radius: var(--radius);
     background: color-mix(in srgb, var(--gov-navy) 4%, var(--gov-surface));
-    box-shadow: 0 28px 58px -42px color-mix(in srgb, var(--gov-navy) 52%, transparent);
+    box-shadow: var(--card-shadow);
 }
 
 .editorial-page__content .block-text__media picture,
@@ -1038,7 +1038,7 @@
     border: 1px solid color-mix(in srgb, var(--gov-navy) 8%, var(--editorial-line));
     border-radius: var(--radius);
     background: color-mix(in srgb, var(--gov-navy) 3%, var(--gov-surface));
-    box-shadow: 0 22px 48px -40px rgba(15, 43, 70, .48);
+    box-shadow: var(--card-shadow);
 }
 
 .editorial-page__content .bio-side__widgets {
