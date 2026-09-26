@@ -89,10 +89,13 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
    прозрачность на цветной плитке увела бы контраст ниже нормы, а тут он
    ничего не сообщает и читаться не обязан. */
 .collage__quote-mark {
-    font-family: var(--font-heading, Georgia, serif);
+    /* Начертание — как у остальных цитат сайта: жирный знак гротеска. Цвет
+       остаётся цветом плитки — у неё бывает своя заливка, и акцент на ней
+       мог бы пропасть. */
     font-size: var(--step-7);
-    line-height: .6;
-    height: .5em;
+    font-weight: 700;
+    line-height: .82;
+    height: .42em;
 }
 /* Ячейка спутника бывает ниже цитаты, и обрезать её по краю нельзя: резалось
    по середине букв, а это читается как поломка, а не как продолжение. Поэтому
@@ -104,6 +107,7 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
     min-height: 0;
     overflow: hidden;
     font-size: var(--step-0);
+    font-weight: 500;
     line-height: 1.45;
     text-wrap: pretty;
     mask-image: linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent);

@@ -442,7 +442,7 @@ final class DesignSettings
     public static function bodyFontChoice(): string
     {
         $google = (string) Setting::get('design_font_google_body', '');
-        if ($google !== '' && isset(self::GOOGLE_FONTS[$google])) {
+        if ($google !== '' && isset(self::googleFontCatalog()[$google])) {
             return 'google:' . $google;
         }
 
@@ -458,7 +458,7 @@ final class DesignSettings
     {
         if (str_starts_with($choice, 'google:')) {
             $slug = substr($choice, 7);
-            if (isset(self::GOOGLE_FONTS[$slug])) {
+            if (isset(self::googleFontCatalog()[$slug])) {
                 return ['font_style' => 'system', 'font_google_body' => $slug];
             }
         }
@@ -1319,7 +1319,7 @@ final class DesignSettings
             $slug = (string) $input[$inputKey];
             Setting::set(
                 'design_font_google_' . $role,
-                $slug !== '' && isset(self::GOOGLE_FONTS[$slug]) ? $slug : ''
+                $slug !== '' && isset(self::googleFontCatalog()[$slug]) ? $slug : ''
             );
         }
 
@@ -1350,17 +1350,21 @@ final class DesignSettings
 
         // Шрифты локального каталога имеют явный приоритет над базовой ролью.
         // Отключение шрифта текста возвращает выбранный выше пресет/свой стек.
+        // Каталог — весь, а не отобранные двадцать: форма предлагает и
+        // остальные семейства индекса, и проверка по короткому списку молча
+        // отбрасывала выбор — файлы скачивались, а сайт оставался на прежнем.
+        $catalog = self::googleFontCatalog();
         $bodySlug = (string) Setting::get('design_font_google_body', '');
-        if ($bodySlug !== '' && isset(self::GOOGLE_FONTS[$bodySlug])) {
-            Setting::set('font_family', self::GOOGLE_FONTS[$bodySlug][1]);
+        if ($bodySlug !== '' && isset($catalog[$bodySlug])) {
+            Setting::set('font_family', $catalog[$bodySlug][1]);
         }
 
         $headingSlug = (string) Setting::get('design_font_google_heading', '');
         $bodyFont = (string) Setting::get('font_family', SiteThemeCss::DEFAULT_BODY_FONT);
         Setting::set(
             'font_heading',
-            $headingSlug !== '' && isset(self::GOOGLE_FONTS[$headingSlug])
-                ? self::GOOGLE_FONTS[$headingSlug][1]
+            $headingSlug !== '' && isset($catalog[$headingSlug])
+                ? $catalog[$headingSlug][1]
                 : $bodyFont
         );
 

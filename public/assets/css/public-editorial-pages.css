@@ -67,7 +67,7 @@
     color: var(--section-title-fg);
     font-family: var(--font-heading, var(--font-family));
     font-size: var(--font-size-h1, clamp(var(--step-8), 4vw, var(--step-9)));
-    font-weight: 700;
+    font-weight: var(--heading-font-weight, 700);
     line-height: 1.08;
     letter-spacing: -.038em;
 }
@@ -201,7 +201,7 @@
     color: var(--section-title-fg);
     font-family: var(--font-heading, var(--font-family));
     font-size: var(--font-size-h2, clamp(var(--step-5), 2.5vw, var(--step-7)));
-    font-weight: 700;
+    font-weight: var(--heading-font-weight, 700);
     line-height: 1.18;
     letter-spacing: var(--heading-letter-spacing, -.02em);
 }
