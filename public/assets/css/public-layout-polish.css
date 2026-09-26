@@ -463,17 +463,45 @@
     container-name: cms-col;
 }
 
+/* Селектор начинается с колонки не для красоты: сетки на редакционной
+   странице задаёт `public-editorial-pages.css`, он подключается позже и весит
+   (0,2,0) — правило одним классом проигрывало ему, и «Карточки» в колонке
+   1:3 шли тремя колонками по сотне пикселей (замерено стендом
+   /container-check, тест container-grids.spec.js). Вес (0,4,0) — ровно на
+   ступень выше самого тяжёлого соперника: нумерованные карточки того же слоя
+   (`.editorial-page__content .block-cards--numbered .cards-grid`, 0,3,0).
+   Карточкам сбрасывается и
+   растяжение дорожек (`--grid-span` от GridBalance): при двух колонках
+   карточка шириной в три дорожки создала бы лишнюю колонку за краем. */
 @container cms-col (max-width: 720px) {
-    .cards-grid,
-    .imgcards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cms-columns .cms-columns__col > .cms-block :is(.cards-grid, .imgcards-grid, .block-news__grid, .block-projects__grid,
+        .block-testimonials__grid, .icon-text__grid, .docslist-grid, .docslist-acts, .mediagallery-grid,
+        .albums-grid, .block-team__grid, .newslist-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cms-columns .cms-columns__col > .cms-block :is(.cards-grid, .block-news__grid, .block-projects__grid,
+        .block-testimonials__grid, .docslist-grid, .docslist-acts) > * { grid-column: auto; }
+    /* Две колонки блока (новости рядом с документами, текст рядом с
+       боковиной биографии) в узкой колонке не помещаются ни на каком экране. */
+    .cms-columns .cms-columns__col > .cms-block :is(.block-newsdocs, .block-bio) { grid-template-columns: minmax(0, 1fr); }
     .imgcards-grid--carousel .imgcard,
     .cards-track > * { flex: 0 0 calc((100% - var(--card-gap, 20px)) / 2); }
 }
 
+/* Заголовок в колонке переносится и посреди слова, если слово шире её:
+   «Организационная структура» крупным кеглем в колонке 258px уезжала за
+   край на 54px. Именно `anywhere`, а не `break-word`: заголовок — элемент
+   flex, и его минимальную ширину задаёт самое длинное слово; `break-word`
+   её не уменьшает. Посреди слова строка рвётся, только если слово шире
+   строки — обычные переносы остаются между словами. */
+.cms-columns__col :is(h2, h3, h4) { overflow-wrap: anywhere; hyphens: auto; }
+
 @container cms-col (max-width: 480px) {
-    .cards-grid,
-    .imgcards-grid,
-    .cat-grid { grid-template-columns: minmax(0, 1fr); }
+    .cms-columns .cms-columns__col > .cms-block :is(.cards-grid, .imgcards-grid, .cat-grid, .block-news__grid,
+        .block-projects__grid, .block-testimonials__grid, .icon-text__grid, .docslist-grid, .docslist-acts,
+        .mediagallery-grid, .albums-grid, .block-team__grid, .newslist-grid) { grid-template-columns: minmax(0, 1fr); }
+    /* Крупные карточки ленты занимают две ячейки — в одной колонке это
+       вторая колонка за краем, как и у мобильной раскладки ленты. */
+    .cms-columns .cms-columns__col > .cms-block .newslist-grid > * { grid-column: auto; }
+    .cms-columns .cms-columns__col > .cms-block .block-partners__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .imgcards-grid--carousel .imgcard,
     .cards-track > * { flex: 0 0 85%; }
 }
