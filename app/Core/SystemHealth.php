@@ -53,6 +53,7 @@ final class SystemHealth
             ['title' => 'Выкладка', 'checks' => self::deployment()],
             ['title' => 'Защита данных', 'checks' => self::protection()],
             ['title' => 'Интеграции', 'checks' => self::integrations()],
+            ['title' => 'Скорость у посетителей', 'checks' => self::vitals()],
         ];
     }
 
@@ -105,6 +106,14 @@ final class SystemHealth
                 'instruction' => 'В панели хостинга откройте Cron Jobs и восстановите запуск: '
                     . $schedule . ' php /путь/к/сайту/app/Console/' . $script
                     . '. После первого успешного запуска статус обновится сам.',
+            ];
+        }
+
+        if (str_starts_with($id, 'vitals')) {
+            return [
+                'label' => 'Открыть замеры',
+                'href' => '/admin/performance#perf-vitals',
+                'instruction' => 'В разделе «Производительность» есть разбивка по типам страниц: начните с того, где хуже всего, и с телефонов — их больше и они медленнее. Оценка обновится по мере новых визитов: считается 75-й перцентиль за 28 дней.',
             ];
         }
 
@@ -477,6 +486,129 @@ final class SystemHealth
                 $value,
                 $failing ? $row['error'] : '',
                 $okAt ?? $failAt
+            );
+        }
+
+        return $checks;
+    }
+
+    /**
+     * Скорость у реальных посетителей — замеры `WebVitals` за 28 дней.
+     *
+     * Страница «Производительность» показывала их давно, но туда заходят,
+     * когда уже знают, что сайт медленный; здесь медленная страница видна
+     * наравне с молчащим воркером. Состояние — предупреждение, а не отказ:
+     * сайт работает, просто плохо.
+     *
+     * @return list<array{id:string,title:string,state:string,value:string,hint:string,at:?int}>
+     */
+    private static function vitals(): array
+    {
+        if (!WebVitals::enabled()) {
+            return self::vitalsChecks(false, []);
+        }
+        try {
+            $slices = WebVitals::slices(28);
+        } catch (\Throwable $e) {
+            Logger::swallowed('SystemHealth: замеры скорости недоступны', $e);
+            $slices = [];
+        }
+
+        return self::vitalsChecks(true, $slices);
+    }
+
+    /**
+     * Чистая часть `vitals()`: из срезов — строки состояния.
+     *
+     * Оценка у метрики — худшая по устройствам, где замеров достаточно:
+     * компьютеры в зелёной зоне не должны прятать телефоны в красной, а
+     * Google оценивает мобильную версию отдельно. Рядом называется тип
+     * страницы, где хуже всего, — иначе «плохо» не говорит, куда смотреть.
+     *
+     * @param array<string, array{device: array<string, array{p75: float, count: int, rating: string}>, kinds: array<string, array<string, array{p75: float, count: int, rating: string}>>}> $slices
+     * @return list<array{id:string,title:string,state:string,value:string,hint:string,at:?int}>
+     */
+    public static function vitalsChecks(bool $enabled, array $slices): array
+    {
+        if (!$enabled) {
+            return [self::check(
+                'vitals',
+                'Сбор замеров',
+                self::UNKNOWN,
+                'выключен',
+                'Без замеров с посетителей о медленной странице узнают от них, а не отсюда. Включается в «Производительности», cookie и персональных данных не требует.',
+                null
+            )];
+        }
+
+        $titles = [
+            'LCP' => 'Загрузка главного (LCP)',
+            'INP' => 'Отклик на нажатие (INP)',
+            'CLS' => 'Сдвиги вёрстки (CLS)',
+        ];
+        $devices = ['mobile' => 'телефоны', 'desktop' => 'компьютеры'];
+        $ratings = ['good' => 'хорошо', 'needs-improvement' => 'нужно улучшить', 'poor' => 'плохо'];
+        $rank = ['good' => 0, 'needs-improvement' => 1, 'poor' => 2];
+        $checks = [];
+
+        foreach (WebVitals::CORE as $metric) {
+            $slice = $slices[$metric] ?? ['device' => [], 'kinds' => []];
+            $parts = [];
+            $worst = null;
+            $worstDevice = '';
+            $samples = 0;
+            foreach ($devices as $device => $label) {
+                $stat = $slice['device'][$device] ?? null;
+                if ($stat === null) {
+                    continue;
+                }
+                $samples += $stat['count'];
+                if ($stat['count'] < WebVitals::MIN_SAMPLES) {
+                    continue;
+                }
+                $parts[] = $label . ' ' . WebVitals::format($metric, $stat['p75'])
+                    . ' — ' . ($ratings[$stat['rating']] ?? $stat['rating']);
+                if ($worst === null || ($rank[$stat['rating']] ?? 0) > ($rank[$worst] ?? 0)) {
+                    $worst = $stat['rating'];
+                    $worstDevice = $device;
+                }
+            }
+
+            if ($worst === null) {
+                $checks[] = self::check(
+                    'vitals:' . $metric,
+                    $titles[$metric],
+                    self::UNKNOWN,
+                    $samples === 0 ? 'замеров нет' : 'мало замеров: ' . $samples,
+                    'Оценка выносится от ' . WebVitals::MIN_SAMPLES . ' замеров на устройство: на меньшей выборке перцентиль случаен.',
+                    null
+                );
+                continue;
+            }
+
+            $hint = '';
+            if ($worst !== 'good') {
+                $kindWorst = null;
+                foreach ($slice['kinds'][$worstDevice] ?? [] as $kind => $stat) {
+                    if ($stat['count'] >= WebVitals::MIN_SAMPLES
+                        && ($kindWorst === null || $stat['p75'] > $kindWorst[1]['p75'])) {
+                        $kindWorst = [$kind, $stat];
+                    }
+                }
+                if ($kindWorst !== null) {
+                    $hint = 'Хуже всего: ' . (WebVitals::KIND_LABELS[$kindWorst[0]] ?? $kindWorst[0])
+                        . ' (' . ($devices[$worstDevice] ?? $worstDevice) . ') — '
+                        . WebVitals::format($metric, $kindWorst[1]['p75']) . '.';
+                }
+            }
+
+            $checks[] = self::check(
+                'vitals:' . $metric,
+                $titles[$metric],
+                $worst === 'good' ? self::OK : self::WARN,
+                implode('; ', $parts),
+                $hint,
+                time()
             );
         }
 
