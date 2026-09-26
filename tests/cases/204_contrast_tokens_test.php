@@ -31,7 +31,7 @@ test('Тема отдаёт --on-accent, а ссылки им пользуютс
     $theme = theme_css();
     assert_contains('.media-tabs__tab.is-active', $theme);
     assert_contains('color: #fff !important;', $theme);
-    assert_contains('border-radius: var(--radius-sm, 10px)', $theme);
+    assert_contains('border-radius: var(--radius-sm)', $theme);
 
     // Ссылки в тексте — от --gov-teal-text (посчитан с поправкой), а не от
     // сырого акцента: сырой давал 3.19:1 на белом. Первым идёт цвет секции:

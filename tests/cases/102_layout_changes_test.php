@@ -169,15 +169,15 @@ test('News: frontend layout rendering with and without sidebar', function () {
         '.relnews-card',
     ] as $selector) {
         $pattern = '/' . preg_quote($selector, '/')
-            . '\s*\{[^}]*border-radius:\s*var\(--radius,\s*14px\);/s';
+            . '\s*\{[^}]*border-radius:\s*var\(--radius\);/s';
         assert_true(
             preg_match($pattern, $css) === 1,
             "{$selector}: использует глобальное скругление"
         );
     }
     $richCss = (string) file_get_contents(APP_ROOT . '/public/assets/css/rich-content.css');
-    assert_contains('border-radius: var(--radius, 12px);', $richCss, 'встроенные в текст фотографии используют глобальное скругление');
-    assert_contains('border-radius: 0 var(--radius, 14px) var(--radius, 14px) 0;', $richCss, 'цитата следует глобальному скруглению');
+    assert_contains('border-radius: var(--radius);', $richCss, 'встроенные в текст фотографии используют глобальное скругление');
+    assert_contains('border-radius: 0 var(--radius) var(--radius) 0;', $richCss, 'цитата следует глобальному скруглению');
     assert_contains(
         ".newsdetail-gallery__main img'))",
         (string) file_get_contents(APP_ROOT . '/public/assets/js/frontend.js'),

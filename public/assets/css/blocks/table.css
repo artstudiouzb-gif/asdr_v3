@@ -11,7 +11,7 @@
 .block-table__scroll {
     overflow-x: auto;
     max-width: 100%;
-    border-radius: var(--radius, 14px);
+    border-radius: var(--radius);
     border: 1px solid var(--gov-border);
     background: var(--gov-surface);
 }

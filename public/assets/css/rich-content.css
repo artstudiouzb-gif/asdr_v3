@@ -116,7 +116,7 @@
     margin-block: 2em;
     padding: 1.4rem 2.8rem 1.4rem 1.8rem;
     border-inline-start: 4px solid var(--rich-accent, #0d9488);
-    border-radius: 0 var(--radius, 14px) var(--radius, 14px) 0;
+    border-radius: 0 var(--radius) var(--radius) 0;
     background: linear-gradient(135deg, color-mix(in srgb, var(--rich-accent, #0d9488) 7%, transparent), color-mix(in srgb, var(--rich-accent, #0d9488) 2%, transparent));
     color: var(--rich-title, #1e293b);
     font-size: var(--font-size-lead, 1.08em);
@@ -214,7 +214,7 @@
     display: block;
     max-inline-size: 100%;
     block-size: auto;
-    border-radius: var(--radius, 12px);
+    border-radius: var(--radius);
     box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -233,7 +233,7 @@
     padding: 6px 12px;
     background: color-mix(in srgb, var(--rich-tint, #f8fafc) 80%, transparent);
     border-inline-start: 3px solid var(--rich-accent, #0d9488);
-    border-radius: 0 var(--radius-sm, 8px) var(--radius-sm, 8px) 0;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     color: var(--rich-muted, #475569);
     font-size: var(--font-size-meta, var(--step--2));
     line-height: 1.55;
@@ -269,7 +269,7 @@
     border: 1px solid var(--rich-border);
     border-collapse: separate;
     border-spacing: 0;
-    border-radius: var(--radius-sm, 8px);
+    border-radius: var(--radius-sm);
     background: var(--rich-surface);
     font-size: var(--font-size-card-text, var(--step--1));
     line-height: 1.45;
@@ -296,7 +296,7 @@
     padding: 1rem 1.15rem;
     overflow-x: auto;
     border: 1px solid color-mix(in srgb, var(--rich-title) 76%, #000000);
-    border-radius: var(--radius-sm, 8px);
+    border-radius: var(--radius-sm);
     background: color-mix(in srgb, var(--rich-title) 88%, #000000);
     color: #f4f7fb;
     font: .9rem/1.65 ui-monospace, 'Cascadia Code', Consolas, monospace;
@@ -306,7 +306,7 @@
 :where(.rich-content) :not(pre) > code {
     padding: .12em .35em;
     border: 1px solid var(--rich-border);
-    border-radius: var(--radius-sm, 4px);
+    border-radius: var(--radius-sm);
     background: var(--rich-tint);
     color: var(--rich-title);
     font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;

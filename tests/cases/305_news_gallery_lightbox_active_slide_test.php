@@ -22,7 +22,7 @@ test('Стили галереи: неактивные слайды не пере
     assert_contains('pointer-events: none;', $css);
     assert_contains('z-index: 0;', $css);
     assert_contains('.newsdetail-gallery__slide.is-active { opacity: 1; pointer-events: auto; z-index: 1; }', $css);
-    assert_contains('.newsdetail-gallery__main { position: relative; aspect-ratio: 16/9; border-radius: var(--radius, 14px); overflow: hidden; background: #16283f; cursor: zoom-in; }', $css);
+    assert_contains('.newsdetail-gallery__main { position: relative; aspect-ratio: 16/9; border-radius: var(--radius); overflow: hidden; background: #16283f; cursor: zoom-in; }', $css);
 });
 
 test('Frontend JS: лайтбокс галереи новости открывает именно активный слайд и синхронизирует навигацию', function () {

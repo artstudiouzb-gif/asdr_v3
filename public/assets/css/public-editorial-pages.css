@@ -400,7 +400,7 @@
     border: 1px solid var(--editorial-line);
     /* Токен, а не фиксированные 7px: настройка радиуса в «Дизайне» обязана
        действовать и на редакционных страницах. */
-    border-radius: var(--radius-sm, 8px);
+    border-radius: var(--radius-sm);
     background: var(--gov-surface);
     box-shadow: none;
 }
@@ -449,7 +449,7 @@
     margin: 0;
     overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--gov-navy) 9%, var(--editorial-line));
-    border-radius: var(--radius, 14px);
+    border-radius: var(--radius);
     background: color-mix(in srgb, var(--gov-navy) 4%, var(--gov-surface));
     box-shadow: 0 28px 58px -42px color-mix(in srgb, var(--gov-navy) 52%, transparent);
 }
@@ -506,7 +506,7 @@
     width: fit-content;
     max-width: calc(100% - 32px);
     padding: 7px 10px;
-    border-radius: var(--radius-sm, 8px);
+    border-radius: var(--radius-sm);
     background: color-mix(in srgb, var(--gov-navy) 82%, transparent);
     color: #fff;
     font-size: var(--font-size-meta, var(--step--4));
@@ -652,7 +652,7 @@
     width: 40px;
     height: 40px;
     border: 0;
-    border-radius: var(--radius-sm, 10px);
+    border-radius: var(--radius-sm);
     background: color-mix(in srgb, var(--gov-teal) 7%, transparent);
 }
 
@@ -1036,7 +1036,7 @@
 .editorial-page__content .bio-edu {
     padding: 30px;
     border: 1px solid color-mix(in srgb, var(--gov-navy) 8%, var(--editorial-line));
-    border-radius: var(--radius, 14px);
+    border-radius: var(--radius);
     background: color-mix(in srgb, var(--gov-navy) 3%, var(--gov-surface));
     box-shadow: 0 22px 48px -40px rgba(15, 43, 70, .48);
 }

@@ -12,9 +12,9 @@
 .catlist-toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .catlist-toolbar__search { position: relative; flex: 1 1 260px; max-width: 460px; }
 .catlist-toolbar__search svg { position: absolute; left: 14px; top: 50%; translate: 0 -50%; color: var(--gov-muted); pointer-events: none; }
-.catlist-toolbar__search input { width: 100%; height: 46px; padding: 0 14px 0 42px; border: 1px solid var(--gov-border); border-radius: var(--radius-sm, 10px); background: var(--gov-surface); color: var(--gov-title); font: inherit; outline: none; }
-.catlist-toolbar__sort { height: 46px; padding: 0 12px; border: 1px solid var(--gov-border); border-radius: var(--radius-sm, 10px); background: var(--gov-surface); color: var(--gov-title); font: inherit; }
-.catlist-toolbar__btn { height: 46px; padding: 0 22px; border: 0; border-radius: var(--radius-sm, 10px); background: var(--gov-navy); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.catlist-toolbar__search input { width: 100%; height: 46px; padding: 0 14px 0 42px; border: 1px solid var(--gov-border); border-radius: var(--radius-sm); background: var(--gov-surface); color: var(--gov-title); font: inherit; outline: none; }
+.catlist-toolbar__sort { height: 46px; padding: 0 12px; border: 1px solid var(--gov-border); border-radius: var(--radius-sm); background: var(--gov-surface); color: var(--gov-title); font: inherit; }
+.catlist-toolbar__btn { height: 46px; padding: 0 22px; border: 0; border-radius: var(--radius-sm); background: var(--gov-navy); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
 .catlist-toolbar__btn:hover { background: var(--gov-teal); }
 .catlist-toolbar__reset { color: var(--gov-teal-text); font-weight: 600; text-decoration: none; }
 .catlist-count { color: var(--gov-muted); margin: 0; }
@@ -84,7 +84,7 @@ body.design-catalog-list .catcard { display: flex; flex-direction: row; align-it
     justify-content: center;
     width: 32px;
     height: 32px;
-    border-radius: var(--radius-sm, 8px);
+    border-radius: var(--radius-sm);
     background: color-mix(in srgb, var(--gov-teal) 12%, transparent);
     color: var(--gov-teal-text);
     flex-shrink: 0;
@@ -138,7 +138,7 @@ body.design-catalog-list .catcard { display: flex; flex-direction: row; align-it
     flex-direction: column;
     gap: 3px;
     padding: 8px 12px;
-    border-radius: var(--radius-sm, 8px);
+    border-radius: var(--radius-sm);
     background: color-mix(in srgb, var(--gov-bg) 65%, transparent);
     border: 1px solid color-mix(in srgb, var(--gov-border) 50%, transparent);
     transition: background-color 0.25s ease, border-color 0.25s ease;
@@ -183,7 +183,7 @@ body.design-catalog-list .catcard { display: flex; flex-direction: row; align-it
     align-items: center;
     gap: 7px;
     padding: 5px 12px;
-    border-radius: var(--radius-sm, 6px);
+    border-radius: var(--radius-sm);
     background: color-mix(in srgb, var(--gov-navy) 6%, transparent);
     color: var(--gov-title);
     font-size: var(--step--3);
@@ -211,13 +211,13 @@ body.design-catalog-list .catcard { display: flex; flex-direction: row; align-it
 /* Мероприятия: плитка даты слева. */
 .catlist--events .catcard { align-items: flex-start; }
 .catlist--events .catcard--with-image { display: grid; grid-template-columns: 74px minmax(0, 1fr); align-items: start; }
-.catcard__event-media { display: block; grid-column: 1 / -1; width: 100%; height: 190px; overflow: hidden; border-radius: var(--radius, 12px); background: var(--gov-bg); }
+.catcard__event-media { display: block; grid-column: 1 / -1; width: 100%; height: 190px; overflow: hidden; border-radius: var(--radius); background: var(--gov-bg); }
 .catcard__event-media picture { display: block; width: 100%; height: 100%; }
 .catcard__event-image { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--media-object-position, center); transition: transform .35s ease; }
 .catcard:hover .catcard__event-image { transform: scale(1.035); }
 .catcard--with-image .catcard__datebox { grid-column: 1; }
 .catcard--with-image .catcard__main { grid-column: 2; }
-.catcard__datebox { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 0 0 74px; min-height: 84px; padding: 10px 6px; border-radius: var(--radius, 12px); background: var(--gov-navy); color: #fff; text-align: center; }
+.catcard__datebox { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 0 0 74px; min-height: 84px; padding: 10px 6px; border-radius: var(--radius); background: var(--gov-navy); color: #fff; text-align: center; }
 .catcard__datebox b { font-family: var(--font-heading, 'Noto Serif', serif); font-size: var(--step-5); line-height: 1; }
 .catcard__datebox i { font-style: normal; font-size: var(--step--4); font-weight: 700; letter-spacing: .08em; margin-top: 4px; }
 .catcard__datebox em { font-style: normal; font-size: var(--step--4); opacity: .75; }
@@ -244,14 +244,14 @@ body.design-catalog-list .catcard { display: flex; flex-direction: row; align-it
 .catdetail__body { display: flex; flex-direction: column; gap: 26px; }
 .catdetail__subtitle { margin: 0 0 10px; font-size: var(--step-2); color: var(--gov-title); }
 .catdetail__text { color: var(--gov-ink, #2b3b4e); line-height: var(--base-line-height, 1.6); }
-.catdetail__text img { max-width: 100%; border-radius: var(--radius, 12px); }
+.catdetail__text img { max-width: 100%; border-radius: var(--radius); }
 .catdetail__empty { color: var(--gov-muted); }
 .catdetail__card { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 16px; padding: 24px; }
 .catdetail__card-title { margin: 0; font-size: var(--step-0); color: var(--gov-title); }
 .catdetail__facts { display: flex; flex-direction: column; gap: 12px; margin: 0; }
 .catdetail__fact dt { font-size: var(--step--4); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--gov-muted); }
 .catdetail__fact dd { margin: 2px 0 0; color: var(--gov-title); font-weight: 600; }
-.catdetail__download { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 18px; border-radius: var(--radius-sm, 10px); background: var(--gov-navy); color: #fff; font-weight: 700; text-decoration: none; }
+.catdetail__download { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 18px; border-radius: var(--radius-sm); background: var(--gov-navy); color: #fff; font-weight: 700; text-decoration: none; }
 button.catdetail__download { border: none; cursor: pointer; font-family: inherit; font-size: inherit; width: 100%; }
 .catdetail__download:hover { background: var(--gov-teal); }
 .catdetail__back { color: var(--gov-teal-text); font-weight: 600; font-size: var(--step--2); text-decoration: none; }
