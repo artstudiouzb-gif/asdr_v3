@@ -242,7 +242,7 @@ body.design-scrolltop .scroll-top {
     position: fixed; right: clamp(16px, 3vw, 28px); bottom: clamp(16px, 3vw, 28px); z-index: 300;
     display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%;
     border: 1px solid var(--gov-border); background: var(--gov-surface); color: var(--gov-title);
-    box-shadow: 0 8px 24px rgba(11, 26, 48, .18); cursor: pointer;
+    box-shadow: var(--shadow-overlay); cursor: pointer;
     opacity: 0; visibility: hidden; transform: translateY(10px); pointer-events: none;
     transition: opacity .2s ease, visibility .2s ease, transform .2s ease, background .15s ease, color .15s ease, border-color .15s ease;
 }
@@ -693,7 +693,7 @@ body .site-header--container-floating.site-header--sticky-full.is-scrolled {
     position: absolute; top: calc(100% + 6px); right: 0; min-width: 105px; width: auto;
     padding: 4px; background: var(--gov-surface, #ffffff);
     border: 1px solid var(--gov-border, rgba(0, 0, 0, 0.12)); border-radius: var(--radius-sm);
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12), 0 2px 4px rgba(15, 23, 42, 0.04);
+    box-shadow: var(--shadow-overlay);
     z-index: 1050; display: flex; flex-direction: column; gap: 2px;
     animation: langDropdownFade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1396,7 +1396,7 @@ body .site-header--borders-container .site-header__inner { border-bottom: 1px so
 body .site-header--borders-container.site-header--transparent:not(.is-scrolled) .site-header__inner { border-bottom-color: rgba(var(--hdr-veil, 255, 255, 255), .16); }
 body .site-header--borders-container.site-header--transparent:not(.is-scrolled) .site-nav .site-nav__inner { border-top-color: rgba(var(--hdr-veil, 255, 255, 255), .16); }/* --- Выпадающее подменю (гос-тема) --- */
 
-.site-submenu { background: var(--gov-surface); border: 1px solid var(--gov-border); border-radius: var(--radius); box-shadow: 0 18px 44px rgba(11,26,48,.16); padding: 8px; min-width: 240px; margin-top: 6px; }
+.site-submenu { background: var(--gov-surface); border: 1px solid var(--gov-border); border-radius: var(--radius); box-shadow: var(--shadow-overlay); padding: 8px; min-width: 240px; margin-top: 6px; }
 .site-submenu::before { content: ''; position: absolute; top: -6px; left: 26px; width: 10px; height: 10px; background: var(--gov-surface); border-left: 1px solid var(--gov-border); border-top: 1px solid var(--gov-border); transform: rotate(45deg); }
 .site-submenu::after { content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 12px; background: transparent; }
 .site-submenu__link { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); color: var(--gov-title); font-weight: 600; font-size: var(--step--1); text-transform: var(--submenu-text-transform, none); letter-spacing: 0; }
@@ -1462,7 +1462,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
     background: var(--gov-surface);
     border: 1px solid var(--gov-border);
     border-radius: var(--radius);
-    box-shadow: 0 18px 44px rgba(11,26,48,.16);
+    box-shadow: var(--shadow-overlay);
     padding: 6px;
     max-height: min(60vh, 420px);
     overflow-y: auto;
@@ -1552,7 +1552,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
     background: linear-gradient(to bottom, var(--gov-navy) 0%, color-mix(in srgb, var(--gov-navy) 90%, #000) 100%) !important;
     border-radius: var(--btn-radius) !important;
     font-family: var(--font-family, inherit) !important;
-    box-shadow: 0 2px 4px rgba(19,42,92,.1) !important;
+    box-shadow: var(--shadow-control) !important;
     transition: all 0.2s ease-in-out !important;
     text-decoration: none !important;
     border: none !important;
@@ -1572,7 +1572,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
 .block-cta:not(.block-cta--custom-btn) .block-cta__button:hover, .btn-cta:hover, .btn:hover {
     background: linear-gradient(to bottom, color-mix(in srgb, var(--gov-navy) 95%, #fff) 0%, var(--gov-navy) 100%) !important;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(19,42,92,.25) !important;
+    box-shadow: var(--shadow-hover) !important;
 }/* Кнопка на тёмной подложке. Общее правило красит любую кнопку в navy, а
    у блоков «Призыв к действию» и «Подписка» подложка того же navy — кнопка
    сливалась с фоном (контраст 1:1 при норме 3:1 для элементов управления).
@@ -1583,7 +1583,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
 .subscribe-block input[type="submit"] {
     background: #fff !important;
     color: var(--gov-navy) !important;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, .22) !important;
+    box-shadow: var(--shadow-control) !important;
 }/* У кнопки подписки не было собственных метрик: на десктопе её растягивал
    flex рядом с полем ввода, а на телефоне она сжималась до отступов браузера
    по умолчанию — 86×20, и переставала читаться как кнопка. */
@@ -1677,7 +1677,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .news-card:hover, .content-card:hover, .contact-card:hover, .cat-tile:hover, .team-card:hover, .project-card:hover, .album-card:hover,
 .doc-card:hover, .catcard:hover, .catdetail__card:hover, .widget--style-card:hover {
     background: color-mix(in srgb, var(--gov-surface) 88%, transparent);
-    box-shadow: 0 16px 36px rgba(19,42,92,.09);
+    box-shadow: var(--shadow-hover);
     transform: translateY(-6px);
     border-color: var(--gov-teal);
 }/* ============================================================================
@@ -1710,7 +1710,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 .news-card:has(.news-card__link:focus-visible) {
     border-color: var(--gov-teal);
-    box-shadow: 0 10px 30px rgba(19, 42, 92, .10);
+    box-shadow: var(--shadow-hover);
 }
 .news-card__link:focus-visible { outline-offset: -3px; }/* ==========================================================================
    Высококлассный аудиоплеер для новостей (.news-audio-player)
@@ -1722,7 +1722,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     background: linear-gradient(135deg, rgba(13, 148, 136, 0.06), rgba(2, 132, 199, 0.04));
     border: 1px solid var(--gov-border, rgba(13, 148, 136, 0.18));
     border-left: 4px solid var(--gov-teal); border-radius: var(--radius);
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+    box-shadow: var(--card-shadow);
 }
 .news-audio-player__icon {
     display: flex; align-items: center; justify-content: center;
@@ -1797,7 +1797,7 @@ body.reader-mode-active { overflow: hidden; }
     font-family: inherit; font-weight: 700; color: inherit; transition: all 0.15s ease;
 }
 .reader-theme-btn.is-active, .reader-font-btn:hover {
-    background: #ffffff; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12); color: #111827;
+    background: #ffffff; box-shadow: var(--shadow-control); color: #111827;
 }
 .reader-mode-overlay[data-reader-theme="dark"] .reader-theme-btn.is-active {
     background: rgba(255, 255, 255, 0.25); color: #ffffff;
@@ -1826,7 +1826,7 @@ body.reader-mode-active { overflow: hidden; }
 .reader-mode__body { font-size: calc(1.125rem * var(--reader-scale, 1)); }
 .reader-mode__cover {
     width: 100%; max-height: 480px; object-fit: cover;
-    border-radius: var(--radius); margin-bottom: 36px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius); margin-bottom: 36px; box-shadow: var(--card-shadow);
 }
 .reader-mode__body p { margin-bottom: 1.6em; }
 .reader-mode__body img { max-width: 100%; height: auto; border-radius: var(--radius); margin: 24px 0; }/* ==========================================================================
@@ -1836,7 +1836,7 @@ body.reader-mode-active { overflow: hidden; }
 .social-embed { margin: 28px 0; clear: both; }
 .social-embed--youtube {
     position: relative; padding-bottom: 56.25%; height: 0;
-    overflow: hidden; border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    overflow: hidden; border-radius: var(--radius); box-shadow: var(--card-shadow);
 }
 .social-embed--youtube iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 .social-embed--telegram { display: flex; justify-content: center; max-width: 100%; overflow-x: auto; }
@@ -1847,9 +1847,9 @@ body.reader-mode-active { overflow: hidden; }
     border-radius: var(--radius); border: 1px solid var(--gov-border, rgba(0, 0, 0, 0.1));
     background: var(--gov-surface, #ffffff); text-decoration: none;
     color: var(--gov-title, #1e293b); transition: all 0.25s ease;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04); width: 100%;
+    box-shadow: var(--card-shadow); width: 100%;
 }
-.social-embed-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12); }
+.social-embed-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
 .social-embed-card--telegram { border-left: 4px solid #229ed9; }
 .social-embed-card--telegram:hover { border-color: #229ed9; }
 .social-embed-card--instagram { border-left: 4px solid #e1306c; }
@@ -1921,7 +1921,7 @@ body.lightbox-active { overflow: hidden; }
 }
 .rich-lightbox-img {
     max-width: 100%; max-height: 75vh; object-fit: contain;
-    border-radius: var(--radius); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    border-radius: var(--radius); box-shadow: var(--shadow-modal);
     user-select: none;
 }
 .rich-lightbox-caption {
@@ -1972,7 +1972,7 @@ body.lightbox-active { overflow: hidden; }
     max-width: 360px; padding: 18px 20px; border-radius: var(--radius);
     background: var(--gov-surface, #ffffff);
     border: 1px solid var(--gov-border, rgba(0, 0, 0, 0.12));
-    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15);
+    box-shadow: var(--shadow-overlay);
     color: var(--gov-title, #1e293b); animation: pushPromptSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @keyframes pushPromptSlideUp {
@@ -1996,7 +1996,7 @@ body.lightbox-active { overflow: hidden; }
     left: var(--quote-popover-left);
     position: absolute; z-index: 1000; transform: translateX(-50%);
     display: flex; align-items: center; gap: 4px; padding: 6px; border-radius: var(--radius);
-    background: #1e293b; color: #ffffff; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.3);
+    background: #1e293b; color: #ffffff; box-shadow: var(--shadow-overlay);
     animation: quotePopoverPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .quote-share-popover[hidden] { display: none; }
@@ -2014,7 +2014,7 @@ body.lightbox-active { overflow: hidden; }
 .news-poll-card {
     margin: 32px 0; padding: 24px; border-radius: var(--radius);
     background: var(--gov-surface); border: 1px solid var(--gov-border);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--card-shadow);
 }
 .news-poll-card__badge {
     display: inline-block; padding: 4px 10px; border-radius: var(--radius-sm);
@@ -2479,7 +2479,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .team-card:hover {
     transform: translateY(-4px);
     border-color: color-mix(in srgb, var(--gov-teal) 35%, var(--gov-border));
-    box-shadow: 0 16px 36px -16px rgba(15, 23, 42, 0.12);
+    box-shadow: var(--shadow-hover);
 }
 
 .relnews-card__media,
@@ -2597,7 +2597,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .adjnews--next { grid-template-columns: minmax(0, 1fr) auto auto; text-align: right; }
 .adjnews:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(19,42,92,.1);
+    box-shadow: var(--shadow-hover);
     border-color: color-mix(in srgb, var(--gov-teal) 35%, var(--gov-border));
 }
 .adjnews--empty { border: 0; background: transparent; }/* Стрелка — кружок, а не голый знак: у неё та же роль, что у стрелок каруселей,
@@ -2663,7 +2663,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 }
 .block-banner--light:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(19, 42, 92, 0.04);
+    box-shadow: var(--shadow-hover);
 }
 @media (max-width: 900px) { .block-banner--light { grid-template-columns: 1fr; } .block-banner--light .block-banner__photo { display: none; } }
 .block-banner--light .block-banner__inner { padding: clamp(20px, 4vw, 48px) 0; text-align: left; }
@@ -2903,8 +2903,8 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     background: var(--gov-teal);
     border-color: var(--gov-teal);
     transform: translateY(-2px);
-    /* Ступень тени из набора --shadow-1..4, своих значений не заводим. */
-    box-shadow: var(--shadow-3);
+    /* Роль тени из tokens.css, своих значений не заводим. */
+    box-shadow: var(--shadow-hover);
 }
 @media (prefers-reduced-motion: reduce) {
     .textimage__button { transition: none; }
@@ -2978,13 +2978,13 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .block-map__card { 
     position: absolute; left: 24px; bottom: 24px; max-width: 300px; 
     background: var(--gov-surface); border: 1px solid var(--gov-border); border-radius: var(--radius-sm); 
-    padding: 18px 20px; box-shadow: 0 10px 28px rgba(19,42,92,.08); 
+    padding: 18px 20px; box-shadow: var(--card-shadow); 
     display: flex; flex-direction: column; gap: 8px; 
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 .block-map__card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 16px 36px rgba(19,42,92,.12);
+    box-shadow: var(--shadow-hover);
     border-color: var(--gov-teal);
 }
 .block-map__card-title { font-weight: 700; color: var(--gov-title); font-size: var(--step--1); line-height: 1.35; }
@@ -3125,7 +3125,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 }
 .newslist-lead:hover {
     border-color: color-mix(in srgb, var(--gov-teal) 35%, var(--gov-border));
-    box-shadow: 0 16px 36px -16px rgba(15, 23, 42, 0.12);
+    box-shadow: var(--shadow-hover);
     transform: translateY(-2px);
 }
 @media (max-width: 900px) {
@@ -3425,7 +3425,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .newsfeat-more__btn:hover {
     border-color: color-mix(in srgb, var(--gov-teal) 45%, var(--gov-border));
     color: var(--gov-teal-text);
-    box-shadow: var(--shadow-3);
+    box-shadow: var(--shadow-hover);
 }
 .newsfeat-more__btn:hover .card-more__arrow { transform: translateX(4px); }/* Пагинация. */
 
@@ -3675,7 +3675,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .block-hero:not(.block-hero--media) .block-hero__button:not(.block-hero__button--ghost) { background: var(--hero-btn, var(--gov-navy)) !important; }
 .block-hero__button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(22, 64, 110, 0.3);
+    box-shadow: var(--shadow-hover);
 }
 .block-hero--media .block-hero__button:not(.block-hero__button--ghost):hover {
     background: color-mix(in srgb, var(--hero-btn, #16406e) 86%, #fff) !important;
@@ -4200,11 +4200,11 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
 .mediacard__media { 
     position: relative; display: grid; place-items: center; aspect-ratio: 16/10; 
     border-radius: var(--radius); overflow: hidden; background: #24425f center/cover no-repeat; 
-    box-shadow: 0 4px 14px rgba(19, 42, 92, 0.03);
+    box-shadow: var(--card-shadow);
     transition: box-shadow 0.4s ease;
 }
 .mediacard:hover .mediacard__media {
-    box-shadow: 0 12px 28px rgba(19, 42, 92, 0.08);
+    box-shadow: var(--shadow-hover);
 }
 .mediacard__img { 
     position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; 
@@ -4245,7 +4245,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
 
 .mediacard:hover {
     border-color: color-mix(in srgb, var(--gov-teal) 35%, var(--gov-border));
-    box-shadow: 0 16px 36px -16px rgba(15, 23, 42, 0.12);
+    box-shadow: var(--shadow-hover);
 }
 .mediacard__date { display: block; color: var(--gov-muted); font-size: var(--step--2); margin-top: 4px; }/* --- Блочные опции: независимые отступы, фон секции, полноширинная подложка --- *//* Переменные --block-pad-top/bottom переопределяют пресет отступов. */
 
@@ -4586,7 +4586,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
 .ctaband__button:hover { 
     transform: translateY(-2px) scale(1.02);
     background-color: #f8fafc;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-hover);
 }/* Полоса компетенций (navy, 4 колонки с разделителями). */
 
 .featband { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--gov-navy); border-radius: var(--radius); overflow: hidden; }
@@ -4751,7 +4751,7 @@ body:has(.site-header--transparent) .cms-block--hero:first-child .block-hero--h-
     padding: 5px 12px; border-radius: var(--radius-pill);
     background: var(--news-badge-bg, var(--gov-navy));
     color: var(--news-badge-fg, #fff);
-    box-shadow: var(--shadow-2);
+    box-shadow: var(--shadow-control);
 }
 /* --- Медиа-галерея: переключатели --- */
 
@@ -4962,7 +4962,7 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
 }
 .feature-card:hover {
     background: var(--gov-surface);
-    box-shadow: 0 16px 36px color-mix(in srgb, var(--gov-navy) 14%, transparent);
+    box-shadow: var(--shadow-hover);
     transform: translateY(-4px);
     border-color: var(--gov-teal);
     border-bottom-color: var(--gov-teal);
@@ -5471,7 +5471,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow.is-open .s
     background: var(--gov-surface);
     color: var(--gov-title);
     border: 1px solid var(--gov-border);
-    box-shadow: 0 10px 30px rgba(11, 26, 48, 0.18);
+    box-shadow: var(--shadow-overlay);
     font-size: var(--step--2);
     font-weight: 600;
     pointer-events: auto;
@@ -5528,7 +5528,7 @@ body.quick-search-active { overflow: hidden; }
     background: var(--gov-surface);
     border: 1px solid var(--gov-border);
     border-radius: var(--radius);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-overlay);
     overflow: hidden;
     transform: translateY(-12px) scale(0.97);
     transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -6035,7 +6035,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
 }
 .act-card:hover {
-    box-shadow: 0 18px 36px -26px rgba(11, 26, 48, .55);
+    box-shadow: var(--shadow-hover);
     transform: translateY(-2px);
 }/* Эмблема-звезда как водяной знак: фирменный слой, который не мешает
    читать. Цвет — от акцента, поэтому меняется вместе с темой. */
@@ -6138,7 +6138,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     background:
         radial-gradient(circle at 100% 0, rgba(38, 180, 185, .28), transparent 42%),
         var(--gov-navy);
-    box-shadow: 0 22px 50px -34px rgba(11, 26, 48, .7);
+    box-shadow: var(--card-shadow);
 }/* Текст статьи: спокойный вертикальный ритм. Меры строки здесь НЕТ, и это
    осознанно, а не забыто.
 
@@ -6306,7 +6306,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 .doc-card:hover {
     transform: translateY(-3px);
     border-color: color-mix(in srgb, var(--gov-teal) 40%, var(--gov-border));
-    box-shadow: 0 12px 28px -12px rgba(15, 23, 42, 0.1);
+    box-shadow: var(--shadow-hover);
 }
 .doc-card__icon {
     display: grid; place-items: center; width: 44px; height: 44px;
@@ -6347,7 +6347,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 .contact-card:hover {
     transform: translateY(-3px);
     border-color: color-mix(in srgb, var(--gov-teal) 35%, var(--gov-border));
-    box-shadow: 0 16px 36px -16px rgba(15, 23, 42, 0.12);
+    box-shadow: var(--shadow-hover);
 }
 .contact-card__title { font-weight: 700; font-size: var(--step-1); color: var(--gov-title); margin: 0; }
 .contact-card__item { display: flex; align-items: center; gap: 10px; color: var(--gov-ink); font-size: var(--step--1); }
@@ -6382,7 +6382,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     border-color: var(--gov-teal);
     border-bottom-color: var(--gov-teal);
     background: var(--gov-surface);
-    box-shadow: 0 16px 36px color-mix(in srgb, var(--gov-navy) 14%, transparent);
+    box-shadow: var(--shadow-hover);
 }
 
 .feature-card .contact-card__icon,
@@ -6472,14 +6472,14 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%;
     background: var(--gov-surface); border: 2px solid var(--gov-teal);
     color: var(--gov-teal-text); font-weight: 800; font-size: var(--step-1);
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    box-shadow: var(--shadow-control);
 }
 .stage-item--active .stage-item__num {
     background: var(--gov-navy); border-color: var(--gov-navy); color: #ffffff;
 }
 .stage-item__body {
     padding: 20px 24px; border: 1px solid var(--gov-border); border-radius: var(--radius);
-    background: var(--gov-surface); box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+    background: var(--gov-surface); box-shadow: var(--card-shadow);
 }
 .stage-item__title { font-weight: 700; font-size: var(--step-0); color: var(--section-title-fg); margin: 0 0 6px; }
 .stage-item__text { color: var(--gov-muted, #475569); font-size: var(--step--1); line-height: var(--base-line-height, 1.55); margin: 0; }
@@ -6519,7 +6519,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     background: var(--gov-surface);
     border: 1px solid var(--gov-border);
     border-radius: var(--radius);
-    box-shadow: var(--shadow-1);
+    box-shadow: var(--shadow-control);
 }/* Варианты вёрстки. «Без рамок» снимает карточку — остаётся иконка с текстом,
    так блок не спорит с соседними карточными секциями. «В строку» ставит
    пункты подряд одной лентой: типовое применение — короткие реквизиты. */

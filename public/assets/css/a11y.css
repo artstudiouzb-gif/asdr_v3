@@ -769,7 +769,7 @@ html[data-a11y-reading="on"] .cms-block {
     height: 22px;
     border-radius: 50%;
     background: #ffffff;
-    box-shadow: var(--shadow-1);
+    box-shadow: var(--shadow-control);
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .a11y-toggle-btn[aria-pressed="true"] .a11y-switch__track {

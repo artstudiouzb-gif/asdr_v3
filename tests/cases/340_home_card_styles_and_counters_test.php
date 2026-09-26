@@ -62,7 +62,7 @@ test('Новости в колонках (.news-column) и карточки но
     // ПАНЕЛИ, к публичной палитре отношения не имеющий, и на тёплой или
     // тёмной палитре синий ореол под карточкой читался чужим.
     assert_contains(
-        'box-shadow: 0 16px 36px color-mix(in srgb, var(--gov-navy) 14%, transparent);',
+        'box-shadow: var(--shadow-hover);',
         $homeCss
     );
     assert_contains('transform: translateY(var(--feature-card-hover-lift, -4px));', $homeCss);

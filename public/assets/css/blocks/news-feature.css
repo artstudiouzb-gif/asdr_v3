@@ -156,7 +156,7 @@
     font-weight: 600;
     font-size: var(--font-size-card-text, var(--step--1));
     text-decoration: none;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, .04);
+    box-shadow: var(--shadow-control);
     transition: transform .3s cubic-bezier(.16, 1, .3, 1),
                 box-shadow .3s cubic-bezier(.16, 1, .3, 1),
                 border-color .2s ease,
@@ -168,7 +168,7 @@
     color: var(--gov-teal);
     border-color: var(--gov-teal);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px -4px rgba(15, 39, 86, .12);
+    box-shadow: var(--shadow-hover);
 }
 
 .newsfeat-more__btn .card-more__arrow {
@@ -291,7 +291,7 @@
         .news-column
     ):hover {
         background: var(--gov-surface);
-        box-shadow: 0 16px 36px color-mix(in srgb, var(--gov-navy) 14%, transparent);
+        box-shadow: var(--shadow-hover);
         transform: translateY(var(--feature-card-hover-lift, -4px));
         border-color: var(--gov-teal);
         border-bottom-color: var(--gov-teal);
