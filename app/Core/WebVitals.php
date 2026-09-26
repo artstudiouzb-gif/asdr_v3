@@ -31,6 +31,32 @@ final class WebVitals
         'FCP' => [1800.0, 3000.0],
     ];
 
+    /**
+     * Метрики, по которым поиск оценивает страницу. TTFB и FCP собираются
+     * ради разбора причин, но оценкой состояния сайта не являются.
+     */
+    public const CORE = ['LCP', 'INP', 'CLS'];
+
+    /**
+     * Меньше замеров — перцентиль ещё случаен: три визита с плохого
+     * соединения делают «плохо» странице, которая у всех остальных быстрая.
+     * Оценку такому срезу не выносим, а пишем, сколько замеров есть.
+     */
+    public const MIN_SAMPLES = 20;
+
+    /** Подписи типов страниц для экрана: `news_list` читать нечем. */
+    public const KIND_LABELS = [
+        'page' => 'страницы',
+        'news' => 'новость',
+        'news_list' => 'лента новостей',
+        'projects' => 'проекты',
+        'albums' => 'фотоальбомы',
+        'search' => 'поиск',
+        'calendar' => 'календарь',
+        'content' => 'каталог',
+        'other' => 'прочие',
+    ];
+
     /** Сколько дней держим сырые замеры. */
     private const RETENTION_DAYS = 60;
 
@@ -166,18 +192,97 @@ final class WebVitals
             if ($values === []) {
                 continue;
             }
-            // Перцентиль по ближайшему рангу: на малых выборках он честнее
-            // интерполяции, которая рисует значение, которого никто не видел.
-            $index = (int) ceil(0.75 * count($values)) - 1;
-            $p75 = $values[max(0, min(count($values) - 1, $index))];
-            $out[$metric] = [
-                'p75' => $p75,
-                'count' => count($values),
-                'rating' => self::rate($metric, $p75),
-            ];
+            $out[$metric] = self::stat($metric, $values);
         }
 
         return $out;
+    }
+
+    /**
+     * Срезы 75-го перцентиля для оценки состояния: по устройству и по
+     * устройству × типу страницы. Один запрос на метрику, а не по запросу на
+     * каждый срез: типов страниц девять, устройств два.
+     *
+     * @return array<string, array{
+     *     device: array<string, array{p75: float, count: int, rating: string}>,
+     *     kinds: array<string, array<string, array{p75: float, count: int, rating: string}>>
+     * }>
+     */
+    public static function slices(int $days = 28): array
+    {
+        if (!Database::isConnected()) {
+            return [];
+        }
+
+        $out = [];
+        foreach (self::CORE as $metric) {
+            $statement = Database::pdo()->prepare(
+                'SELECT device, page_kind, value FROM web_vitals'
+                . ' WHERE metric = ? AND created_at >= (NOW() - INTERVAL ? DAY)'
+            );
+            $statement->execute([$metric, max(1, min(365, $days))]);
+            $out[$metric] = self::aggregate($metric, Database::rows($statement));
+        }
+
+        return $out;
+    }
+
+    /**
+     * Чистая часть `slices()`: раскладывает замеры одной метрики по срезам.
+     *
+     * @param list<array<string, mixed>> $rows строки с device, page_kind, value
+     * @return array{
+     *     device: array<string, array{p75: float, count: int, rating: string}>,
+     *     kinds: array<string, array<string, array{p75: float, count: int, rating: string}>>
+     * }
+     */
+    public static function aggregate(string $metric, array $rows): array
+    {
+        $byDevice = [];
+        $byKind = [];
+        foreach ($rows as $row) {
+            $device = (string) ($row['device'] ?? 'desktop');
+            $kind = (string) ($row['page_kind'] ?? 'other');
+            $value = (float) ($row['value'] ?? 0);
+            $byDevice[$device][] = $value;
+            $byKind[$device][$kind][] = $value;
+        }
+
+        $result = ['device' => [], 'kinds' => []];
+        foreach ($byDevice as $device => $values) {
+            $result['device'][$device] = self::stat($metric, $values);
+        }
+        foreach ($byKind as $device => $kinds) {
+            foreach ($kinds as $kind => $values) {
+                $result['kinds'][$device][$kind] = self::stat($metric, $values);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Перцентиль по ближайшему рангу: на малых выборках он честнее
+     * интерполяции, которая рисует значение, которого никто не видел.
+     *
+     * @param array<float> $values
+     * @return array{p75: float, count: int, rating: string}
+     */
+    private static function stat(string $metric, array $values): array
+    {
+        sort($values);
+        $index = (int) ceil(0.75 * count($values)) - 1;
+        $p75 = $values[max(0, min(count($values) - 1, $index))] ?? 0.0;
+
+        return ['p75' => $p75, 'count' => count($values), 'rating' => self::rate($metric, $p75)];
+    }
+
+    /** Значение для экрана: CLS — доля, остальное — миллисекунды. */
+    public static function format(string $metric, float $value): string
+    {
+        return $metric === 'CLS'
+            ? number_format($value, 2, ',', ' ')
+            : number_format($value, 0, ',', ' ') . ' мс';
     }
 
     /** Чистка старых замеров: таблица не должна расти бесконечно. */

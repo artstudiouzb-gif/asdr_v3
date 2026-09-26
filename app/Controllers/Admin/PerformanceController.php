@@ -99,6 +99,8 @@ final class PerformanceController
             // Замеры с реальных посетителей: 75-й перцентиль за 28 дней.
             'vitals' => \App\Core\WebVitals::enabled() ? \App\Core\WebVitals::summary(28) : [],
             'vitalsMobile' => \App\Core\WebVitals::enabled() ? \App\Core\WebVitals::summary(28, 'mobile') : [],
+            // Разбивка по типам страниц: «плохо» без неё не говорит, куда смотреть.
+            'vitalsSlices' => \App\Core\WebVitals::enabled() ? \App\Core\WebVitals::slices(28) : [],
         ]);
     }
 

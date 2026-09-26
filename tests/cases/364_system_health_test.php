@@ -158,3 +158,41 @@ function integration_row(string $name): array
 
     return ['ok_at' => null, 'fail_at' => null, 'error' => ''];
 }
+
+test('Скорость у посетителей: худшее устройство решает, малая выборка не оценивается', function (): void {
+    $stat = static fn (float $p75, int $count, string $rating): array => ['p75' => $p75, 'count' => $count, 'rating' => $rating];
+
+    // Сбор выключен — это не поломка, но и не «в порядке»: на дашборд не идёт.
+    $off = SystemHealth::vitalsChecks(false, []);
+    assert_same(SystemHealth::UNKNOWN, $off[0]['state']);
+    assert_same('/admin/performance#perf-vitals', SystemHealth::solution($off[0]['id'])['href']);
+
+    $checks = SystemHealth::vitalsChecks(true, [
+        'LCP' => [
+            'device' => ['desktop' => $stat(1800, 50, 'good'), 'mobile' => $stat(4600, 30, 'poor')],
+            'kinds' => ['mobile' => [
+                'news' => $stat(2000, 25, 'good'),
+                'news_list' => $stat(5200, 21, 'poor'),
+                // Малый срез не называется худшим, каким бы плохим он ни был.
+                'search' => $stat(9000, 3, 'poor'),
+            ]],
+        ],
+        'INP' => [
+            'device' => ['desktop' => $stat(120, 50, 'good'), 'mobile' => $stat(150, 30, 'good')],
+            'kinds' => [],
+        ],
+        'CLS' => [
+            'device' => ['mobile' => $stat(0.4, 5, 'poor')],
+            'kinds' => [],
+        ],
+    ]);
+    $byId = array_column($checks, null, 'id');
+
+    // Компьютеры в зелёной зоне не прячут телефоны в красной.
+    assert_same(SystemHealth::WARN, $byId['vitals:LCP']['state']);
+    assert_contains('телефоны 4 600 мс — плохо', $byId['vitals:LCP']['value']);
+    assert_contains('лента новостей (телефоны) — 5 200 мс', $byId['vitals:LCP']['hint']);
+    assert_same(SystemHealth::OK, $byId['vitals:INP']['state']);
+    assert_same(SystemHealth::UNKNOWN, $byId['vitals:CLS']['state'], 'пять замеров — не оценка');
+    assert_contains('мало замеров: 5', $byId['vitals:CLS']['value']);
+});
