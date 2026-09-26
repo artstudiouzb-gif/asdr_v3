@@ -135,7 +135,7 @@ test('Токены скругления используются без запа
     // только там, где :root переменной не объявил, то есть никогда, — и
     // потому разъезжается молча. У --radius их было восемь, от 8 до 20px.
     foreach (radius_public_css_sources() as $path => $css) {
-        foreach (['--radius', '--radius-sm', '--btn-radius', '--radius-pill'] as $token) {
+        foreach (['--radius', '--radius-sm', '--btn-radius', '--radius-pill', '--radius-xs', '--radius-lg'] as $token) {
             assert_same(
                 0,
                 preg_match_all('/var\(\s*' . preg_quote($token, '/') . '\s*,/', $css),
@@ -148,17 +148,22 @@ test('Токены скругления используются без запа
 test('Токены скругления объявлены один раз и равны умолчанию «Дизайна»', function () {
     $declared = [];
     foreach (radius_public_css_sources() as $path => $css) {
-        preg_match_all('/(?<![\w-])(--radius|--radius-sm|--btn-radius|--radius-pill)\s*:\s*([^;]+);/', $css, $m, PREG_SET_ORDER);
+        preg_match_all('/(?<![\w-])(--radius|--radius-sm|--btn-radius|--radius-pill|--radius-xs|--radius-lg)\s*:\s*([^;]+);/', $css, $m, PREG_SET_ORDER);
         foreach ($m as $decl) {
             $declared[$decl[1]][] = $path . ' → ' . trim($decl[2]);
         }
     }
-    foreach (['--radius', '--radius-sm', '--btn-radius', '--radius-pill'] as $token) {
+    foreach (['--radius', '--radius-sm', '--btn-radius', '--radius-pill', '--radius-xs', '--radius-lg'] as $token) {
         assert_same(1, count($declared[$token] ?? []), "$token объявлен не один раз: " . implode('; ', $declared[$token] ?? ['нигде']));
-        assert_contains('gov-theme.css', $declared[$token][0], "$token объявляется в :root темы");
+        assert_contains('tokens.css', $declared[$token][0], "$token объявляется в tokens.css");
     }
 
     // Портал /repo слоя настроек не получает, и там действуют числа из :root.
+    // Вход в портал не подключает даже темы — поэтому токены в своём файле,
+    // и его обязаны подключать все поверхности, где их читают.
+    foreach (['app/Views/repo/login.php', 'app/Views/repo/login_2fa.php', 'app/Views/repo/layout/top.php'] as $view) {
+        assert_contains('/assets/css/tokens.css', (string) file_get_contents(APP_ROOT . '/' . $view), "$view подключает токены");
+    }
     // Они обязаны совпадать с тем, что «Дизайн» печатает по умолчанию, иначе
     // портал и сайт скруглены по-разному при одних и тех же настройках.
     $defaults = DesignSettings::cssVariables([]);

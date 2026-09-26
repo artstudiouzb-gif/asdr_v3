@@ -34,7 +34,7 @@
     inset-inline-start: 0;
     block-size: var(--section-marker-height, calc(100% - .32em));
     inline-size: var(--section-marker-width, 3px);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--gov-teal);
 }
 

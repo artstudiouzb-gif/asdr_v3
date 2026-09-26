@@ -8,6 +8,7 @@ import { minify } from 'terser';
 
 const cssSources = [
     'public/assets/css/gov-fonts.css',
+    'public/assets/css/tokens.css',
     'public/assets/css/frontend.css',
     'public/assets/css/gov-theme.css',
     'public/assets/css/rich-content.css',

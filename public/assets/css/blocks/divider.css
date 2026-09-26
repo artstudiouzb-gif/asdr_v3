@@ -14,7 +14,7 @@
     width: 96px;
     margin-inline: auto;
     border-top: 3px solid var(--gov-teal);
-    border-radius: 3px;
+    border-radius: var(--radius-pill);
 }
 /* Знак — та же эмблема, что у заглушек и водяного знака карточек: своей
    картинки разделителю не нужно. Сама маска приезжает из scoped CSS блока

@@ -20,6 +20,8 @@ final class FrontendAssets
         // (только выбранное семейство). Здесь — лишь метрики запасных
         // начертаний, они нужны на каждой странице.
         '/assets/css/gov-fonts.css',
+        // Токены оформления: их же подключают портал /repo и его вход.
+        '/assets/css/tokens.css',
         '/assets/css/frontend.css',
         // Стили детальной новости живут в blocks/news-detail.css и в общий
         // бандл не входят: см. AssetCollector::THEME_PART_MAP.

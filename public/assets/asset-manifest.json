@@ -5,6 +5,7 @@
     "path": "/assets/css/public.min.css",
     "sources": [
       "/assets/css/gov-fonts.css",
+      "/assets/css/tokens.css",
       "/assets/css/frontend.css",
       "/assets/css/gov-theme.css",
       "/assets/css/rich-content.css",
@@ -13,11 +14,11 @@
       "/assets/css/public-editorial-pages.css",
       "/assets/css/public-home.css"
     ],
-    "sourceSha256": "c99d60932381d855a4ea60d9658f8e1135b3d2e4ffe0f34c5933931042d2b59f",
-    "sha256": "c92bad4fa9e3859fcc5be37d972f66ce8565fbfd534eee5b5fb0cb4ae379d805",
-    "raw": 377934,
-    "gzip": 64018,
-    "brotli": 49834
+    "sourceSha256": "f7cbaac19d771a06e094e38a0af0e4860fb567f57645a3a245d662233b5f5006",
+    "sha256": "86e03d8f7a39a5e80a7492cec2fd02e0b7e4d93ea7c80c9a92fea1c32026c0b0",
+    "raw": 379078,
+    "gzip": 64057,
+    "brotli": 49831
   },
   "js": {
     "path": "/assets/js/public.min.js",
@@ -43,19 +44,19 @@
     },
     "/assets/css/blocks/catalog.css": {
       "path": "/assets/css/blocks/catalog.min.css",
-      "sourceSha256": "d242f1e15c9fd6a4e1023100096cca6b60d307474fbbd0bd8d84366d7615910c",
-      "sha256": "55e40b65e48fefc106172ed8c0889a36edbbb2789f661605511bb4ac0084183e",
-      "raw": 9925,
-      "gzip": 2282,
-      "brotli": 1947
+      "sourceSha256": "d467047dbdae15943ce8aca3120ef84410f6224b0accc46d7be0d4db1c500f9f",
+      "sha256": "66055a2ff8a7308d1f0d39e22ffb7371b96d941b062b9ff4aa32b8eff52f70ab",
+      "raw": 9968,
+      "gzip": 2287,
+      "brotli": 1959
     },
     "/assets/css/blocks/chart.css": {
       "path": "/assets/css/blocks/chart.min.css",
-      "sourceSha256": "e8b44cec11d7109d3086204556e637f764e1ad616788ffefecb76f58ef3d398d",
-      "sha256": "15fb7fa767fdeb998029e8ef1ab9ea20b11c13a0ea3ff0ff03296f2582450717",
-      "raw": 2005,
-      "gzip": 807,
-      "brotli": 674
+      "sourceSha256": "bddb4e37f69ab023265b0dc7d0c6ca9b4d5439b80ae4b332942f7c977992ce9d",
+      "sha256": "94a9a906c5ef673051ea35a357bc47bc50d7683f23fa4e5e8603cbe02a58f0ae",
+      "raw": 2057,
+      "gzip": 815,
+      "brotli": 682
     },
     "/assets/css/blocks/collage.css": {
       "path": "/assets/css/blocks/collage.min.css",
@@ -75,11 +76,11 @@
     },
     "/assets/css/blocks/divider.css": {
       "path": "/assets/css/blocks/divider.min.css",
-      "sourceSha256": "30c232cea41769a89a0617d3341c55ce3fd69eaf3cd2398f78b495ca2302aef5",
-      "sha256": "03fe80554d919643e2150eb3c09246aad356474a8a94300f0cbde1c250b43714",
-      "raw": 572,
-      "gzip": 292,
-      "brotli": 223
+      "sourceSha256": "cc4825e592b1372317ef2c540c5c4e00c386da89e0d9f4e37baf8d271481345e",
+      "sha256": "5dfe24f9510d0cd0b702f3eca2bc0cd9b77c10027fa9cc42deb8c4551a5d4eda",
+      "raw": 587,
+      "gzip": 298,
+      "brotli": 229
     },
     "/assets/css/blocks/embed.css": {
       "path": "/assets/css/blocks/embed.min.css",
@@ -115,27 +116,27 @@
     },
     "/assets/css/blocks/leader-card.css": {
       "path": "/assets/css/blocks/leader-card.min.css",
-      "sourceSha256": "526b8939cd401432dd40979a6b9e123e3d93196944818c2187dffbdb8b3093e7",
-      "sha256": "48339e19c6633251b66b4daf0ff5ad84728e56b0432870955d9b2ff5c919c4e0",
-      "raw": 7562,
-      "gzip": 1893,
-      "brotli": 1600
+      "sourceSha256": "b0397b35a1b1132257d5409321f80191d5ffebb25dac0363a16bfc3ed1c8aa1e",
+      "sha256": "23245c2b9b45dcf1727ae4084f9ae129dd90ad48814b188f3eb883b4c2472ac7",
+      "raw": 7601,
+      "gzip": 1899,
+      "brotli": 1609
     },
     "/assets/css/blocks/media-gallery.css": {
       "path": "/assets/css/blocks/media-gallery.min.css",
-      "sourceSha256": "5c163f9c94a8c5f817ec0bcacd8b2f895aaf6d310c243393600c32b97a79d480",
-      "sha256": "ac793ce47518754e3795321e8fb249a871f91d059cb99c1c11279b7b58f060ab",
-      "raw": 3906,
-      "gzip": 1281,
-      "brotli": 1067
+      "sourceSha256": "4c6a32bcbc2a0e0b15b040687013fefda50ac532f6f8208ee9d5610c12e7495f",
+      "sha256": "2e6eaa830b4814700a8df61d48437d879d6c721b4d679dc8f8f7e1864bd1452f",
+      "raw": 3945,
+      "gzip": 1286,
+      "brotli": 1074
     },
     "/assets/css/blocks/news-detail.css": {
       "path": "/assets/css/blocks/news-detail.min.css",
-      "sourceSha256": "51d0b1f519ddec37a82a823c948f0354eb346722cf1755cf4a0868d879c431f0",
-      "sha256": "51781104fef1ae9e58ecc90b846c208db5e46d13cd40344d41e323fe5418abca",
-      "raw": 36831,
-      "gzip": 6518,
-      "brotli": 5726
+      "sourceSha256": "40505b62f922bd5812b5082d622f894f4d3f981247e4ef1c6a21ac3699e5657c",
+      "sha256": "9f2c0b82897a88e1a75d260f97feecc7c4052f53abd8f8e91332bee35e44a0c2",
+      "raw": 36933,
+      "gzip": 6519,
+      "brotli": 5724
     },
     "/assets/css/blocks/news-feature.css": {
       "path": "/assets/css/blocks/news-feature.min.css",
@@ -147,11 +148,11 @@
     },
     "/assets/css/blocks/org-structure.css": {
       "path": "/assets/css/blocks/org-structure.min.css",
-      "sourceSha256": "00ddc91d90509986db23df1d975ba3eb368dac713b333d90a23985b227a703e0",
-      "sha256": "c3486ad45b121e08aab8a9d26bcc65d33182fcfe417ba0b52b2a3a413d2af792",
-      "raw": 13086,
-      "gzip": 2642,
-      "brotli": 2258
+      "sourceSha256": "f2e96f0ef8f871d463565eb78f03507949c6fd4c1975566de5f16d6e94aff9d8",
+      "sha256": "b7ba8e1bd3058723027623a9b0b7137bbc301b3231e0de74e9fb1ecd283c0a87",
+      "raw": 13112,
+      "gzip": 2644,
+      "brotli": 2261
     },
     "/assets/css/blocks/table.css": {
       "path": "/assets/css/blocks/table.min.css",
@@ -163,11 +164,11 @@
     },
     "/assets/css/blocks/tabs.css": {
       "path": "/assets/css/blocks/tabs.min.css",
-      "sourceSha256": "3a1fc9914092f4d03ef06ee3795aae28cdfc211f9fc5a2b2f0ae8be74a46d0b1",
-      "sha256": "fcc482e2cc13e871296be6e884d6e63e8c7e39d2056a450445f5299bf60fc713",
-      "raw": 3090,
-      "gzip": 1023,
-      "brotli": 821
+      "sourceSha256": "1dc7cb6c8d1e09a545e937823fb5dec3e53d354071c95adcc009b4fa81395d1c",
+      "sha256": "c7858f9056ac02020a80d6e258925513b69202fd2d3fe2e94ae048d0746d6675",
+      "raw": 3131,
+      "gzip": 1019,
+      "brotli": 822
     },
     "/assets/js/blocks/anchor_nav.js": {
       "path": "/assets/js/blocks/anchor_nav.min.js",

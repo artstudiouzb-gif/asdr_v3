@@ -24,7 +24,7 @@ test('asset service supports optimized mode and diagnostic source fallback', fun
     assert_same(['/assets/js/public.min.js'], FrontendAssets::scripts());
 
     Setting::set('perf_asset_bundle', '0');
-    assert_same(9, count(FrontendAssets::styles()));
+    assert_same(10, count(FrontendAssets::styles()));
     assert_true(in_array('/assets/css/public-home.css', FrontendAssets::styles(), true));
     assert_same(3, count(FrontendAssets::scripts()));
     assert_contains('/assets/css/frontend.css', implode(',', FrontendAssets::styles()));

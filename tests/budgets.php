@@ -365,7 +365,11 @@ function public_radius_rules(): array
         if (!str_ends_with($path, '.css')
             || str_contains($path, '.min.')
             || str_contains($path, 'admin')
-            || str_contains($path, 'vendor')) {
+            || str_contains($path, 'vendor')
+            // Аварийные страницы (404 без базы, 503, отказ WAF) подключают
+            // только system.css — без темы и без слоя «Дизайна». Токена там
+            // нет, и число — единственный способ скруглить угол.
+            || basename($path) === 'system.css') {
             continue;
         }
         $files[] = $path;
@@ -579,8 +583,9 @@ const DESIGN_SCALE_CEILINGS = [
     // 163 -> 161 -> 156 -> 154: последнее число снято отчётом по бюджетам,
     // потолок опущен под факт (запас — это разрешение деградировать).
     'box-shadow' => 154,
-    // 36 -> 32 -> 31, тем же замером.
-    'border-radius' => 31,
+    // 36 -> 32 -> 31, тем же замером; 31 -> 10: жёсткие значения разложены
+    // по ролям (--radius-xs/sm/lg, --btn-radius, --radius-pill).
+    'border-radius' => 10,
     // 610 -> 384. Из темы снято 194 приоритета: каждый снимали и сверяли
     // вычисленные стили всех элементов на 9 страницах в двух ширинах и двух
     // темах — возвращали те, без которых что-то менялось (см. план, 3.1).
@@ -804,7 +809,7 @@ function quality_budgets(): array
             'guard' => 'tests/cases/309_radius_setting_reach_test.php',
             'why' => 'правило, где радиус написан числом, не слушает настройку '
                 . '«Скругление углов» — редактор двигает ползунок, а половина страницы не меняется',
-            'ceiling' => static fn (): int => 89,
+            'ceiling' => static fn (): int => 0,
             'measure' => static function (): array {
                 $hard = public_hard_radius_rules();
                 $sample = [];
