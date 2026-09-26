@@ -67,3 +67,36 @@ function Setting_missing(): bool
 {
     return \App\Models\Setting::get('perf_vitals_enabled', '') === '';
 }
+
+test('Web Vitals: срезы по устройству и типу страницы считаются одним проходом', function (): void {
+    $rows = [];
+    // Телефоны: лента медленная, новость быстрая.
+    for ($i = 1; $i <= 20; $i++) {
+        $rows[] = ['device' => 'mobile', 'page_kind' => 'news_list', 'value' => 3000 + $i];
+        $rows[] = ['device' => 'mobile', 'page_kind' => 'news', 'value' => 1000 + $i];
+    }
+    $rows[] = ['device' => 'desktop', 'page_kind' => 'page', 'value' => 900];
+
+    $slice = WebVitals::aggregate('LCP', $rows);
+    assert_same(40, $slice['device']['mobile']['count']);
+    assert_same(3010.0, $slice['device']['mobile']['p75'], 'p75 по ближайшему рангу, а не среднее');
+    assert_same('needs-improvement', $slice['device']['mobile']['rating']);
+    assert_same(3015.0, $slice['kinds']['mobile']['news_list']['p75']);
+    assert_same('good', $slice['kinds']['mobile']['news']['rating']);
+    assert_same(1, $slice['kinds']['desktop']['page']['count']);
+    // Порядок строк на входе значения не имеет: сортирует сама агрегация.
+    $reversed = WebVitals::aggregate('LCP', array_reverse($rows));
+    assert_same(3010.0, $reversed['device']['mobile']['p75']);
+    assert_same(3015.0, $reversed['kinds']['mobile']['news_list']['p75']);
+});
+
+test('Web Vitals: у каждого типа страницы есть подпись для экрана', function (): void {
+    $source = (string) file_get_contents(APP_ROOT . '/app/Core/WebVitals.php');
+    $start = (int) strpos($source, 'function pageKind');
+    $body = substr($source, $start, (int) strpos($source, 'function store') - $start);
+    preg_match_all("/=> '([a-z_]+)',\n/", $body, $m);
+    assert_true(count($m[1]) >= 5, 'типы страниц не нашлись в pageKind()');
+    foreach (array_unique($m[1]) as $kind) {
+        assert_true(isset(WebVitals::KIND_LABELS[$kind]), 'нет подписи для типа ' . $kind);
+    }
+});

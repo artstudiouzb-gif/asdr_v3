@@ -382,6 +382,52 @@ $size = static function (mixed $bytes): string {
                 </tbody>
             </table>
             <p class="form-hint">За последние 28 дней. 75-й перцентиль, а не среднее: среднее вытягивают быстрые заходы с горячим кэшем.</p>
+<?php
+    // Типы страниц, где есть хоть один замер основных метрик на любом устройстве.
+    $vitalsSlices = $vitalsSlices ?? [];
+    $vitalsKinds = [];
+    foreach ($vitalsSlices as $slice) {
+        foreach ($slice['kinds'] as $deviceKinds) {
+            $vitalsKinds += array_fill_keys(array_keys($deviceKinds), true);
+        }
+    }
+    $vitalsCell = static function (array $slices, string $metric, string $device, string $kind): string {
+        $stat = $slices[$metric]['kinds'][$device][$kind] ?? null;
+        if ($stat === null) {
+            return '—';
+        }
+        $text = \App\Core\WebVitals::format($metric, $stat['p75']);
+        if ($stat['count'] < \App\Core\WebVitals::MIN_SAMPLES) {
+            return htmlspecialchars($text, ENT_QUOTES) . ' <span class="form-hint">(' . (int) $stat['count'] . ')</span>';
+        }
+        $class = [
+            'good' => 'badge badge--success',
+            'needs-improvement' => 'badge badge--warning',
+            'poor' => 'badge badge--danger',
+        ][$stat['rating']] ?? '';
+
+        return $class === ''
+            ? htmlspecialchars($text, ENT_QUOTES)
+            : '<span class="' . $class . '">' . htmlspecialchars($text, ENT_QUOTES) . '</span>';
+    };
+?>
+<?php if ($vitalsKinds !== []): ?>
+            <h4>По типам страниц: телефоны / компьютеры</h4>
+            <table class="data-table">
+                <thead><tr><th>Страницы</th><?php foreach (\App\Core\WebVitals::CORE as $metric): ?><th><?= htmlspecialchars($metric, ENT_QUOTES) ?></th><?php endforeach; ?></tr></thead>
+                <tbody>
+<?php foreach (array_map('strval', array_keys($vitalsKinds)) as $kind): ?>
+                    <tr>
+                        <td><?= htmlspecialchars(\App\Core\WebVitals::KIND_LABELS[$kind] ?? $kind, ENT_QUOTES) ?></td>
+<?php foreach (\App\Core\WebVitals::CORE as $metric): ?>
+                        <td><?= $vitalsCell($vitalsSlices, $metric, 'mobile', $kind) ?> / <?= $vitalsCell($vitalsSlices, $metric, 'desktop', $kind) ?></td>
+<?php endforeach; ?>
+                    </tr>
+<?php endforeach; ?>
+                </tbody>
+            </table>
+            <p class="form-hint">Цвет — оценка по порогам web.dev; срез меньше <?= \App\Core\WebVitals::MIN_SAMPLES ?> замеров не оценивается, в скобках — сколько их. Та же оценка идёт в «Состояние системы».</p>
+<?php endif; ?>
 <?php elseif ($on('perf_vitals_enabled', '0')): ?>
             <p class="form-hint">Замеров пока нет — они появятся после визитов на публичную часть.</p>
 <?php endif; ?>
