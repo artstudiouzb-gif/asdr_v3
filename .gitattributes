@@ -23,6 +23,9 @@
 /playwright.config.js export-ignore
 /scripts/build-assets.mjs export-ignore
 /scripts/extract-static-inline-styles.mjs export-ignore
+/scripts/admin-style-snapshot.mjs export-ignore
+/scripts/public-style-snapshot.mjs export-ignore
+/scripts/lib/ export-ignore
 
 # Локальные инструкции и отчёты разработки
 /.gitattributes export-ignore

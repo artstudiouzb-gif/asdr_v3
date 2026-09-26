@@ -17,18 +17,20 @@
  *
  * Срезы кладутся в storage/tmp/admin-styles/<имя> и в репозиторий не входят.
  *
- * Шум: на экране формы новости в тёмной теме между двумя срезами без единой
- * правки CSS расходятся десятые доли цвета (#f8fafc против #f6f8fa) — форма
- * инициализирует редактор и виджеты цвета уже после загрузки. Такие группы в
- * diff — не следствие правки; проверяется повторным срезом без изменений.
+ * Тёмный вид задаётся атрибутом data-admin-appearance. Прежде срез ставил
+ * data-admin-theme="dark_emerald" — такой темы давно нет, а на атрибуте
+ * data-admin-theme="default" висят объявления токенов панели, поэтому
+ * «тёмный» срез снимал не тёмную панель, а панель без токенов.
+ *
+ * Шум: два среза подряд без правок совпадают целиком (замерено после
+ * перехода на data-admin-appearance: 34 308 узлов, 0 различий). Прежние
+ * расхождения десятых долей цвета на форме новости снимались с панели без
+ * токенов и к правкам отношения не имели.
  */
 import crypto from 'node:crypto';
-import fs from 'node:fs';
 import path from 'node:path';
-import process from 'node:process';
-import { chromium } from '@playwright/test';
+import { ROOT, captureTree, freeze, launchBrowser, main, writeSnapshot } from './lib/style-snapshot.mjs';
 
-const ROOT = path.resolve(import.meta.dirname, '..');
 const STORE = path.join(ROOT, 'storage/tmp/admin-styles');
 const BASE = process.env.APP_URL || 'http://127.0.0.1:8080';
 
@@ -37,7 +39,9 @@ const USER = 'visual';
 const PASSWORD = 'Visual-regression-1';
 const SECRET = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
 
-const THEMES = ['default', 'dark_emerald'];
+// Те же состояния, что в tests/browser/admin-visual.spec.js.
+const THEMES = ['light', 'dark'];
+
 const SCREENS = [
     ['dashboard', '/admin'],
     ['news-list', '/admin/news'],
@@ -60,17 +64,6 @@ const SCREENS = [
 const ANON_SCREENS = [
     ['login', '/admin/login'],
 ];
-const PROPS = [
-    'display', 'position', 'boxSizing', 'width', 'height', 'minHeight', 'maxWidth',
-    'marginTop', 'marginRight', 'marginBottom', 'marginLeft',
-    'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
-    'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'textTransform',
-    'color', 'backgroundColor', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth',
-    'borderLeftWidth', 'borderTopColor', 'borderBottomColor', 'borderRadius',
-    'flexDirection', 'alignItems', 'justifyContent', 'gap', 'gridTemplateColumns',
-    'opacity', 'overflowX', 'overflowY', 'textAlign', 'whiteSpace', 'boxShadow', 'accentColor',
-];
-
 function totp(secret, step = Math.floor(Date.now() / 1000 / 30)) {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
     let bits = '';
@@ -114,32 +107,15 @@ async function login(page) {
 /** Снимает один экран в одной теме; возвращает число снятых узлов. */
 async function captureScreen(page, screen, url, theme, out) {
     await page.goto(url, { waitUntil: 'networkidle' }).catch(() => {});
-    await page.evaluate((value) => document.documentElement.setAttribute('data-admin-theme', value), theme);
-    // Переходы гасим: срез ловил цвет посреди смены темы.
-    await page.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' });
+    await page.evaluate((value) => document.documentElement.setAttribute('data-admin-appearance', value), theme);
+    await freeze(page);
     await page.waitForTimeout(150);
-    const data = await page.evaluate((props) => {
-        const result = {};
-        const walk = (el, keyPath) => {
-            const computed = getComputedStyle(el);
-            const record = {};
-            for (const prop of props) { record[prop] = computed[prop]; }
-            const cls = typeof el.className === 'string'
-                ? el.className.trim().split(/\s+/).slice(0, 3).join('.') : '';
-            result[keyPath + '|' + el.tagName.toLowerCase() + (cls ? '.' + cls : '')] = record;
-            [...el.children].forEach((child, i) => walk(child, keyPath + '>' + i));
-        };
-        walk(document.body, '0');
-        return result;
-    }, PROPS);
-    fs.writeFileSync(path.join(out, `${screen}-${theme}.json`), JSON.stringify(data));
-    return Object.keys(data).length;
+    return writeSnapshot(out, `${screen}-${theme}.json`, await captureTree(page));
 }
 
 async function capture(name) {
     const out = path.join(STORE, name);
-    fs.mkdirSync(out, { recursive: true });
-    const browser = await chromium.launch();
+    const browser = await launchBrowser();
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, baseURL: BASE });
     const page = await context.newPage();
 
@@ -160,48 +136,4 @@ async function capture(name) {
     await browser.close();
 }
 
-function diff(a, b, limit) {
-    const dirA = path.join(STORE, a);
-    const dirB = path.join(STORE, b);
-    const groups = new Map();
-    let changed = 0;
-    let seen = 0;
-    let missing = 0;
-
-    for (const file of fs.readdirSync(dirA)) {
-        if (!file.endsWith('.json')) { continue; }
-        const before = JSON.parse(fs.readFileSync(path.join(dirA, file), 'utf8'));
-        const afterPath = path.join(dirB, file);
-        if (!fs.existsSync(afterPath)) { console.log('нет файла', file); continue; }
-        const after = JSON.parse(fs.readFileSync(afterPath, 'utf8'));
-        for (const [key, record] of Object.entries(before)) {
-            seen++;
-            const other = after[key];
-            if (!other) { missing++; continue; }
-            for (const [prop, value] of Object.entries(record)) {
-                if (other[prop] === value) { continue; }
-                changed++;
-                const id = key.split('|')[1] + ' :: ' + prop + ' :: ' + value + ' → ' + other[prop];
-                const group = groups.get(id) || { n: 0, where: new Set() };
-                group.n++;
-                group.where.add(file.replace('.json', ''));
-                groups.set(id, group);
-            }
-        }
-    }
-
-    const sorted = [...groups].sort((x, y) => y[1].n - x[1].n);
-    console.log(`Узлов сверено: ${seen}, пропало: ${missing}, различий: ${changed}, групп: ${sorted.length}\n`);
-    for (const [id, group] of sorted.slice(0, limit)) {
-        console.log(`${String(group.n).padStart(5)}×  ${id}   [${[...group.where].slice(0, 3).join(', ')}]`);
-    }
-}
-
-const args = process.argv.slice(2);
-if (args[0] === '--diff') {
-    if (args.length < 3) { throw new Error('Нужно: --diff <срез-до> <срез-после> [сколько групп]'); }
-    diff(args[1], args[2], Number(args[3] || 60));
-} else {
-    if (args.length < 1) { throw new Error('Нужно имя среза: node scripts/admin-style-snapshot.mjs before'); }
-    await capture(args[0]);
-}
+await main('scripts/admin-style-snapshot.mjs', STORE, capture);
