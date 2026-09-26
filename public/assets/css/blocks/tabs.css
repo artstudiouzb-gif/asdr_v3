@@ -92,7 +92,7 @@
 
     .cms-tabs--vertical .cms-tabs__tab {
         justify-content: flex-start;
-        border-radius: var(--radius, 12px);
+        border-radius: var(--radius);
         text-align: left;
     }
 

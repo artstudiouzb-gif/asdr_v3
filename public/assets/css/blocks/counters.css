@@ -22,7 +22,7 @@
 .counter {
     display: flex; flex-direction: column; gap: 4px;
     padding: 22px 24px; background: var(--surface, #fff);
-    border: 1px solid var(--border-color); border-radius: var(--radius, 14px);
+    border: 1px solid var(--border-color); border-radius: var(--radius);
 }
 .counter__label { color: var(--text-muted); margin-top: 4px; font-size: var(--step--1); }
 :root[data-theme="dark"] .counter__value, :root[data-theme="dark"] .counter__suffix { color: var(--text-main); }
@@ -108,7 +108,7 @@
 .block-counters--cards .block-counters__grid { gap: var(--card-gap, 20px); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .block-counters--cards .counter {
     border: 1px solid var(--gov-border);
-    border-radius: var(--radius, 14px);
+    border-radius: var(--radius);
     padding: clamp(16px, 2vw, 24px);
     background: var(--counters-bg, var(--gov-surface));
 }
@@ -185,7 +185,7 @@
 .block-counters {
     background: var(--counters-bg, var(--gov-surface));
     border: 1px solid var(--gov-border);
-    border-radius: var(--radius, 20px);
+    border-radius: var(--radius);
     padding: clamp(24px, 3.5vw, 38px);
     box-shadow: 0 16px 40px rgba(19, 42, 92, 0.06), 0 2px 8px rgba(19, 42, 92, 0.02);
     position: relative;
