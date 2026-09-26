@@ -126,7 +126,7 @@ final class ChartData
     }
 
     /** Число из строки документа: запятая как разделитель дробной части, пробелы разрядов. */
-    private static function number(string $raw): ?float
+    public static function number(string $raw): ?float
     {
         $raw = str_replace([' ', "\u{00A0}", "\u{2009}"], '', trim($raw));
         $raw = str_replace(',', '.', $raw);

@@ -55,6 +55,15 @@ final class CountersBlockNormalizer
                 'link' => BlockDataInput::safeLink($item['link'] ?? ''),
                 'icon_svg' => $iconSvg,
                 'icon_image' => BlockDataInput::safeMedia($item['icon_image'] ?? ''),
+                // Путь к цели — для вариантов «Полоса к цели» и «Шкала по
+                // годам» (CounterGoal). База и цель — числа, как значение;
+                // подписи точек — годы или слова («старт», «план»).
+                'base' => self::groupedNumber(mb_substr(BlockDataInput::trimmed($item, 'base'), 0, 24)),
+                'target' => self::groupedNumber(mb_substr(BlockDataInput::trimmed($item, 'target'), 0, 24)),
+                'base_label' => mb_substr(BlockDataInput::plain($item, 'base_label', $locale), 0, 16),
+                'now_label' => mb_substr(BlockDataInput::plain($item, 'now_label', $locale), 0, 16),
+                'target_label' => mb_substr(BlockDataInput::plain($item, 'target_label', $locale), 0, 16),
+                'delta' => mb_substr(BlockDataInput::plain($item, 'delta', $locale), 0, 40),
             ];
         }
 
