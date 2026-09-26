@@ -3579,7 +3579,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 }
 .block-hero--media .block-hero__inner { position: relative; width: 100%; max-width: var(--container-max); margin: 0 auto; padding: 0 20px; z-index: 3; }
 .block-hero--media .block-hero__text { max-width: var(--hero-text-width, 620px); }
-.block-hero__eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--gov-teal-text); font-family: var(--font-family, 'Noto Sans', sans-serif); font-weight: 700; font-size: var(--step--3); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 18px; }
+.block-hero__eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--gov-teal-text); font-family: var(--font-family, 'Noto Sans', sans-serif); font-weight: 700; font-size: var(--step--2); letter-spacing: 0; text-transform: none; margin-bottom: 18px; }
 .block-hero__eyebrow::before { content: ''; width: 34px; height: 2px; background: var(--gov-teal); }/* Над фотографией акцентный надзаголовок не добирает контраста даже при
    плотном затемнении: чтобы вытянуть его до 4.5:1, снимок пришлось бы
    закрасить почти полностью. Цветным остаётся штрих, сам текст идёт

@@ -65,6 +65,7 @@
     "title": "",
     "data": {
       "title": "Основные направления работы",
+      "numbering": false,
       "all_text": "Подробнее об Агентстве",
       "all_url": "/o-nas",
       "columns": 5,

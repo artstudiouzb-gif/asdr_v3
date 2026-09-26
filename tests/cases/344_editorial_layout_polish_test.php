@@ -39,7 +39,9 @@ test('news-feature.css содержит улучшенные пропорции 
     assert_contains('aspect-ratio: 16 / 10;', $css, 'Обложка в колонках новостей имеет благородную пропорцию 16/10');
     assert_contains('.news-column:hover .news-column__image { transform: scale(1.035); }', $css, 'Плавный микро-зум кадра при наведении');
     assert_contains('.newsfeat-more__btn', $css, 'Кнопка «Все новости» оформлена в редакционном стиле');
-    assert_contains('.news-column:hover .news-column__arrow { border-color: var(--gov-teal); color: var(--gov-teal); transform: translateX(4px);', $css);
+    // Стрелки у карточки-колонки нет: карточка сама ссылка, и «→» повторял
+    // очевидное (DESIGN_PLAN 4.4, бюджет tell_arrows).
+    assert_not_contains('news-column__arrow', $css);
 });
 
 test('news-feature.css сохраняет регрессионные инварианты из тестов 340 и 276', function () {

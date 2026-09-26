@@ -1760,13 +1760,10 @@ p { line-height: var(--base-line-height, 1.6); }/* --- Шапка: глубин�
     color: var(--gov-navy);
     box-shadow: none;
 }
-.cms-columns__col .cms-block--cta .block-cta .block-cta__button::after {
-    content: ' →'; transition: transform .15s ease; display: inline-block; margin-left: 4px;
-}
 .cms-columns__col .cms-block--cta .block-cta:hover .block-cta__button {
     background: var(--gov-navy); color: #fff;
 }
-.cms-columns__col .cms-block--cta .block-cta:hover .block-cta__button::after { transform: translateX(3px); }/* --- Заголовки лент (новости и др.): линия-акцент --- */
+/* --- Заголовки лент (новости и др.): линия-акцент --- */
 
 .block-news__head { align-items: baseline; border-bottom: 1px solid var(--border-color); padding-bottom: 14px; margin-bottom: 26px; position: relative; }
 .block-news__head::after {

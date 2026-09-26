@@ -65,6 +65,7 @@
     "title": "",
     "data": {
       "title": "Faoliyatning asosiy yo‘nalishlari",
+      "numbering": false,
       "all_text": "Agentlik haqida batafsil",
       "all_url": "/o-nas",
       "columns": 5,

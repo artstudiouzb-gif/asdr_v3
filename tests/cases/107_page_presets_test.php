@@ -134,15 +134,23 @@ test('Демо-контент: оформление берётся из общи
     assert_contains('$blockData += $looks', $seeder);
 });
 
-test('Ритм не анимирует первый блок и анимирует остальные', function () {
+test('Ритм даёт одно появление на страницу — первой сетке после первого экрана', function () {
     // Первый блок — первый экран: пряча его до появления, мы задерживаем то,
-    // ради чего страницу открыли. То же правило у нового блока в редакторе
-    // (BlockPresentationNormalizer::newBlockPresentation), и разъезжаться им
-    // нельзя: демо-страницы показывали бы не то, что получает редактор.
-    $looks = PagePresets::rhythmFor(['hero', 'counters', 'cards_grid', 'text']);
-    assert_false((bool) $looks[0]['_reveal']['enabled'], 'первый блок анимируется');
-    for ($i = 1, $n = count($looks); $i < $n; $i++) {
-        assert_true((bool) $looks[$i]['_reveal']['enabled'], 'блок ' . $i . ' без появления');
+    // ради чего страницу открыли. Остальные секции стоят: появление каждой
+    // секции — признак шаблонной страницы (навык frontend-design, DESIGN_PLAN
+    // 4.3). Одно продуманное появление — карточки первой сетки по очереди.
+    $looks = PagePresets::rhythmFor(['hero', 'text', 'counters', 'cards_grid', 'cta']);
+    $revealed = array_keys(array_filter($looks, static fn (array $l): bool => !empty($l['_reveal']['enabled'])));
+    assert_same([2], $revealed, 'появление — только у первой сетки карточек');
+    assert_same('stagger', $looks[2]['_reveal']['type']);
+
+    // Готовые сборки размечены руками — правило накладывается на них поверх.
+    foreach (PagePresets::all('ru') as $id => $preset) {
+        $count = count(array_filter(
+            $preset['blocks'],
+            static fn (array $b): bool => !empty($b['data']['_reveal']['enabled'])
+        ));
+        assert_true($count <= 1, "{$id}: появлений на странице {$count}, нужно не больше одного");
     }
 });
 

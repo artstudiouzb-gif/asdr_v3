@@ -200,13 +200,6 @@ body.design-catalog-list .catcard { display: flex; flex-direction: row; align-it
     text-decoration: none;
     transition: color 0.2s ease;
 }
-.catcard__more .catcard__arrow {
-    display: inline-block;
-    transition: transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-.catcard:hover .catcard__more .catcard__arrow {
-    transform: translateX(4px);
-}
 
 /* Мероприятия: плитка даты слева. */
 .catlist--events .catcard { align-items: flex-start; }

@@ -1495,9 +1495,14 @@ final class DemoSeeder
         // Появление секции — по тем же правилам ритма, что у демо-страниц.
         // Первым у проекта идёт текстовый блок описания (sort_order 0), он и
         // есть первый экран, поэтому здесь всегда не первый блок.
+        // Блоки проекта добавляются по одному, а правило ритма — одно
+        // появление на страницу, поэтому второе не выдаётся, если у страницы
+        // оно уже есть.
         if (!array_key_exists('_reveal', $data)) {
             $look = \App\Core\PagePresets::rhythmFor(['text', $type])[1] ?? [];
-            if (isset($look['_reveal'])) {
+            $taken = $pdo->prepare('SELECT COUNT(*) FROM blocks WHERE page_id = ? AND data LIKE ?');
+            $taken->execute([$pageId, '%"_reveal":{"enabled":true%']);
+            if (isset($look['_reveal']) && (int) $taken->fetchColumn() === 0) {
                 $data['_reveal'] = $look['_reveal'];
             }
         }

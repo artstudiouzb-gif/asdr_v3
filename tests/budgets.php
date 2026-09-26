@@ -709,8 +709,8 @@ function unique_static_values(string $css, string $property): array
  * молча, чистка видна числом».
  */
 const TEMPLATE_TELL_CEILINGS = [
-    'uppercase' => 46,
-    'arrows' => 27,
+    'uppercase' => 39,
+    'arrows' => 23,
     'middots' => 3,
 ];
 

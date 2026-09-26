@@ -103,9 +103,12 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero { pad
     background: var(--gov-teal); border: 3px solid var(--gov-surface);
     box-shadow: 0 0 0 2px var(--gov-teal);
 }
+/* Метки страницы новости — в обычном регистре: капслок с разрядкой над
+   каждой подписью — признак шаблонной страницы (DESIGN_PLAN 4.4). Подпись
+   держат вес и цвет, а ступень кегля на одну выше прежней, потому что
+   строчные читаются мельче прописных. */
 .newsdetail-timeline__date {
-    display: inline-block; font-size: var(--step--4); font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.05em; color: var(--gov-teal); margin-bottom: 4px;
+    display: inline-block; font-size: var(--step--3); font-weight: 700; color: var(--gov-teal); margin-bottom: 4px;
 }
 .newsdetail-timeline__heading {
     margin: 0 0 4px; font-size: var(--step-0); font-weight: 700; color: var(--gov-title);
@@ -224,7 +227,7 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero { pad
 .newsdetail-doc:hover { border-color: var(--gov-teal); box-shadow: var(--shadow-hover); background: var(--gov-surface); }
 .newsdetail-doc__icon { color: var(--gov-teal); }
 .newsdetail-doc__title { display: block; font-weight: 700; font-size: var(--step--2); color: var(--gov-title); line-height: 1.35; }
-.newsdetail-doc__meta { display: block; color: var(--gov-muted); font-size: var(--step--4); text-transform: uppercase; letter-spacing: .04em; margin-top: 3px; }
+.newsdetail-doc__meta { display: block; color: var(--gov-muted); font-size: var(--step--3); margin-top: 3px; }
 .newsdetail-doc__dl { color: var(--gov-title); }
 
 /* --- Фотогалерея --- */
@@ -439,7 +442,7 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero .cont
 .newsdetail-phero .newsdetail__meta-item:hover { background: rgba(255,255,255,.22); color: #fff; }
 .newsdetail-phero .newsdetail__meta--onDark .newsdetail__meta-item svg { color: #7fd8d9; }
 .newsdetail-phero .newsdetail__source--onDark { color: rgba(255,255,255,.75); }
-.newsdetail-phero__video { display: inline-flex; align-items: center; gap: 12px; margin-top: 8px; color: #fff; text-decoration: none; text-transform: uppercase; font-size: var(--step--3); letter-spacing: .08em; font-weight: 700; }
+.newsdetail-phero__video { display: inline-flex; align-items: center; gap: 12px; margin-top: 8px; color: #fff; text-decoration: none; font-size: var(--step--2); font-weight: 700; }
 .newsdetail-phero__play { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.45); transition: background .2s ease; }
 .newsdetail-phero__video:hover .newsdetail-phero__play { background: var(--gov-teal); border-color: var(--gov-teal); }
 /* Отступ от hero до текста задаёт `gap` самой статьи (те же 72px, что между
@@ -981,10 +984,8 @@ button.newsdetail-gallery__thumb:hover {
 .newsdetail-event__body { display: flex; flex-direction: column; gap: 2px; }
 .newsdetail-event__label {
     color: var(--gov-muted);
-    font-size: var(--step--4);
+    font-size: var(--step--3);
     font-weight: 700;
-    letter-spacing: .07em;
-    text-transform: uppercase;
 }
 .newsdetail-doc { padding: 13px; border-radius: var(--radius-sm); }
 .newsdetail-doc__icon {
@@ -1036,10 +1037,8 @@ button.newsdetail-gallery__thumb:hover {
     margin: 0 2px 0 0;
     color: var(--gov-muted);
     font-family: var(--font-family, 'PT Sans', sans-serif);
-    font-size: var(--step--4);
+    font-size: var(--step--3);
     font-weight: 700;
-    letter-spacing: .08em;
-    text-transform: uppercase;
 }
 .newsdetail-share--article-top .newsdetail-share__btn {
     width: 40px;

@@ -54,6 +54,7 @@ final class PagePresets
         $looks = [];
         $previousBg = 'none';
         $tintTurn = false;
+        $revealUsed = false;
         $cardTypes = [
             'cards_grid', 'contact_cards',
             'counters', 'docs_list', 'media_gallery',
@@ -71,7 +72,7 @@ final class PagePresets
 
             // Призыв к действию — единственная тёмная секция.
             if ($type === 'cta') {
-                $looks[] = self::look('navy', 'premium', 'fade');
+                $looks[] = self::look('navy', 'premium');
                 $previousBg = 'navy';
                 continue;
             }
@@ -83,9 +84,15 @@ final class PagePresets
                 $bg = $tintTurn ? 'tint' : 'light';
                 $tintTurn = !$tintTurn;
             }
-            $reveal = in_array($type, $cardTypes, true)
-                ? 'stagger'
-                : ($bg === 'none' ? 'fade' : 'slide-up');
+            // Одно появление на страницу — у первой сетки карточек после
+            // первого экрана: карточки проявляются по очереди, остальные
+            // секции стоят. Появление каждой секции — признак шаблонной
+            // страницы (навык frontend-design, DESIGN_PLAN 4.3).
+            $reveal = '';
+            if (!$revealUsed && in_array($type, $cardTypes, true)) {
+                $reveal = 'stagger';
+                $revealUsed = true;
+            }
             $looks[] = self::look($bg, 'premium', $reveal);
             $previousBg = $bg;
         }
@@ -100,7 +107,7 @@ final class PagePresets
     {
         $lang = $lang ?? Locale::current();
 
-        return [
+        return array_map([self::class, 'oneReveal'], [
             'home' => self::home($lang),
             'department' => self::department(),
             'service' => self::service(),
@@ -108,7 +115,34 @@ final class PagePresets
             'press' => self::press(),
             'contacts' => self::contacts(),
             'project' => self::project(),
-        ];
+        ]);
+    }
+
+    /**
+     * Одно появление на страницу и в ручной разметке сборок: остаётся первое
+     * появление типа «карточки по очереди», остальные выключаются. Сборки
+     * размечены руками по прежнему правилу («появление у каждого блока»), и
+     * переписывать каждую — значит держать правило в семи местах.
+     *
+     * @param Preset $preset
+     * @return Preset
+     */
+    private static function oneReveal(array $preset): array
+    {
+        $kept = false;
+        foreach ($preset['blocks'] as $i => $block) {
+            $reveal = $block['data']['_reveal'] ?? null;
+            if (!is_array($reveal) || empty($reveal['enabled'])) {
+                continue;
+            }
+            if (!$kept && ($reveal['type'] ?? '') === 'stagger') {
+                $kept = true;
+                continue;
+            }
+            $preset['blocks'][$i]['data']['_reveal'] = ['enabled' => false, 'type' => 'fade'];
+        }
+
+        return $preset;
     }
 
     /** @return array{name:string, description:string, outline:list<string>, blocks:list<array<string,mixed>>}|null */
