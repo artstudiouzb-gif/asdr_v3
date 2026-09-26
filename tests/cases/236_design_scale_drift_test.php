@@ -49,7 +49,7 @@ test('Число разных теней не растёт', function (): void {
     assert_true(
         $budget['value'] <= $budget['ceiling'],
         sprintf(
-            'разных box-shadow стало %d при потолке %d. Ступени тени — --shadow-1..4 в :root. '
+            'разных box-shadow стало %d при потолке %d. Роли тени — в tokens.css (control, card, hover, overlay, modal). '
             . 'Например: %s',
             $budget['value'],
             $budget['ceiling'],
@@ -90,7 +90,7 @@ test('Шкалы объявлены и не конфликтуют с перем
     $theme = (string) file_get_contents(APP_ROOT . '/public/assets/css/gov-theme.css')
         . (string) file_get_contents(APP_ROOT . '/public/assets/css/tokens.css');
 
-    foreach (['--step-0', '--step-1', '--space-s', '--space-l', '--shadow-1', '--shadow-3', '--radius-pill'] as $token) {
+    foreach (['--step-0', '--step-1', '--space-s', '--space-l', '--shadow-control', '--shadow-overlay', '--radius-pill'] as $token) {
         assert_contains($token . ':', $theme, 'токен ' . $token . ' объявлен');
     }
 
@@ -105,7 +105,7 @@ test('Шкалы объявлены и не конфликтуют с перем
     }
 
     // А вот шкалы админка не задаёт — иначе они разъехались бы с настройками.
-    foreach (['--step-0', '--space-s', '--shadow-1'] as $scaleToken) {
+    foreach (['--step-0', '--space-s', '--shadow-control'] as $scaleToken) {
         assert_not_contains($scaleToken . ':', $design, $scaleToken . ' — шкала темы, не настройка');
     }
 });

@@ -121,12 +121,12 @@
     color: var(--rich-title, #1e293b);
     font-size: var(--font-size-lead, 1.08em);
     line-height: 1.68;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+    box-shadow: var(--card-shadow);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 :where(.rich-content) blockquote:hover {
-    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06);
+    box-shadow: var(--shadow-hover);
 }
 
 :where(.rich-content) blockquote::before {
@@ -215,13 +215,13 @@
     max-inline-size: 100%;
     block-size: auto;
     border-radius: var(--radius);
-    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06);
+    box-shadow: var(--card-shadow);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :where(.rich-content) figure:hover img {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+    box-shadow: var(--shadow-hover);
 }
 
 :where(.rich-content) figcaption,

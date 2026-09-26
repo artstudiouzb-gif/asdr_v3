@@ -58,7 +58,7 @@
 .cms-tabs--segmented .cms-tabs__tab.is-active,
 .cms-tabs--segmented .cms-tabs__tab.is-active:hover {
     background: var(--gov-teal);
-    box-shadow: var(--shadow-2);
+    box-shadow: var(--shadow-control);
     color: #fff;
 }
 
