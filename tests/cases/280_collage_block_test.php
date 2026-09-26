@@ -101,3 +101,23 @@ test('Коллаж: в узком месте композиция складыв
     assert_contains('min(100cqw, 100cqh)', $css);
     assert_contains('container-type: size', $css);
 });
+
+test('Оргструктура: сворачивание по колонке совпадает со сворачиванием по экрану', function (): void {
+    // Правила объявлены дважды — медиазапросом (фолбэк) и @container cms-col:
+    // иначе в колонке 1:3 боковые органы уезжали за край на 130px. Две копии
+    // обязаны совпадать построчно, иначе правка одной молча не дойдёт до
+    // другой.
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/blocks/org-structure.css');
+    $body = static function (string $opener) use ($css): string {
+        $at = strpos($css, $opener);
+        assert_true($at !== false, 'нет блока ' . $opener);
+        $end = strpos($css, "\n}\n", (int) $at);
+
+        return substr($css, (int) $at + strlen($opener), (int) $end - (int) $at - strlen($opener));
+    };
+    assert_same(
+        $body('@media (max-width: 900px) {'),
+        $body('@container cms-col (max-width: 900px) {'),
+        'блоки сворачивания оргструктуры разъехались'
+    );
+});

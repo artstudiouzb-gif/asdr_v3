@@ -52,9 +52,15 @@ final class GridBalance
 
         $track = $columns * $remainder;
 
+        // Растяжение хвоста — только вне колонки конструктора: там число
+        // дорожек задаёт ширина колонки (@container cms-col), и карточка
+        // шириной в $columns дорожек создала бы лишнюю колонку за краем.
+        // Правило весит по id, контейнерному правилу его не перебить.
+        $tailScope = '#block-' . $blockId . ':not(.cms-columns__col > *) ';
+
         return $scope . $gridSelector . '{--grid-track:' . $track . ';--grid-span:' . $remainder . '}'
             . '@media (min-width:' . self::DESKTOP_MIN_WIDTH . 'px){'
-            . $scope . $itemSelector . ':nth-last-child(-n+' . $remainder . ')'
+            . $tailScope . $itemSelector . ':nth-last-child(-n+' . $remainder . ')'
             . '{grid-column:span ' . $columns . '}}';
     }
 

@@ -23,6 +23,7 @@ const VISUAL_SLUG = 'visual-regression';
 // прозрачности), а проверять появление на живых страницах нечем — ни на
 // одной из них настройка не включена.
 const REVEAL_SLUG = 'reveal-check';
+const CONTAINER_SLUG = 'container-check';
 
 /** @return array<string, mixed> */
 function block(string $type, array $data, int $sort): array
@@ -167,7 +168,41 @@ function seedPage(\PDO $pdo, string $slug, string $title, array $blocks, string 
 seedPage($pdo, VISUAL_SLUG, 'Витрина компонентов', $blocks, $lang);
 seedPage($pdo, REVEAL_SLUG, 'Появление при прокрутке', $revealBlocks, $lang);
 
+/*
+ * Стенд контейнерной адаптивности: каждый содержательный тип блока с образцом
+ * данных стоит в узкой колонке раскладки 1:3. Сетки считают раскладку
+ * медиазапросами по ширине экрана, а доля колонки от экрана не зависит: на
+ * 1440px узкая колонка остаётся шириной в треть планшета. Браузерный тест
+ * container-grids.spec.js проверяет, что ни один блок не вылезает за край
+ * колонки. Контейнеры, обложка и произвольный HTML в колонку не ставятся.
+ */
+seedPage($pdo, CONTAINER_SLUG, 'Блоки в узкой колонке', [], $lang);
+$containerPage = $pdo->prepare('SELECT id FROM pages WHERE slug = ? AND lang = ?');
+$containerPage->execute([CONTAINER_SLUG, 'ru']);
+$containerPageId = (int) $containerPage->fetchColumn();
+$addBlock = $pdo->prepare(
+    'INSERT INTO blocks (page_id, lang, type, data, sort_order, is_active, parent_block_id, column_index)
+     VALUES (?, ?, ?, ?, ?, 1, ?, ?)'
+);
+$sort = 0;
+foreach (\App\Core\BlockSamples::all($lang) as $type => $data) {
+    if (in_array($type, ['columns', 'tabs', 'hero', 'html', 'form', 'map_point', 'embed'], true)) {
+        continue;
+    }
+    $addBlock->execute([$containerPageId, $lang, 'columns', json_encode(
+        ['columns' => 2, 'ratio' => '1:3', 'title' => $type],
+        JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR
+    ), $sort++, null, 0]);
+    $parentId = (int) $pdo->lastInsertId();
+    $addBlock->execute([$containerPageId, $lang, $type, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR), 0, $parentId, 0]);
+    $addBlock->execute([$containerPageId, $lang, 'text', json_encode(
+        ['title' => '', 'content' => '<p>Широкая колонка.</p>'],
+        JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR
+    ), 0, $parentId, 1]);
+}
+
 $pdo->commit();
 
 echo 'Витрина готова: /' . VISUAL_SLUG . ' (блоков: ' . count($blocks) . ')' . PHP_EOL;
 echo 'Появление готово: /' . REVEAL_SLUG . ' (блоков: ' . count($revealBlocks) . ')' . PHP_EOL;
+echo 'Стенд колонок готов: /' . CONTAINER_SLUG . ' (блоков: ' . $sort . ')' . PHP_EOL;
