@@ -14,11 +14,11 @@
       "/assets/css/public-editorial-pages.css",
       "/assets/css/public-home.css"
     ],
-    "sourceSha256": "02ae39b2356eb008453e9241644df1b33f413ba97cc7596847d061bc7d648db4",
-    "sha256": "3b229d3f4f5d6c7ad355c0c6def56d98c786fc93ff5d1bf79bad9ce580237429",
-    "raw": 378599,
-    "gzip": 63691,
-    "brotli": 49651
+    "sourceSha256": "21382641dec1842d9f78134514fc5b53a0382d3d1b75ffa86de1f9fd4d9ef049",
+    "sha256": "3fda8df559236db1df846da14fe62725c18a652903512130eeef5e839226e1cf",
+    "raw": 379343,
+    "gzip": 63818,
+    "brotli": 49740
   },
   "js": {
     "path": "/assets/js/public.min.js",
@@ -60,11 +60,11 @@
     },
     "/assets/css/blocks/collage.css": {
       "path": "/assets/css/blocks/collage.min.css",
-      "sourceSha256": "fdb65f02bcfe6d6ab5cbe93c3594fc4791d17d9c45e53229d1d66585ce5d2023",
-      "sha256": "36fb8957367d75b3e4d101cd7ef1d0921a8a7a1fbb621853bdeb1d566adb3227",
-      "raw": 3908,
-      "gzip": 1209,
-      "brotli": 1017
+      "sourceSha256": "f49f37b775ca3c1db15e0609994dfd1514d0dee14f01ff79a90e38351105aa4c",
+      "sha256": "14331e252edad8fc3d2a54d09cce1cc177362f720dbb4e0db84600b73d53345b",
+      "raw": 3894,
+      "gzip": 1188,
+      "brotli": 1005
     },
     "/assets/css/blocks/counters.css": {
       "path": "/assets/css/blocks/counters.min.css",
@@ -132,19 +132,19 @@
     },
     "/assets/css/blocks/news-detail.css": {
       "path": "/assets/css/blocks/news-detail.min.css",
-      "sourceSha256": "6c091b918f7142c92a0404e272bc1c9bdd07db601549c5d77fa4bc0175f63051",
-      "sha256": "a08149f9158a63a8f25f95dabee0fc924448f6511a2e3acb7d7a5ee5f39ec2d1",
-      "raw": 36567,
-      "gzip": 6399,
-      "brotli": 5630
+      "sourceSha256": "8555b76956414830620505f75c667472a411746c54c02aa32ebe6c9a955784ca",
+      "sha256": "5b1b00354330767d566404fea3eef29b66dd94853477f797c22ec811fdbe6b14",
+      "raw": 36621,
+      "gzip": 6408,
+      "brotli": 5642
     },
     "/assets/css/blocks/news-feature.css": {
       "path": "/assets/css/blocks/news-feature.min.css",
-      "sourceSha256": "f81c34a6f56bdba761f798077eea3c281d28319d17c9dde23a3888c0173f18c8",
-      "sha256": "93d3e9b834d075871be77483ce5a200e1a5531c090373ba8269f4b9d2bbfb66c",
-      "raw": 7922,
-      "gzip": 1984,
-      "brotli": 1703
+      "sourceSha256": "463a64ed22df01dd528811b075bc4139f0b28a13470d6e64127338391d37e2dd",
+      "sha256": "69ddf37948cea390b4657aa42d22f833df8378b3ba562b724ec274d89e2e5721",
+      "raw": 7949,
+      "gzip": 1994,
+      "brotli": 1711
     },
     "/assets/css/blocks/org-structure.css": {
       "path": "/assets/css/blocks/org-structure.min.css",

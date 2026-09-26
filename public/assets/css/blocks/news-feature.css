@@ -125,7 +125,7 @@
     font-size: var(--font-size-card-title, var(--step-0));
     line-height: 1.36;
     letter-spacing: -.018em;
-    font-weight: 720;
+    font-weight: var(--heading-font-weight, 700);
     display: block;
     overflow: visible;
     -webkit-line-clamp: unset;

@@ -122,7 +122,9 @@ $resolvedMediaType = match ($mediaType) {
                 <?php endif; ?>
             </aside>
         <?php elseif ($variant === 'spotlight' && $quote !== ''): ?>
-            <blockquote class="block-text__quote block-text__quote--mark-<?= htmlspecialchars($quoteMarkPosition, ENT_QUOTES) ?>">
+            <?php // Своя заливка возвращает карточку; без неё цитата стоит
+                  // прямо на фоне секции — знак слева, текст крупно. ?>
+            <blockquote class="block-text__quote block-text__quote--mark-<?= htmlspecialchars($quoteMarkPosition, ENT_QUOTES) ?><?= $quoteBg !== '' ? ' block-text__quote--card' : '' ?>">
                 <?php if ($quoteMarkHtml !== ''): ?><span class="block-text__quote-mark" aria-hidden="true"><?= $quoteMarkHtml ?></span><?php endif; ?>
                 <p><?= nl2br(htmlspecialchars($quote, ENT_QUOTES)) ?></p>
             </blockquote>

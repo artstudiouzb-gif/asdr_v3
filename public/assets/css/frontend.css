@@ -755,41 +755,34 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
     outline-offset: 4px;
     border-radius: var(--radius-sm);
 }
+/* Отзыв — прямая речь, и выделяет его форма, как у акцентной цитаты:
+   крупный знак цветом акцента, текст прямым полужирным начертанием по левому
+   краю. Прежде текст шёл курсивом по центру под бледным знаком Georgia —
+   центр рвёт прямую речь на строки разной длины, а курсив на кириллице
+   читается хуже прямого. Карточка остаётся: отзывов несколько, и она
+   отделяет одного человека от другого в ленте. Ссылкой отзыв не является,
+   поэтому на наведение он не отвечает — подъём обещал бы нажатие. */
 .testimonial {
     scroll-snap-align: start; flex: 0 0 min(360px, 85%); margin: 0;
-    background: var(--gov-surface, #fff); border: 1px solid var(--gov-border); border-radius: var(--radius); padding: 32px 28px; text-align: center;
+    background: var(--gov-surface, #fff); border: 1px solid var(--gov-border); border-radius: var(--radius); padding: 28px 28px 30px; text-align: start;
     box-shadow: var(--card-shadow);
-    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s ease;
 }
-.testimonial:hover {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: var(--shadow-hover);
-    border-color: var(--gov-teal);
+.testimonial__photo {
+    display: block;
+    width: 56px; height: 56px; border-radius: 50%; object-fit: cover; margin: 0 0 18px;
 }
-.testimonial__photo { 
-    width: 76px; height: 76px; border-radius: 50%; object-fit: cover; margin: 0 auto 16px; 
-    border: 3px solid var(--gov-border);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease; 
-}
-.testimonial:hover .testimonial__photo {
-    transform: scale(1.08);
-    border-color: var(--gov-teal);
-}
-.testimonial__quote { 
-    margin: 0 0 16px; font-style: italic; font-size: var(--step-0); line-height: var(--base-line-height, 1.6); color: var(--gov-title, #1e293b); 
-    position: relative;
+.testimonial__quote {
+    margin: 0 0 18px; font-size: var(--step-1); font-weight: 500; line-height: 1.4; letter-spacing: -.01em; color: var(--gov-title);
 }
 .testimonial__quote::before {
-    content: '“';
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: Georgia, serif;
-    font-size: var(--step-9);
-    line-height: 1;
-    color: color-mix(in srgb, var(--gov-teal) 14%, transparent);
-    z-index: 1;
+    content: '\201C';
+    display: block;
+    height: .42em;
+    margin-bottom: .14em;
+    color: var(--gov-teal);
+    font-size: var(--step-12);
+    font-weight: 700;
+    line-height: .82;
     pointer-events: none;
 }
 .testimonial__name { display: block; font-weight: 700; color: var(--gov-title); }
@@ -809,7 +802,7 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
    не используем: у символа спрайта fill="none" стоит на самом <symbol> и
    перебивает наследование внутрь <use>, поэтому звёзды различаются цветом. */
 
-.testimonial__rating { display: flex; justify-content: center; gap: 3px; margin-bottom: 12px; }
+.testimonial__rating { display: flex; gap: 3px; margin-bottom: 12px; }
 .testimonial__star { display: inline-flex; color: color-mix(in srgb, var(--text-muted, #6b7280) 45%, transparent); }
 .testimonial__star.is-on { color: var(--gov-teal); }
 

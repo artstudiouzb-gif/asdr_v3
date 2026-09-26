@@ -2022,7 +2022,7 @@ body.lightbox-active { overflow: hidden; }
     color: var(--gov-teal-on-tint, #00697d); font-size: var(--step--4); font-weight: 700; margin-bottom: 8px;
 }
 .news-poll-card__question {
-    margin: 0 0 16px; font-size: var(--step-1); font-weight: 700; color: var(--gov-title);
+    margin: 0 0 16px; font-size: var(--step-1); font-weight: var(--heading-font-weight, 700); color: var(--gov-title);
 }
 .news-poll-card__header .news-poll-card__question { margin-top: 6px; font-size: var(--step-0); }
 .news-poll-options { display: flex; flex-direction: column; gap: 10px; }
@@ -2623,7 +2623,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
    название не должно растягивать карточку вдвое против парной. */
 
 .adjnews__title {
-    font-weight: 700; color: var(--section-title-fg); line-height: 1.35; font-size: var(--step--1);
+    font-weight: var(--heading-font-weight, 700); color: var(--section-title-fg); line-height: 1.35; font-size: var(--step--1);
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .adjnews:hover .adjnews__title { color: var(--gov-teal); }
@@ -3032,12 +3032,74 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     margin-top: 26px;
 }
 
+/* Цитата стоит прямо на фоне секции: крупный знак цветом акцента слева,
+   текст крупным кеглем полужирного начертания. Прежняя тёмная карточка
+   читалась как ещё один баннер среди карточек страницы, а цитата — это
+   прямая речь, и выделяет её форма, а не рамка. Своя заливка («Фон цитаты»)
+   возвращает карточку — класс --card, правила ниже. Место под знак —
+   доля его кегля: знак кавычки уже своего кегля, и отступ растёт вместе с
+   размером, который выбрал редактор. */
 .block-text__quote {
+    /* Знак без карточки крупнее: он держит цитату сам, и высотой обязан
+       быть с пару строк текста, как в образце владельца. */
+    --quote-mark-default: calc(var(--step-12) * 1.4);
+    --quote-mark-reserve: calc(var(--quote-mark-size, var(--quote-mark-default)) * .62);
     position: relative;
+    margin: 0;
+    padding-inline-start: var(--quote-mark-reserve);
+    color: var(--quote-fg, var(--section-title-fg));
+}
+
+.block-text__quote p {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    color: inherit;
+    font-size: var(--font-size-h3, clamp(var(--step-2), 1.8vw, var(--step-4)));
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -.012em;
+}/* Знак кавычки — настоящий элемент, а не `content` у ::before. Псевдоэлемент
+   умеет показать только строку: значок из спрайта в него не вставить, а
+   выбранный редактором символ пришлось бы экранировать в CSS. Диктору знак не
+   адресован (aria-hidden), поэтому потери разметки тут нет.
+   Начертание — шрифта сайта и жирное: округлый знак гротеска держит строку,
+   а тонкий знак Georgia рядом с крупным текстом терялся.
+   z-index не задаём: абзац цитаты объявляет свой, и текст остаётся поверх
+   знака при любом его размере. */
+
+.block-text__quote-mark {
+    position: absolute;
+    display: block;
+    color: var(--quote-mark-color, var(--gov-teal));
+    font-size: var(--quote-mark-size, var(--quote-mark-default));
+    font-weight: 700;
+    line-height: .82;
+    pointer-events: none;
+}/* Значок наследует кегль знака: одна настройка размера на символ и на SVG.
+   Без карточки значок уже знака-символа — иначе он наезжал бы на текст. */
+
+.block-text__quote-mark svg { display: block; width: .6em; height: .6em; }
+
+.block-text__quote--mark-top-left .block-text__quote-mark { top: 0; left: 0; }
+.block-text__quote--mark-bottom-left .block-text__quote-mark { bottom: 0; left: 0; }
+.block-text__quote--mark-top-right,
+.block-text__quote--mark-bottom-right { padding-inline: 0 var(--quote-mark-reserve); }
+.block-text__quote--mark-top-right .block-text__quote-mark { top: 0; right: 0; }
+.block-text__quote--mark-bottom-right .block-text__quote-mark { bottom: 0; right: 0; }/* «Над текстом»: знак встаёт в поток. Строка знака при line-height .82
+   почти пустая снизу — глиф кавычки висит у верхнего края, — поэтому высота
+   урезана до самого глифа, иначе между знаком и текстом зиял бы пустой ряд. */
+
+.block-text__quote--mark-above { padding-inline: 0; }
+.block-text__quote--mark-above .block-text__quote-mark { position: static; height: .42em; margin-bottom: .12em; }
+
+/* Карточка — когда редактор задал цитате свою заливку. Вид прежний: заливка,
+   эмблема в углу, знак Georgia по углам. */
+.block-text__quote--card {
+    --quote-mark-default: var(--step-12);
     display: flex;
     align-items: center;
     min-height: 250px;
-    margin: 0;
     padding: clamp(34px, 4vw, 54px);
     overflow: hidden;
     border-radius: var(--radius);
@@ -3046,7 +3108,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 }/* Эмблема в углу — декорация карточки, а не знак цитаты: её редактор не
    настраивает, поэтому она остаётся псевдоэлементом. */
 
-.block-text__quote::after {
+.block-text__quote--card::after {
     content: '';
     position: absolute;
     right: -36px;
@@ -3057,48 +3119,26 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     opacity: .055;
 }
 
-.block-text__quote p {
-    position: relative;
-    z-index: 1;
-    margin: 0;
-    color: inherit;
-    font-size: var(--font-size-h3, clamp(var(--step-2), 1.8vw, var(--step-4)));
-    font-weight: 500;
-    line-height: 1.5;
-}/* Знак кавычки — настоящий элемент, а не `content` у ::before. Псевдоэлемент
-   умеет показать только строку: значок из спрайта в него не вставить, а
-   выбранный редактором символ пришлось бы экранировать в CSS. Диктору знак не
-   адресован (aria-hidden), поэтому потери разметки тут нет.
-   z-index не задаём: абзац цитаты объявляет свой, и текст остаётся поверх
-   знака при любом его размере. */
+.block-text__quote--card p { line-height: 1.5; letter-spacing: normal; }
+.block-text__quote--card .block-text__quote-mark { font-family: Georgia, serif; font-weight: 400; line-height: .8; }
+.block-text__quote--card .block-text__quote-mark svg { width: 1em; height: 1em; }
 
-.block-text__quote-mark {
-    position: absolute;
-    display: block;
-    color: var(--quote-mark-color, var(--gov-teal));
-    font-family: Georgia, serif;
-    font-size: var(--quote-mark-size, var(--step-12));
-    line-height: .8;
-    pointer-events: none;
-}/* Значок наследует кегль знака: одна настройка размера на символ и на SVG. */
-
-.block-text__quote-mark svg { display: block; width: 1em; height: 1em; }
-
-.block-text__quote--mark-top-left .block-text__quote-mark { top: 12px; left: 26px; }
-.block-text__quote--mark-top-right .block-text__quote-mark { top: 12px; right: 26px; }
-.block-text__quote--mark-bottom-left .block-text__quote-mark { bottom: 12px; left: 26px; }
-.block-text__quote--mark-bottom-right .block-text__quote-mark { bottom: 12px; right: 26px; }/* «Над текстом»: знак встаёт в поток, поэтому карточка раскладывается
-   колонкой — иначе он оказался бы рядом с абзацем, а не над ним. */
-
-.block-text__quote--mark-above { flex-direction: column; justify-content: center; align-items: flex-start; }
-.block-text__quote--mark-above .block-text__quote-mark { position: static; margin-bottom: .08em; }
+.block-text__quote--card.block-text__quote--mark-top-left .block-text__quote-mark { top: 12px; left: 26px; }
+.block-text__quote--card.block-text__quote--mark-top-right .block-text__quote-mark { top: 12px; right: 26px; }
+.block-text__quote--card.block-text__quote--mark-bottom-left .block-text__quote-mark { bottom: 12px; left: 26px; }
+.block-text__quote--card.block-text__quote--mark-bottom-right .block-text__quote-mark { bottom: 12px; right: 26px; }
+.block-text__quote--card.block-text__quote--mark-above { flex-direction: column; justify-content: center; align-items: flex-start; }
+.block-text__quote--card.block-text__quote--mark-above .block-text__quote-mark { height: auto; margin-bottom: .08em; }
 
 @media (max-width: 1000px) {
     .block-text--spotlight .block-text__layout { grid-template-columns: 1fr; gap: 34px; }
 }
 
 @media (max-width: 720px) {
-    .block-text__quote { min-height: 220px; }
+    /* На телефоне колонка узкая: знак в 112px отнимал у текста пятую часть
+       строки, и цитата ломалась по два слова. */
+    .block-text__quote { --quote-mark-default: var(--step-12); }
+    .block-text__quote--card { min-height: 220px; }
 }
 .content-pagehead__inner { max-width: var(--container-max); margin: 0 auto; }
 .content-pagehead__title { font-size: var(--font-size-h1, var(--step-8)); margin: 0 0 10px; color: var(--section-title-fg); }
@@ -3786,7 +3826,7 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
 .section-head__title {
     font-size: var(--font-size-h2, var(--step-6));
     margin: 0;
-    font-weight: 700;
+    font-weight: var(--heading-font-weight, 700);
     /* Трекинг — настройка «Дизайна», а не число здесь: шапка секции
        рисует заголовок полутора десятков блоков, и пока значение было
        записано числом, «Межбуквенный интервал заголовков» до них не
@@ -3985,7 +4025,7 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
 }
 .feature-card__title {
     font-family: var(--font-heading, 'Noto Serif', serif);
-    font-weight: 700;
+    font-weight: var(--heading-font-weight, 700);
     font-size: var(--step-1);
     color: var(--gov-title);
     line-height: 1.3;
@@ -4039,7 +4079,7 @@ span.imgcard__media::after {
 
 .imgcard__overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,26,48,0) 22%, rgba(11,26,48,.55) 58%, rgba(11,26,48,.92) 100%); transition: opacity .5s ease; }
 .imgcard__body { position: absolute; left: 0; right: 0; bottom: 0; padding: 20px; display: flex; flex-direction: column; gap: 10px; transform: translateY(2px); transition: transform .55s cubic-bezier(.22, 1, .36, 1); }
-.imgcard__title { margin: 0; font-family: var(--font-heading, var(--font-family)); font-weight: 700; font-size: var(--step-1); line-height: 1.25; color: #fff; }/* Вариант «фото сверху, текст под ним»: снимок занимает верх карточки, подпись
+.imgcard__title { margin: 0; font-family: var(--font-heading, var(--font-family)); font-weight: var(--heading-font-weight, 700); font-size: var(--step-1); line-height: 1.25; color: #fff; }/* Вариант «фото сверху, текст под ним»: снимок занимает верх карточки, подпись
    уходит на подложку. Тот же список карточек, поэтому классы общие — меняется
    только раскладка и цвета текста. */
 
@@ -6408,7 +6448,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     color: var(--gov-title);
     font-family: var(--font-heading, 'Noto Serif', serif);
     font-size: var(--step-1);
-    font-weight: 700;
+    font-weight: var(--heading-font-weight, 700);
     line-height: 1.3;
 }
 

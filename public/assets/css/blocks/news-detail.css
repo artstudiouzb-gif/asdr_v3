@@ -84,7 +84,7 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero { pad
 }
 .newsdetail-timeline__title {
     display: flex; align-items: center; gap: 8px; margin: 0 0 20px;
-    font-size: var(--step-1); font-weight: 700; color: var(--gov-title);
+    font-size: var(--step-1); font-weight: var(--heading-font-weight, 700); color: var(--gov-title);
 }
 .newsdetail-timeline__title svg { color: var(--gov-teal); }
 .newsdetail-timeline__list {
@@ -255,7 +255,7 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero { pad
    раньше лид прижимался к низу карточки (margin-top: auto), и расстояние
    «заголовок → анонс» у соседей отличалось вдвое. */
 .relnews-card__title {
-    font-weight: 700;
+    font-weight: var(--heading-font-weight, 700);
     color: var(--gov-title);
     line-height: 1.35;
     font-size: var(--step--1);

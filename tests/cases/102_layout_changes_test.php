@@ -177,7 +177,12 @@ test('News: frontend layout rendering with and without sidebar', function () {
     }
     $richCss = (string) file_get_contents(APP_ROOT . '/public/assets/css/rich-content.css');
     assert_contains('border-radius: var(--radius);', $richCss, 'встроенные в текст фотографии используют глобальное скругление');
-    assert_contains('border-radius: 0 var(--radius) var(--radius) 0;', $richCss, 'цитата следует глобальному скруглению');
+    // Цитата в тексте — прямая речь без подложки: плашку с градиентом, тенью
+    // и ховером она потеряла намеренно, скруглять ей больше нечего.
+    assert_true(
+        preg_match('/:where\(\.rich-content\) blockquote \{[^}]*\b(?:background|box-shadow|border-radius)\s*:/', $richCss) === 0,
+        'цитата в тексте снова получила подложку-карточку'
+    );
     assert_contains(
         ".newsdetail-gallery__main img'))",
         (string) file_get_contents(APP_ROOT . '/public/assets/js/frontend.js'),

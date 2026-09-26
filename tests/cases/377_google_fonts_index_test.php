@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Core\DesignSettings;
+use App\Models\Setting;
 
 /**
  * Каталог шрифтов «Дизайна» был двадцатью строками: форма обещала «Каталог
@@ -94,4 +95,40 @@ test('форма «Дизайна» показывает полный катал
         substr_count($view, '$googleExtraFonts as $slug') >= 2,
         'полный каталог должен предлагаться и для текста, и для заголовков'
     );
+});
+
+test('семейство из полного каталога применяется, а не отбрасывается молча', function (): void {
+    // Форма предлагала весь каталог, а сохранение сверяло выбор с
+    // отобранными двадцатью: Onest скачивался на диск, а сайт оставался на
+    // прежнем шрифте — без единого сообщения.
+    assert_true(isset(DesignSettings::googleFontsExtra()['onest']), 'Onest должен быть в полном каталоге');
+    assert_same(
+        ['font_style' => 'system', 'font_google_body' => 'onest'],
+        DesignSettings::normalizeBodyFontChoice('google:onest'),
+        'выбор из полного каталога нормализуется в пустоту'
+    );
+});
+
+test('семейство из полного каталога доходит до стеков текста и заголовков (БД)', function (): void {
+    ensure_test_db();
+    reset_design_state();
+    // Стеки шрифтов сброс дизайна не трогает — возвращаем их сами.
+    $absent = "\0absent";
+    $before = ['font_family' => Setting::get('font_family', $absent), 'font_heading' => Setting::get('font_heading', $absent)];
+    try {
+        DesignSettings::save(['font_google_body' => 'onest', 'font_google_heading' => 'onest']);
+        assert_same('onest', (string) Setting::get('design_font_google_body', ''));
+        assert_same('google:onest', DesignSettings::bodyFontChoice(), 'форма показала бы другой выбор');
+        assert_true(str_starts_with((string) Setting::get('font_family', ''), "'Onest'"), 'текст остался на прежнем шрифте');
+        assert_true(str_starts_with((string) Setting::get('font_heading', ''), "'Onest'"), 'заголовки остались на прежнем шрифте');
+    } finally {
+        reset_design_state();
+        foreach ($before as $key => $value) {
+            if ($value === $absent) {
+                \App\Core\Database::pdo()->prepare('DELETE FROM settings WHERE `key` = ?')->execute([$key]);
+            } else {
+                Setting::set($key, $value);
+            }
+        }
+    }
 });
