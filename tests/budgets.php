@@ -702,6 +702,80 @@ function unique_static_values(string $css, string $property): array
  *     measure: callable(): array{value: ?int, detail: string}
  * }>
  */
+/**
+ * Потолки признаков шаблона — по факту на момент заведения (сентябрь 2026),
+ * дальше только вниз. Стрелки и капслок бывают законными (листание, «все
+ * материалы», аббревиатура), поэтому цель — не ноль, а «новые не появляются
+ * молча, чистка видна числом».
+ */
+const TEMPLATE_TELL_CEILINGS = [
+    'uppercase' => 46,
+    'arrows' => 27,
+    'middots' => 3,
+];
+
+/**
+ * Признаки шаблона (DESIGN_PLAN, очередь 4; навык frontend-design): приёмы,
+ * по которым страница читается сгенерированной. Считаются статически — по
+ * исходникам, а не по готовой странице: так бюджет работает в CI без браузера
+ * и без базы, а число меняется ровно тогда, когда меняется код.
+ *
+ * @return array<string, string> путь => содержимое, без комментариев
+ */
+function template_tell_sources(): array
+{
+    static $out = null;
+    if ($out !== null) {
+        return $out;
+    }
+    $out = [];
+    $files = [];
+    foreach (['app/Views/site', 'app/Views/repo', 'templates'] as $dir) {
+        /** @var SplFileInfo $file */
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(APP_ROOT . '/' . $dir)) as $file) {
+            if (str_ends_with($file->getPathname(), '.php')) {
+                $files[] = $file->getPathname();
+            }
+        }
+    }
+    foreach (array_merge((array) glob(APP_ROOT . '/public/assets/css/*.css'), (array) glob(APP_ROOT . '/public/assets/css/blocks/*.css')) as $file) {
+        $file = (string) $file;
+        if (!str_ends_with($file, '.min.css') && !str_starts_with(basename($file), 'admin')) {
+            $files[] = $file;
+        }
+    }
+    sort($files);
+    foreach ($files as $path) {
+        $code = (string) file_get_contents($path);
+        // Комментарии — не вывод: в них стрелка обозначает «было → стало».
+        $code = (string) preg_replace('~/\*.*?\*/~s', '', $code);
+        $code = (string) preg_replace('~^\s*(//|#|\*).*$~m', '', $code);
+        $code = (string) preg_replace('~<!--.*?-->~s', '', $code);
+        $out[substr($path, strlen(APP_ROOT) + 1)] = $code;
+    }
+
+    return $out;
+}
+
+/** @return array{value: int, detail: string} */
+function template_tell_count(string $pattern, bool $cssOnly = false): array
+{
+    $total = 0;
+    $where = [];
+    foreach (template_tell_sources() as $path => $code) {
+        if ($cssOnly && !str_ends_with($path, '.css')) {
+            continue;
+        }
+        $n = preg_match_all($pattern, $code);
+        if ($n > 0) {
+            $total += $n;
+            $where[] = basename($path) . ' ' . $n;
+        }
+    }
+
+    return ['value' => $total, 'detail' => implode(', ', array_slice($where, 0, 8))];
+}
+
 function quality_budgets(): array
 {
     return [
@@ -804,6 +878,33 @@ function quality_budgets(): array
                     'detail' => implode(', ', $selectors),
                 ];
             },
+        ],
+        'tell_uppercase' => [
+            'title' => 'капслок (text-transform: uppercase) в публичном CSS',
+            'unit' => 'шт',
+            'guard' => 'tests/cases/392_template_tells_test.php',
+            'why' => 'метка капслоком над заголовком — первый признак шаблонной страницы '
+                . '(навык frontend-design); подпись выделяется весом и цветом, а не регистром',
+            'ceiling' => static fn (): int => TEMPLATE_TELL_CEILINGS['uppercase'],
+            'measure' => static fn (): array => template_tell_count('/text-transform\s*:\s*uppercase/i', true),
+        ],
+        'tell_arrows' => [
+            'title' => 'стрелки «→» в публичных шаблонах и CSS',
+            'unit' => 'шт',
+            'guard' => 'tests/cases/392_template_tells_test.php',
+            'why' => 'стрелка в конце ссылки-карточки повторяет очевидное; законна там, где '
+                . 'означает направление (листание, «все материалы»)',
+            'ceiling' => static fn (): int => TEMPLATE_TELL_CEILINGS['arrows'],
+            'measure' => static fn (): array => template_tell_count('/→|\\2192/u'),
+        ],
+        'tell_middots' => [
+            'title' => 'строки через « · » в публичных шаблонах',
+            'unit' => 'шт',
+            'guard' => 'tests/cases/392_template_tells_test.php',
+            'why' => 'мета-строка «A · B · C» — шаблонная обвязка; дата и рубрика — '
+                . 'разные элементы разметки, а не склейка точкой',
+            'ceiling' => static fn (): int => TEMPLATE_TELL_CEILINGS['middots'],
+            'measure' => static fn (): array => template_tell_count('/ · |&middot;|\\00b7/u'),
         ],
         'public_hard_radius' => [
             'title' => 'жёсткие border-radius в публичном CSS',
