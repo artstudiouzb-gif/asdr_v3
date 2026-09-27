@@ -319,6 +319,27 @@ final class DesignSettings
             'choices' => ['square' => 'Прямые', 'rounded' => 'Скруглённые', 'pill' => 'Капсула'],
             'default' => 'pill',
         ],
+        'link_style' => [
+            'label' => 'Ссылки «Все …» у разделов',
+            'hint' => 'Стрелка после текста или линия, которая прорисовывается под ним при наведении. При подчёркивании ссылки в тексте получают тонкую линию в покое и акцентную при наведении; на телефоне линия видна сразу.',
+            'group' => 'Общие',
+            'choices' => [
+                'arrow' => 'Со стрелкой',
+                'draw' => 'Подчёркивание при наведении',
+            ],
+            'default' => 'arrow',
+        ],
+        'button_fill' => [
+            'label' => 'Контурные кнопки при наведении',
+            'hint' => 'Второстепенная кнопка-контур заливается цветом при наведении и фокусе с клавиатуры. Основная кнопка залита всегда. При «меньше движения» заливка появляется без анимации.',
+            'group' => 'Общие',
+            'choices' => [
+                'off' => 'Как в теме',
+                'accent' => 'Акцентом слева направо',
+                'primary' => 'Основным цветом снизу вверх',
+            ],
+            'default' => 'off',
+        ],
         'block_surface' => [
             'label' => 'Подложки блоков',
             'hint' => 'Кому карточка: всем блокам или только тому, что открывается по нажатию.',
@@ -366,22 +387,22 @@ final class DesignSettings
         'classic' => [
             'label' => 'Классический',
             'desc' => 'Строгий официальный стиль, умеренные отступы.',
-            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'sm', 'density' => 'standard', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'palette' => 'gov_blue', 'font_style' => 'system'],
+            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'sm', 'density' => 'standard', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'arrow', 'button_fill' => 'off', 'palette' => 'gov_blue', 'font_style' => 'system'],
         ],
         'modern' => [
             'label' => 'Современный',
             'desc' => 'Крупные скругления, воздух, акцентная шапка.',
-            'values' => ['container' => 'wide', 'radius' => 'large', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'lg', 'line_height' => 'relaxed', 'heading_line_height' => 'tight', 'heading_font_weight' => '800', 'heading_letter_spacing' => 'tight', 'button' => 'pill', 'block_surface' => 'all', 'card_style' => 'elevated', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'fade', 'section_marker' => 'line', 'scroll_top' => 'on', 'palette' => 'violet', 'font_style' => 'noto'],
+            'values' => ['container' => 'wide', 'radius' => 'large', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'lg', 'line_height' => 'relaxed', 'heading_line_height' => 'tight', 'heading_font_weight' => '800', 'heading_letter_spacing' => 'tight', 'button' => 'pill', 'block_surface' => 'all', 'card_style' => 'elevated', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'fade', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'draw', 'button_fill' => 'accent', 'palette' => 'violet', 'font_style' => 'noto'],
         ],
         'minimal' => [
             'label' => 'Минимал',
             'desc' => 'Прямые углы, максимум воздуха, список в каталоге.',
-            'values' => ['container' => 'narrow', 'radius' => 'none', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'square', 'block_surface' => 'all', 'card_style' => 'flat', 'sidebar_position' => 'fixed', 'catalog_layout' => 'list', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'off', 'scroll_top' => 'on', 'palette' => 'graphite', 'font_style' => 'serif'],
+            'values' => ['container' => 'narrow', 'radius' => 'none', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'square', 'block_surface' => 'all', 'card_style' => 'flat', 'sidebar_position' => 'fixed', 'catalog_layout' => 'list', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'off', 'scroll_top' => 'on', 'link_style' => 'draw', 'button_fill' => 'primary', 'palette' => 'graphite', 'font_style' => 'serif'],
         ],
         'compact' => [
             'label' => 'Компактный',
             'desc' => 'Плотная сетка, маленькие карточки — много данных.',
-            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'xs', 'density' => 'compact', 'font_size' => 'sm', 'line_height' => 'tight', 'heading_line_height' => 'tight', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'tight', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'fixed', 'catalog_layout' => 'cards_sm', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'palette' => 'classic_red', 'font_style' => 'system'],
+            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'xs', 'density' => 'compact', 'font_size' => 'sm', 'line_height' => 'tight', 'heading_line_height' => 'tight', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'tight', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'fixed', 'catalog_layout' => 'cards_sm', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'arrow', 'button_fill' => 'off', 'palette' => 'classic_red', 'font_style' => 'system'],
         ],
     ];
 
@@ -1747,7 +1768,11 @@ final class DesignSettings
           . ' design-secmark-' . (isset(self::OPTIONS['section_marker']['choices'][(string) ($v['section_marker'] ?? '')])
               ? (string) $v['section_marker']
               : 'line')
-          . (($v['scroll_top'] ?? 'on') === 'on' ? ' design-scrolltop' : '');
+          . (($v['scroll_top'] ?? 'on') === 'on' ? ' design-scrolltop' : '')
+          . (($v['link_style'] ?? 'arrow') === 'draw' ? ' design-links-draw' : '')
+          . (in_array($v['button_fill'] ?? 'off', ['accent', 'primary'], true)
+              ? ' design-btnfill design-btnfill-' . $v['button_fill']
+              : '');
     }
 
     /**

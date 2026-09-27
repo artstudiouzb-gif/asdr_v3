@@ -3870,7 +3870,11 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
 .cms-block--bg-navy :is(.section-head__description, .block-featband__description, .block-timeline__description) {
     color: var(--section-muted-fg);
 }
-.section-head__all { color: var(--gov-teal-text); font-family: var(--font-family, 'Noto Sans', sans-serif); font-size: var(--step--2); font-weight: 700; text-decoration: none; white-space: nowrap; }/* Приоритетные направления — карточки иконка+заголовок+текст+стрелка. */
+.section-head__all { color: var(--gov-teal-text); font-family: var(--font-family, 'Noto Sans', sans-serif); font-size: var(--step--2); font-weight: 700; text-decoration: none; white-space: nowrap; }
+/* Стрелка — отдельный элемент (SectionHead::allLink): её скрывает настройка
+   «Ссылки «Все …»», а диктору она ничего не сообщает. Отступ заменяет
+   прежний пробел перед ней. */
+.section-head__arrow { margin-inline-start: .3em; }/* Приоритетные направления — карточки иконка+заголовок+текст+стрелка. */
 
 .cards-grid { display: grid; grid-template-columns: repeat(var(--cards-cols, 5), minmax(0, 1fr)); gap: var(--card-gap, 20px); }
 @media (max-width: 1100px) { .cards-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }

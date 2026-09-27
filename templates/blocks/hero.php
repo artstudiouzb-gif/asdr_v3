@@ -419,7 +419,7 @@ $heroMedia = static function (
                                 <a class="block-hero__button<?= $heroButtonClass($slideBtnIcon) ?>" href="<?= htmlspecialchars($slideBtnUrl, ENT_QUOTES) ?>"><?= $slideBtnIcon ?><?= htmlspecialchars((string) $slide['button_text'], ENT_QUOTES) ?> →</a>
                             <?php endif; ?>
                             <?php if (!empty($slide['button2_text']) && $slideBtn2Url !== '' && UrlGuard::isSafeLink($slideBtn2Url)): ?>
-                                <a class="block-hero__button block-hero__button--ghost<?= $heroButtonClass($slideBtn2Icon) ?>" href="<?= htmlspecialchars($slideBtn2Url, ENT_QUOTES) ?>"><?= $slideBtn2Icon ?><?= htmlspecialchars((string) $slide['button2_text'], ENT_QUOTES) ?> →</a>
+                                <a class="block-hero__button block-hero__button--ghost btn-fill<?= $heroButtonClass($slideBtn2Icon) ?>" href="<?= htmlspecialchars($slideBtn2Url, ENT_QUOTES) ?>"><?= $slideBtn2Icon ?><?= htmlspecialchars((string) $slide['button2_text'], ENT_QUOTES) ?> →</a>
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
@@ -462,7 +462,7 @@ $heroMedia = static function (
                     <a class="block-hero__button<?= $heroButtonClass($btnIcon) ?>" href="<?= htmlspecialchars($btnUrl, ENT_QUOTES) ?>"><?= $btnIcon ?><?= htmlspecialchars($btnText, ENT_QUOTES) ?> →</a>
                 <?php endif; ?>
                 <?php if ($btn2Text !== '' && $btn2Url !== '' && UrlGuard::isSafeLink($btn2Url)): ?>
-                    <a class="block-hero__button block-hero__button--ghost<?= $heroButtonClass($btn2Icon) ?>" href="<?= htmlspecialchars($btn2Url, ENT_QUOTES) ?>"><?= $btn2Icon ?><?= htmlspecialchars($btn2Text, ENT_QUOTES) ?> →</a>
+                    <a class="block-hero__button block-hero__button--ghost btn-fill<?= $heroButtonClass($btn2Icon) ?>" href="<?= htmlspecialchars($btn2Url, ENT_QUOTES) ?>"><?= $btn2Icon ?><?= htmlspecialchars($btn2Text, ENT_QUOTES) ?> →</a>
                 <?php endif; ?>
                 <?php if ($vBtnText !== ''): ?>
                     <?php $vSafe = $vBtnUrl !== '' && UrlGuard::isSafeLink($vBtnUrl); ?>

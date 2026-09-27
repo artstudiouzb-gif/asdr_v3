@@ -14,11 +14,11 @@
       "/assets/css/public-editorial-pages.css",
       "/assets/css/public-home.css"
     ],
-    "sourceSha256": "931c923e47a45e531c1417ce5ddb51f1f3693b1d5ad192021b3226df2ea7e9ee",
-    "sha256": "788f8fc678a9832c55e662ae193e24c664938d0a0878fc5adf8939d24c374d27",
-    "raw": 388096,
-    "gzip": 65212,
-    "brotli": 50733
+    "sourceSha256": "853003391f99742901329508a6cfc222343a98e88a492a8b1b11e71426805024",
+    "sha256": "5d65184bcd98639429599477f25bcda3f1a2a894cf916998989700d4c8a2580d",
+    "raw": 390331,
+    "gzip": 65736,
+    "brotli": 51086
   },
   "js": {
     "path": "/assets/js/public.min.js",

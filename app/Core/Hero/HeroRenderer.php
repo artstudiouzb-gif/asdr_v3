@@ -439,7 +439,9 @@ final class HeroRenderer
             : '';
 
         return '<a class="hero__cta hero__cta--' . htmlspecialchars((string) $d[$key . '_style'], ENT_QUOTES)
-            . ($iconHtml !== '' ? ' hero__cta--with-icon' : '') . '"'
+            . ($iconHtml !== '' ? ' hero__cta--with-icon' : '')
+            // Зацепка настройки «Контурные кнопки при наведении» (public-layout-polish.css).
+            . ($d[$key . '_style'] === 'ghost' ? ' btn-fill' : '') . '"'
             . ' href="' . htmlspecialchars($url, ENT_QUOTES) . '"'
             . (!empty($d[$key . '_new_tab']) ? ' target="_blank" rel="noopener"' : '')
             . '>' . $iconHtml . '<span>' . htmlspecialchars($text, ENT_QUOTES) . '</span></a>';
