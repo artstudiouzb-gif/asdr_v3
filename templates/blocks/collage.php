@@ -1,7 +1,10 @@
 <?php
 
 use App\Core\BlockBackground;
+use App\Core\BlockData\CollageBlockNormalizer;
 use App\Core\CollageBadge;
+use App\Core\CollageComposition;
+use App\Core\CollageLayout;
 use App\Core\Icon;
 use App\Core\Media;
 use App\Core\TitleMarkup;
@@ -14,6 +17,12 @@ use App\Core\TitleMarkup;
  * репитере решает, кто сверху. Свободные X/Y не годятся, потому что их нечем
  * сложить в столбец на телефоне.
  *
+ * Композиции по ролям (CollageLayout::COMPOSED) ячеек не знают: кадр с
+ * вырезом, печать на его краю и стеклянная карточка поверх портрета —
+ * отношения между элементами, а не места в сетке. Разметка элемента при этом
+ * одна на оба режима ($renderItem): второй экземпляр разъехался бы с первым
+ * при первой правке.
+ *
  * Правила размещения уходят в scoped CSS: инлайн-стили в блоках запрещены
  * тестами, а значения тут у каждого блока свои.
  *
@@ -22,20 +31,25 @@ use App\Core\TitleMarkup;
  */
 $title = trim((string) ($data['title'] ?? ''));
 // Значения проверены схемой полей (BlockFieldSchema) — читаем как есть.
+$layout = (string) $data['layout'];
 $columns = (int) $data['columns'];
 $rows = (int) $data['rows'];
 $ratio = (string) $data['ratio'];
 $gap = (string) $data['gap'];
+$cardStyle = (string) $data['card_style'];
 $items = array_values(array_filter((array) ($data['items'] ?? []), 'is_array'));
+$composed = CollageLayout::isComposed($layout);
 
 $scope = '#block-' . (int) $blockId;
 $templateCss = $scope . ' .collage__canvas{--collage-cols:' . $columns . ';--collage-rows:' . $rows . ';}';
 
 foreach ($items as $index => $item) {
-    $templateCss .= $scope . ' .collage__item--' . $index . '{'
-        . 'grid-column:' . (int) $item['col'] . '/span ' . (int) $item['col_span'] . ';'
-        . 'grid-row:' . (int) $item['row'] . '/span ' . (int) $item['row_span'] . ';'
-        . '}';
+    if (!$composed) {
+        $templateCss .= $scope . ' .collage__item--' . $index . '{'
+            . 'grid-column:' . (int) $item['col'] . '/span ' . (int) $item['col_span'] . ';'
+            . 'grid-row:' . (int) $item['row'] . '/span ' . (int) $item['row_span'] . ';'
+            . '}';
+    }
     // Свой цвет элемента — тоже переменная: инлайн-стиль здесь запрещён.
     $vars = '';
     if (($item['bg'] ?? '') !== '') {
@@ -60,90 +74,166 @@ $focusMap = [
     'left' => [0, 50],
     'right' => [100, 50],
 ];
-?>
-<div class="block-collage">
-    <?php if ($title !== ''): ?><h2 class="section-head__title block-collage__title"><?= TitleMarkup::html($title) ?></h2><?php endif; ?>
-    <?php if ($items !== []): ?>
-        <div class="collage__canvas collage__canvas--ratio-<?= htmlspecialchars($ratio, ENT_QUOTES) ?> collage__canvas--gap-<?= htmlspecialchars($gap, ENT_QUOTES) ?>">
-            <?php foreach ($items as $index => $item):
-                $type = (string) $item['type'];
-                // Печать всегда круглая: у неё форма не настройка, а суть.
-                $shape = $type === 'badge' ? 'circle' : (string) $item['shape'];
-                $link = (string) ($item['link'] ?? '');
-                $tag = $link !== '' ? 'a' : 'div';
-                $classes = 'collage__item collage__item--' . $index
-                    . ' collage__item--' . $type
-                    . ' collage__item--shape-' . $shape;
+
+$renderItem = static function (int $index, array $item, string $extraClass = '') use ($blockId, $scope, $focusMap, &$templateCss): string {
+    $type = (string) $item['type'];
+    // Печать всегда круглая: у неё форма не настройка, а суть.
+    $shape = $type === 'badge' ? 'circle' : (string) $item['shape'];
+    $link = (string) ($item['link'] ?? '');
+    $tag = $link !== '' ? 'a' : 'div';
+    $classes = 'collage__item collage__item--' . $index
+        . ' collage__item--' . $type
+        . ' collage__item--shape-' . $shape
+        . ($extraClass !== '' ? ' ' . $extraClass : '');
+
+    ob_start();
+    ?>
+    <<?= $tag ?> class="<?= $classes ?>"<?= $link !== '' ? ' href="' . htmlspecialchars($link, ENT_QUOTES) . '"' : '' ?>>
+        <?php if ($type === 'photo'):
+            $focus = $focusMap[(string) ($item['focus'] ?? 'auto')] ?? [null, null];
+            echo Media::picture(
+                (string) $item['image'],
+                (string) ($item['alt'] ?? ''),
+                $focus[0],
+                $focus[1],
+                'collage__photo',
+                true,
+                '(max-width: 720px) 100vw, 50vw'
+            );
+        elseif ($type === 'stat'): ?>
+            <?php if (!empty($item['icon_svg'])): ?>
+                <span class="collage__stat-icon" aria-hidden="true"><?= Icon::render((string) $item['icon_svg'], 32) ?></span>
+            <?php endif; ?>
+            <?php if (($item['prefix'] ?? '') !== ''): ?>
+                <span class="collage__stat-prefix"><?= htmlspecialchars((string) $item['prefix'], ENT_QUOTES) ?></span>
+            <?php endif; ?>
+            <?php if (($item['value'] ?? '') !== ''): ?>
+                <span class="collage__stat-value"><?= htmlspecialchars((string) $item['value'], ENT_QUOTES) ?></span>
+            <?php endif; ?>
+            <?php if (($item['label'] ?? '') !== ''): ?>
+                <span class="collage__stat-label"><?= htmlspecialchars((string) $item['label'], ENT_QUOTES) ?></span>
+            <?php endif; ?>
+        <?php elseif ($type === 'quote'): ?>
+            <?php
+            // Знак кавычки декоративен: диктор читает саму цитату,
+            // а «левая двойная кавычка» посреди фразы сбивает.
             ?>
-                <<?= $tag ?> class="<?= $classes ?>"<?= $link !== '' ? ' href="' . htmlspecialchars($link, ENT_QUOTES) . '"' : '' ?>>
-                    <?php if ($type === 'photo'):
-                        $focus = $focusMap[(string) ($item['focus'] ?? 'auto')] ?? [null, null];
-                        echo Media::picture(
-                            (string) $item['image'],
-                            (string) ($item['alt'] ?? ''),
-                            $focus[0],
-                            $focus[1],
-                            'collage__photo',
-                            true,
-                            '(max-width: 720px) 100vw, 50vw'
-                        );
-                    elseif ($type === 'stat'): ?>
-                        <?php if (!empty($item['icon_svg'])): ?>
-                            <span class="collage__stat-icon" aria-hidden="true"><?= Icon::render((string) $item['icon_svg'], 32) ?></span>
+            <blockquote class="collage__quote">
+                <span class="collage__quote-mark" aria-hidden="true">«</span>
+                <p class="collage__quote-text"><?= htmlspecialchars((string) $item['quote_text'], ENT_QUOTES) ?></p>
+                <?php if (($item['author'] ?? '') !== '' || ($item['role'] ?? '') !== ''): ?>
+                    <footer class="collage__quote-by">
+                        <?php if (($item['author'] ?? '') !== ''): ?>
+                            <cite class="collage__quote-author"><?= htmlspecialchars((string) $item['author'], ENT_QUOTES) ?></cite>
                         <?php endif; ?>
-                        <?php if (($item['prefix'] ?? '') !== ''): ?>
-                            <span class="collage__stat-prefix"><?= htmlspecialchars((string) $item['prefix'], ENT_QUOTES) ?></span>
+                        <?php if (($item['role'] ?? '') !== ''): ?>
+                            <span class="collage__quote-role"><?= htmlspecialchars((string) $item['role'], ENT_QUOTES) ?></span>
                         <?php endif; ?>
-                        <?php if (($item['value'] ?? '') !== ''): ?>
-                            <span class="collage__stat-value"><?= htmlspecialchars((string) $item['value'], ENT_QUOTES) ?></span>
-                        <?php endif; ?>
-                        <?php if (($item['label'] ?? '') !== ''): ?>
-                            <span class="collage__stat-label"><?= htmlspecialchars((string) $item['label'], ENT_QUOTES) ?></span>
-                        <?php endif; ?>
-                    <?php elseif ($type === 'quote'): ?>
-                        <?php
-                        // Знак кавычки декоративен: диктор читает саму цитату,
-                        // а «левая двойная кавычка» посреди фразы сбивает.
-                        ?>
-                        <blockquote class="collage__quote">
-                            <span class="collage__quote-mark" aria-hidden="true">«</span>
-                            <p class="collage__quote-text"><?= htmlspecialchars((string) $item['quote_text'], ENT_QUOTES) ?></p>
-                            <?php if (($item['author'] ?? '') !== '' || ($item['role'] ?? '') !== ''): ?>
-                                <footer class="collage__quote-by">
-                                    <?php if (($item['author'] ?? '') !== ''): ?>
-                                        <cite class="collage__quote-author"><?= htmlspecialchars((string) $item['author'], ENT_QUOTES) ?></cite>
-                                    <?php endif; ?>
-                                    <?php if (($item['role'] ?? '') !== ''): ?>
-                                        <span class="collage__quote-role"><?= htmlspecialchars((string) $item['role'], ENT_QUOTES) ?></span>
-                                    <?php endif; ?>
-                                </footer>
-                            <?php endif; ?>
-                        </blockquote>
-                    <?php elseif ($type === 'badge'):
-                        // Надпись по кругу собирает CollageBadge: это текст на
-                        // траектории, а не иконка, и шаблону такую геометрию
-                        // носить нельзя.
-                        $badgeText = (string) ($item['text'] ?? '');
-                    ?>
-                        <span class="collage__badge">
-                            <?php if ($badgeText !== ''): ?>
-                                <?= CollageBadge::ring($badgeText, 'collage-badge-' . (int) $blockId . '-' . $index) ?>
-                                <span class="visually-hidden"><?= htmlspecialchars($badgeText, ENT_QUOTES) ?></span>
-                            <?php endif; ?>
-                            <?php if (!empty($item['icon_svg'])): ?>
-                                <span class="collage__badge-icon" aria-hidden="true"><?= Icon::render((string) $item['icon_svg'], 26) ?></span>
-                            <?php endif; ?>
-                        </span>
-                    <?php else:
-                        // Узор берётся из общего набора фонов секции, а не
-                        // рисуется здесь заново.
-                        $templateCss .= $scope . ' .collage__item--' . $index . ' .collage__pattern{'
-                            . BlockBackground::patternCss((string) $item['pattern']) . '}';
-                    ?>
-                        <span class="collage__pattern" aria-hidden="true"></span>
-                    <?php endif; ?>
-                </<?= $tag ?>>
+                    </footer>
+                <?php endif; ?>
+            </blockquote>
+        <?php elseif ($type === 'badge'):
+            // Надпись по кругу собирает CollageBadge: это текст на
+            // траектории, а не иконка, и шаблону такую геометрию
+            // носить нельзя.
+            $badgeText = (string) ($item['text'] ?? '');
+            $center = (string) ($item['center'] ?? 'none');
+            if ($center === 'emblem') {
+                // Маска знака — абсолютным адресом из scoped CSS: переменная
+                // --gov-emblem объявлена относительным url, и из файла блока
+                // браузер разрешил бы её не туда.
+                $templateCss .= $scope . ' .collage__item--' . $index . ' .collage__badge-emblem{'
+                    . '-webkit-mask-image:url("' . BlockBackground::emblemUrl() . '");'
+                    . 'mask-image:url("' . BlockBackground::emblemUrl() . '");}';
+            }
+        ?>
+            <span class="collage__badge">
+                <?php if ($badgeText !== ''): ?>
+                    <?= CollageBadge::ring($badgeText, 'collage-badge-' . (int) $blockId . '-' . $index) ?>
+                    <span class="visually-hidden"><?= htmlspecialchars($badgeText, ENT_QUOTES) ?></span>
+                <?php endif; ?>
+                <?php if ($center === 'emblem'): ?>
+                    <span class="collage__badge-core" aria-hidden="true"><span class="collage__badge-emblem"></span></span>
+                <?php elseif ($center === 'image'): ?>
+                    <?php // Логотип — картинка без alt: смысл печати несёт надпись рядом. ?>
+                    <span class="collage__badge-core"><img class="collage__badge-logo" src="<?= htmlspecialchars((string) $item['center_image'], ENT_QUOTES) ?>" alt="" loading="lazy" decoding="async"></span>
+                <?php elseif ($center === 'icon'): ?>
+                    <span class="collage__badge-icon" aria-hidden="true"><?= Icon::render((string) $item['icon_svg'], 26) ?></span>
+                <?php endif; ?>
+            </span>
+        <?php else:
+            // Узор берётся из общего набора фонов секции, а не
+            // рисуется здесь заново; свой узор — картинка-плитка.
+            $size = CollageBlockNormalizer::PATTERN_SIZES[(string) ($item['pattern_size'] ?? 'medium')] ?? 28;
+            $patternCss = (string) $item['pattern'] === CollageBlockNormalizer::CUSTOM_PATTERN
+                ? 'background-image:url("' . htmlspecialchars((string) $item['pattern_image'], ENT_QUOTES) . '");'
+                    . 'background-repeat:repeat;background-size:' . ($size * 2) . 'px auto;'
+                : BlockBackground::patternCss((string) $item['pattern']);
+            $templateCss .= $scope . ' .collage__item--' . $index . ' .collage__pattern{'
+                . '--block-pattern-size:' . $size . 'px;' . $patternCss . '}';
+        ?>
+            <span class="collage__pattern" aria-hidden="true"></span>
+        <?php endif; ?>
+    </<?= $tag ?>>
+    <?php
+
+    return (string) ob_get_clean();
+};
+
+$blockClasses = 'block-collage'
+    . ' block-collage--cards-' . $cardStyle
+    . (empty($data['badge_spin']) ? ' block-collage--still' : '');
+?>
+<div class="<?= htmlspecialchars($blockClasses, ENT_QUOTES) ?>">
+    <?php if ($title !== ''): ?><h2 class="section-head__title block-collage__title"><?= TitleMarkup::html($title) ?></h2><?php endif; ?>
+    <?php if ($items !== [] && !$composed): ?>
+        <div class="collage__canvas collage__canvas--ratio-<?= htmlspecialchars($ratio, ENT_QUOTES) ?> collage__canvas--gap-<?= htmlspecialchars($gap, ENT_QUOTES) ?>">
+            <?php foreach ($items as $index => $item): ?>
+                <?= $renderItem($index, $item) ?>
             <?php endforeach; ?>
         </div>
+    <?php elseif ($items !== []):
+        $roles = CollageComposition::roles($layout, $items);
+        $slot = static fn (string $name): array => $roles['slots'][$name] ?? [];
+        $one = static function (string $name, string $class) use ($slot, $items, $renderItem): string {
+            $out = '';
+            foreach ($slot($name) as $index) {
+                $out .= $renderItem($index, $items[$index], $class);
+            }
+
+            return $out;
+        };
+        $compClasses = 'collage-comp collage-comp--' . $layout
+            . ' collage__canvas--gap-' . $gap
+            . ' collage-comp--ratio-' . $ratio
+            . ($layout === 'callout' ? ' collage-comp--cut-' . (string) $data['cut_corner'] : '');
+        // Композиция без кадра не строится: вырез вырезать не из чего.
+        $hasPhoto = $layout === 'checker' || $slot('photo') !== [];
+    ?>
+        <?php if ($hasPhoto): ?>
+            <div class="<?= htmlspecialchars($compClasses, ENT_QUOTES) ?>">
+                <?php if ($layout === 'callout'): ?>
+                    <?= $one('pattern', 'collage-comp__pattern') ?>
+                    <?= $one('photo', 'collage-comp__photo') ?>
+                    <?= $one('card', 'collage-comp__card') ?>
+                    <?= $one('badge', 'collage-comp__badge') ?>
+                <?php elseif ($layout === 'checker'): ?>
+                    <?= $one('tiles', 'collage-comp__tile') ?>
+                    <?= $one('badge', 'collage-comp__badge') ?>
+                <?php else: ?>
+                    <div class="collage-comp__pic">
+                        <?= $one('photo', 'collage-comp__photo') ?>
+                        <?php if ($slot('stats') !== []): ?>
+                            <div class="collage-comp__glass"><?= $one('stats', 'collage-comp__stat') ?></div>
+                        <?php endif; ?>
+                        <?= $one('badge', 'collage-comp__badge') ?>
+                    </div>
+                    <div class="collage-comp__side">
+                        <?= $one('pattern', 'collage-comp__pattern') ?>
+                        <?= $one('quote', 'collage-comp__quote') ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 </div>

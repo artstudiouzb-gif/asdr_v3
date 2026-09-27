@@ -213,3 +213,215 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
     .collage__item--badge { block-size: 160px; }
     .collage__item--pattern { display: none; }
 }
+
+/* --- Вид карточек показателей и цитат (настройка блока) ---
+   Переменные, а не заливка: свой цвет элемента приезжает из scoped CSS с
+   весом по id и остаётся главнее выбора для всего блока. */
+.block-collage--cards-navy :is(.collage__item--stat, .collage__item--quote) { --collage-bg: var(--gov-navy); --collage-fg: #fff; }
+.block-collage--cards-accent :is(.collage__item--stat, .collage__item--quote) { --collage-bg: var(--gov-teal); --collage-fg: var(--on-accent, #fff); }
+.block-collage--cards-light :is(.collage__item--stat, .collage__item--quote) { --collage-bg: var(--gov-surface); --collage-fg: var(--gov-title); box-shadow: var(--card-shadow); }
+
+/* --- Центр печати: эмблема, своя картинка --- */
+.collage__badge-core {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 46%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--gov-surface);
+    overflow: hidden;
+}
+/* Адрес маски приезжает из scoped CSS блока (абсолютный url эмблемы из
+   «Дизайна»), поэтому здесь только длинные свойства — сокращённое сбросило бы
+   картинку. */
+.collage__badge-emblem {
+    inline-size: 68%;
+    aspect-ratio: 1;
+    background: var(--gov-teal-text);
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+.collage__badge-logo { inline-size: 72%; block-size: 72%; object-fit: contain; }
+.block-collage--still .collage__badge-ring { animation: none; }
+
+/* ============================================================================
+   Композиции по ролям: «Кадр и выноска», «Шахматка», «Портрет и слово».
+   Мерят они ширину блока, а не экрана: коллаж стоит и во всю страницу, и в
+   колонке конструктора.
+   ========================================================================= */
+.block-collage { container: collage / inline-size; }
+.collage-comp {
+    --cg: var(--collage-gap, 20px);
+    --cr: var(--radius);
+    --bs: clamp(88px, 15cqi, 136px);
+    position: relative;
+    isolation: isolate;
+}
+.collage-comp .collage__item { border-radius: var(--cr); }
+.collage-comp .collage__item--badge { border-radius: 50%; }
+.collage-comp__badge {
+    position: absolute;
+    z-index: 3;
+    inline-size: var(--bs);
+    block-size: var(--bs);
+}
+.collage-comp__badge .collage__badge { box-shadow: var(--shadow-overlay); }
+.collage-comp__pattern .collage__pattern { --block-pattern-ink: var(--collage-fg, color-mix(in srgb, var(--gov-teal) 55%, transparent)); }
+
+/* --- Кадр и выноска: карточка стоит в вырезе снимка ---
+   Вырез — маска на самом снимке, а не обводка цветом фона: на секции с
+   фотографией или градиентом обводка была бы видна чужим пятном, а дыра
+   показывает ровно тот фон, что под блоком. Каждый слой маски прижат к углу:
+   процент в mask-position считается от «элемент минус слой», и сдвиг на долю
+   элемента им не выразить. --cw/--ch — размер выреза вместе с зазором. */
+.collage-comp--callout { display: grid; --cw: 40%; --ch: 42%; }
+.collage-comp--callout > .collage-comp__photo { grid-area: 1 / 1; aspect-ratio: 4 / 3; }
+.collage-comp--callout.collage-comp--ratio-1-1 > .collage-comp__photo { aspect-ratio: 1 / 1; }
+.collage-comp--callout.collage-comp--ratio-3-4 > .collage-comp__photo { aspect-ratio: 3 / 4; }
+.collage-comp--callout.collage-comp--ratio-16-9 > .collage-comp__photo { aspect-ratio: 16 / 9; }
+.collage-comp--callout > .collage-comp__card {
+    grid-area: 1 / 1;
+    z-index: 2;
+    inline-size: calc(var(--cw) - var(--cg));
+    block-size: calc(var(--ch) - var(--cg));
+    align-items: flex-start;
+    justify-content: flex-end;
+    text-align: start;
+}
+.collage-comp--callout > .collage-comp__photo {
+    -webkit-mask:
+        linear-gradient(#000 0 0) 0 0 / 100% 100% no-repeat,
+        linear-gradient(#000 0 0) var(--a) / calc(var(--cw) - var(--cr)) var(--ch) no-repeat,
+        linear-gradient(#000 0 0) var(--a) / var(--cw) calc(var(--ch) - var(--cr)) no-repeat,
+        radial-gradient(circle at var(--c), #000 calc(var(--cr) - .5px), transparent var(--cr)) var(--a) / var(--cw) var(--ch) no-repeat,
+        radial-gradient(circle at var(--f), transparent calc(var(--cr) - .5px), #000 var(--cr)) var(--a) / calc(var(--cw) + var(--cr)) var(--cr) no-repeat,
+        radial-gradient(circle at var(--f), transparent calc(var(--cr) - .5px), #000 var(--cr)) var(--a) / var(--cr) calc(var(--ch) + var(--cr)) no-repeat;
+    -webkit-mask-composite: source-out, source-over, source-over, source-over, source-over, source-over;
+    mask-composite: subtract, add, add, add, add, add;
+}
+.collage-comp--cut-bl { --a: left bottom; --c: calc(100% - var(--cr)) var(--cr); --f: 100% 0; }
+.collage-comp--cut-br { --a: right bottom; --c: var(--cr) var(--cr); --f: 0 0; }
+.collage-comp--cut-tl { --a: left top; --c: calc(100% - var(--cr)) calc(100% - var(--cr)); --f: 100% 100%; }
+.collage-comp--cut-tr { --a: right top; --c: var(--cr) calc(100% - var(--cr)); --f: 0 100%; }
+.collage-comp--cut-bl > .collage-comp__card { align-self: end; justify-self: start; --dx: -24px; --dy: 24px; }
+.collage-comp--cut-br > .collage-comp__card { align-self: end; justify-self: end; --dx: 24px; --dy: 24px; }
+.collage-comp--cut-tl > .collage-comp__card { align-self: start; justify-self: start; --dx: -24px; --dy: -24px; }
+.collage-comp--cut-tr > .collage-comp__card { align-self: start; justify-self: end; --dx: 24px; --dy: -24px; }
+/* Печать — на противоположном вырезу крае кадра, узор — выглядывает из-за
+   снимка с той же стороны, что печать. */
+.collage-comp--cut-bl > .collage-comp__badge,
+.collage-comp--cut-br > .collage-comp__badge { top: calc(var(--bs) / -3); }
+.collage-comp--cut-tl > .collage-comp__badge,
+.collage-comp--cut-tr > .collage-comp__badge { bottom: calc(var(--bs) / -3); }
+.collage-comp--cut-bl > .collage-comp__badge,
+.collage-comp--cut-tl > .collage-comp__badge { right: 8%; }
+.collage-comp--cut-br > .collage-comp__badge,
+.collage-comp--cut-tr > .collage-comp__badge { left: 8%; }
+.collage-comp--callout > .collage-comp__pattern { position: absolute; z-index: -1; inline-size: 26%; block-size: 46%; top: 28%; }
+/* Узор выглядывает из-за снимка, но за край блока не выходит: за краем он
+   давал странице прокрутку вбок. Место под него — поле у самой композиции. */
+.collage-comp--callout:has(> .collage-comp__pattern) { padding-inline-end: 4%; }
+.collage-comp--callout:is(.collage-comp--cut-br, .collage-comp--cut-tr):has(> .collage-comp__pattern) { padding-inline: 4% 0; }
+.collage-comp--cut-bl > .collage-comp__pattern,
+.collage-comp--cut-tl > .collage-comp__pattern { right: 0; }
+.collage-comp--cut-br > .collage-comp__pattern,
+.collage-comp--cut-tr > .collage-comp__pattern { left: 0; }
+/* Одно движение на блок: карточка въезжает в вырез по прокрутке. Без
+   поддержки временной шкалы и при «меньше движения» она просто стоит на
+   месте — начальное состояние у неё не скрытое, а только сдвинутое. */
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .collage-comp--callout > .collage-comp__card {
+            animation: collage-card-in linear both;
+            animation-timeline: view();
+            animation-range: entry 5% cover 40%;
+        }
+    }
+}
+@keyframes collage-card-in { from { transform: translate(var(--dx, 0), var(--dy, 0)); } }
+
+/* Затухание последней строки придумано для невысокой ячейки сетки. У
+   композиций клетка задана пропорцией, и маска гасила бы строку, которой
+   места хватает; длинный текст обрезается по строкам с многоточием. */
+.collage-comp .collage__quote-text {
+    mask-image: none;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 7;
+    line-clamp: 7;
+}
+/* Общее правило узкого экрана прячет узор: в сетке ячеек он декорация. В
+   шахматке узор — клетка, и без неё в ряду осталась бы дыра. */
+.collage-comp--checker > .collage__item--pattern { display: block; }
+
+/* --- Шахматка: клетки одного размера, печать на стыке четырёх клеток ---
+   Высота ряда равна ширине клетки, поэтому стык считается от ширины блока
+   (единицы контейнера), а не от высоты полотна. */
+.collage-comp--checker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--cg); }
+.collage-comp--checker > .collage-comp__tile { aspect-ratio: 1; }
+.collage-comp--checker > .collage-comp__badge {
+    --cell: calc((100cqi - 2 * var(--cg)) / 3);
+    left: calc(var(--cell) + var(--cg) / 2 - var(--bs) / 2);
+    top: calc(var(--cell) + var(--cg) / 2 - var(--bs) / 2);
+}
+
+/* --- Портрет и слово: стеклянная карточка чисел поверх портрета ---
+   Подложка стекла тёмная и плотная (80 %), а не из основного цвета: цвет
+   настраивается в админке, и светлый основной цвет под белым текстом дал бы
+   нечитаемую строку. На белом снимке эта подложка держит 9:1. */
+.collage-comp--portrait { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(16px, 3.4cqi, 44px); align-items: center; }
+.collage-comp__pic { position: relative; display: grid; }
+.collage-comp__pic > .collage-comp__photo { grid-area: 1 / 1; aspect-ratio: 4 / 5; }
+.collage-comp__glass {
+    grid-area: 1 / 1;
+    align-self: end;
+    z-index: 1;
+    margin: 0 5% 5%;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding: clamp(14px, 2.4cqi, 22px);
+    border-radius: var(--cr);
+    border: 1px solid rgba(255, 255, 255, .2);
+    background: rgba(10, 24, 40, .8);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    backdrop-filter: blur(12px) saturate(1.2);
+    color: #fff;
+}
+.collage-comp__glass > .collage__item--stat {
+    background: none;
+    color: #fff;
+    padding: 0;
+    align-items: flex-start;
+    text-align: start;
+    gap: 4px;
+}
+.collage-comp__glass .collage__stat-value { font-size: var(--step-5); }
+.collage-comp__pic > .collage-comp__badge { right: calc(var(--bs) / -2.4); top: 10%; }
+.collage-comp__side { display: grid; gap: 18px; }
+.collage-comp__side > .collage-comp__pattern { block-size: 14px; inline-size: 40%; }
+.collage-comp__side > .collage-comp__quote { background: none; padding: 0; overflow: visible; }
+.collage-comp__side > .collage-comp__quote .collage__quote-mark { color: var(--gov-teal-text); }
+.collage-comp__side > .collage-comp__quote .collage__quote-text { font-size: var(--step-4); font-weight: 600; line-height: 1.3; overflow: visible; -webkit-line-clamp: unset; line-clamp: none; }
+
+/* --- Узко: композиции перестраиваются по ширине блока --- */
+@container collage (max-width: 560px) {
+    .collage-comp--callout { --cw: 64%; --ch: 36%; }
+    .collage-comp--callout > .collage-comp__photo { aspect-ratio: 4 / 5; }
+    .collage-comp--checker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .collage-comp--checker .collage__quote-text { font-size: var(--step--1); -webkit-line-clamp: 5; line-clamp: 5; }
+    .collage-comp--checker .collage__item--stat,
+    .collage-comp--checker .collage__item--quote { padding: 14px; }
+    .collage-comp--checker > .collage-comp__badge {
+        --cell: calc((100cqi - var(--cg)) / 2);
+        left: calc(var(--cell) + var(--cg) / 2 - var(--bs) / 2);
+    }
+    .collage-comp--portrait { grid-template-columns: minmax(0, 1fr); }
+    .collage-comp__pic > .collage-comp__badge { right: 4%; }
+}

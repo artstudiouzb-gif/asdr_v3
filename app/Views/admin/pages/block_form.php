@@ -387,7 +387,11 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             $collageShapes = ['rounded' => 'Скруглённый', 'circle' => 'Круг', 'square' => 'Без скругления'];
             $collageFocus = ['auto' => 'Как в медиатеке', 'center' => 'По центру', 'top' => 'Верх',
                 'bottom' => 'Низ', 'left' => 'Слева', 'right' => 'Справа'];
-            $collagePatterns = ['dots' => 'Точки', 'grid' => 'Сетка', 'diagonal' => 'Диагональ', 'emblem' => 'Эмблема (гирих)'];
+            // Набор узоров общий с фоном секции; свой узор — картинка-плитка.
+            $collagePatterns = \App\Core\BlockBackground::PATTERN_LABELS
+                + [\App\Core\BlockData\CollageBlockNormalizer::CUSTOM_PATTERN => 'Своя картинка-плитка'];
+            $collagePatternSizes = ['small' => 'Мелкий', 'medium' => 'Средний', 'large' => 'Крупный'];
+            $collageCenters = ['emblem' => 'Эмблема сайта', 'icon' => 'Значок из набора', 'image' => 'Своя картинка или логотип', 'none' => 'Ничего, только надпись'];
             $collageNumbers = static function (string $name, int $max, int $value): string {
                 $out = '<select name="' . htmlspecialchars($name, ENT_QUOTES) . '">';
                 for ($n = 1; $n <= $max; $n++) {
@@ -398,6 +402,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             };
             $collageRow = static function (string $idx, array $item) use (
                 $collageTypes, $collageShapes, $collageFocus, $collagePatterns,
+                $collagePatternSizes, $collageCenters,
                 $collageCols, $collageRows, $collageNumbers
             ): string {
                 $sel = static fn (array $opts, string $name, string $cur): string => implode('', array_map(
@@ -446,10 +451,21 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     . '</div>'
                     . '<div data-collage-fields="badge">'
                         . '<div class="form-field"><label>Надпись по кругу</label><input type="text" name="' . $p('text') . '" maxlength="40" value="' . $v('text') . '" placeholder="Свяжитесь с нами"></div>'
+                        // Новая печать приходит с эмблемой, а собранная раньше
+                        // показывает то, что в ней уже было: значок или ничего.
+                        . '<div class="form-field"><label>В центре печати</label><select name="' . $p('center') . '">'
+                            . $sel($collageCenters, 'center', (string) ($item['center'] ?? (($item['icon_svg'] ?? '') !== '' ? 'icon' : ($item === [] ? 'emblem' : 'none')))) . '</select>'
+                            . '<span class="form-hint">Эмблема берётся из «Дизайна». Для значка выберите его ниже, для логотипа загрузите картинку — лучше квадратную, с прозрачным фоном.</span></div>'
+                        . \App\Core\AdminUi::iconField($p('icon_svg'), (string) ($item['icon_svg'] ?? ''), ['label' => 'Значок в центре'])
+                        . \App\Core\AdminUi::imageField($p('center_image'), (string) ($item['center_image'] ?? ''), ['label' => 'Картинка или логотип в центре'])
                     . '</div>'
                     . '<div data-collage-fields="pattern">'
                         . '<div class="form-field"><label>Узор</label><select name="' . $p('pattern') . '">'
                             . $sel($collagePatterns, 'pattern', (string) ($item['pattern'] ?? 'dots')) . '</select></div>'
+                        . '<div class="form-field"><label>Шаг узора</label><select name="' . $p('pattern_size') . '">'
+                            . $sel($collagePatternSizes, 'pattern_size', (string) ($item['pattern_size'] ?? 'medium')) . '</select></div>'
+                        . \App\Core\AdminUi::imageField($p('pattern_image'), (string) ($item['pattern_image'] ?? ''), ['label' => 'Своя картинка-плитка'])
+                        . '<span class="form-hint">Картинка нужна только для «Своей картинки-плитки»: она повторяется по всему элементу. Лучше всего подходит небольшой SVG или PNG с прозрачным фоном.</span>'
                     . '</div>'
                     . '<div class="colorfield-row" data-collage-fields="colors">'
                         . \App\Core\AdminUi::colorField($p('bg'), (string) ($item['bg'] ?? ''), 'Цвет подложки')
@@ -467,6 +483,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             <div>
                 <label>Элементы коллажа</label>
                 <span class="form-hint">Элементы могут занимать одни и те же ячейки — так и получается наложение. Кто ниже в списке, тот лежит поверх. На телефоне коллаж раскладывается в столбец в порядке списка.</span>
+                <span class="form-hint">У «Кадра и выноски», «Шахматки» и «Портрета и слова» роль элемента задаёт его тип: первая фотография — кадр, первый показатель или цитата — карточка, первая печать — печать, первый узор — фон за кадром.</span>
                 <div data-repeater="items" data-collage-repeater>
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row"><span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span><?= $collageRow((string) $i, is_array($item) ? $item : []) ?></div>
@@ -1786,7 +1803,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             'image' => 'Фотография или плитка-узор',
             'pattern' => 'Встроенный узор',
         ];
-        $bgPatterns = ['dots' => 'Точки', 'grid' => 'Сетка', 'diagonal' => 'Диагональ', 'emblem' => 'Гирих (эмблема)'];
+        $bgPatterns = \App\Core\BlockBackground::PATTERN_LABELS;
         $bgRepeat = (string) ($data['_bg_repeat'] ?? 'cover');
         ?>
         <div class="form-field">
