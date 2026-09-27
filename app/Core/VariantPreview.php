@@ -62,6 +62,7 @@ final class VariantPreview
         'text' => 'текстовые строки',
         'quote' => 'текст и карточка цитаты',
         'timeline' => 'годы слева, события справа',
+        'qa' => 'вопросы строками, ответ раскрывается',
         'card' => 'одна карточка по центру',
         'table' => 'таблица со строками и колонками',
         'tree' => 'схема подчинения',
@@ -77,7 +78,7 @@ final class VariantPreview
      */
     public const MODIFIERS = [
         'icon', 'icon-left', 'num', 'photo', 'photo-below', 'photo-left',
-        'frame', 'plain', 'dot', 'accent', 'striped', 'bordered', 'spine',
+        'frame', 'plain', 'dot', 'accent', 'striped', 'bordered', 'spine', 'aside',
     ];
 
     /**
@@ -115,6 +116,7 @@ final class VariantPreview
             'text' => self::text($count, $mods),
             'quote' => self::quote(),
             'timeline' => self::timeline($count),
+            'qa' => self::qa($mods),
             'card' => self::card($mods),
             'table' => self::table($mods),
             'tree' => self::tree($mods),
@@ -626,6 +628,37 @@ final class VariantPreview
             $out .= self::line(self::PAD + 6, $top + $h / 2 - 3, 10, 0.55);
             $out .= self::line(self::PAD + 19, $top + $h / 2 - 2.5, self::W - self::PAD - 23, 0.3);
             $out .= self::line(self::PAD + 19, $top + $h / 2 + 1, self::W - self::PAD - 30, 0.3);
+        }
+
+        return $out;
+    }
+
+    /**
+     * Вопросы строками с «+» у правого края; с `aside` слева колонка
+     * заголовка и пояснения, закреплённая при прокрутке.
+     *
+     * @param list<string> $mods
+     */
+    private static function qa(array $mods): string
+    {
+        $out = '';
+        $left = self::PAD;
+        if (in_array('aside', $mods, true)) {
+            $out .= self::line(self::PAD, self::PAD + 1, 18, 0.6, 2.5);
+            $out .= self::line(self::PAD, self::PAD + 7, 20, 0.3);
+            $out .= self::line(self::PAD, self::PAD + 11, 14, 0.3);
+            $left = self::PAD + 26;
+        }
+        $right = self::W - self::PAD;
+        $rows = 4;
+        $step = (self::H - self::PAD * 2) / $rows;
+        for ($i = 0; $i < $rows; $i++) {
+            $top = self::PAD + $i * $step;
+            $out .= '<rect x="' . self::n($left) . '" y="' . self::n($top) . '" width="' . self::n($right - $left)
+                . '" height="0.6" fill="currentColor" opacity="0.25"/>';
+            $out .= self::line($left, $top + $step / 2 - 1, ($right - $left) * ($i % 2 === 0 ? 0.62 : 0.5), 0.5);
+            $out .= self::line($right - 4, $top + $step / 2 - 1, 4, 0.6);
+            $out .= '<rect x="' . self::n($right - 2.6) . '" y="' . self::n($top + $step / 2 - 2.4) . '" width="1.2" height="4" fill="currentColor" opacity="0.6"/>';
         }
 
         return $out;
