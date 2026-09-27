@@ -346,6 +346,8 @@ return [
     'Все форматы' => 'All formats',
     'Ничего не найдено.' => 'Nothing found.',
     'Поиск по вопросам' => 'Search questions',
+    'Темы вопросов' => 'Question topics',
+    'Все темы' => 'All topics',
     'Найти вопрос' => 'Find a question',
     'Найти вопрос…' => 'Find a question…',
     'Категория вопросов' => 'Question category',

@@ -346,6 +346,8 @@ return [
     'Все форматы' => 'Barcha formatlar',
     'Ничего не найдено.' => 'Hech narsa topilmadi.',
     'Поиск по вопросам' => 'Savollar bo‘yicha qidirish',
+    'Темы вопросов' => 'Savol mavzulari',
+    'Все темы' => 'Barcha mavzular',
     'Найти вопрос' => 'Savolni topish',
     'Найти вопрос…' => 'Savolni topish…',
     'Категория вопросов' => 'Savollar toifasi',
