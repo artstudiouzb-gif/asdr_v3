@@ -45,6 +45,24 @@ final class CollageBlockNormalizer
     public const PATTERNS = \App\Core\BlockBackground::PATTERNS;
 
     /**
+     * Свой узор — картинка-плитка из медиатеки. Отдельным значением, а не
+     * пунктом общего набора: фон секции для этого давно умеет «плитку» своим
+     * режимом, и второй способ того же в наборе узоров был бы дублем.
+     */
+    public const CUSTOM_PATTERN = 'image';
+
+    /** Шаг узора: у встроенного это размер клетки, у своего — ширина плитки. */
+    public const PATTERN_SIZES = ['small' => 18, 'medium' => 28, 'large' => 48];
+
+    /**
+     * Что стоит в центре печати: эмблема сайта (из «Дизайна»), значок из
+     * набора, своя картинка (логотип) или ничего — одна надпись по кругу.
+     *
+     * @var list<string>
+     */
+    public const BADGE_CENTERS = ['emblem', 'icon', 'image', 'none'];
+
+    /**
      * @param array<string, mixed> $input
      * @return array<string, mixed>
      */
@@ -86,6 +104,8 @@ final class CollageBlockNormalizer
         // посчитанная до него, оставила бы в полотне дыру ровно там, где он
         // был. Вместе с местами приходит и сетка: сколько колонок и строк
         // нужно этой композиции, знает сама раскладка, а не редактор.
+        // Композиция по ролям ячеек не знает вовсе: места у неё задаёт
+        // раскладка в CSS, а роль выводится из типа элемента при выводе.
         if (CollageLayout::isPreset($layout)) {
             $placed = CollageLayout::place($layout, count($items));
             $canvas['columns'] = $placed['columns'];
@@ -214,7 +234,18 @@ final class CollageBlockNormalizer
     {
         $text = BlockDataInput::plain($item, 'text', $locale);
         $icon = Icon::cleanName($item['icon_svg'] ?? '');
-        if ($text === '' && $icon === '') {
+        $image = BlockDataInput::safeMedia($item['center_image'] ?? '');
+        // Печати, собранные до появления выбора, знали только значок: их
+        // центр выводится из того, что в них уже лежит, иначе вид собранных
+        // страниц поменялся бы молча.
+        $center = array_key_exists('center', $item)
+            ? BlockDataInput::enum($item, 'center', self::BADGE_CENTERS, 'emblem')
+            : ($icon !== '' ? 'icon' : 'none');
+        // Выбранный центр без содержимого — пустой кружок посреди печати.
+        if (($center === 'icon' && $icon === '') || ($center === 'image' && $image === '')) {
+            $center = 'none';
+        }
+        if ($text === '' && $center === 'none') {
             return null;
         }
 
@@ -222,7 +253,9 @@ final class CollageBlockNormalizer
             // Надпись идёт по кругу и повторяется дважды, поэтому длинная
             // строка сливается сама с собой — предел жёсткий.
             'text' => mb_substr($text, 0, 40),
+            'center' => $center,
             'icon_svg' => $icon,
+            'center_image' => $image,
             'bg' => BlockDataInput::optionalColor($item, 'bg'),
             'fg' => BlockDataInput::optionalColor($item, 'fg'),
             'link' => BlockDataInput::safeLink($item['link'] ?? ''),
@@ -236,8 +269,18 @@ final class CollageBlockNormalizer
      */
     private static function pattern(array $item, array $base): array
     {
+        $pattern = BlockDataInput::enum($item, 'pattern', [...self::PATTERNS, self::CUSTOM_PATTERN], 'dots');
+        $image = BlockDataInput::safeMedia($item['pattern_image'] ?? '');
+        // «Свой узор» без картинки нарисовать нечем: элемент остаётся, но
+        // точками, а не пустым местом.
+        if ($pattern === self::CUSTOM_PATTERN && $image === '') {
+            $pattern = 'dots';
+        }
+
         return $base + [
-            'pattern' => BlockDataInput::enum($item, 'pattern', self::PATTERNS, 'dots'),
+            'pattern' => $pattern,
+            'pattern_image' => $pattern === self::CUSTOM_PATTERN ? $image : '',
+            'pattern_size' => BlockDataInput::enum($item, 'pattern_size', array_keys(self::PATTERN_SIZES), 'medium'),
             'fg' => BlockDataInput::optionalColor($item, 'fg'),
         ];
     }

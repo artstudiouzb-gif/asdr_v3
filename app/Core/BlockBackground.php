@@ -18,7 +18,23 @@ namespace App\Core;
 final class BlockBackground
 {
     /** Встроенные узоры — один список на фон секции и на элемент коллажа. */
-    public const PATTERNS = ['dots', 'grid', 'diagonal', 'emblem'];
+    public const PATTERNS = ['dots', 'grid', 'diagonal', 'emblem', 'rings', 'waves'];
+
+    /**
+     * Подписи узоров для форм. Список один на фон секции, подвал и элемент
+     * «Коллажа»: прежде подписи лежали тремя копиями во вьюхах, и новый узор,
+     * добавленный в набор, в одной из форм просто не появился бы.
+     *
+     * @var array<string, string>
+     */
+    public const PATTERN_LABELS = [
+        'dots' => 'Точки',
+        'grid' => 'Сетка',
+        'diagonal' => 'Диагональ',
+        'emblem' => 'Гирих (эмблема)',
+        'rings' => 'Кольца',
+        'waves' => 'Волны',
+    ];
 
     /**
      * Классы секции и её scoped CSS.
@@ -182,6 +198,13 @@ final class BlockBackground
                 . 'linear-gradient(to bottom,' . $ink . ' 1px,transparent 1px);background-size:' . $size . ' ' . $size . ';',
             'diagonal' => 'background-image:repeating-linear-gradient(45deg,' . $ink . ' 0,' . $ink . ' 1px,'
                 . 'transparent 1px,transparent calc(' . $size . ' / 2));',
+            // Кольцо в каждой клетке: контур, а не заливка, поэтому узор
+            // остаётся лёгким и на крупном шаге.
+            'rings' => 'background-image:radial-gradient(circle,transparent 27%,' . $ink . ' 29% 34%,transparent 36%);'
+                . 'background-size:' . $size . ' ' . $size . ';',
+            // Дуга, опирающаяся на нижний край клетки: ряд дуг читается волной.
+            'waves' => 'background-image:radial-gradient(circle at 50% 100%,transparent 44%,' . $ink . ' 46% 52%,transparent 54%);'
+                . 'background-size:' . $size . ' calc(' . $size . ' / 2);',
             // Абсолютный адрес, а не var(--gov-emblem): переменная объявлена
             // с относительным url('../img/emblem.svg'), и в сгенерированном
             // файле темы (он лежит в /uploads/public) браузер разрешает его от

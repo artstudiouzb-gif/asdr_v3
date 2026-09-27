@@ -48,6 +48,9 @@ final class VariantPreview
         'mosaic' => 'мозаика из крупных и мелких',
         'hero-tiles' => 'крупный кадр и мелкие рядом',
         'overlap' => 'элементы с наложением по диагонали',
+        'callout' => 'кадр с вырезом в углу, в вырезе карточка, печать на краю',
+        'checker' => 'клетки кадров и текста через одну, печать на стыке',
+        'portrait' => 'портрет с карточкой чисел и цитата рядом',
         'bars' => 'горизонтальные полосы',
         'stacked' => 'одна полоса из долей',
         'meter' => 'шкала выполнения',
@@ -102,6 +105,9 @@ final class VariantPreview
             'mosaic' => self::mosaic(),
             'hero-tiles' => self::heroTiles(),
             'overlap' => self::overlap(),
+            'callout' => self::callout(),
+            'checker' => self::checker(),
+            'portrait' => self::portrait(),
             'bars' => self::bars(),
             'stacked' => self::stacked(),
             'meter' => self::meter(),
@@ -409,6 +415,73 @@ final class VariantPreview
         return $out;
     }
 
+    /** Круг печати. */
+    private static function disc(float $cx, float $cy, float $r, float $opacity = 0.6): string
+    {
+        return '<circle cx="' . self::n($cx) . '" cy="' . self::n($cy) . '" r="' . self::n($r)
+            . '" fill="currentColor" opacity="' . self::n($opacity) . '"/>';
+    }
+
+    /**
+     * Кадр и выноска: снимок без нижнего левого угла, в вырезе — карточка,
+     * печать на верхнем крае. Вырез нарисован просто отсутствием заливки.
+     */
+    private static function callout(): string
+    {
+        $w = self::W - self::PAD * 2;
+        $h = self::H - self::PAD * 2;
+        $cw = 20;
+        $ch = 13;
+        $out = self::box(self::PAD, self::PAD, $w, $h - $ch - 1.5, 0.28);
+        $out .= self::box(self::PAD + $cw + 1.5, self::PAD + $h - $ch - 3, $w - $cw - 1.5, $ch + 3, 0.28);
+        $out .= self::box(self::PAD, self::PAD + $h - $ch + 0.5, $cw - 1, $ch - 0.5, 0.6);
+        $out .= self::line(self::PAD + 3, self::PAD + $h - 5, 9, 0.9);
+        $out .= self::disc(self::W - self::PAD - 9, self::PAD + 1.5, 5);
+
+        return $out;
+    }
+
+    /** Шахматка: три на два, кадры через один с текстом, печать на стыке. */
+    private static function checker(): string
+    {
+        $gap = 2;
+        $cw = (self::W - self::PAD * 2 - $gap * 2) / 3;
+        $ch = (self::H - self::PAD * 2 - $gap) / 2;
+        $out = '';
+        for ($r = 0; $r < 2; $r++) {
+            for ($c = 0; $c < 3; $c++) {
+                $x = self::PAD + $c * ($cw + $gap);
+                $y = self::PAD + $r * ($ch + $gap);
+                if (($r + $c) % 2 === 0) {
+                    $out .= self::box($x, $y, $cw, $ch, 0.28);
+                } else {
+                    $out .= self::frame($x, $y, $cw, $ch);
+                    $out .= self::line($x + 2, $y + $ch - 6, $cw * 0.55, 0.6);
+                }
+            }
+        }
+        $out .= self::disc(self::PAD + $cw + $gap / 2, self::PAD + $ch + $gap / 2, 4.5);
+
+        return $out;
+    }
+
+    /** Портрет и слово: книжный кадр с карточкой внизу, справа строки цитаты. */
+    private static function portrait(): string
+    {
+        $h = self::H - self::PAD * 2;
+        $pw = 22;
+        $out = self::box(self::PAD, self::PAD, $pw, $h, 0.28);
+        $out .= self::box(self::PAD + 2, self::PAD + $h - 9, $pw - 4, 7, 0.55);
+        $out .= self::disc(self::PAD + $pw, self::PAD + 7, 4);
+        $x = self::PAD + $pw + 8;
+        $out .= self::line($x, self::PAD + 9, 26, 0.6, 2.5);
+        $out .= self::line($x, self::PAD + 14, 30, 0.6, 2.5);
+        $out .= self::line($x, self::PAD + 19, 20, 0.6, 2.5);
+        $out .= self::line($x, self::PAD + 26, 14, 0.3);
+
+        return $out;
+    }
+
     private static function mosaic(): string
     {
         $h = self::H - self::PAD * 2;
@@ -671,9 +744,15 @@ final class VariantPreview
         $h = self::H - self::PAD * 2 - 4;
         $x = (self::W - $w) / 2;
         $y = self::PAD + 2;
-        $out = in_array('photo', $mods, true)
-            ? self::box($x, $y, $w, $h, 0.32)
-            : self::frame($x, $y, $w, $h);
+        // Заливка карточки различает виды: рамка — как в теме, плотная —
+        // тёмная, самая плотная — цвет акцента, едва заметная с обводкой —
+        // светлая. Без этого четыре плитки выбора были бы одинаковыми.
+        $out = match (true) {
+            in_array('accent', $mods, true) => self::box($x, $y, $w, $h, 0.62),
+            in_array('photo', $mods, true) => self::box($x, $y, $w, $h, 0.32),
+            in_array('bordered', $mods, true) => self::box($x, $y, $w, $h, 0.08) . self::frame($x, $y, $w, $h),
+            default => self::frame($x, $y, $w, $h),
+        };
         $out .= self::line($x + 4, $y + 5, $w - 8, 0.55, 2.5);
         $out .= self::line($x + 4, $y + 11, $w - 8, 0.3);
         $out .= self::box($x + 4, $y + $h - 9, 14, 5, 0.5, 2);
