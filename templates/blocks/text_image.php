@@ -15,6 +15,8 @@ $image = trim((string) ($data['image'] ?? ''));
 $items = $data['items'] ?? [];
 // Значения проверены схемой полей (BlockFieldSchema) — читаем как есть.
 $imageSide = (string) $data['image_side'];
+// Раскладка без фото теряет смысл — такой блок остаётся одной колонкой текста.
+$layout = $image !== '' ? (string) $data['layout'] : 'side';
 $ratio = (string) $data['image_ratio'];
 $mediaClasses = \App\Core\MediaPosition::classes($data['image_position'] ?? null, $data['image_position_mobile'] ?? null);
 $buttonText = trim((string) ($data['button_text'] ?? ''));
@@ -27,13 +29,16 @@ if ($buttonUrl !== '' && !\App\Core\UrlGuard::isSafeLink($buttonUrl)) {
 // запрещены тестами.
 $templateCss = '';
 $visualWidth = (int) $data['image_width'];
-if ($image !== '' && $visualWidth !== 50) {
+if ($image !== '' && $layout === 'side' && $visualWidth !== 50) {
     $templateCss = '@media (min-width:901px){#block-' . (int) $blockId
         . ' .block-textimage{--textimage-info:' . (100 - $visualWidth) . 'fr;--textimage-visual:' . $visualWidth . 'fr}}';
 }
 ?>
-<div class="block-textimage block-textimage--image-<?= $imageSide ?> block-textimage--ratio-<?= htmlspecialchars($ratio, ENT_QUOTES) ?><?= $image !== '' ? '' : ' block-textimage--no-image' ?>">
-    <div class="textimage__info">
+<div class="block-textimage block-textimage--layout-<?= htmlspecialchars($layout, ENT_QUOTES) ?> block-textimage--image-<?= $imageSide ?> block-textimage--ratio-<?= htmlspecialchars($ratio, ENT_QUOTES) ?><?= $image !== '' ? '' : ' block-textimage--no-image' ?>">
+    <?php // У «Текста поверх фото» текст лежит карточкой со своей поверхностью:
+          // класс --card входит в SectionColors::SURFACES, и на тёмной секции
+          // текст карточки остаётся тёмным на светлом. ?>
+    <div class="textimage__info<?= $layout === 'overlap' ? ' textimage__info--card' : '' ?>">
         <?php if ($title !== ''): ?><h2 class="textimage__title"><?= \App\Core\TitleMarkup::html($title) ?></h2><?php endif; ?>
         <?php if ($text !== ''): ?><div class="textimage__text rich-content"><?= $text ?></div><?php endif; ?>
         <?php if (!empty($items)): ?>

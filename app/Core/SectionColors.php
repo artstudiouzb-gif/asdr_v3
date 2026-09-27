@@ -62,6 +62,7 @@ final class SectionColors
         '.social-embed-card',
         '.team-card',
         '.testimonial',
+        '.textimage__info--card',
         '.timeline-card',
         '.widget--style-card',
     ];
