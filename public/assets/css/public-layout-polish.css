@@ -834,3 +834,88 @@ body.design-surface-interactive .block-contact-cards--panel-auto .feature-card.c
 .block-contact-cards--panel-none .feature-card.contact-card .feature-card__num {
     display: none;
 }
+
+/* ============================================================================
+   «Ссылки «Все …» у разделов» и «Контурные кнопки при наведении» — настройки
+   «Дизайна» (DesignSettings: link_style, button_fill; классы на <body>).
+
+   Подчёркивание рисуется фоном, а не text-decoration: линию нужно тянуть
+   слева направо, а у декорации нет размера, который можно анимировать.
+   Цвет — currentColor, поэтому на тёмной секции линия светлеет вместе с
+   текстом ссылки. На касании наведения нет, и ссылка без стрелки выглядела бы
+   обычным текстом, поэтому там линия стоит сразу.
+   Ссылка в тексте обязана быть видна без наведения: в покое у неё тонкая
+   приглушённая линия, при наведении поверх прорисовывается полная.
+
+   Заливка кнопки — ::before под текстом (isolation держит её над фоном
+   кнопки, но под подписью). ::after занят бликом у кнопок обложек, поэтому
+   берётся именно ::before. Кнопки помечены классом-зацепкой .btn-fill в
+   разметке (у каждого блока своё имя контура), поэтому список кнопок один —
+   в шаблонах, а не второй копией здесь. Режимный класс намеренно добавляет вес:
+   правила ховера у кнопок блоков подключаются после бандла, и перебить их
+   должна именно настройка.
+   ========================================================================= */
+.design-links-draw .section-head__arrow { display: none; }
+.design-links-draw .section-head__all-text {
+    padding-block-end: 2px;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 2px no-repeat;
+}
+.design-links-draw .section-head__all:is(:hover, :focus-visible) .section-head__all-text { background-size: 100% 2px; }
+
+.design-links-draw :where(.rich-content) a {
+    text-decoration: none;
+    background-image:
+        linear-gradient(color-mix(in srgb, currentColor 40%, transparent), color-mix(in srgb, currentColor 40%, transparent)),
+        linear-gradient(currentColor, currentColor);
+    background-position: 0 100%, 0 100%;
+    background-size: 100% 1px, 0 2px;
+    background-repeat: no-repeat;
+    padding-block-end: 1px;
+}
+.design-links-draw :where(.rich-content) a:is(:hover, :focus-visible) { background-size: 100% 1px, 100% 2px; }
+
+@media (hover: none) {
+    .design-links-draw .section-head__all-text { background-size: 100% 2px; }
+}
+
+.design-btnfill-accent { --btn-fill: var(--gov-teal); --btn-fill-fg: var(--on-accent, #fff); }
+.design-btnfill-primary { --btn-fill: var(--gov-navy); --btn-fill-fg: #fff; }
+/* На тёмной подложке основной цвет слился бы с фоном — заливка берёт светлый
+   цвет самой подписи, а текст уходит в тёмный. */
+.design-btnfill-primary .hero__cta--ghost { --btn-fill: var(--hero-fg); --btn-fill-fg: var(--hero-bg); }
+.design-btnfill-primary :is(.block-hero__button--ghost, .block-banner--scheme-navy .block-banner__button--ghost, .cms-block--bg-navy .block-buttons__btn--outline) { --btn-fill: #fff; --btn-fill-fg: var(--gov-navy); }
+:root[data-theme="dark"] .design-btnfill-primary { --btn-fill: var(--gov-title); --btn-fill-fg: var(--gov-bg); }
+
+.design-btnfill .btn-fill {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+.design-btnfill .btn-fill::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--btn-fill);
+    transform: scaleX(0);
+    transform-origin: left center;
+    pointer-events: none;
+}
+.design-btnfill-primary .btn-fill::before {
+    transform: scaleY(0);
+    transform-origin: center bottom;
+}
+.design-btnfill .btn-fill:is(:hover, :focus-visible)::before { transform: none; }
+.design-btnfill .btn-fill:is(:hover, :focus-visible) {
+    color: var(--btn-fill-fg);
+    border-color: var(--btn-fill);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .design-links-draw .section-head__all-text,
+    .design-links-draw :where(.rich-content) a { transition: background-size .35s cubic-bezier(.2, .7, .2, 1); }
+    .design-btnfill .btn-fill::before {
+        transition: transform .38s cubic-bezier(.2, .7, .2, 1);
+    }
+}

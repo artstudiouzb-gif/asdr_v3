@@ -95,10 +95,7 @@ final class SectionHead
 
         if ($allUrl !== '' || $tools !== '') {
             $html .= '<div class="section-head__tools">';
-            $all = $allUrl !== ''
-                ? '<a class="section-head__all" href="' . htmlspecialchars($allUrl, ENT_QUOTES) . '">'
-                    . htmlspecialchars($allText, ENT_QUOTES) . ' →</a>'
-                : '';
+            $all = $allUrl !== '' ? self::allLink($allText, $allUrl) : '';
             // По умолчанию ссылка идёт первой — так у каруселей, где следом
             // стоят стрелки. У переключателя вкладок порядок обратный: вкладки
             // это навигация по содержимому, а ссылка «все» — выход из него, и
@@ -108,5 +105,22 @@ final class SectionHead
         }
 
         return $html . '</div>';
+    }
+
+    /**
+     * Ссылка «Все …» раздела.
+     *
+     * Стрелка — отдельный элемент, скрытый от диктора: «Все новости стрелка
+     * вправо» ему ничего не сообщает, а настройка «Дизайна» «Ссылки разделов»
+     * (`design-links-draw`) заменяет стрелку рисуемым подчёркиванием. Пока
+     * стрелка была частью текста, спрятать её было нечем. Шаблоны, которые
+     * собирают шапку сами, берут ссылку отсюда же — пятая копия разметки
+     * разъехалась бы с остальными при первой правке.
+     */
+    public static function allLink(string $text, string $url): string
+    {
+        return '<a class="section-head__all" href="' . htmlspecialchars($url, ENT_QUOTES) . '">'
+            . '<span class="section-head__all-text">' . htmlspecialchars($text, ENT_QUOTES) . '</span>'
+            . '<span class="section-head__arrow" aria-hidden="true">→</span></a>';
     }
 }
