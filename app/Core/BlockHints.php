@@ -53,7 +53,15 @@ final class BlockHints
         // подсказка срабатывает на явном перекосе: невысокая ячейка и текст
         // длиннее пары строк.
         if ($type === 'collage') {
-            foreach ((array) ($data['items'] ?? []) as $item) {
+            // Композиция по ролям берёт не все элементы, и какие именно —
+            // из формы не видно: редактору говорится прямо, что пропадёт.
+            $layout = (string) ($data['layout'] ?? '');
+            $hints = array_merge($hints, \App\Core\CollageComposition::problems(
+                $layout,
+                array_values(array_filter((array) ($data['items'] ?? []), 'is_array'))
+            ));
+            // У композиций нет ячеек, и «невысокая ячейка» там не бывает.
+            foreach (\App\Core\CollageLayout::isComposed($layout) ? [] : (array) ($data['items'] ?? []) as $item) {
                 if (!is_array($item) || ($item['type'] ?? '') !== 'quote') {
                     continue;
                 }

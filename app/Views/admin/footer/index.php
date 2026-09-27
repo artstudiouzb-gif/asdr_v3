@@ -113,7 +113,7 @@ $widgetSelect = function (string $name, string $current) use ($widgets): string 
                     'image' => 'Фотография или плитка-узор',
                     'pattern' => 'Встроенный узор',
                 ];
-                $fbgPatterns = ['dots' => 'Точки', 'grid' => 'Сетка', 'diagonal' => 'Диагональ', 'emblem' => 'Гирих (эмблема)'];
+                $fbgPatterns = \App\Core\BlockBackground::PATTERN_LABELS;
                 ?>
                 <div class="form-field">
                     <label for="bg_mode">Фон подвала</label>

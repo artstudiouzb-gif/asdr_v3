@@ -43,7 +43,22 @@ final class CollageLayout
         'hero' => 'Главный кадр и спутники',
         'mosaic' => 'Мозаика',
         'stack' => 'С наложением',
+        'callout' => 'Кадр и выноска',
+        'checker' => 'Шахматка',
+        'portrait' => 'Портрет и слово',
     ];
+
+    /**
+     * Композиции по ролям. Сетка ячеек у них не при чём: карточка с числом
+     * стоит в вырезе снимка, печать — на его краю, стеклянная карточка — поверх
+     * портрета. Такое не выразить номерами ячеек, поэтому места здесь не
+     * считаются вовсе, а элемент получает роль по своему типу: первая
+     * фотография — кадр, первый показатель или цитата — карточка, первая
+     * печать — печать, первый узор — фон за кадром (CollageComposition).
+     *
+     * @var list<string>
+     */
+    public const COMPOSED = ['callout', 'checker', 'portrait'];
 
     /**
      * Границы холста — те же, что принимает схема полей: «Колонок в сетке»
@@ -101,7 +116,13 @@ final class CollageLayout
     /** Пресет ли это (то есть места считаются, а не берутся из формы). */
     public static function isPreset(string $layout): bool
     {
-        return $layout !== self::FREE && isset(self::LAYOUTS[$layout]);
+        return $layout !== self::FREE && isset(self::LAYOUTS[$layout]) && !self::isComposed($layout);
+    }
+
+    /** Композиция по ролям (места не считаются ячейками вовсе). */
+    public static function isComposed(string $layout): bool
+    {
+        return in_array($layout, self::COMPOSED, true);
     }
 
     /**

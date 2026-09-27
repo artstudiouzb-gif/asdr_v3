@@ -104,8 +104,8 @@ final class BlockPresentationNormalizer
     /** Способ залить фон секции: пресет темы, свой цвет, градиент, фото, узор. */
     private const BACKGROUND_MODES = ['preset', 'color', 'gradient', 'image', 'pattern'];
 
-    /** Встроенные узоры: рисуются градиентами и маской, файлов не требуют. */
-    private const PATTERNS = ['dots', 'grid', 'diagonal', 'emblem'];
+    /** Встроенные узоры: набор один с фоном секции, файлов не требуют. */
+    private const PATTERNS = \App\Core\BlockBackground::PATTERNS;
 
     /**
      * Заливка секции: пресет темы, свой цвет, градиент или фотография.
