@@ -297,6 +297,24 @@ final class BlockFieldSchema
             ],
             'faq' => [
                 'title' => Field::text('Заголовок, показываемый на сайте')->named('title_field'),
+                'layout' => Field::enum('Раскладка', [
+                    'stack' => 'Одна колонка',
+                    'split' => 'Две колонки',
+                ], 'stack')
+                ->variants([
+                    'stack' => ['qa', 'Заголовок сверху, вопросы под ним — как было'],
+                    'split' => ['qa+aside', 'Слева закреплены заголовок, пояснение, темы и контакт; вопросы справа'],
+                ]),
+                'intro' => Field::textarea('Пояснение под заголовком', 'Например: куда обратиться, если ответа нет в списке.')
+                    ->onlyWhen('layout', ['split'])->group('Колонка слева'),
+                'contact_label' => Field::text('Подпись контакта', '', '', 'Приёмная')
+                    ->onlyWhen('layout', ['split'])->group('Колонка слева'),
+                'contact_value' => Field::text('Телефон или адрес почты', '', 'Телефон и почта становятся ссылками сами.')
+                    ->onlyWhen('layout', ['split'])->group('Колонка слева'),
+                'contact_link_text' => Field::text('Текст ссылки', '', '', 'Форма обращения')
+                    ->onlyWhen('layout', ['split'])->group('Колонка слева'),
+                'contact_link_url' => Field::url('Адрес ссылки')
+                    ->onlyWhen('layout', ['split'])->group('Колонка слева'),
                 'panel' => Field::enum('Подложка вопросов', [
                     'auto' => 'Как в «Дизайне»',
                     'card' => 'Карточка — фон, рамка и тень',

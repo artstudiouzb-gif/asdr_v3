@@ -2452,10 +2452,23 @@
         var category = list.querySelector('[data-faq-category]');
         var items = Array.prototype.slice.call(list.querySelectorAll('[data-faq-item]'));
         var empty = list.querySelector('[data-faq-empty]');
+        // Темы кнопками (раскладка «Две колонки»): без скрипта они ничего не
+        // фильтруют, поэтому приходят скрытыми и открываются здесь.
+        var topicWrap = list.querySelector('[data-faq-topics]');
+        var topics = Array.prototype.slice.call(list.querySelectorAll('[data-faq-topic]'));
+        var topic = '';
+        if (topicWrap) { topicWrap.hidden = false; }
+        topics.forEach(function (button) {
+            button.addEventListener('click', function () {
+                topic = button.getAttribute('data-faq-topic') || '';
+                topics.forEach(function (other) { other.setAttribute('aria-pressed', other === button ? 'true' : 'false'); });
+                apply();
+            });
+        });
 
         var apply = function () {
             var needle = query ? query.value.trim().toLocaleLowerCase() : '';
-            var selectedCategory = category ? category.value : '';
+            var selectedCategory = category ? category.value : topic;
             var visible = 0;
             items.forEach(function (item) {
                 var matchesText = needle === '' || (item.getAttribute('data-faq-search') || '').indexOf(needle) !== -1;

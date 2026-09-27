@@ -6334,6 +6334,48 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     font-size: var(--step--4); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
     padding: 4px 10px; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--gov-teal) 10%, transparent);
     color: var(--gov-teal-text); margin-left: auto;
+}
+/* «Две колонки»: слева закреплены заголовок, пояснение, темы и контакт —
+   при прокрутке длинного списка посетитель не теряет, где он и куда
+   обратиться, если ответа нет. */
+.block-faq--split {
+    display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+    gap: clamp(24px, 4vw, 56px); align-items: start;
+}
+.block-faq__aside {
+    position: sticky; top: calc(var(--scroll-offset, 0px) + 24px);
+    display: flex; flex-direction: column; align-items: flex-start; gap: 16px;
+}
+.block-faq__aside .section-head { margin: 0; text-align: left; align-items: flex-start; }
+.block-faq__main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.block-faq__intro { margin: 0; color: var(--section-muted-fg, var(--gov-muted)); font-size: var(--step-0); line-height: var(--base-line-height, 1.6); max-width: 42ch; }
+.faq-topics { display: grid; gap: 2px; width: 100%; }
+.faq-topics[hidden] { display: none; }
+.faq-topics__item {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    min-height: 44px; padding: 8px 12px; border: 0; border-radius: var(--radius-sm);
+    background: none; color: var(--section-muted-fg, var(--gov-muted)); font: inherit; font-size: var(--step--1); font-weight: 500;
+    text-align: left; cursor: pointer; transition: background-color .2s ease, color .2s ease;
+}
+.faq-topics__item:hover { color: var(--section-title-fg, var(--gov-title)); }
+.faq-topics__item[aria-pressed="true"] { background: color-mix(in srgb, var(--gov-navy) 7%, transparent); color: var(--section-title-fg, var(--gov-title)); font-weight: 600; }
+.faq-topics__count { font-variant-numeric: tabular-nums; }
+.block-faq__contact {
+    display: flex; flex-direction: column; gap: 4px; width: 100%;
+    padding-top: 16px; border-top: 1px solid var(--gov-border);
+}
+.block-faq__contact-label { color: var(--section-muted-fg, var(--gov-muted)); font-size: var(--step--1); }
+.block-faq__contact-value { color: var(--section-title-fg, var(--gov-title)); font-size: var(--step-1); font-weight: 600; font-variant-numeric: tabular-nums; text-decoration: none; }
+.block-faq__contact-link { color: var(--section-link-fg, var(--gov-teal-text)); font-weight: 600; }
+/* На телефоне колонки встают одна под другой, и контакт уходит под вопросы:
+   иначе список начинался бы только со второго экрана. */
+@media (max-width: 900px) {
+    .block-faq--split { display: flex; flex-direction: column; gap: 20px; }
+    .block-faq__aside { display: contents; }
+    .block-faq__main { order: 1; }
+    .block-faq__contact { order: 2; }
+    .faq-topics { display: flex; flex-wrap: wrap; gap: 6px; }
+    .faq-topics__item { border: 1px solid var(--gov-border); }
 }/* --- Документы и списки актов (Docs Grid / List) --- */
 
 .docslist-grid { display: grid; grid-template-columns: repeat(var(--grid-track, 3), minmax(0, 1fr)); gap: 18px; }
