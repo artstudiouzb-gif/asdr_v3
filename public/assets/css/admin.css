@@ -2406,6 +2406,8 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
     background: var(--admin-surface);
     padding: 4px;
 }
+/* Подложка фигуры, которая лежит поверх другой (карточка поверх фото). */
+.variant-card__solid { fill: var(--admin-surface); fill-opacity: 1; }
 .variant-card__name {
     color: var(--admin-text);
     font-size: var(--admin-fs-sm);

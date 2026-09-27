@@ -485,7 +485,12 @@ final class VariantPreview
     private static function photoCard(): string
     {
         $out = self::box(self::PAD + 20, self::PAD, self::W - self::PAD * 2 - 20, self::H - self::PAD * 2, 0.3);
-        $out .= '<rect x="' . self::n(self::PAD) . '" y="' . self::n(self::PAD + 8) . '" width="30" height="18" rx="2" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-opacity="0.55" stroke-width="1"/>';
+        // Карточка лежит поверх фото, поэтому под полупрозрачной заливкой —
+        // непрозрачная подложка цветом плитки: иначе фото просвечивает, и
+        // рисунок читается как «текст под фото».
+        $card = 'x="' . self::n(self::PAD) . '" y="' . self::n(self::PAD + 8) . '" width="30" height="18" rx="2"';
+        $out .= '<rect class="variant-card__solid" ' . $card . ' fill="currentColor" fill-opacity="0"/>';
+        $out .= '<rect ' . $card . ' fill="currentColor" opacity="0.08" stroke="currentColor" stroke-opacity="0.55" stroke-width="1"/>';
         $out .= self::line(self::PAD + 3, self::PAD + 12, 20, 0.55);
         $out .= self::line(self::PAD + 3, self::PAD + 17, 24, 0.3);
         $out .= self::line(self::PAD + 3, self::PAD + 21, 16, 0.3);
