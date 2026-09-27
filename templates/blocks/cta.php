@@ -135,7 +135,7 @@ $customClasses = $customClasses !== '' ? ' ' . $customClasses : '';
                         <a class="block-banner__button" href="<?= htmlspecialchars($buttonUrl, ENT_QUOTES) ?>"><?= htmlspecialchars($buttonText, ENT_QUOTES) ?></a>
                     <?php endif; ?>
                     <?php if ($button2Text !== '' && $button2Url !== ''): ?>
-                        <a class="block-banner__button block-banner__button--ghost" href="<?= htmlspecialchars($button2Url, ENT_QUOTES) ?>"><?= htmlspecialchars($button2Text, ENT_QUOTES) ?></a>
+                        <a class="block-banner__button block-banner__button--ghost btn-fill" href="<?= htmlspecialchars($button2Url, ENT_QUOTES) ?>"><?= htmlspecialchars($button2Text, ENT_QUOTES) ?></a>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>

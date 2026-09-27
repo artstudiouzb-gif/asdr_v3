@@ -119,10 +119,11 @@ test('Раздел «Дизайн» не предлагает настроек, 
         . file_get_contents(APP_ROOT . '/public/assets/css/public-layout-polish.css');
     $body = \App\Core\DesignSettings::bodyClasses(['catalog_layout' => 'list', 'sidebar_position' => 'fixed',
         'card_style' => 'flat', 'detail_layout' => 'sidebar', 'scroll_top' => 'on',
-        'title_reveal' => 'wipe', 'section_marker' => 'emblem', 'block_surface' => 'interactive']);
+        'title_reveal' => 'wipe', 'section_marker' => 'emblem', 'block_surface' => 'interactive',
+        'link_style' => 'draw', 'button_fill' => 'primary']);
     foreach (['design-catalog-list', 'design-sidebar-fixed', 'design-cards-flat', 'design-detail-sidebar',
               'design-scrolltop', 'design-title-wipe', 'design-secmark-emblem',
-              'design-surface-interactive'] as $class) {
+              'design-surface-interactive', 'design-links-draw', 'design-btnfill-primary'] as $class) {
         assert_contains($class, $body);
         assert_contains($class, $css, 'класс ' . $class . ' выводится, но не оформлен');
     }

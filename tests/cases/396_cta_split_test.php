@@ -60,7 +60,7 @@ test('Схема, сторона и вторая кнопка доходят д�
     $html = cta_split_html(['split_scheme' => 'navy', 'image_side' => 'left', 'button2_text' => 'Как пользоваться', 'button2_url' => '/faq']);
     assert_contains('block-banner--scheme-navy', $html);
     assert_contains('block-banner--photo-left', $html);
-    assert_contains('block-banner__button--ghost" href="/faq">Как пользоваться', $html);
+    assert_contains('block-banner__button--ghost btn-fill" href="/faq">Как пользоваться', $html);
 
     // Ссылка второй кнопки проверяется так же, как первой: `javascript:` — чужой код.
     $unsafe = cta_split_html(['button2_text' => 'Опасно', 'button2_url' => 'javascript:alert(1)']);

@@ -12,7 +12,7 @@ $fmt = static fn (string $d): string => DateFormatter::short($d);
     <div class="newsdocs-col">
         <div class="section-head">
             <?php if (!empty($data['news_title'])): ?><h2 class="section-head__title"><?= \App\Core\TitleMarkup::html((string) $data['news_title']) ?></h2><?php endif; ?>
-            <?php if (!empty($data['news_all_text']) && !empty($data['news_all_url'])): ?><a class="section-head__all" href="<?= htmlspecialchars((string) $data['news_all_url'], ENT_QUOTES) ?>"><?= htmlspecialchars((string) $data['news_all_text'], ENT_QUOTES) ?> →</a><?php endif; ?>
+            <?php if (!empty($data['news_all_text']) && !empty($data['news_all_url'])): ?><?= \App\Core\SectionHead::allLink((string) $data['news_all_text'], (string) $data['news_all_url']) ?><?php endif; ?>
         </div>
         <?php if (empty($news)): ?>
             <p class="block-newsdocs__empty"><?= htmlspecialchars(t('Новостей пока нет.'), ENT_QUOTES) ?></p>
@@ -37,7 +37,7 @@ $fmt = static fn (string $d): string => DateFormatter::short($d);
     <div class="newsdocs-col">
         <div class="section-head">
             <?php if (!empty($data['docs_title'])): ?><h2 class="section-head__title"><?= \App\Core\TitleMarkup::html((string) $data['docs_title']) ?></h2><?php endif; ?>
-            <?php if (!empty($data['docs_all_text']) && !empty($data['docs_all_url'])): ?><a class="section-head__all" href="<?= htmlspecialchars((string) $data['docs_all_url'], ENT_QUOTES) ?>"><?= htmlspecialchars((string) $data['docs_all_text'], ENT_QUOTES) ?> →</a><?php endif; ?>
+            <?php if (!empty($data['docs_all_text']) && !empty($data['docs_all_url'])): ?><?= \App\Core\SectionHead::allLink((string) $data['docs_all_text'], (string) $data['docs_all_url']) ?><?php endif; ?>
         </div>
         <?php if (empty($docs)): ?>
             <p class="block-newsdocs__empty"><?= htmlspecialchars(t('Документы ещё не добавлены.'), ENT_QUOTES) ?></p>

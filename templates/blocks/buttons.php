@@ -27,7 +27,7 @@ $items = array_values(array_filter((array) ($data['items'] ?? []), 'is_array'));
                   // его в navy через !important и не задаёт отступов, поэтому
                   // «контурная» и «ссылкой» превратились бы в ту же заливку.
                   // Вид «основная» повторяет ту же кнопку своими правилами. ?>
-            <a class="block-buttons__btn block-buttons__btn--<?= htmlspecialchars((string) $item['style'], ENT_QUOTES) ?>"
+            <a class="block-buttons__btn block-buttons__btn--<?= htmlspecialchars((string) $item['style'], ENT_QUOTES) ?><?= $item['style'] === 'outline' ? ' btn-fill' : '' ?>"
                href="<?= htmlspecialchars((string) $item['url'], ENT_QUOTES) ?>"
                <?php // Внешняя вкладка без rel — приглашение подменить нашу страницу
                      // через window.opener. ?>

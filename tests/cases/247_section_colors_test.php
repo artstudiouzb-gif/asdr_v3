@@ -168,7 +168,7 @@ test('Шапка секции: ссылка «все» умеет стоять �
         strpos($swapped, 'media-tabs') < strpos($swapped, 'section-head__all'),
         'вкладки идут первыми, ссылка — после них'
     );
-    assert_contains('Все материалы →', $swapped);
+    assert_contains('<span class="section-head__all-text">Все материалы</span><span class="section-head__arrow" aria-hidden="true">→</span>', $swapped);
 });
 
 test('Медиатека: ссылка «все» стоит после вкладок и прижата вправо', function () {
