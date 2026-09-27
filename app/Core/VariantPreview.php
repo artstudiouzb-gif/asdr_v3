@@ -51,6 +51,8 @@ final class VariantPreview
         'bars' => 'горизонтальные полосы',
         'stacked' => 'одна полоса из долей',
         'meter' => 'шкала выполнения',
+        'axis' => 'точки на линии от базы к цели',
+        'goal' => 'числа с полосой пути к цели',
         'rule' => 'горизонтальная линия',
         'emblem' => 'знак по центру',
         'space' => 'пустое место',
@@ -99,6 +101,8 @@ final class VariantPreview
             'bars' => self::bars(),
             'stacked' => self::stacked(),
             'meter' => self::meter(),
+            'axis' => self::axis(),
+            'goal' => self::goal(),
             'rule' => self::rule($mods),
             'emblem' => self::emblem(),
             'space' => self::space(),
@@ -454,6 +458,44 @@ final class VariantPreview
         $out = self::box(self::PAD, $y, self::W - self::PAD * 2, 6, 0.18, 3);
         $out .= self::box(self::PAD, $y, (self::W - self::PAD * 2) * 0.62, 6, 0.6, 3);
         $out .= self::line(self::PAD, $y - 7, 16, 0.4);
+
+        return $out;
+    }
+
+    /** Три показателя: крупное число, под ним полоса пройденного пути и черта цели. */
+    private static function goal(): string
+    {
+        $out = '';
+        $gap = 4;
+        $w = (self::W - self::PAD * 2 - $gap * 2) / 3;
+        foreach ([0.7, 0.45, 0.85] as $i => $share) {
+            $x = self::PAD + $i * ($w + $gap);
+            $out .= self::box($x, self::PAD + 6, $w * 0.6, 7, 0.65, 1);
+            $out .= self::line($x, self::PAD + 16, $w * 0.8, 0.3);
+            $out .= self::box($x, self::PAD + 23, $w, 3, 0.18, 1.5);
+            $out .= self::box($x, self::PAD + 23, $w * $share, 3, 0.7, 1.5);
+            $out .= self::box($x + $w - 0.8, self::PAD + 21, 0.8, 7, 0.55, 0);
+        }
+
+        return $out;
+    }
+
+    /** Линия от базы к цели: пройденная часть, текущая точка и подписи под точками. */
+    private static function axis(): string
+    {
+        $out = '';
+        foreach ([self::PAD + 6, self::H / 2 + 8] as $y) {
+            $width = self::W - self::PAD * 2;
+            $out .= self::box(self::PAD, $y, $width, 2, 0.2, 1);
+            $out .= self::box(self::PAD, $y, $width * 0.6, 2, 0.6, 1);
+            foreach ([0.0, 0.6, 1.0] as $i => $at) {
+                $x = self::PAD + $width * $at;
+                $out .= '<circle cx="' . self::n($x) . '" cy="' . self::n($y + 1) . '" r="2.2" fill="currentColor" opacity="'
+                    . ($i === 1 ? '0.9' : '0.4') . '"/>';
+            }
+            $out .= self::line(self::PAD, $y + 5, 8, 0.3);
+            $out .= self::line(self::W - self::PAD - 8, $y + 5, 8, 0.3);
+        }
 
         return $out;
     }

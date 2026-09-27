@@ -359,3 +359,123 @@ body.design-surface-interactive .block-counters--panel-auto:hover {
     box-shadow: none;
 }
 
+
+/* --- Путь к цели: варианты «Полоса к цели» и «Шкала по годам» ---
+   Число без цели не говорит, много это или мало, поэтому рядом — пройденная
+   доля пути (CounterGoal, от базы, а не от нуля). Доля приходит переменной
+   --counter-goal у своей ячейки из scoped CSS блока. Показатель без цели в
+   этих вариантах остаётся обычным числом (класса counter--goal у него нет). */
+.block-counters--progress .block-counters__grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: clamp(24px, 3vw, 40px); }
+.block-counters--scale .block-counters__grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+.block-counters--progress .counter,
+.block-counters--scale .counter { border-right: 0; padding: 0; }
+/* Вес двух классов намеренно: раскладка показателя по положению иконки
+   (`.block-counters--icon-pos-* .counter`) ставит число и всё остальное в
+   ряд, и полоса вставала сбоку от числа, а не под ним. */
+.block-counters--progress .counter--goal { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+.counter__head { display: flex; gap: 14px; align-items: flex-start; }
+.counter__goal { display: grid; gap: 10px; align-content: start; }
+.counter__track,
+.counter__axis {
+    position: relative;
+    display: block;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--counters-text, var(--gov-title)) 10%, transparent);
+}
+.counter__track { height: 10px; }
+.counter__fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--counter-goal);
+    border-radius: inherit;
+    background: var(--gov-teal);
+}
+/* Отметка цели — у правого края шкалы: полоса показывает не «сколько
+   процентов», а «сколько осталось до черты». */
+.counter__tick {
+    position: absolute;
+    top: -5px;
+    right: 0;
+    bottom: -5px;
+    width: 2px;
+    border-radius: var(--radius-xs);
+    background: var(--counters-text, var(--gov-title));
+    opacity: .45;
+}
+.counter__goal-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 12px;
+    color: var(--counters-text, var(--gov-muted));
+    font-size: var(--step--2);
+    font-variant-numeric: tabular-nums;
+}
+.counter__delta { color: var(--gov-teal-text); font-size: var(--step--2); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* «Шкала по годам»: число и подпись слева, линия от базы к цели справа. */
+.block-counters--scale .counter--goal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr); align-items: center; gap: 12px 32px; }
+.counter__axis { height: 4px; margin-block: 8px; }
+.counter__point {
+    position: absolute;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 3px solid color-mix(in srgb, var(--counters-text, var(--gov-title)) 40%, transparent);
+    border-radius: 50%;
+    background: var(--counters-bg, var(--gov-surface));
+}
+.counter__point--base { left: 0; }
+.counter__point--now { left: var(--counter-goal); border-color: var(--gov-teal); background: var(--gov-teal); }
+.counter__point--target { left: 100%; }
+.counter__axis-labels {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 1.4em;
+    color: var(--counters-text, var(--gov-muted));
+    font-size: var(--step--2);
+    font-variant-numeric: tabular-nums;
+}
+/* Год и число разведены весом, а не точкой-разделителем: строка вида
+   «2023 · 41» — признак шаблонной страницы (бюджет tell_middots). */
+.counter__axis-year { font-weight: 400; opacity: .8; margin-right: .35em; }
+/* Подпись текущей точки стоит под ней, но не наезжает на крайние: у краёв
+   шкалы её держит clamp. */
+.counter__axis-now {
+    position: absolute;
+    left: clamp(24%, var(--counter-goal), 76%);
+    transform: translateX(-50%);
+    color: var(--counters-text, var(--gov-title));
+    font-weight: 600;
+    white-space: nowrap;
+}
+@media (max-width: 720px) {
+    .block-counters--scale .counter--goal { grid-template-columns: minmax(0, 1fr); }
+    /* На узкой шкале подпись у точки наезжала на подпись базы (замерено на
+       390px при 23 % пути): три подписи встают ровными колонками, а место
+       текущего значения показывает сама точка. */
+    .counter__axis-labels { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+    .counter__axis-labels > :last-child { text-align: right; }
+    .counter__axis-now { position: static; transform: none; text-align: center; }
+}
+
+/* Полоса дорастает до значения, когда показатель выходит на экран. Прокрутка
+   остаётся системной: это нативная временная шкала, а не перехват. */
+@supports (animation-timeline: view()) {
+    .counter--goal .counter__fill {
+        animation: counter-goal-grow linear both;
+        animation-timeline: view();
+        animation-range: entry 20% cover 40%;
+    }
+    @keyframes counter-goal-grow {
+        from { width: 0; }
+        to { width: var(--counter-goal); }
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .counter--goal .counter__fill { animation: none; }
+}
+html[data-a11y-motion="off"] .counter--goal .counter__fill { animation: none; }

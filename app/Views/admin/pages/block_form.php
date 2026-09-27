@@ -479,6 +479,30 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
 
         <?php if ($type === 'counters'): ?>
             <?= \App\Core\BlockData\BlockFieldSchema::formHtml('counters', $data) ?>
+            <?php
+            // Поля пути к цели печатает одна функция: и для строк, и для
+            // шаблона новой строки — вторая копия разъехалась бы с первой.
+            $counterGoalFields = static function (string $i, array $item): string {
+                $field = static function (string $name, string $label, string $placeholder, int $max) use ($i, $item): string {
+                    return '<div class="form-field"><label>' . htmlspecialchars($label, ENT_QUOTES) . '</label>'
+                        . '<input type="text" name="items[' . $i . '][' . $name . ']" maxlength="' . $max . '" value="'
+                        . htmlspecialchars((string) ($item[$name] ?? ''), ENT_QUOTES) . '" placeholder="' . htmlspecialchars($placeholder, ENT_QUOTES) . '"></div>';
+                };
+
+                // Видна только при этих видах — тем же условием показа, что у
+                // полей схемы: без JavaScript группа просто остаётся видимой.
+                return '<fieldset class="bf-group" data-field-when="variant" data-field-value="progress,scale"><legend>Путь к цели</legend>'
+                    . '<span class="form-hint">Без цели показатель в этих видах выводится обычным числом. Доля пути считается от базы: с 41 до 68 при цели 100 — это 46 %.</span>'
+                    . '<div class="form-grid-2col">'
+                    . $field('target', 'Цель', '100', 24)
+                    . $field('base', 'База (откуда начали)', '0', 24)
+                    . $field('target_label', 'Подпись цели', '2030', 16)
+                    . $field('base_label', 'Подпись базы', '2023', 16)
+                    . $field('now_label', 'Подпись текущего значения', '2026', 16)
+                    . $field('delta', 'Изменение', '+6 п.п. за год', 40)
+                    . '</div></fieldset>';
+            };
+            ?>
             <div>
                 <label>Счётчики</label>
                 <div data-repeater="items">
@@ -493,6 +517,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                             <div class="form-field"><label>Подпись</label><input type="text" name="items[<?= $i ?>][label]" value="<?= htmlspecialchars($item['label'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field"><label>Примечание</label><input type="text" name="items[<?= $i ?>][note]" maxlength="120" value="<?= htmlspecialchars($item['note'] ?? '', ENT_QUOTES) ?>" placeholder="по данным на 2026 год"></div>
                             <div class="form-field"><label>Ссылка</label><input type="text" name="items[<?= $i ?>][link]" value="<?= htmlspecialchars($item['link'] ?? '', ENT_QUOTES) ?>" placeholder="/page"></div>
+                            <?= $counterGoalFields((string) $i, is_array($item) ? $item : []) ?>
                             <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
                             <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
                             <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
@@ -508,6 +533,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     <div class="form-field"><label>Подпись</label><input type="text" name="items[__INDEX__][label]"></div>
                     <div class="form-field"><label>Примечание</label><input type="text" name="items[__INDEX__][note]" maxlength="120"></div>
                     <div class="form-field"><label>Ссылка</label><input type="text" name="items[__INDEX__][link]" placeholder="/page"></div>
+                    <?= $counterGoalFields('__INDEX__', []) ?>
                     <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
                     <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
                     <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
