@@ -16,8 +16,14 @@ $image = trim((string) ($data['image'] ?? ''));
 $variant = (string) $data['variant'];
 $mediaClasses = MediaPosition::classes($data['image_position'] ?? null, $data['image_position_mobile'] ?? null);
 
+$button2Text = trim((string) ($data['button2_text'] ?? ''));
+$button2Url = trim((string) ($data['button2_url'] ?? ''));
+
 if ($buttonUrl !== '' && !UrlGuard::isSafeLink($buttonUrl)) {
     $buttonUrl = '';
+}
+if ($button2Url !== '' && !UrlGuard::isSafeLink($button2Url)) {
+    $button2Url = '';
 }
 if ($image !== '' && !UrlGuard::isSafeMedia($image)) {
     $image = '';
@@ -81,11 +87,11 @@ if ($variant === 'band') {
     [$vars, $customClasses] = $custom('banner', 'block-banner');
     $safeImage = str_replace(["\\", "'"], ["\\\\", "\\'"], $image);
     if ($variant === 'media-light') {
+        // Фото — настоящая картинка, а не фон: у фона не бывает уменьшенных
+        // копий и ленивой загрузки. Прежде оно и не показывалось вовсе —
+        // сокращённый `background` в теме обнулял `background-image`.
         if ($vars !== '') {
             $templateCss .= $scope . ' .block-banner{' . $vars . '}';
-        }
-        if ($safeImage !== '') {
-            $templateCss .= "\n" . $scope . " .block-banner__photo{--block-banner-image:url('" . $safeImage . "')}";
         }
     } else {
         $background = $safeImage !== ''
@@ -114,8 +120,34 @@ $customClasses = $customClasses !== '' ? ' ' . $customClasses : '';
             <a class="ctaband__button" href="<?= htmlspecialchars($buttonUrl, ENT_QUOTES) ?>"><?= htmlspecialchars($buttonText, ENT_QUOTES) ?> →</a>
         <?php endif; ?>
     </div>
+<?php elseif ($variant === 'media-light'): ?>
+    <?php
+    $splitClasses = 'block-banner block-banner--light block-banner--scheme-' . (string) $data['split_scheme']
+        . ' block-banner--photo-' . (string) $data['image_side'] . ($image !== '' ? ' block-banner--has-photo' : '');
+    ?>
+    <div class="<?= $splitClasses ?><?= $customClasses ?>">
+        <div class="block-banner__inner">
+            <?php if ($title !== ''): ?><h2 class="block-banner__title"><?= \App\Core\TitleMarkup::html($title) ?></h2><?php endif; ?>
+            <?php if ($text !== ''): ?><p class="block-banner__text"><?= htmlspecialchars($text, ENT_QUOTES) ?></p><?php endif; ?>
+            <?php if (($buttonText !== '' && $buttonUrl !== '') || ($button2Text !== '' && $button2Url !== '')): ?>
+                <div class="block-banner__actions">
+                    <?php if ($buttonText !== '' && $buttonUrl !== ''): ?>
+                        <a class="block-banner__button" href="<?= htmlspecialchars($buttonUrl, ENT_QUOTES) ?>"><?= htmlspecialchars($buttonText, ENT_QUOTES) ?></a>
+                    <?php endif; ?>
+                    <?php if ($button2Text !== '' && $button2Url !== ''): ?>
+                        <a class="block-banner__button block-banner__button--ghost" href="<?= htmlspecialchars($button2Url, ENT_QUOTES) ?>"><?= htmlspecialchars($button2Text, ENT_QUOTES) ?></a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php if ($image !== ''): ?>
+            <div class="block-banner__media">
+                <?= \App\Core\Media::picture($image, '', null, null, 'block-banner__img ' . $mediaClasses, true, '(max-width: 900px) 100vw, 50vw') ?>
+            </div>
+        <?php endif; ?>
+    </div>
 <?php elseif (str_starts_with($variant, 'media-')): ?>
-    <div class="block-banner<?= $variant === 'media-light' ? ' block-banner--light' : ($image !== '' ? ' block-banner--image' : '') ?><?= $customClasses ?> <?= $mediaClasses ?>">
+    <div class="block-banner<?= $image !== '' ? ' block-banner--image' : '' ?><?= $customClasses ?> <?= $mediaClasses ?>">
         <div class="block-banner__inner">
             <?php if ($title !== ''): ?><h2 class="block-banner__title"><?= \App\Core\TitleMarkup::html($title) ?></h2><?php endif; ?>
             <?php if ($text !== ''): ?><p class="block-banner__text"><?= htmlspecialchars($text, ENT_QUOTES) ?></p><?php endif; ?>
@@ -123,7 +155,6 @@ $customClasses = $customClasses !== '' ? ' ' . $customClasses : '';
                 <a class="block-banner__button" href="<?= htmlspecialchars($buttonUrl, ENT_QUOTES) ?>"><?= htmlspecialchars($buttonText, ENT_QUOTES) ?></a>
             <?php endif; ?>
         </div>
-        <?php if ($variant === 'media-light' && $image !== ''): ?><span class="block-banner__photo <?= $mediaClasses ?>"></span><?php endif; ?>
     </div>
 <?php else: ?>
     <div class="block-cta<?= $customClasses ?>">

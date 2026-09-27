@@ -19,6 +19,8 @@ test('CTA normalizer: сохраняет контракт, цвета и без�
 
     assert_same([
         'variant' => 'card',
+        'split_scheme' => 'light',
+        'image_side' => 'right',
         'title' => 'Заголовок',
         'text' => 'Описание',
         'icon_svg' => '',
@@ -27,6 +29,8 @@ test('CTA normalizer: сохраняет контракт, цвета и без�
         'image_position_mobile' => 'center-center',
         'button_text' => 'Подробнее',
         'button_url' => '',
+        'button2_text' => '',
+        'button2_url' => '',
         'bg_color' => '#aabbcc',
         'text_color' => '',
         'button_color' => '',
@@ -38,6 +42,8 @@ test('CTA normalizer: сохраняет контракт, цвета и без�
 test('CTA normalizer: сохраняет медиа-вариант, изображение и безопасную ссылку', function () {
     $data = BlockFieldSchema::normalize('cta', [
         'variant' => 'media-light',
+        'split_scheme' => 'navy',
+        'image_side' => 'sideways',
         'title_field' => '  Баннер  ',
         'text' => '  Текст  ',
         'image' => ' /uploads/public/banner.jpg ',
@@ -45,6 +51,8 @@ test('CTA normalizer: сохраняет медиа-вариант, изобра
         'image_position_mobile' => 'center-bottom',
         'button_text' => ' Открыть ',
         'button_url' => ' https://example.com/page ',
+        'button2_text' => ' Как пользоваться ',
+        'button2_url' => ' javascript:alert(1) ',
         'bg_color' => '#010203',
         'text_color' => '#A0B0C0',
         'button_color' => '#FFFFFF',
@@ -53,6 +61,8 @@ test('CTA normalizer: сохраняет медиа-вариант, изобра
 
     assert_same([
         'variant' => 'media-light',
+        'split_scheme' => 'navy',
+        'image_side' => 'right',
         'title' => 'Баннер',
         'text' => 'Текст',
         'icon_svg' => '',
@@ -61,6 +71,8 @@ test('CTA normalizer: сохраняет медиа-вариант, изобра
         'image_position_mobile' => 'center-bottom',
         'button_text' => 'Открыть',
         'button_url' => 'https://example.com/page',
+        'button2_text' => "Как\u{00A0}пользоваться",
+        'button2_url' => '',
         'bg_color' => '#010203',
         'text_color' => '#a0b0c0',
         'button_color' => '',
