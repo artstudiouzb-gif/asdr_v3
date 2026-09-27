@@ -274,11 +274,18 @@ final class BlockFieldSchema
                 'variant' => Field::enum('Вариант отображения', [
                     'carousel' => 'Карусель',
                     'grid' => 'Сетка',
+                    'feature' => 'Одна цитата',
                 ], 'carousel')
                 ->variants([
                     'carousel' => ['track:3', 'Отзывы едут полосой, листаются стрелками'],
                     'grid' => ['grid:2', 'Отзывы стоят рядами — видно все сразу'],
+                    'feature' => ['quote', 'Одна крупная цитата с портретом — для слова руководителя. Показывается первый отзыв списка'],
                 ]),
+                'portrait' => Field::enum('Портрет', [
+                    'round' => 'Круглый слева',
+                    'tall' => 'Во всю высоту, цитата на основном цвете',
+                    'mini' => 'Маленький у подписи и росчерк',
+                ], 'round', 'Росчерк набирается рукописным шрифтом из «Дизайна».')->onlyWhen('variant', ['feature']),
                 'title' => Field::text('Заголовок, показываемый на сайте')->named('title_field'),
                 'description' => Field::textarea('Описание раздела'),
                 'columns' => Field::intChoice(
