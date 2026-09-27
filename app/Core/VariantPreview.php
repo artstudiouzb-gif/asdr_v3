@@ -53,6 +53,9 @@ final class VariantPreview
         'meter' => 'шкала выполнения',
         'axis' => 'точки на линии от базы к цели',
         'goal' => 'числа с полосой пути к цели',
+        'bleed' => 'текст и фото, уходящее за край',
+        'photo-card' => 'фото и карточка текста поверх него',
+        'wide' => 'фото во всю ширину, текст под ним со сдвигом',
         'rule' => 'горизонтальная линия',
         'emblem' => 'знак по центру',
         'space' => 'пустое место',
@@ -103,6 +106,9 @@ final class VariantPreview
             'meter' => self::meter(),
             'axis' => self::axis(),
             'goal' => self::goal(),
+            'bleed' => self::bleed(),
+            'photo-card' => self::photoCard(),
+            'wide' => self::wide(),
             'rule' => self::rule($mods),
             'emblem' => self::emblem(),
             'space' => self::space(),
@@ -458,6 +464,48 @@ final class VariantPreview
         $out = self::box(self::PAD, $y, self::W - self::PAD * 2, 6, 0.18, 3);
         $out .= self::box(self::PAD, $y, (self::W - self::PAD * 2) * 0.62, 6, 0.6, 3);
         $out .= self::line(self::PAD, $y - 7, 16, 0.4);
+
+        return $out;
+    }
+
+    /** Текст слева, фото справа во всю высоту и до самого края холста. */
+    private static function bleed(): string
+    {
+        $mid = self::W / 2;
+        $out = self::box($mid + 2, 0, self::W - $mid - 2, self::H, 0.3, 0);
+        $out .= self::line(self::PAD, self::PAD + 8, $mid - self::PAD - 6, 0.55);
+        $out .= self::line(self::PAD, self::PAD + 15, $mid - self::PAD - 4, 0.3);
+        $out .= self::line(self::PAD, self::PAD + 19, $mid - self::PAD - 4, 0.3);
+        $out .= self::line(self::PAD, self::PAD + 23, ($mid - self::PAD) * 0.6, 0.3);
+
+        return $out;
+    }
+
+    /** Фото справа, карточка текста заходит на него слева. */
+    private static function photoCard(): string
+    {
+        $out = self::box(self::PAD + 20, self::PAD, self::W - self::PAD * 2 - 20, self::H - self::PAD * 2, 0.3);
+        // Карточка лежит поверх фото, поэтому под полупрозрачной заливкой —
+        // непрозрачная подложка цветом плитки: иначе фото просвечивает, и
+        // рисунок читается как «текст под фото».
+        $card = 'x="' . self::n(self::PAD) . '" y="' . self::n(self::PAD + 8) . '" width="30" height="18" rx="2"';
+        $out .= '<rect class="variant-card__solid" ' . $card . ' fill="currentColor" fill-opacity="0"/>';
+        $out .= '<rect ' . $card . ' fill="currentColor" opacity="0.08" stroke="currentColor" stroke-opacity="0.55" stroke-width="1"/>';
+        $out .= self::line(self::PAD + 3, self::PAD + 12, 20, 0.55);
+        $out .= self::line(self::PAD + 3, self::PAD + 17, 24, 0.3);
+        $out .= self::line(self::PAD + 3, self::PAD + 21, 16, 0.3);
+
+        return $out;
+    }
+
+    /** Фото во всю ширину, под ним подпись слева и текст со сдвигом. */
+    private static function wide(): string
+    {
+        $w = self::W - self::PAD * 2;
+        $out = self::box(self::PAD, self::PAD, $w, 18, 0.3);
+        $out .= self::line(self::PAD, self::PAD + 23, $w * 0.2, 0.3);
+        $out .= self::line(self::PAD + $w * 0.35, self::PAD + 23, $w * 0.45, 0.55);
+        $out .= self::line(self::PAD + $w * 0.35, self::PAD + 28, $w * 0.6, 0.3);
 
         return $out;
     }

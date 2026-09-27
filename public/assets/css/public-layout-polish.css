@@ -453,6 +453,71 @@
     .block-textimage--image-left .textimage__visual { order: initial; }
 }
 
+/* --- «Текст с фото»: раскладки «Фото до края», «Текст поверх фото» и «Фото
+   во всю ширину». Считаются по ширине самого блока (контейнер text-image),
+   а не экрана: блок бывает и в узкой колонке конструктора. У раскладки
+   «Рядом» правил здесь нет — это прежний вид. */
+
+/* Фото до края: снимок уходит за край колонки сайта до края экрана.
+   Расстояние от края блока до края экрана — (100vw − 100cqw) / 2: блок
+   стоит по центру страницы. Внутри колонки конструктора это неверно, поэтому
+   там снимок остаётся в своей ячейке (правило ниже). Горизонтальной
+   прокрутки не будет: у html overflow-x: clip. */
+.block-textimage--layout-bleed .textimage__media,
+.block-textimage--layout-bleed .textimage__media img,
+.block-textimage--layout-bleed img.textimage__media {
+    width: 100%;
+    height: 100%;
+    min-height: clamp(280px, 38vw, 520px);
+    aspect-ratio: auto;
+    border-radius: 0;
+    object-fit: cover;
+}
+.block-textimage--layout-bleed .textimage__visual { margin-inline: calc((100cqw - 100vw) / 2); }
+@container text-image (min-width: 901px) {
+    .block-textimage.block-textimage--layout-bleed { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
+    .block-textimage--layout-bleed .textimage__info { align-self: center; padding-block: clamp(24px, 4vw, 56px); }
+    .block-textimage--layout-bleed.block-textimage--image-right .textimage__visual { margin-inline: 0 calc((100cqw - 100vw) / 2); }
+    .block-textimage--layout-bleed.block-textimage--image-left .textimage__visual { margin-inline: calc((100cqw - 100vw) / 2) 0; }
+}
+.cms-columns__col .block-textimage--layout-bleed .textimage__visual { margin-inline: 0; }
+.cms-columns__col .block-textimage--layout-bleed :is(.textimage__media img, img.textimage__media) { border-radius: var(--radius); }
+
+/* Текст поверх фото: карточка текста заходит на снимок. Сетка в двенадцать
+   дорожек, общие колонки 5–6 — зона наложения. */
+.block-textimage--layout-overlap .textimage__info--card {
+    position: relative;
+    z-index: 1;
+    padding: clamp(22px, 3vw, 40px);
+    border-radius: var(--radius);
+    background: var(--gov-surface);
+    box-shadow: var(--shadow-overlay);
+}
+@container text-image (min-width: 901px) {
+    .block-textimage.block-textimage--layout-overlap { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 0; }
+    .block-textimage--layout-overlap .textimage__visual,
+    .block-textimage--layout-overlap .textimage__info { grid-row: 1; order: initial; }
+    .block-textimage--layout-overlap.block-textimage--image-right .textimage__visual { grid-column: 5 / 13; }
+    .block-textimage--layout-overlap.block-textimage--image-right .textimage__info { grid-column: 1 / 7; }
+    .block-textimage--layout-overlap.block-textimage--image-left .textimage__visual { grid-column: 1 / 9; }
+    .block-textimage--layout-overlap.block-textimage--image-left .textimage__info { grid-column: 7 / 13; }
+    .block-textimage--layout-overlap.block-textimage--ratio-auto :is(.textimage__media img, img.textimage__media) { aspect-ratio: 4 / 3; object-fit: cover; }
+}
+@container text-image (max-width: 900px) {
+    .block-textimage--layout-overlap .textimage__visual { order: -1; }
+    .block-textimage--layout-overlap .textimage__info--card { margin: -56px 16px 0; }
+}
+
+/* Фото во всю ширину, текст под ним со сдвигом: строка остаётся длиной
+   колонки чтения, а снимок держит всю ширину блока. */
+.block-textimage.block-textimage--layout-wide .textimage__visual { order: -1; }
+.block-textimage--layout-wide.block-textimage--ratio-auto :is(.textimage__media img, img.textimage__media) { aspect-ratio: 21 / 9; object-fit: cover; }
+@container text-image (min-width: 901px) {
+    .block-textimage.block-textimage--layout-wide { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(24px, 3vw, 40px) 20px; }
+    .block-textimage--layout-wide .textimage__visual { grid-column: 1 / -1; }
+    .block-textimage--layout-wide .textimage__info { grid-column: 4 / 12; }
+}
+
 /* Колонка конструктора — свой контейнер измерения. Сетки блоков считают
    раскладку по ширине экрана, а в колонке 1:3 узкая доля остаётся узкой на
    любом экране: пять карточек в ряд там не помещаются никогда, и настройка

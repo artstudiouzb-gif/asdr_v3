@@ -1631,7 +1631,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
     .catcard, .catdetail__card, .contact-card, .content-card, .doc-card, .faq-item,
     .feature-card, .leader-card, .mediacard, .news-card, .news-poll-card, .newsdetail-card,
     .newslist-lead, .project-card, .relnews-card, .site-search-results__item,
-    .social-embed-card, .team-card, .testimonial, .timeline-card, .widget--style-card) {
+    .social-embed-card, .team-card, .testimonial, .textimage__info--card, .timeline-card, .widget--style-card) {
     --section-fg: var(--text-primary);
     --section-title-fg: var(--gov-title);
     --section-muted-fg: var(--text-muted);
@@ -1648,7 +1648,7 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
     .catcard, .catdetail__card, .contact-card, .content-card, .doc-card, .faq-item,
     .feature-card, .leader-card, .mediacard, .news-card, .news-poll-card, .newsdetail-card,
     .newslist-lead, .project-card, .relnews-card, .site-search-results__item,
-    .social-embed-card, .team-card, .testimonial, .timeline-card, .widget--style-card) {
+    .social-embed-card, .team-card, .testimonial, .textimage__info--card, .timeline-card, .widget--style-card) {
     /* В тёмной теме поверхность карточки сама тёмная — акцент снова светлый. */
     --gov-teal-text: var(--gov-teal-on-dark);
 }
@@ -2878,11 +2878,14 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 
 .block-textimage { display: grid; grid-template-columns: minmax(0, var(--textimage-info, 1fr)) minmax(0, var(--textimage-visual, 1.05fr)); gap: clamp(28px, 4vw, 56px); align-items: center; }
 @media (max-width: 900px) { .block-textimage { grid-template-columns: 1fr; } }
-.block-textimage--no-image { grid-template-columns: 1fr; }/* Пропорция кадра: снимки разной высоты рвали ряд рядом с текстом. */
+.block-textimage--no-image { grid-template-columns: 1fr; }/* Пропорция кадра: снимки разной высоты рвали ряд рядом с текстом.
+   Класс кадра бывает у <picture> (есть уменьшенные копии) и у самого <img>
+   (копий нет): прежде правило видело только первый случай, и у фото без
+   копий настройка молча не работала. */
 
-.block-textimage--ratio-16-9 .textimage__media img { aspect-ratio: 16 / 9; object-fit: cover; }
-.block-textimage--ratio-4-3 .textimage__media img { aspect-ratio: 4 / 3; object-fit: cover; }
-.block-textimage--ratio-1-1 .textimage__media img { aspect-ratio: 1 / 1; object-fit: cover; }/* Кнопка под текстом: заливка навью, как у профиля руководителя. Общий .btn
+.block-textimage--ratio-16-9 :is(.textimage__media img, img.textimage__media) { aspect-ratio: 16 / 9; object-fit: cover; }
+.block-textimage--ratio-4-3 :is(.textimage__media img, img.textimage__media) { aspect-ratio: 4 / 3; object-fit: cover; }
+.block-textimage--ratio-1-1 :is(.textimage__media img, img.textimage__media) { aspect-ratio: 1 / 1; object-fit: cover; }/* Кнопка под текстом: заливка навью, как у профиля руководителя. Общий .btn
    здесь не годится — он даёт цвет, но не геометрию. */
 
 .textimage__button {
@@ -4323,7 +4326,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
     .catcard, .catdetail__card, .contact-card, .content-card, .doc-card, .faq-item,
     .feature-card, .leader-card, .mediacard, .news-card, .news-poll-card, .newsdetail-card,
     .newslist-lead, .project-card, .relnews-card, .site-search-results__item,
-    .social-embed-card, .team-card, .testimonial, .timeline-card, .widget--style-card) { background-color: var(--gov-surface); }
+    .social-embed-card, .team-card, .testimonial, .textimage__info--card, .timeline-card, .widget--style-card) { background-color: var(--gov-surface); }
 .cms-block--bg-navy .section-head__all { color: var(--section-link-fg); }
 
 .cms-block--fullwidth { background: transparent; }
