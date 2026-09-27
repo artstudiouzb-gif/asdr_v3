@@ -35,7 +35,48 @@ $head = \App\Core\SectionHead::render([
     'tools' => $navHtml,
     'title_class' => 'block-testimonials__title',
 ]);
-?>
+if ($variant === 'feature'):
+    // «Одна цитата» — слово руководителя: крупный текст и портрет. Выводится
+    // первый отзыв списка; остальные не теряются, а ждут другого варианта.
+    $item = is_array($items[0] ?? null) ? $items[0] : [];
+    $portrait = (string) $data['portrait'];
+    $photo = trim((string) ($item['photo'] ?? ''));
+    $name = trim((string) ($item['name'] ?? ''));
+    $role = trim((string) ($item['role'] ?? ''));
+    $company = trim((string) ($item['company'] ?? ''));
+    $quote = trim((string) ($item['quote'] ?? ''));
+    if ($quote === '') {
+        return;
+    }
+    $classes = 'block-testimonials block-testimonials--feature tquote tquote--' . $portrait . ($photo !== '' ? ' tquote--has-photo' : '');
+    $sizes = $portrait === 'tall' ? '(max-width: 720px) 100vw, 40vw' : ($portrait === 'mini' ? '56px' : '160px');
+    $pictureHtml = $photo !== '' ? \App\Core\Media::picture($photo, $name, null, null, 'tquote__img', true, $sizes) : '';
+    ?>
+<div class="<?= $classes ?>">
+    <?= $head ?>
+    <figure class="tquote__figure" itemscope itemtype="https://schema.org/Review">
+        <?php if ($pictureHtml !== '' && $portrait !== 'mini'): ?>
+            <div class="tquote__photo"><?= $pictureHtml ?></div>
+        <?php endif; ?>
+        <div class="tquote__body">
+            <blockquote class="tquote__text" itemprop="reviewBody"><p><?= htmlspecialchars($quote, ENT_QUOTES) ?></p></blockquote>
+            <figcaption class="tquote__author" itemprop="author" itemscope itemtype="https://schema.org/Person">
+                <?php if ($pictureHtml !== '' && $portrait === 'mini'): ?><span class="tquote__mini"><?= $pictureHtml ?></span><?php endif; ?>
+                <span class="tquote__who">
+                    <?php if ($name !== ''): ?><span class="tquote__name" itemprop="name"><?= htmlspecialchars($name, ENT_QUOTES) ?></span><?php endif; ?>
+                    <?php if ($role !== '' || $company !== ''): ?>
+                        <span class="tquote__role"><?php if ($role !== ''): ?><span itemprop="jobTitle"><?= htmlspecialchars($role, ENT_QUOTES) ?></span><?php endif; ?><?php if ($role !== '' && $company !== ''): ?>, <?php endif; ?><?php if ($company !== ''): ?><span itemprop="worksFor" itemscope itemtype="https://schema.org/Organization"><span itemprop="name"><?= htmlspecialchars($company, ENT_QUOTES) ?></span></span><?php endif; ?></span>
+                    <?php endif; ?>
+                </span>
+            </figcaption>
+            <?php // Росчерк повторяет имя рукописным шрифтом — это украшение, диктору его не читаем.
+                  // Без выбранного рукописного шрифта он вышел бы тем же именем
+                  // обычным набором, то есть повтором, который читается как ошибка. ?>
+            <?php if ($portrait === 'mini' && $name !== '' && \App\Core\DesignSettings::scriptFontStack() !== ''): ?><span class="tquote__sign" aria-hidden="true"><?= htmlspecialchars($name, ENT_QUOTES) ?></span><?php endif; ?>
+        </div>
+    </figure>
+</div>
+<?php return; endif; ?>
 <div class="block-testimonials block-testimonials--<?= htmlspecialchars($variant, ENT_QUOTES) ?>"<?= $carousel ? ' data-carousel' : '' ?><?= $carousel && $autoplay > 0 ? ' data-carousel-autoplay="' . $autoplay . '"' : '' ?>>
     <?= $head ?>
     <?php if ($variant === 'grid'): ?>
