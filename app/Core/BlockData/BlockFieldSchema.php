@@ -560,14 +560,22 @@ final class BlockFieldSchema
                     'card' => 'Карточка',
                     'band' => 'Полоса',
                     'media-dark' => 'Фото с затемнением',
-                    'media-light' => 'Светлый сплит',
+                    'media-light' => 'Половина с фото',
                 ], 'card')
                 ->variants([
                     'card' => ['card', 'Заголовок, текст и кнопка в отдельной карточке'],
                     'band' => ['band+icon', 'Узкая полоса во всю ширину — не спорит с текстом страницы'],
                     'media-dark' => ['card+photo', 'Текст поверх кадра, кадр притушён — для яркой фотографии'],
-                    'media-light' => ['split+photo', 'Фото и текст рядом на светлом фоне'],
+                    'media-light' => ['split+photo', 'Фото занимает половину блока, текст рядом — на светлом или тёмном фоне'],
                 ]),
+                'split_scheme' => Field::enum('Фон половины с текстом', [
+                    'light' => 'Светлый',
+                    'navy' => 'Основной цвет сайта',
+                ], 'light')->onlyWhen('variant', ['media-light']),
+                'image_side' => Field::enum('Сторона фото', [
+                    'right' => 'Справа',
+                    'left' => 'Слева',
+                ], 'right')->onlyWhen('variant', ['media-light']),
                 'title' => Field::text('Заголовок, показываемый на сайте')->named('title_field'),
                 'text' => Field::textarea('Текст'),
                 'icon_svg' => Field::icon('Иконка для варианта «Полоса»'),
@@ -575,6 +583,8 @@ final class BlockFieldSchema
                 'image_position' => Field::mediaPosition(),
                 'button_text' => Field::text('Текст кнопки'),
                 'button_url' => Field::url('Ссылка кнопки'),
+                'button2_text' => Field::text('Текст второй кнопки')->onlyWhen('variant', ['media-light']),
+                'button2_url' => Field::url('Ссылка второй кнопки')->onlyWhen('variant', ['media-light']),
                 'bg_color' => Field::color('Цвет фона', '#eef2f7'),
                 'text_color' => Field::color('Цвет текста', '#173a63'),
                 'button_color' => Field::color('Цвет фона кнопки', '#17999b'),

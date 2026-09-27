@@ -2653,42 +2653,58 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
    подложку прозрачнее — цвет текста остаётся общим для всей тёмной темы. */
 
 :root[data-theme="dark"] .newsdetail:not(.newsdetail--premium) .newsdetail__badge,
-:root[data-theme="dark"] .newsdetail__badge { background: color-mix(in srgb, var(--gov-teal) 6%, var(--gov-surface)); }/* Светлый сплит-баннер (страницы «О нас», «Контакты»). */
+:root[data-theme="dark"] .newsdetail__badge { background: color-mix(in srgb, var(--gov-teal) 6%, var(--gov-surface)); }
 
-.block-banner--light { 
-    position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); 
-    align-items: center; gap: 24px; background: transparent; border-radius: var(--radius); 
-    overflow: hidden; min-height: 360px; 
-    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+/* «Половина с фото» (прежде «Светлый сплит»). Фото — настоящая картинка
+   на половину блока, у текста своя подложка: светлая или основным цветом.
+   Прежде фото шло фоном, и сокращённый `background` ниже `background-image`
+   обнулял его — вариант не показывал снимка ни разу. */
+.block-banner--light {
+    display: grid; grid-template-columns: minmax(0, 1fr);
+    border-radius: var(--radius); overflow: hidden;
 }
-.block-banner--light:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
+.block-banner--light.block-banner--has-photo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 360px; }
+.block-banner--scheme-light { background: color-mix(in srgb, var(--gov-navy) 5%, var(--gov-surface)); }
+.block-banner--scheme-navy { background: var(--gov-navy); }
+.block-banner--light .block-banner__inner {
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    padding: clamp(24px, 4.5vw, 56px); text-align: left;
 }
-@media (max-width: 900px) { .block-banner--light { grid-template-columns: 1fr; } .block-banner--light .block-banner__photo { display: none; } }
-.block-banner--light .block-banner__inner { padding: clamp(20px, 4vw, 48px) 0; text-align: left; }
+.block-banner--light:not(.block-banner--has-photo) .block-banner__inner { max-width: var(--editorial-reading); margin-inline: 0; }
 .block-banner--light .block-banner__title { color: var(--gov-title); font-size: var(--font-size-h2, var(--step-6)); line-height: 1.15; margin: 0 0 16px; }
-.block-banner--light .block-banner__text { color: var(--gov-muted); opacity: 1; font-size: var(--step-0); line-height: var(--base-line-height, 1.6); margin: 0 0 22px; }
-.block-banner--light .block-banner__button { 
-    display: inline-block; padding: 13px 26px; background: var(--gov-navy); color: #fff; 
-    border-radius: var(--btn-radius); font-weight: 700; text-decoration: none; 
-    transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.3s ease, background-color 0.3s ease;
+.block-banner--light .block-banner__text { color: var(--gov-muted); opacity: 1; font-size: var(--step-0); line-height: var(--base-line-height, 1.6); margin: 0 0 24px; max-width: 46ch; }
+.block-banner--scheme-navy .block-banner__title { color: #fff; }
+.block-banner--scheme-navy .block-banner__text { color: color-mix(in srgb, #fff 82%, var(--gov-navy)); }
+.block-banner__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.block-banner--light .block-banner__button {
+    display: inline-flex; align-items: center; min-height: 48px; padding: 0 26px;
+    border: 1px solid var(--gov-navy); background: var(--gov-navy); color: #fff;
+    border-radius: var(--btn-radius); font-weight: 700; text-decoration: none;
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease;
 }
-.block-banner--light .block-banner__button:hover {
-    transform: translateY(-2px) scale(1.02);
-    background-color: var(--gov-teal);
-    box-shadow: 0 8px 20px rgba(23, 153, 155, 0.35);
+.block-banner--light .block-banner__button:hover { background: color-mix(in srgb, var(--gov-navy) 82%, #000); }
+.block-banner--light .block-banner__button--ghost { background: transparent; color: var(--gov-title); }
+.block-banner--light .block-banner__button--ghost:hover { background: color-mix(in srgb, var(--gov-navy) 8%, transparent); }
+/* На основном цвете кнопка белая: акцент с белой подписью даёт 3.46:1. */
+.block-banner--scheme-navy .block-banner__button { border-color: #fff; background: #fff; color: var(--gov-navy); }
+.block-banner--scheme-navy .block-banner__button:hover { background: color-mix(in srgb, #fff 88%, var(--gov-navy)); }
+.block-banner--scheme-navy .block-banner__button--ghost { border-color: color-mix(in srgb, #fff 55%, transparent); background: transparent; color: #fff; }
+.block-banner--scheme-navy .block-banner__button--ghost:hover { background: color-mix(in srgb, #fff 12%, transparent); }
+/* В тёмной теме светлая подложка сама тёмная, и кнопка основного цвета на
+   ней сливается — как и на половине основного цвета, она белая. Тема
+   обёрнута в :where(), чтобы свой цвет кнопки остался главнее. */
+:where(:root[data-theme="dark"]) .block-banner--scheme-light .block-banner__button { border-color: #fff; background: #fff; color: var(--gov-navy); }
+:where(:root[data-theme="dark"]) .block-banner--scheme-light .block-banner__button--ghost { border-color: color-mix(in srgb, #fff 55%, transparent); background: transparent; color: #fff; }
+.block-banner__media { position: relative; min-height: 280px; }
+.block-banner__media picture, .block-banner__media .block-banner__img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
 }
-.block-banner__photo {
-    background-image: var(--block-banner-image);
-    position: relative; height: 100%; min-height: 320px; background: center/cover no-repeat; 
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22%); 
-    mask-image: linear-gradient(90deg, transparent 0, #000 22%); 
-    transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+.block-banner--photo-left .block-banner__media { order: -1; }
+@media (max-width: 900px) {
+    .block-banner--light.block-banner--has-photo { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+    .block-banner--light .block-banner__media { order: -1; min-height: 0; aspect-ratio: 16 / 9; }
 }
-.block-banner--light:hover .block-banner__photo {
-    transform: scale(1.04);
-}/* Якорная навигация (вкладки-разделы). */
+/* Якорная навигация (вкладки-разделы). */
 
 .block-anchornav { display: flex; gap: 26px; overflow-x: auto; border-bottom: 1px solid var(--gov-border); scrollbar-width: none; }
 .block-anchornav::-webkit-scrollbar { display: none; }
@@ -5071,7 +5087,7 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
 .block-banner--custom-bg { background-color: var(--banner-bg); }
 .block-banner--custom-text .block-banner__title,
 .block-banner--custom-text .block-banner__text { color: var(--banner-text); }
-.block-banner--custom-btn .block-banner__button { background: var(--banner-btn); color: var(--banner-btn-fg, #fff); }/* Направления (cards_grid) */
+.block-banner--custom-btn .block-banner__button:not(.block-banner__button--ghost) { border-color: var(--banner-btn); background: var(--banner-btn); color: var(--banner-btn-fg, #fff); }/* Направления (cards_grid) */
 
 .block-cards--custom-bg .feature-card {
     background: color-mix(in srgb, var(--card-bg) 68%, transparent);
