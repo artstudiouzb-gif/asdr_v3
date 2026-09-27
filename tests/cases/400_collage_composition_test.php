@@ -41,7 +41,7 @@ test('Композиции объявлены типами сборки и не 
     }
 
     $fields = BlockFieldSchema::fields('collage');
-    assert_same(['field' => 'layout', 'values' => ['callout']], $fields['cut_corner']->when, 'угол выреза — только у «Кадра и выноски»');
+    assert_same(['field' => 'layout', 'values' => ['callout', 'notch']], $fields['cut_corner']->when, 'угол выреза — только у композиций с одним вырезом');
     assert_false(in_array('checker', $fields['ratio']->when['values'] ?? [], true), 'у шахматки пропорция своя');
     assert_true((bool) $fields['badge_spin']->default, 'печать вращалась всегда — умолчание не меняет вида');
 });
@@ -152,4 +152,71 @@ test('Форма коллажа предлагает центр печати и 
     // Значок у печати выводился, но задать его было негде: поле иконки
     // стояло только в группе показателя.
     assert_contains("\$p('icon_svg'), (string) (\$item['icon_svg'] ?? ''), ['label' => 'Значок в центре']", $form);
+});
+
+test('Два кадра и разрез требуют двух снимков; справка — первая в вырезе', function (): void {
+    $pair = CollageComposition::roles('pair', [['type' => 'stat'], ['type' => 'photo'], ['type' => 'photo']]);
+    assert_same([1], $pair['slots']['photo'], 'кадр с вырезом — первая фотография');
+    assert_same([2], $pair['slots']['second'], 'второй кадр — следующая');
+    assert_true(CollageComposition::complete('pair', $pair));
+
+    $single = CollageComposition::roles('diagonal', [['type' => 'photo'], ['type' => 'stat']]);
+    assert_false(CollageComposition::complete('diagonal', $single), 'разрез из одного снимка — это просто снимок');
+    assert_contains('двух фотографиях', implode(' ', CollageComposition::problems('diagonal', [['type' => 'photo']])));
+    assert_not_contains('collage-comp', collage_html(['layout' => 'pair', 'items' => [
+        ['type' => 'photo', 'image' => '/uploads/public/a.jpg'],
+    ]]), 'неполная композиция не выводится вовсе');
+
+    // Вырез «Карточки в вырезе» строится под строки справки, поэтому она
+    // забирает место и тогда, когда показатель стоит в списке раньше.
+    $notch = CollageComposition::roles('notch', [['type' => 'photo'], ['type' => 'stat'], ['type' => 'info']]);
+    assert_same([2], $notch['slots']['card']);
+    assert_same([1], $notch['unused']);
+});
+
+test('Справка: строки «Подпись | Значение», разметка списком определений', function (): void {
+    $norm = static fn (array $item): ?array => CollageBlockNormalizer::normalize(['items' => [['type' => 'info'] + $item]])['items'][0] ?? null;
+
+    assert_same(null, $norm([]), 'пустая справка не занимает место');
+    $rows = CollageBlockNormalizer::infoRows("Пн – Пт | 9:00 | 18:00\n\n<b>Суббота</b> | 10:00\n1\n2\n3\n4\n5");
+    assert_same(['Пн – Пт', '9:00 | 18:00'], $rows[0], 'черта в значении — часть значения');
+    assert_same(['Суббота', '10:00'], $rows[1], 'разметка из строки снимается');
+    assert_same(CollageBlockNormalizer::INFO_MAX_ROWS, count($rows));
+
+    $html = collage_html(['layout' => 'notch', 'cut_corner' => 'tr', 'items' => [
+        ['type' => 'photo', 'image' => '/uploads/public/a.jpg', 'alt' => 'Приёмная'],
+        ['type' => 'info', 'info_title' => 'Приём граждан', 'info_rows' => "Суббота | 10:00 – 14:00\nОнлайн | круглосуточно"],
+    ]]);
+    assert_contains('collage-comp--notch', $html);
+    assert_contains('collage-comp--cut-tr', $html, 'угол выреза общий с «Кадром и выноской»');
+    assert_contains('<dt>Суббота</dt>', $html);
+    assert_contains('<dd>круглосуточно</dd>', $html);
+
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/blocks/collage.css');
+    assert_contains('.collage__item--info', $css);
+    assert_contains('.block-collage--cards-navy :is(.collage__item--stat, .collage__item--quote, .collage__item--info)', $css, 'вид карточек действует и на справку');
+
+    $js = (string) file_get_contents(APP_ROOT . '/public/assets/js/admin.js');
+    assert_contains("info: ['shape', 'info', 'colors']", $js, 'форма показывает поля справки');
+    $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/pages/block_form.php');
+    assert_contains("\$p('info_rows')", $form);
+});
+
+test('Диагональный разрез: два кадра режутся одной линией, вырез у обоих', function (): void {
+    $html = collage_html(['layout' => 'diagonal', 'items' => [
+        ['type' => 'photo', 'image' => '/uploads/public/a.jpg', 'alt' => 'Было'],
+        ['type' => 'photo', 'image' => '/uploads/public/b.jpg', 'alt' => 'Стало'],
+        ['type' => 'stat', 'value' => '25+', 'label' => 'программ'],
+        ['type' => 'badge', 'text' => 'Было • Стало'],
+    ]]);
+    assert_true((bool) preg_match('/collage-comp__cut collage-comp__before/', $html));
+    assert_true((bool) preg_match('/collage-comp__cut collage-comp__after/', $html));
+
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/blocks/collage.css');
+    // Обе стороны разреза считаются от одних переменных — иначе полоса между
+    // кадрами разъедется в клин.
+    assert_contains('calc(var(--top) - var(--seam)) 0, calc(var(--bottom) - var(--seam)) 100%', $css);
+    assert_contains('calc(var(--top) + var(--seam)) 0, 100% 0, 100% 100%, calc(var(--bottom) + var(--seam)) 100%', $css);
+    // Въезд карточки справа выходил за колонку шире бокового поля.
+    assert_contains('overflow-x: clip', $css);
 });

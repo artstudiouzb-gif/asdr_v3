@@ -22,7 +22,10 @@ use App\Core\Icon;
 final class CollageBlockNormalizer
 {
     /** @var list<string> */
-    public const TYPES = ['photo', 'stat', 'quote', 'badge', 'pattern'];
+    public const TYPES = ['photo', 'stat', 'quote', 'info', 'badge', 'pattern'];
+
+    /** Строк у справки: больше не помещается ни в вырез, ни в ячейку. */
+    public const INFO_MAX_ROWS = 6;
 
     /** @var list<string> */
     public const SHAPES = ['rounded', 'circle', 'square'];
@@ -91,6 +94,7 @@ final class CollageBlockNormalizer
                 'photo' => self::photo($item, $normalized),
                 'stat' => self::stat($item, $normalized, $locale),
                 'quote' => self::quote($item, $normalized, $locale),
+                'info' => self::info($item, $normalized, $locale),
                 'badge' => self::badge($item, $normalized, $locale),
                 default => self::pattern($item, $normalized),
             };
@@ -223,6 +227,66 @@ final class CollageBlockNormalizer
             'bg' => BlockDataInput::optionalColor($item, 'bg'),
             'fg' => BlockDataInput::optionalColor($item, 'fg'),
         ];
+    }
+
+    /**
+     * Справка: заголовок и строки «Подпись | Значение» — часы приёма,
+     * телефон, ближайший срок. Строки набираются построчно, как у «Таблицы»:
+     * репитер из пар полей ради трёх строк был бы тяжелее самой справки, а
+     * так её можно вставить из документа и править как текст.
+     *
+     * Хранится очищенным текстом, а не массивом пар: форма показывает его
+     * обратно в том же поле, и разбирать его на выводе дешевле, чем держать
+     * второе представление тех же данных.
+     *
+     * @param array<string, mixed> $item
+     * @param array<string, mixed> $base
+     * @return array<string, mixed>|null
+     */
+    private static function info(array $item, array $base, string $locale): ?array
+    {
+        $title = mb_substr(BlockDataInput::plain($item, 'info_title', $locale), 0, 60);
+        $lines = [];
+        foreach (self::infoRows(BlockDataInput::trimmed($item, 'info_rows')) as [$label, $value]) {
+            $label = \App\Core\TextProcessor::typographPlain($label, $locale);
+            $value = \App\Core\TextProcessor::typographPlain($value, $locale);
+            $lines[] = $value === '' ? $label : $label . ' | ' . $value;
+        }
+        if ($title === '' && $lines === []) {
+            return null;
+        }
+
+        return $base + [
+            'info_title' => $title,
+            'info_rows' => implode("\n", $lines),
+            'bg' => BlockDataInput::optionalColor($item, 'bg'),
+            'fg' => BlockDataInput::optionalColor($item, 'fg'),
+        ];
+    }
+
+    /**
+     * Строки справки: «Подпись | Значение», пустые строки пропускаются, лишние
+     * сверх предела отбрасываются. Черта после первой — часть значения: в
+     * значении бывает «9:00 | 18:00», и резать его молча нельзя.
+     *
+     * @return list<array{0: string, 1: string}>
+     */
+    public static function infoRows(string $source): array
+    {
+        $rows = [];
+        foreach (preg_split('/\R/u', $source) ?: [] as $line) {
+            $line = trim(strip_tags($line));
+            if ($line === '') {
+                continue;
+            }
+            $parts = explode('|', $line, 2);
+            $rows[] = [mb_substr(trim($parts[0]), 0, 40), mb_substr(trim($parts[1] ?? ''), 0, 40)];
+            if (count($rows) >= self::INFO_MAX_ROWS) {
+                break;
+            }
+        }
+
+        return $rows;
     }
 
     /**

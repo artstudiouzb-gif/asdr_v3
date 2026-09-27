@@ -60,11 +60,11 @@
     },
     "/assets/css/blocks/collage.css": {
       "path": "/assets/css/blocks/collage.min.css",
-      "sourceSha256": "41f87c70d1237302165eb531f8eafd739efec6e45a7c7907e938dc84b8bf49e4",
-      "sha256": "5499caa74994369788e3a084df4ce49cb2206de4c7207d3e2e50f4efc99eaad9",
-      "raw": 11316,
-      "gzip": 2689,
-      "brotli": 2374
+      "sourceSha256": "b5a604f9d2e34e8232a4a4f40b2b59ba90d71ce0d0b55d78be2d6a79d37dba42",
+      "sha256": "c7a803b4cf5a3c4511bbd14b240ab3c0cffbab1ebf7e0c8b5af840a7f256537c",
+      "raw": 15069,
+      "gzip": 3339,
+      "brotli": 2951
     },
     "/assets/css/blocks/counters.css": {
       "path": "/assets/css/blocks/counters.min.css",
@@ -289,11 +289,11 @@
         "/assets/js/admin-gallery-dropzone.js",
         "/assets/js/admin-media-loadmore.js"
       ],
-      "sourceSha256": "2bd79a3476d7dd30f4d7b57f0b91ab2e6e3f6a5b222ca7c52e988fe191014a18",
-      "sha256": "3029467fe9795d42689b92a195caaa6e20a44c12a0f3ab30062fefb030749e62",
-      "raw": 132188,
-      "gzip": 35468,
-      "brotli": 29843
+      "sourceSha256": "53fc819a057f5f606e923a535bb02800902d235df44f98ef817dbeae8332916f",
+      "sha256": "82c1b8da8e8f4a03a0321efebebc08575f826339f5b6f05b77e0b7ce24523f99",
+      "raw": 132219,
+      "gzip": 35479,
+      "brotli": 29836
     }
   }
 }

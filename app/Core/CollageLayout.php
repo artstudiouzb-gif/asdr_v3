@@ -46,6 +46,9 @@ final class CollageLayout
         'callout' => 'Кадр и выноска',
         'checker' => 'Шахматка',
         'portrait' => 'Портрет и слово',
+        'pair' => 'Два кадра внахлёст',
+        'notch' => 'Карточка в вырезе',
+        'diagonal' => 'Диагональный разрез',
     ];
 
     /**
@@ -58,7 +61,7 @@ final class CollageLayout
      *
      * @var list<string>
      */
-    public const COMPOSED = ['callout', 'checker', 'portrait'];
+    public const COMPOSED = ['callout', 'checker', 'portrait', 'pair', 'notch', 'diagonal'];
 
     /**
      * Границы холста — те же, что принимает схема полей: «Колонок в сетке»
