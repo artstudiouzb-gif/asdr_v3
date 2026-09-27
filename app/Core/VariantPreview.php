@@ -51,6 +51,9 @@ final class VariantPreview
         'callout' => 'кадр с вырезом в углу, в вырезе карточка, печать на краю',
         'checker' => 'клетки кадров и текста через одну, печать на стыке',
         'portrait' => 'портрет с карточкой чисел и цитата рядом',
+        'pair' => 'два кадра внахлёст через полосу фона, карточка на втором',
+        'notch' => 'широкий кадр с крупным вырезом вверху справа под справку',
+        'diagonal' => 'два кадра через косую полосу, печать на разрезе',
         'bars' => 'горизонтальные полосы',
         'stacked' => 'одна полоса из долей',
         'meter' => 'шкала выполнения',
@@ -108,6 +111,9 @@ final class VariantPreview
             'callout' => self::callout(),
             'checker' => self::checker(),
             'portrait' => self::portrait(),
+            'pair' => self::pair(),
+            'notch' => self::notch(),
+            'diagonal' => self::diagonal(),
             'bars' => self::bars(),
             'stacked' => self::stacked(),
             'meter' => self::meter(),
@@ -480,6 +486,54 @@ final class VariantPreview
         $out .= self::line($x, self::PAD + 26, 14, 0.3);
 
         return $out;
+    }
+
+    /** Два кадра внахлёст: второй заходит на угол первого, между ними полоса фона. */
+    private static function pair(): string
+    {
+        $h = self::H - self::PAD * 2;
+        $out = self::box(self::PAD, self::PAD, 32, $h * 0.62, 0.28);
+        $out .= self::box(self::PAD + 32 * 0.45, self::PAD + $h * 0.62, 32 * 0.55 - 2, $h * 0.38, 0.28);
+        $out .= self::box(self::PAD + 32 * 0.45 + 2, self::PAD + $h * 0.62 * 0.55 + 2, 32 * 0.55 + 14, $h * 0.45 - 2, 0.2);
+        $out .= self::box(self::PAD + 32 * 0.45 + 12, self::PAD + $h - 8, 22, 6, 0.6);
+        $out .= self::disc(self::PAD + 8, self::PAD + $h * 0.62, 4);
+
+        return $out;
+    }
+
+    /** Карточка в вырезе: широкий кадр, крупный вырез вверху справа, в нём строки справки. */
+    private static function notch(): string
+    {
+        $w = self::W - self::PAD * 2;
+        $h = self::H - self::PAD * 2;
+        $cw = 22;
+        $ch = 16;
+        $out = self::box(self::PAD, self::PAD, $w - $cw - 1.5, $h, 0.28);
+        $out .= self::box(self::PAD + $w - $cw - 3, self::PAD + $ch + 1.5, $cw + 3, $h - $ch - 1.5, 0.28);
+        $x = self::PAD + $w - $cw + 1;
+        $out .= self::frame($x, self::PAD, $cw - 1, $ch - 0.5);
+        $out .= self::line($x + 2, self::PAD + 4, 10, 0.7);
+        $out .= self::line($x + 2, self::PAD + 8.5, $cw - 5, 0.35);
+        $out .= self::line($x + 2, self::PAD + 12, $cw - 5, 0.35);
+
+        return $out;
+    }
+
+    /** Диагональный разрез: два кадра через косую полосу, печать на разрезе. */
+    private static function diagonal(): string
+    {
+        $x0 = self::PAD;
+        $y0 = self::PAD;
+        $x1 = self::W - self::PAD;
+        $y1 = self::H - self::PAD;
+        $top = $x0 + 30;
+        $bottom = $x0 + 18;
+        $left = '<path d="M' . self::n($x0) . ' ' . self::n($y0) . 'H' . self::n($top - 1.5) . 'L' . self::n($bottom - 1.5) . ' ' . self::n($y1)
+            . 'H' . self::n($x0) . 'Z" fill="currentColor" opacity="0.28"/>';
+        $right = '<path d="M' . self::n($top + 1.5) . ' ' . self::n($y0) . 'H' . self::n($x1) . 'V' . self::n($y1) . 'H' . self::n($bottom + 1.5)
+            . 'Z" fill="currentColor" opacity="0.18"/>';
+
+        return $left . $right . self::disc(($top + $bottom) / 2, ($y0 + $y1) / 2, 4.5);
     }
 
     private static function mosaic(): string
