@@ -483,4 +483,6 @@ return [
     'Возможно, вы искали' => 'You may be looking for',
     'Последние новости' => 'Latest news',
     'Разделы сайта' => 'Site sections',
+    'Путь к цели' => 'Progress to target',
+    'цель' => 'target',
 ];
