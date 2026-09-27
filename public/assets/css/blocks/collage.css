@@ -62,6 +62,33 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
    и набирается кеглем подписи, иначе читается как часть разряда. */
 .collage__stat-prefix { font-size: var(--step--1); line-height: 1.2; }
 
+/* --- Справка ---
+   Строки «подпись — значение» с тонкой линейкой между ними: значение
+   прижато к правому краю и набрано цифрами одной ширины, поэтому часы
+   приёма читаются столбцом. Линейка — цвет текста на 22 %, а не цвет темы:
+   у плитки бывает своя заливка. */
+.collage__item--info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: clamp(16px, 2.2vw, 28px);
+    background: var(--collage-bg, var(--gov-surface));
+    color: var(--collage-fg, var(--gov-title));
+}
+.collage__info-title { margin: 0; font-size: var(--step-2); font-weight: 600; line-height: 1.25; text-wrap: pretty; }
+.collage__info-list { margin: 0; }
+.collage__info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-block: 8px;
+    border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+    font-size: var(--step--1);
+    line-height: 1.35;
+}
+.collage__info-row dd { margin: 0; font-weight: 600; text-align: end; font-variant-numeric: tabular-nums; }
+
 /* --- Цитата --- */
 /* Текст прижат к низу, а знак кавычки стоит сверху: цитата в ячейке читается
    снизу вверх — сначала кто сказал, потом что. Выравнивание по левому краю, в
@@ -217,9 +244,9 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
 /* --- Вид карточек показателей и цитат (настройка блока) ---
    Переменные, а не заливка: свой цвет элемента приезжает из scoped CSS с
    весом по id и остаётся главнее выбора для всего блока. */
-.block-collage--cards-navy :is(.collage__item--stat, .collage__item--quote) { --collage-bg: var(--gov-navy); --collage-fg: #fff; }
-.block-collage--cards-accent :is(.collage__item--stat, .collage__item--quote) { --collage-bg: var(--gov-teal); --collage-fg: var(--on-accent, #fff); }
-.block-collage--cards-light :is(.collage__item--stat, .collage__item--quote) { --collage-bg: var(--gov-surface); --collage-fg: var(--gov-title); box-shadow: var(--card-shadow); }
+.block-collage--cards-navy :is(.collage__item--stat, .collage__item--quote, .collage__item--info) { --collage-bg: var(--gov-navy); --collage-fg: #fff; }
+.block-collage--cards-accent :is(.collage__item--stat, .collage__item--quote, .collage__item--info) { --collage-bg: var(--gov-teal); --collage-fg: var(--on-accent, #fff); }
+.block-collage--cards-light :is(.collage__item--stat, .collage__item--quote, .collage__item--info) { --collage-bg: var(--gov-surface); --collage-fg: var(--gov-title); box-shadow: var(--card-shadow); }
 
 /* --- Центр печати: эмблема, своя картинка --- */
 .collage__badge-core {
@@ -261,6 +288,11 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
     --bs: clamp(88px, 15cqi, 136px);
     position: relative;
     isolation: isolate;
+    /* Карточка въезжает в вырез снаружи, и у выреза справа её начальный
+       сдвиг выходил за колонку сайта шире бокового поля — страница получала
+       прокрутку вбок на время въезда. Режется только по горизонтали: печать
+       сверху и снизу выступает за кадр намеренно. */
+    overflow-x: clip;
 }
 .collage-comp .collage__item { border-radius: var(--cr); }
 .collage-comp .collage__item--badge { border-radius: 50%; }
@@ -280,11 +312,15 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
    процент в mask-position считается от «элемент минус слой», и сдвиг на долю
    элемента им не выразить. --cw/--ch — размер выреза вместе с зазором. */
 .collage-comp--callout { display: grid; --cw: 40%; --ch: 42%; }
+/* «Карточка в вырезе» — тот же приём на широком кадре и с вырезом крупнее:
+   в нём стоит справка в несколько строк, а не одно число. */
+.collage-comp--notch { display: grid; --cw: 38%; --ch: 50%; }
+.collage-comp--notch > .collage-comp__photo { grid-area: 1 / 1; aspect-ratio: 16 / 9; }
 .collage-comp--callout > .collage-comp__photo { grid-area: 1 / 1; aspect-ratio: 4 / 3; }
 .collage-comp--callout.collage-comp--ratio-1-1 > .collage-comp__photo { aspect-ratio: 1 / 1; }
 .collage-comp--callout.collage-comp--ratio-3-4 > .collage-comp__photo { aspect-ratio: 3 / 4; }
 .collage-comp--callout.collage-comp--ratio-16-9 > .collage-comp__photo { aspect-ratio: 16 / 9; }
-.collage-comp--callout > .collage-comp__card {
+:is(.collage-comp--callout, .collage-comp--notch) > .collage-comp__card {
     grid-area: 1 / 1;
     z-index: 2;
     inline-size: calc(var(--cw) - var(--cg));
@@ -293,7 +329,7 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
     justify-content: flex-end;
     text-align: start;
 }
-.collage-comp--callout > .collage-comp__photo {
+.collage-comp__cut {
     -webkit-mask:
         linear-gradient(#000 0 0) 0 0 / 100% 100% no-repeat,
         linear-gradient(#000 0 0) var(--a) / calc(var(--cw) - var(--cr)) var(--ch) no-repeat,
@@ -308,20 +344,16 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
 .collage-comp--cut-br { --a: right bottom; --c: var(--cr) var(--cr); --f: 0 0; }
 .collage-comp--cut-tl { --a: left top; --c: calc(100% - var(--cr)) calc(100% - var(--cr)); --f: 100% 100%; }
 .collage-comp--cut-tr { --a: right top; --c: var(--cr) calc(100% - var(--cr)); --f: 0 100%; }
-.collage-comp--cut-bl > .collage-comp__card { align-self: end; justify-self: start; --dx: -24px; --dy: 24px; }
-.collage-comp--cut-br > .collage-comp__card { align-self: end; justify-self: end; --dx: 24px; --dy: 24px; }
-.collage-comp--cut-tl > .collage-comp__card { align-self: start; justify-self: start; --dx: -24px; --dy: -24px; }
-.collage-comp--cut-tr > .collage-comp__card { align-self: start; justify-self: end; --dx: 24px; --dy: -24px; }
+:is(.collage-comp--callout, .collage-comp--notch).collage-comp--cut-bl > .collage-comp__card { align-self: end; justify-self: start; --dx: -24px; --dy: 24px; }
+:is(.collage-comp--callout, .collage-comp--notch).collage-comp--cut-br > .collage-comp__card { align-self: end; justify-self: end; --dx: 24px; --dy: 24px; }
+:is(.collage-comp--callout, .collage-comp--notch).collage-comp--cut-tl > .collage-comp__card { align-self: start; justify-self: start; --dx: -24px; --dy: -24px; }
+:is(.collage-comp--callout, .collage-comp--notch).collage-comp--cut-tr > .collage-comp__card { align-self: start; justify-self: end; --dx: 24px; --dy: -24px; }
 /* Печать — на противоположном вырезу крае кадра, узор — выглядывает из-за
    снимка с той же стороны, что печать. */
-.collage-comp--cut-bl > .collage-comp__badge,
-.collage-comp--cut-br > .collage-comp__badge { top: calc(var(--bs) / -3); }
-.collage-comp--cut-tl > .collage-comp__badge,
-.collage-comp--cut-tr > .collage-comp__badge { bottom: calc(var(--bs) / -3); }
-.collage-comp--cut-bl > .collage-comp__badge,
-.collage-comp--cut-tl > .collage-comp__badge { right: 8%; }
-.collage-comp--cut-br > .collage-comp__badge,
-.collage-comp--cut-tr > .collage-comp__badge { left: 8%; }
+:is(.collage-comp--cut-bl, .collage-comp--cut-br) > .collage-comp__badge { top: calc(var(--bs) / -3); }
+:is(.collage-comp--cut-tl, .collage-comp--cut-tr) > .collage-comp__badge { bottom: calc(var(--bs) / -3); }
+:is(.collage-comp--cut-bl, .collage-comp--cut-tl) > .collage-comp__badge { right: 8%; }
+:is(.collage-comp--cut-br, .collage-comp--cut-tr) > .collage-comp__badge { left: 8%; }
 .collage-comp--callout > .collage-comp__pattern { position: absolute; z-index: -1; inline-size: 26%; block-size: 46%; top: 28%; }
 /* Узор выглядывает из-за снимка, но за край блока не выходит: за краем он
    давал странице прокрутку вбок. Место под него — поле у самой композиции. */
@@ -336,7 +368,9 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
    месте — начальное состояние у неё не скрытое, а только сдвинутое. */
 @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
-        .collage-comp--callout > .collage-comp__card {
+        .collage-comp--callout > .collage-comp__card,
+        .collage-comp--notch > .collage-comp__card,
+        .collage-comp--diagonal > .collage-comp__card {
             animation: collage-card-in linear both;
             animation-timeline: view();
             animation-range: entry 5% cover 40%;
@@ -358,6 +392,102 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
 /* Общее правило узкого экрана прячет узор: в сетке ячеек он декорация. В
    шахматке узор — клетка, и без неё в ряду осталась бы дыра. */
 .collage-comp--checker > .collage__item--pattern { display: block; }
+
+/* У справки строки идут сверху вниз: прижатая к низу, как число, она
+   оставляла бы над собой пустоту, которая читается как недогруженный текст. */
+.collage-comp__card.collage__item--info { justify-content: flex-start; align-items: stretch; }
+.collage-comp__card.collage__item--info .collage__info-list { margin-block-start: auto; }
+
+/* --- Два кадра внахлёст ---
+   Полотно 12×12 без промежутков: первый кадр занимает 9×9, второй начинается
+   с шестой колонки и строки, то есть заходит на первый на 4/9 его стороны.
+   Вырез первого ровно под второй плюс промежуток блока — полоса между кадрами
+   это фон секции, а не обводка, и потому видна на любом фоне. */
+.collage-comp--pair {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: repeat(12, minmax(0, 1fr));
+    aspect-ratio: 1 / 1.02;
+    --a: right bottom;
+    --c: var(--cr) var(--cr);
+    --f: 0 0;
+    --cw: calc(100% * 4 / 9 + var(--cg));
+    --ch: calc(100% * 4 / 9 + var(--cg));
+}
+.collage-comp--pair > .collage-comp__photo { grid-column: 1 / 10; grid-row: 1 / 10; }
+/* Размер кадрам задаёт полотно, а не своя пропорция: общее правило узкого
+   экрана назначает снимку 4:3, и кадр в ячейках 9×9 вылез бы из них. */
+.collage-comp--pair > .collage__item--photo { aspect-ratio: auto; }
+.collage-comp--pair > .collage-comp__second { grid-column: 6 / 13; grid-row: 6 / 13; z-index: 1; }
+.collage-comp--pair > .collage-comp__pattern { grid-column: 10 / 13; grid-row: 2 / 6; margin-inline-start: var(--cg); }
+.collage-comp--pair > .collage-comp__badge { left: 10%; top: calc(75% - var(--bs) / 2); }
+/* Карточка лежит на втором кадре, поэтому она стеклянная: тёмная плотная
+   подложка держит белый текст на любом снимке (9:1 и на белом), а цвет
+   основной темы для этого не годится — он настраивается и бывает светлым.
+   Свой цвет элемента по-прежнему главнее: он приезжает из scoped CSS по id. */
+.collage-comp--pair > .collage-comp__card {
+    position: absolute;
+    z-index: 2;
+    right: 4%;
+    bottom: 4%;
+    inline-size: 52%;
+    align-items: flex-start;
+    text-align: start;
+    --collage-bg: rgba(10, 24, 40, .8);
+    --collage-fg: #fff;
+    border: 1px solid rgba(255, 255, 255, .2);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    backdrop-filter: blur(12px) saturate(1.2);
+}
+
+/* На широком блоке квадрат выходил выше экрана: композиция 12×12 растягивается
+   в альбомную, доли кадров и выреза при этом те же — они в процентах. */
+@container collage (min-width: 700px) {
+    .collage-comp--pair { aspect-ratio: 16 / 10; }
+}
+
+/* --- Диагональный разрез ---
+   Оба кадра лежат на всём полотне и режутся косой линией: левый показывает
+   часть до неё, правый — после, а между ними остаётся полоса фона шириной в
+   промежуток блока. Вырез под карточку заходит на оба кадра — внизу линия
+   стоит левее его края, — поэтому маска выреза у обоих. Печать сидит ровно
+   на середине разреза. */
+.collage-comp--diagonal {
+    display: grid;
+    --cw: 46%;
+    --ch: 40%;
+    --a: left bottom;
+    --c: calc(100% - var(--cr)) var(--cr);
+    --f: 100% 0;
+    --top: 72%;
+    --bottom: 36%;
+    --seam: calc(var(--cg) / 2);
+}
+.collage-comp--diagonal > .collage-comp__photo { grid-area: 1 / 1; aspect-ratio: 1 / 1.1; }
+.collage-comp--diagonal > .collage-comp__before {
+    clip-path: polygon(0 0, calc(var(--top) - var(--seam)) 0, calc(var(--bottom) - var(--seam)) 100%, 0 100%);
+}
+.collage-comp--diagonal > .collage-comp__after {
+    clip-path: polygon(calc(var(--top) + var(--seam)) 0, 100% 0, 100% 100%, calc(var(--bottom) + var(--seam)) 100%);
+}
+.collage-comp--diagonal > .collage-comp__card {
+    grid-area: 1 / 1;
+    z-index: 2;
+    align-self: end;
+    justify-self: start;
+    inline-size: calc(var(--cw) - var(--cg));
+    block-size: calc(var(--ch) - var(--cg));
+    --dx: -24px;
+    --dy: 24px;
+}
+@container collage (min-width: 700px) {
+    .collage-comp--diagonal { --cw: 36%; --ch: 44%; --top: 64%; --bottom: 42%; }
+    .collage-comp--diagonal > .collage-comp__photo { aspect-ratio: 16 / 10; }
+}
+.collage-comp--diagonal > .collage-comp__badge {
+    left: calc((var(--top) + var(--bottom)) / 2 - var(--bs) / 2);
+    top: calc(50% - var(--bs) / 2);
+}
 
 /* --- Шахматка: клетки одного размера, печать на стыке четырёх клеток ---
    Высота ряда равна ширине клетки, поэтому стык считается от ширины блока
@@ -413,6 +543,13 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
 /* --- Узко: композиции перестраиваются по ширине блока --- */
 @container collage (max-width: 560px) {
     .collage-comp--callout { --cw: 64%; --ch: 36%; }
+    /* Справка в узком вырезе не помещается: кадр встаёт над ней, вырез уходит. */
+    .collage-comp--notch { --cw: 0px; --ch: 0px; gap: var(--cg); }
+    .collage-comp--notch > .collage-comp__photo { aspect-ratio: 4 / 3; -webkit-mask: none; mask: none; }
+    .collage-comp.collage-comp--notch > .collage-comp__card { grid-area: 2 / 1; justify-self: stretch; inline-size: auto; block-size: auto; animation: none; }
+    .collage-comp--pair > .collage-comp__card { inline-size: 60%; right: 2%; bottom: 2%; padding: 14px; }
+    .collage-comp--diagonal { --cw: 64%; --ch: 34%; }
+    .collage-comp--diagonal > .collage-comp__photo { aspect-ratio: 4 / 5; }
     .collage-comp--callout > .collage-comp__photo { aspect-ratio: 4 / 5; }
     .collage-comp--checker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .collage-comp--checker .collage__quote-text { font-size: var(--step--1); -webkit-line-clamp: 5; line-clamp: 5; }

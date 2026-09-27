@@ -23,14 +23,39 @@ final class CollageComposition
      * Какие элементы нужны раскладке и сколько каждого берётся. Из этого же
      * списка собирается подсказка в форме.
      *
-     * @var array<string, array<string, array{types: list<string>, take: int, required: bool}>>
+     * @var array<string, array<string, array{types: list<string>, take: int, required: bool, ordered?: bool}>>
      */
     public const RECIPES = [
         'callout' => [
             'photo' => ['types' => ['photo'], 'take' => 1, 'required' => true],
-            'card' => ['types' => ['stat', 'quote'], 'take' => 1, 'required' => false],
+            'card' => ['types' => ['stat', 'quote', 'info'], 'take' => 1, 'required' => false],
             'badge' => ['types' => ['badge'], 'take' => 1, 'required' => false],
             'pattern' => ['types' => ['pattern'], 'take' => 1, 'required' => false],
+        ],
+        // Второй кадр — отдельная роль, а не «две фотографии»: у первого
+        // вырез под второй, второй несёт карточку, и поменять их местами
+        // значит переставить элементы в списке.
+        'pair' => [
+            'photo' => ['types' => ['photo'], 'take' => 1, 'required' => true],
+            'second' => ['types' => ['photo'], 'take' => 1, 'required' => true],
+            'card' => ['types' => ['stat', 'quote', 'info'], 'take' => 1, 'required' => false],
+            'badge' => ['types' => ['badge'], 'take' => 1, 'required' => false],
+            'pattern' => ['types' => ['pattern'], 'take' => 1, 'required' => false],
+        ],
+        // Вырез здесь крупнее, чем у «Кадра и выноски», и строится под строки
+        // «часы приёма, телефон», поэтому типы карточки идут по предпочтению
+        // (`ordered`): справка забирает место, даже если число стоит в списке
+        // раньше. У остальных раскладок решает порядок элементов.
+        'notch' => [
+            'photo' => ['types' => ['photo'], 'take' => 1, 'required' => true],
+            'card' => ['types' => ['info', 'stat', 'quote'], 'take' => 1, 'required' => false, 'ordered' => true],
+            'badge' => ['types' => ['badge'], 'take' => 1, 'required' => false],
+        ],
+        'diagonal' => [
+            'photo' => ['types' => ['photo'], 'take' => 1, 'required' => true],
+            'second' => ['types' => ['photo'], 'take' => 1, 'required' => true],
+            'card' => ['types' => ['stat', 'quote', 'info'], 'take' => 1, 'required' => false],
+            'badge' => ['types' => ['badge'], 'take' => 1, 'required' => false],
         ],
         'portrait' => [
             'photo' => ['types' => ['photo'], 'take' => 1, 'required' => true],
@@ -55,16 +80,21 @@ final class CollageComposition
         }
 
         $recipe = self::RECIPES[$layout] ?? [];
-        $slots = array_fill_keys(array_keys($recipe), []);
+        /** @var array<string, list<int>> $slots */
+        $slots = [];
         $used = [];
         foreach ($recipe as $slot => $rule) {
-            foreach ($items as $index => $item) {
-                if (count($slots[$slot]) >= $rule['take']) {
-                    break;
-                }
-                if (!isset($used[$index]) && in_array((string) ($item['type'] ?? ''), $rule['types'], true)) {
-                    $slots[$slot][] = $index;
-                    $used[$index] = true;
+            $slots[$slot] = [];
+            $passes = !empty($rule['ordered']) ? array_map(static fn (string $type): array => [$type], $rule['types']) : [$rule['types']];
+            foreach ($passes as $types) {
+                foreach ($items as $index => $item) {
+                    if (count($slots[$slot]) >= $rule['take']) {
+                        break 2;
+                    }
+                    if (!isset($used[$index]) && in_array((string) ($item['type'] ?? ''), $types, true)) {
+                        $slots[$slot][] = $index;
+                        $used[$index] = true;
+                    }
                 }
             }
         }
@@ -77,6 +107,23 @@ final class CollageComposition
         }
 
         return ['slots' => $slots, 'unused' => $unused];
+    }
+
+    /**
+     * Хватает ли элементов, чтобы композиция состоялась: вырез без кадра
+     * вырезать не из чего, а «внахлёст» из одного снимка — это просто снимок.
+     *
+     * @param array{slots: array<string, list<int>>, unused: list<int>} $roles
+     */
+    public static function complete(string $layout, array $roles): bool
+    {
+        foreach (self::RECIPES[$layout] ?? [] as $slot => $rule) {
+            if ($rule['required'] && ($roles['slots'][$slot] ?? []) === []) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -123,10 +170,10 @@ final class CollageComposition
         $label = CollageLayout::LAYOUTS[$layout];
         $problems = [];
         $roles = self::roles($layout, $items);
-        foreach (self::RECIPES[$layout] ?? [] as $slot => $rule) {
-            if ($rule['required'] && $roles['slots'][$slot] === []) {
-                $problems[] = '«' . $label . '» строится вокруг фотографии, а её в элементах нет — блок не будет показан.';
-            }
+        if (!self::complete($layout, $roles)) {
+            $problems[] = isset(self::RECIPES[$layout]['second'])
+                ? '«' . $label . '» строится на двух фотографиях, а в элементах их меньше — блок не будет показан.'
+                : '«' . $label . '» строится вокруг фотографии, а её в элементах нет — блок не будет показан.';
         }
         if ($roles['unused'] !== []) {
             $problems[] = '«' . $label . '» показывает не все элементы: ' . count($roles['unused'])

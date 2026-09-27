@@ -381,6 +381,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                 // «Показатели». Ключ в данных прежний.
                 'stat' => 'Показатель',
                 'quote' => 'Цитата',
+                'info' => 'Справка',
                 'badge' => 'Круглая печать',
                 'pattern' => 'Узор',
             ];
@@ -449,6 +450,11 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                         . '<div class="form-field"><label>Кто сказал</label><input type="text" name="' . $p('author') . '" maxlength="60" value="' . $v('author') . '"></div>'
                         . '<div class="form-field"><label>Должность или источник</label><input type="text" name="' . $p('role') . '" maxlength="80" value="' . $v('role') . '"></div>'
                     . '</div>'
+                    . '<div data-collage-fields="info">'
+                        . '<div class="form-field"><label>Заголовок справки</label><input type="text" name="' . $p('info_title') . '" maxlength="60" value="' . $v('info_title') . '" placeholder="Приём граждан"></div>'
+                        . '<div class="form-field"><label>Строки</label><textarea name="' . $p('info_rows') . '" rows="4">' . $v('info_rows') . '</textarea>'
+                            . '<span class="form-hint">Каждая строка — «Подпись | Значение», например «Пн – Пт | 9:00 – 18:00». Не больше ' . \App\Core\BlockData\CollageBlockNormalizer::INFO_MAX_ROWS . ' строк.</span></div>'
+                    . '</div>'
                     . '<div data-collage-fields="badge">'
                         . '<div class="form-field"><label>Надпись по кругу</label><input type="text" name="' . $p('text') . '" maxlength="40" value="' . $v('text') . '" placeholder="Свяжитесь с нами"></div>'
                         // Новая печать приходит с эмблемой, а собранная раньше
@@ -483,7 +489,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             <div>
                 <label>Элементы коллажа</label>
                 <span class="form-hint">Элементы могут занимать одни и те же ячейки — так и получается наложение. Кто ниже в списке, тот лежит поверх. На телефоне коллаж раскладывается в столбец в порядке списка.</span>
-                <span class="form-hint">У «Кадра и выноски», «Шахматки» и «Портрета и слова» роль элемента задаёт его тип: первая фотография — кадр, первый показатель или цитата — карточка, первая печать — печать, первый узор — фон за кадром.</span>
+                <span class="form-hint">У готовых композиций («Кадр и выноска», «Шахматка», «Портрет и слово», «Два кадра внахлёст», «Карточка в вырезе», «Диагональный разрез») роль элемента задаёт его тип: первая фотография — кадр, вторая — второй кадр, первый показатель, цитата или справка — карточка, первая печать — печать, первый узор — фон за кадром.</span>
                 <div data-repeater="items" data-collage-repeater>
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row"><span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span><?= $collageRow((string) $i, is_array($item) ? $item : []) ?></div>

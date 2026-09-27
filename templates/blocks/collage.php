@@ -132,6 +132,21 @@ $renderItem = static function (int $index, array $item, string $extraClass = '')
                     </footer>
                 <?php endif; ?>
             </blockquote>
+        <?php elseif ($type === 'info'):
+            // Справка — пары «подпись / значение», то есть ровно список
+            // определений: диктор читает их парами, а не россыпью строк.
+            $infoRows = CollageBlockNormalizer::infoRows((string) ($item['info_rows'] ?? ''));
+        ?>
+            <?php if (($item['info_title'] ?? '') !== ''): ?>
+                <p class="collage__info-title"><?= htmlspecialchars((string) $item['info_title'], ENT_QUOTES) ?></p>
+            <?php endif; ?>
+            <?php if ($infoRows !== []): ?>
+                <dl class="collage__info-list">
+                    <?php foreach ($infoRows as [$infoLabel, $infoValue]): ?>
+                        <div class="collage__info-row"><dt><?= htmlspecialchars($infoLabel, ENT_QUOTES) ?></dt><?php if ($infoValue !== ''): ?><dd><?= htmlspecialchars($infoValue, ENT_QUOTES) ?></dd><?php endif; ?></div>
+                    <?php endforeach; ?>
+                </dl>
+            <?php endif; ?>
         <?php elseif ($type === 'badge'):
             // Надпись по кругу собирает CollageBadge: это текст на
             // траектории, а не иконка, и шаблону такую геометрию
@@ -206,15 +221,28 @@ $blockClasses = 'block-collage'
         $compClasses = 'collage-comp collage-comp--' . $layout
             . ' collage__canvas--gap-' . $gap
             . ' collage-comp--ratio-' . $ratio
-            . ($layout === 'callout' ? ' collage-comp--cut-' . (string) $data['cut_corner'] : '');
+            . (in_array($layout, ['callout', 'notch'], true) ? ' collage-comp--cut-' . (string) $data['cut_corner'] : '');
         // Композиция без кадра не строится: вырез вырезать не из чего.
-        $hasPhoto = $layout === 'checker' || $slot('photo') !== [];
+        $hasPhoto = CollageComposition::complete($layout, $roles);
     ?>
         <?php if ($hasPhoto): ?>
             <div class="<?= htmlspecialchars($compClasses, ENT_QUOTES) ?>">
-                <?php if ($layout === 'callout'): ?>
+                <?php if (in_array($layout, ['callout', 'notch'], true)): ?>
                     <?= $one('pattern', 'collage-comp__pattern') ?>
-                    <?= $one('photo', 'collage-comp__photo') ?>
+                    <?= $one('photo', 'collage-comp__photo collage-comp__cut') ?>
+                    <?= $one('card', 'collage-comp__card') ?>
+                    <?= $one('badge', 'collage-comp__badge') ?>
+                <?php elseif ($layout === 'pair'): ?>
+                    <?php // Кадр с вырезом под второй: полоса между ними — фон секции, а не обводка. ?>
+                    <?= $one('photo', 'collage-comp__photo collage-comp__cut') ?>
+                    <?= $one('pattern', 'collage-comp__pattern') ?>
+                    <?= $one('second', 'collage-comp__photo collage-comp__second') ?>
+                    <?= $one('card', 'collage-comp__card') ?>
+                    <?= $one('badge', 'collage-comp__badge') ?>
+                <?php elseif ($layout === 'diagonal'): ?>
+                    <?php // Вырез под карточку заходит на оба кадра, поэтому маска у обоих. ?>
+                    <?= $one('photo', 'collage-comp__photo collage-comp__cut collage-comp__before') ?>
+                    <?= $one('second', 'collage-comp__photo collage-comp__cut collage-comp__after') ?>
                     <?= $one('card', 'collage-comp__card') ?>
                     <?= $one('badge', 'collage-comp__badge') ?>
                 <?php elseif ($layout === 'checker'): ?>

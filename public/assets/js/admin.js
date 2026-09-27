@@ -4544,6 +4544,7 @@ document.addEventListener('change', function (event) {
         // У цитаты ссылки нет: прямая речь, ведущая куда-то по клику, не
         // читается как ссылка, а подчёркивать её целиком — уже не цитата.
         quote: ['shape', 'quote', 'colors'],
+        info: ['shape', 'info', 'colors'],
         // Печать всегда круглая: выбор формы у неё ничего не менял бы.
         badge: ['badge', 'colors', 'link'],
         pattern: ['shape', 'pattern', 'colors']
