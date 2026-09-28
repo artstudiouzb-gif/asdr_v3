@@ -49,6 +49,11 @@ final class Auth
             foreach (array_keys($identifiers) as $identifier) {
                 RateLimiter::recordAttempt($identifier, false);
             }
+            LoginAlert::failure(
+                $user ?: null,
+                $user ? LoginAlert::FAIL_PASSWORD : LoginAlert::FAIL_UNKNOWN_USER,
+                $username
+            );
             return ['status' => 'invalid'];
         }
 
@@ -66,7 +71,7 @@ final class Auth
         $telegramOn = self::telegramChannelAvailable($user);
 
         if (!$totpOn && !$telegramOn) {
-            self::establishSession($user);
+            self::establishSession($user, LoginAlert::METHOD_PASSWORD);
 
             if ((string) Config::get('app.env') !== 'development') {
                 $_SESSION['2fa_setup_required'] = true;
@@ -249,11 +254,15 @@ final class Auth
         // катора или одноразовый, отправленный в Telegram.
         $code = preg_replace('/\s+/', '', $code) ?? '';
         $valid = false;
+        $method = LoginAlert::METHOD_TELEGRAM;
         if (!empty($_SESSION['pending_totp']) && trim((string) ($user['totp_secret'] ?? '')) !== '') {
             // Шаг времени засчитывается один раз (RFC 6238 §5.2): иначе
             // подсмотренный код оставался бы рабочим до полутора минут.
             $step = TOTP::matchStep((string) $user['totp_secret'], $code);
             $valid = $step !== null && User::consumeTotpStep((int) $user['id'], $step);
+            if ($valid) {
+                $method = LoginAlert::METHOD_TOTP;
+            }
         }
         // Отправленный код проверяем и без метки канала: сессии, начатые до
         // появления TOTP, метки не знают, а настоящий секрет здесь — сам хэш.
@@ -273,13 +282,14 @@ final class Auth
                 return false;
             }
             RateLimiter::recordAttempt($identifier, false);
+            LoginAlert::failure($user, LoginAlert::FAIL_CODE);
 
             return false;
         }
 
         RateLimiter::clearAttempts($identifier);
         self::clearPending();
-        self::establishSession($user);
+        self::establishSession($user, $method);
 
         return true;
     }
@@ -319,7 +329,11 @@ final class Auth
         }
     }
 
-    public static function establishSession(array $user): void
+    /**
+     * @param string $method способ входа для уведомления в Telegram
+     *                       (`LoginAlert::METHOD_*`); '' — не сообщать
+     */
+    public static function establishSession(array $user, string $method = ''): void
     {
         session_regenerate_id(true);
         self::signedInMarker(true);
@@ -352,6 +366,9 @@ final class Auth
             'user' => (string) $user['username'],
             'ip' => $_SERVER['REMOTE_ADDR'] ?? '',
         ]);
+        if ($method !== '') {
+            LoginAlert::success($user, $method);
+        }
 
         // Вероятностная очистка старых записей брутфорса и ротация логов.
         RateLimiter::garbageCollect();
