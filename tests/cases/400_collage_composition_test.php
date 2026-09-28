@@ -162,7 +162,7 @@ test('Два кадра и разрез требуют двух снимков; 
 
     $single = CollageComposition::roles('diagonal', [['type' => 'photo'], ['type' => 'stat']]);
     assert_false(CollageComposition::complete('diagonal', $single), 'разрез из одного снимка — это просто снимок');
-    assert_contains('двух фотографиях', implode(' ', CollageComposition::problems('diagonal', [['type' => 'photo']])));
+    assert_contains('двух кадрах', implode(' ', CollageComposition::problems('diagonal', [['type' => 'photo']])));
     assert_not_contains('collage-comp', collage_html(['layout' => 'pair', 'items' => [
         ['type' => 'photo', 'image' => '/uploads/public/a.jpg'],
     ]]), 'неполная композиция не выводится вовсе');
