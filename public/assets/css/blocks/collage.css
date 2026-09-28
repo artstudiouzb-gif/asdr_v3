@@ -536,7 +536,10 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
 .collage-comp__pic > .collage-comp__badge { right: calc(var(--bs) / -2.4); top: 10%; }
 .collage-comp__side { display: grid; gap: 18px; }
 .collage-comp__side > .collage-comp__pattern { block-size: 14px; inline-size: 40%; }
-.collage-comp__side > .collage-comp__quote { background: none; padding: 0; overflow: visible; }
+/* Сбоку цитата стоит без заливки, прямо на фоне секции, поэтому цвет у неё
+   секции, а не «Вида карточек»: при стиле navy или accent тот белый, и на
+   светлой секции цитата пропадала (замерено 1.05:1). */
+.collage-comp__side > .collage-comp__quote { background: none; padding: 0; overflow: visible; --collage-fg: var(--section-title-fg); }
 .collage-comp__side > .collage-comp__quote .collage__quote-mark { color: var(--gov-teal-text); }
 .collage-comp__side > .collage-comp__quote .collage__quote-text { font-size: var(--step-4); font-weight: 600; line-height: 1.3; overflow: visible; -webkit-line-clamp: unset; line-clamp: none; }
 
