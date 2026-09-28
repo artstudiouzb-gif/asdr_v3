@@ -27,7 +27,7 @@ final class CollageComposition
      */
     public const RECIPES = [
         'callout' => [
-            'photo' => ['types' => ['photo'], 'take' => 1, 'required' => true],
+            'photo' => ['types' => CollageEnsemble::MEDIA, 'take' => 1, 'required' => true],
             'card' => ['types' => ['stat', 'quote', 'info'], 'take' => 1, 'required' => false],
             'badge' => ['types' => ['badge'], 'take' => 1, 'required' => false],
             'pattern' => ['types' => ['pattern'], 'take' => 1, 'required' => false],
@@ -36,8 +36,8 @@ final class CollageComposition
         // вырез под второй, второй несёт карточку, и поменять их местами
         // значит переставить элементы в списке.
         'pair' => [
-            'photo' => ['types' => ['photo'], 'take' => 1, 'required' => true],
-            'second' => ['types' => ['photo'], 'take' => 1, 'required' => true],
+            'photo' => ['types' => CollageEnsemble::MEDIA, 'take' => 1, 'required' => true],
+            'second' => ['types' => CollageEnsemble::MEDIA, 'take' => 1, 'required' => true],
             'card' => ['types' => ['stat', 'quote', 'info'], 'take' => 1, 'required' => false],
             'badge' => ['types' => ['badge'], 'take' => 1, 'required' => false],
             'pattern' => ['types' => ['pattern'], 'take' => 1, 'required' => false],
@@ -47,18 +47,18 @@ final class CollageComposition
         // (`ordered`): справка забирает место, даже если число стоит в списке
         // раньше. У остальных раскладок решает порядок элементов.
         'notch' => [
-            'photo' => ['types' => ['photo'], 'take' => 1, 'required' => true],
+            'photo' => ['types' => CollageEnsemble::MEDIA, 'take' => 1, 'required' => true],
             'card' => ['types' => ['info', 'stat', 'quote'], 'take' => 1, 'required' => false, 'ordered' => true],
             'badge' => ['types' => ['badge'], 'take' => 1, 'required' => false],
         ],
         'diagonal' => [
-            'photo' => ['types' => ['photo'], 'take' => 1, 'required' => true],
-            'second' => ['types' => ['photo'], 'take' => 1, 'required' => true],
+            'photo' => ['types' => CollageEnsemble::MEDIA, 'take' => 1, 'required' => true],
+            'second' => ['types' => CollageEnsemble::MEDIA, 'take' => 1, 'required' => true],
             'card' => ['types' => ['stat', 'quote', 'info'], 'take' => 1, 'required' => false],
             'badge' => ['types' => ['badge'], 'take' => 1, 'required' => false],
         ],
         'portrait' => [
-            'photo' => ['types' => ['photo'], 'take' => 1, 'required' => true],
+            'photo' => ['types' => CollageEnsemble::MEDIA, 'take' => 1, 'required' => true],
             'stats' => ['types' => ['stat'], 'take' => 2, 'required' => false],
             'quote' => ['types' => ['quote'], 'take' => 1, 'required' => false],
             'badge' => ['types' => ['badge'], 'take' => 1, 'required' => false],
@@ -163,6 +163,9 @@ final class CollageComposition
      */
     public static function problems(string $layout, array $items): array
     {
+        if (CollageEnsemble::isEnsemble($layout)) {
+            return CollageEnsemble::problems($layout, $items);
+        }
         if (!CollageLayout::isComposed($layout)) {
             return [];
         }
@@ -172,8 +175,8 @@ final class CollageComposition
         $roles = self::roles($layout, $items);
         if (!self::complete($layout, $roles)) {
             $problems[] = isset(self::RECIPES[$layout]['second'])
-                ? '«' . $label . '» строится на двух фотографиях, а в элементах их меньше — блок не будет показан.'
-                : '«' . $label . '» строится вокруг фотографии, а её в элементах нет — блок не будет показан.';
+                ? '«' . $label . '» строится на двух кадрах (фотография или видео), а в элементах их меньше — блок не будет показан.'
+                : '«' . $label . '» строится вокруг фотографии или видео, а их в элементах нет — блок не будет показан.';
         }
         if ($roles['unused'] !== []) {
             $problems[] = '«' . $label . '» показывает не все элементы: ' . count($roles['unused'])
@@ -183,7 +186,7 @@ final class CollageComposition
         return $problems;
     }
 
-    private static function plural(int $n): string
+    public static function plural(int $n): string
     {
         $mod10 = $n % 10;
         $mod100 = $n % 100;

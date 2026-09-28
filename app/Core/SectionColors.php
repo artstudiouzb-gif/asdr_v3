@@ -105,6 +105,8 @@ final class SectionColors
         '.collage__item--stat',
         '.collage__item--quote:not(.collage-comp__side > *)',
         '.collage__item--info',
+        // Подпись ролика — белая плашка на кадре: цвет секции её не касается.
+        '.collage__item--video',
     ];
 
     /** Светлый текст: значения переменных для тёмного фона. */

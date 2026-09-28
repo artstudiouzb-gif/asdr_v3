@@ -49,6 +49,10 @@ final class CollageLayout
         'pair' => 'Два кадра внахлёст',
         'notch' => 'Карточка в вырезе',
         'diagonal' => 'Диагональный разрез',
+        'bento' => 'Кадр и плитки',
+        'stage' => 'Кадр в центре',
+        'panorama' => 'Панорама и карточки',
+        'cascade' => 'Каскад',
     ];
 
     /**
@@ -61,7 +65,12 @@ final class CollageLayout
      *
      * @var list<string>
      */
-    public const COMPOSED = ['callout', 'checker', 'portrait', 'pair', 'notch', 'diagonal'];
+    public const COMPOSED = [
+        'callout', 'checker', 'portrait', 'pair', 'notch', 'diagonal',
+        // Ансамбли на четыре–семь элементов (CollageEnsemble): места у них
+        // тоже выбираются по типу элемента, но из набора плиток, а не ролей.
+        ...CollageEnsemble::LAYOUTS,
+    ];
 
     /**
      * Границы холста — те же, что принимает схема полей: «Колонок в сетке»

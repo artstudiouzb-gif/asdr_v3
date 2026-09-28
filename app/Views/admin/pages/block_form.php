@@ -315,6 +315,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             $buttonRow = static function (string $idx, array $item) use ($buttonStyles): string {
                 $v = static fn (string $k): string => htmlspecialchars((string) ($item[$k] ?? ''), ENT_QUOTES);
                 $p = static fn (string $k): string => 'items[' . $idx . '][' . $k . ']';
+                $vid = 'collage_video_' . preg_replace('/[^a-z0-9_]/i', '_', $idx);
                 $opts = '';
                 foreach ($buttonStyles as $key => $label) {
                     $opts .= '<option value="' . $key . '"' . (($item['style'] ?? 'primary') === $key ? ' selected' : '')
@@ -376,6 +377,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             $collageRows = (int) ($data['rows'] ?? 4);
             $collageTypes = [
                 'photo' => 'Фотография',
+                'video' => 'Видео',
                 // «Плитка с числом» не читалась как показатель, хотя это
                 // ровно он: значение, подпись, иконка и цвет — набор блока
                 // «Показатели». Ключ в данных прежний.
@@ -415,6 +417,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                 $v = static fn (string $k, string $def = ''): string => htmlspecialchars((string) ($item[$k] ?? $def), ENT_QUOTES);
                 $n = static fn (string $k, int $def): int => (int) ($item[$k] ?? $def);
                 $p = static fn (string $k): string => 'items[' . $idx . '][' . $k . ']';
+                $vid = 'collage_video_' . preg_replace('/[^a-z0-9_]/i', '_', $idx);
 
                 return '<div class="form-field"><label>Тип элемента</label><select name="' . $p('type') . '" data-collage-type>'
                         . $sel($collageTypes, 'type', (string) ($item['type'] ?? 'photo')) . '</select></div>'
@@ -438,6 +441,18 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                         . '<div class="form-field"><label>Описание для диктора</label><input type="text" name="' . $p('alt') . '" value="' . $v('alt') . '"></div>'
                         . '<div class="form-field"><label>Кадрирование</label><select name="' . $p('focus') . '">'
                             . $sel($collageFocus, 'focus', (string) ($item['focus'] ?? 'auto')) . '</select></div>'
+                    . '</div>'
+                    . '<div data-collage-fields="video">'
+                        // Поле ролика — адрес плюс выбор из медиатеки, как у
+                        // блока «Текст»: YouTube вставляется ссылкой, файл
+                        // берётся из библиотеки. id строится из имени поля,
+                        // поэтому у строки из шаблона репитера он свой.
+                        . '<div class="form-field"><label for="' . $vid . '">Ролик</label>'
+                            . '<div class="repeater-media"><input type="text" id="' . $vid . '" name="' . $p('video') . '" value="' . $v('video') . '" placeholder="https://www.youtube.com/watch?v=… или /uploads/public/…mp4">'
+                            . '<button type="button" class="btn btn--small" data-media-pick data-media-target="#' . $vid . '" data-media-type="video">Медиабиблиотека</button></div>'
+                            . '<span class="form-hint">Ссылка на YouTube или файл MP4 из медиабиблиотеки. На сайте плитка — кадр с кнопкой, ролик открывается поверх страницы.</span></div>'
+                        . \App\Core\AdminUi::imageField($p('poster'), (string) ($item['poster'] ?? ''), ['label' => 'Кадр-обложка', 'hint' => 'Необязательно. Без обложки у YouTube берётся превью ролика, у файла — его первый кадр.'])
+                        . '<div class="form-field"><label>Подпись на кадре</label><input type="text" name="' . $p('video_title') . '" maxlength="80" value="' . $v('video_title') . '" placeholder="Об Агентстве за две минуты"><span class="form-hint">Её же услышит диктор: «Смотреть видео: …».</span></div>'
                     . '</div>'
                     . '<div data-collage-fields="stat">'
                         . \App\Core\AdminUi::iconField($p('icon_svg'), (string) ($item['icon_svg'] ?? ''), ['label' => 'Иконка'])
@@ -489,7 +504,8 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             <div>
                 <label>Элементы коллажа</label>
                 <span class="form-hint">Элементы могут занимать одни и те же ячейки — так и получается наложение. Кто ниже в списке, тот лежит поверх. На телефоне коллаж раскладывается в столбец в порядке списка.</span>
-                <span class="form-hint">У готовых композиций («Кадр и выноска», «Шахматка», «Портрет и слово», «Два кадра внахлёст», «Карточка в вырезе», «Диагональный разрез») роль элемента задаёт его тип: первая фотография — кадр, вторая — второй кадр, первый показатель, цитата или справка — карточка, первая печать — печать, первый узор — фон за кадром.</span>
+                <span class="form-hint">У готовых композиций («Кадр и выноска», «Шахматка», «Портрет и слово», «Два кадра внахлёст», «Карточка в вырезе», «Диагональный разрез») роль элемента задаёт его тип: первая фотография или видео — кадр, вторая — второй кадр, первый показатель, цитата или справка — карточка, первая печать — печать, первый узор — фон за кадром.</span>
+                <span class="form-hint">«Кадр и плитки», «Кадр в центре», «Панорама и карточки» и «Каскад» собирают до <?= \App\Core\CollageEnsemble::CAPACITY ?> элементов и одну печать. Первое видео или фотография становится главным кадром, остальным места подбираются по типу: цитате — широкая плитка, числу — малая. Печать встаёт на край главного кадра, без печати композиция просто смыкается.</span>
                 <div data-repeater="items" data-collage-repeater>
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row"><span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span><?= $collageRow((string) $i, is_array($item) ? $item : []) ?></div>

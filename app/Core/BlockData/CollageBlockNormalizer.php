@@ -22,7 +22,14 @@ use App\Core\Icon;
 final class CollageBlockNormalizer
 {
     /** @var list<string> */
-    public const TYPES = ['photo', 'stat', 'quote', 'info', 'badge', 'pattern'];
+    public const TYPES = ['photo', 'video', 'stat', 'quote', 'info', 'badge', 'pattern'];
+
+    /**
+     * Файлы ролика из медиатеки. Остальное — ссылка на YouTube: другие
+     * источники браузер в лайтбоксе не проиграет, а произвольный iframe —
+     * чужой код на странице (см. EmbedSource).
+     */
+    public const VIDEO_FILES = ['mp4', 'webm', 'm4v'];
 
     /** Строк у справки: больше не помещается ни в вырез, ни в ячейку. */
     public const INFO_MAX_ROWS = 6;
@@ -92,6 +99,7 @@ final class CollageBlockNormalizer
             // композиции читается как поломка вёрстки, а не как замысел.
             $filled = match ($type) {
                 'photo' => self::photo($item, $normalized),
+                'video' => self::video($item, $normalized, $locale),
                 'stat' => self::stat($item, $normalized, $locale),
                 'quote' => self::quote($item, $normalized, $locale),
                 'info' => self::info($item, $normalized, $locale),
@@ -160,6 +168,47 @@ final class CollageBlockNormalizer
             'alt' => BlockDataInput::trimmed($item, 'alt'),
             'focus' => BlockDataInput::enum($item, 'focus', self::FOCUS, 'auto'),
             'link' => BlockDataInput::safeLink($item['link'] ?? ''),
+        ];
+    }
+
+    /**
+     * Ролик: ссылка на YouTube или файл из медиатеки, кадр-обложка и подпись.
+     *
+     * Ролик не встраивается в страницу, а открывается по нажатию в общем
+     * лайтбоксе: iframe в каждой плитке коллажа — это запросы к YouTube на
+     * загрузке страницы и плеер со своими кнопками поверх композиции. Плитка
+     * остаётся кадром с кнопкой, а без скрипта — ссылкой на сам ролик.
+     *
+     * Ссылка YouTube приводится к одному виду (`watch?v=`): Shorts, youtu.be и
+     * embed — один и тот же ролик, и лайтбокс узнаёт его по id.
+     *
+     * @param array<string, mixed> $item
+     * @param array<string, mixed> $base
+     * @return array<string, mixed>|null
+     */
+    private static function video(array $item, array $base, string $locale): ?array
+    {
+        $source = BlockDataInput::trimmed($item, 'video');
+        $youtube = \App\Core\Video::youtubeId($source);
+        if ($youtube !== null) {
+            $video = 'https://www.youtube.com/watch?v=' . $youtube;
+        } else {
+            $video = BlockDataInput::safeMedia($source);
+            $extension = strtolower(pathinfo((string) parse_url($video, PHP_URL_PATH), PATHINFO_EXTENSION));
+            if (!in_array($extension, self::VIDEO_FILES, true)) {
+                $video = '';
+            }
+        }
+        // Плитка без ролика — это кадр без смысла: кнопка «смотреть» вела бы
+        // в никуда.
+        if ($video === '') {
+            return null;
+        }
+
+        return $base + [
+            'video' => $video,
+            'poster' => BlockDataInput::safeMedia($item['poster'] ?? ''),
+            'video_title' => mb_substr(BlockDataInput::plain($item, 'video_title', $locale), 0, 80),
         ];
     }
 

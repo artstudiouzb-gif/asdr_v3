@@ -1469,6 +1469,17 @@
                 stage.innerHTML = '<iframe class="cms-lightbox__video" src="https://www.youtube-nocookie.com/embed/'
                     + item.id + '?rel=0&modestbranding=1&autoplay=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="'
                     + label('video', 'Видео') + '"></iframe>';
+            } else if (item.type === 'file') {
+                // Файл ролика из медиатеки (плитка «Видео» коллажа). Адрес
+                // ставится свойством, а не склейкой разметки.
+                var video = document.createElement('video');
+                video.className = 'cms-lightbox__video';
+                video.controls = true;
+                video.autoplay = true;
+                video.playsInline = true;
+                video.src = item.src;
+                stage.innerHTML = '';
+                stage.appendChild(video);
             } else {
                 var img = document.createElement('img');
                 img.src = item.src;
@@ -1521,6 +1532,12 @@
                 return;
             }
 
+            if (a.hasAttribute('data-lightbox-video')) {
+                e.preventDefault();
+                open([{ type: 'file', src: href }], 0, a);
+                return;
+            }
+
             // Фото: только в известных контейнерах, группой с листанием.
             var scope = a.closest(PHOTO_SCOPES);
             if (!scope || !IMG_RE.test(href)) { return; }
@@ -1548,7 +1565,7 @@
         'use strict';
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
         if (!('IntersectionObserver' in window)) { return; }
-        var GRIDS = '.imgcards-grid, .newslist-grid, .icon-text__grid, .mediagallery-grid, .albums-grid, .cards-grid, .cat-grid, .block-news__grid, .block-counters__grid, .docslist-grid, .docslist-acts, .contact-cards, .block-partners__grid, .block-team__grid, .block-projects__grid, .block-faq__list, .stages, .timeline-list, .featband, .media-list, .newsdocs-news, .newsdocs-docs';
+        var GRIDS = '.imgcards-grid, .collage-comp--grid, .newslist-grid, .icon-text__grid, .mediagallery-grid, .albums-grid, .cards-grid, .cat-grid, .block-news__grid, .block-counters__grid, .docslist-grid, .docslist-acts, .contact-cards, .block-partners__grid, .block-team__grid, .block-projects__grid, .block-faq__list, .stages, .timeline-list, .featband, .media-list, .newsdocs-news, .newsdocs-docs';
         var sections = Array.prototype.slice.call(document.querySelectorAll('[data-reveal-items]'));
         if (!sections.length) { return; }
         var grids = document.querySelectorAll('[data-reveal-items] ' + GRIDS.split(', ').join(', [data-reveal-items] '));
