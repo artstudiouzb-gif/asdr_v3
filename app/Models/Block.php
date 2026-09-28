@@ -204,12 +204,16 @@ final class Block
         ?string $title,
         array $data,
         string $customCss,
-        ?int $expectedLockVersion = null
+        ?int $expectedLockVersion = null,
+        ?string $type = null
     ): void
     {
+        // Тип меняется только явно (смена типа или откат к версии другого
+        // типа, BlockConversion): обычное сохранение формы его не трогает.
         $stmt = Database::pdo()->prepare(
             'UPDATE blocks
-             SET title = :title, data = :data, custom_css = :custom_css, lock_version = lock_version + 1
+             SET title = :title, data = :data, custom_css = :custom_css, lock_version = lock_version + 1'
+             . ($type !== null ? ', type = :type' : '') . '
              WHERE id = :id' . ($expectedLockVersion !== null ? ' AND lock_version = :expected_lock_version' : '')
         );
         $params = [
@@ -220,6 +224,9 @@ final class Block
         ];
         if ($expectedLockVersion !== null) {
             $params[':expected_lock_version'] = $expectedLockVersion;
+        }
+        if ($type !== null) {
+            $params[':type'] = $type;
         }
         $stmt->execute($params);
         if ($expectedLockVersion !== null && $stmt->rowCount() !== 1) {
