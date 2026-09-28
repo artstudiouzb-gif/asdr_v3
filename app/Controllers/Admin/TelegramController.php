@@ -373,6 +373,8 @@ final class TelegramController
             exit;
         }
         Setting::set('telegram_notify_chat_ids', implode(', ', $chatIds));
+        Setting::set(\App\Core\LoginAlert::SUCCESS_KEY, !empty($_POST['telegram_login_alert_success']) ? '1' : '0');
+        Setting::set(\App\Core\LoginAlert::FAILURE_KEY, !empty($_POST['telegram_login_alert_failure']) ? '1' : '0');
         Setting::set(
             \App\Core\WeeklyRoundup::ENABLED_KEY,
             !empty($_POST['telegram_roundup']) ? '1' : '0'
