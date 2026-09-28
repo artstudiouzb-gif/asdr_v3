@@ -18,14 +18,15 @@ final class BlockRevision
     /**
      * Снимает ревизию (текущее состояние блока) и подрезает историю до KEEP.
      */
-    public static function snapshot(int $blockId, ?string $title, array $data, ?string $customCss, ?int $userId): int
+    public static function snapshot(int $blockId, ?string $title, array $data, ?string $customCss, ?int $userId, ?string $type = null): int
     {
         $stmt = Database::pdo()->prepare(
-            'INSERT INTO block_revisions (block_id, title, data, custom_css, created_by, created_at)
-             VALUES (:block_id, :title, :data, :custom_css, :created_by, NOW())'
+            'INSERT INTO block_revisions (block_id, type, title, data, custom_css, created_by, created_at)
+             VALUES (:block_id, :type, :title, :data, :custom_css, :created_by, NOW())'
         );
         $stmt->execute([
             ':block_id' => $blockId,
+            ':type' => $type,
             ':title' => $title,
             ':data' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
             ':custom_css' => $customCss,

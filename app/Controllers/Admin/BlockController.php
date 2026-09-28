@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Auth;
+use App\Core\BlockConversion;
 use App\Core\BlockData\BlockFieldSchema;
 use App\Core\BlockData\BlockPresentationNormalizer;
 use App\Core\BlockData\ContactCardsBlockNormalizer;
@@ -281,6 +282,12 @@ final class BlockController
             : (string) ($block['custom_css'] ?? '');
 
         $revData = json_decode((string) $rev['data'], true) ?: [];
+        // Версия, снятая до смены типа, возвращает и тип: данные «Карточек»
+        // в блоке «Контактов» не отрисовал бы ни один шаблон.
+        $revType = (string) ($rev['type'] ?? '');
+        $restoreType = $revType !== '' && $revType !== (string) $block['type'] && BlockTypeRegistry::has($revType)
+            ? $revType
+            : null;
         // Разметку блока «HTML-код» правит только супер-админ — откат версии
         // не должен становиться обходным путём.
         if ((string) $block['type'] === 'html' && !Auth::isSuperAdmin()) {
@@ -296,7 +303,8 @@ final class BlockController
                 $revData,
                 $customCss,
                 Auth::id(),
-                $expectedVersion
+                $expectedVersion,
+                $restoreType
             );
         } catch (ConcurrencyException) {
             Flash::error('Блок уже изменился после открытия истории. Проверьте свежую версию и повторите восстановление.');
@@ -307,6 +315,59 @@ final class BlockController
 
         Flash::success('Блок восстановлен из выбранной версии.');
         header('Location: ' . $this->pageEditUrl($block));
+        exit;
+    }
+
+    /**
+     * Смена типа собранного блока (BlockConversion). Прежняя версия уходит в
+     * историю вместе с типом, поэтому откат возвращает блок целиком.
+     *
+     * @param array<string, string> $params
+     */
+    public function convert(array $params): void
+    {
+        Auth::requireLogin();
+        Csrf::verifyRequest();
+
+        $block = Block::findById((int) $params['id']);
+        if (!$block) {
+            http_response_code(404);
+            View::render('errors/404');
+            return;
+        }
+        $from = (string) $block['type'];
+        $to = (string) ($_POST['to'] ?? '');
+        $editUrl = '/admin/blocks/' . (int) $block['id'] . '/edit';
+        if (!BlockConversion::allowed($from, $to)) {
+            Flash::error('Этот блок нельзя сменить на выбранный тип.');
+            header('Location: ' . $editUrl);
+            exit;
+        }
+
+        $stored = json_decode((string) $block['data'], true);
+        $locale = ((string) $block['lang'] === 'en') ? 'en' : 'ru';
+        $data = BlockConversion::convert($from, $to, is_array($stored) ? $stored : [], $locale);
+
+        try {
+            BlockVersioning::updateWithSnapshot(
+                $block,
+                $block['title'] !== null ? (string) $block['title'] : null,
+                $data,
+                (string) ($block['custom_css'] ?? ''),
+                Auth::id(),
+                (int) ($_POST['expected_lock_version'] ?? ($block['lock_version'] ?? 1)),
+                $to
+            );
+        } catch (ConcurrencyException) {
+            Flash::error('Блок уже изменился в другой вкладке. Проверьте свежую версию и повторите смену типа.');
+            header('Location: ' . $editUrl);
+            exit;
+        }
+        \App\Core\Cache::clearPageCache((int) $block['page_id']);
+
+        $labels = BlockTypeRegistry::editorLabels();
+        Flash::success('Тип блока сменён на «' . ($labels[$to] ?? $to) . '». Прежний вид — в «Истории изменений».');
+        header('Location: ' . $editUrl);
         exit;
     }
 
@@ -632,32 +693,7 @@ final class BlockController
                     ]
                 );
             case 'icon_text':
-                $iconRows = [];
-                foreach ((array) ($_POST['items'] ?? []) as $item) {
-                    $rows = trim((string) ($item['rows'] ?? ''));
-                    $icon = \App\Core\Icon::cleanName($item['icon_svg'] ?? '');
-                    if ($rows === '' && $icon === '') {
-                        continue;
-                    }
-                    $iconRows[] = [
-                        'icon_svg' => $icon,
-                        // Пустой цвет = оттенок акцента сайта. Единый компонент
-                        // присылает `icon_color_off` при возврате к нему, поэтому
-                        // читаем цвет тем же способом, что остальные необязательные
-                        // цвета админки, а не сохраняем показанный образец.
-                        'icon_color' => \App\Core\BlockData\BlockDataInput::optionalColor($item, 'icon_color'),
-                        'rows' => TextProcessor::typographPlain($rows, $locale),
-                    ];
-                }
-
-                return array_merge(
-                    BlockFieldSchema::normalize('icon_text', $_POST, $locale),
-                    [
-                        // Мимо схемы: значение зависит от выравнивания (см. EXTRA).
-                        'icon_position' => \App\Core\BlockData\BlockDataInput::enum($_POST, 'icon_position', ['left', 'top', 'right'], 'left'),
-                        'items' => $iconRows,
-                    ]
-                );
+                return \App\Core\BlockData\IconTextBlockNormalizer::normalize($_POST, $locale);
             case 'leader_card':
                 $facts = [];
                 foreach ((array) ($_POST['items'] ?? []) as $item) {

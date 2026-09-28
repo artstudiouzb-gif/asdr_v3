@@ -2101,4 +2101,28 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
     </form>
 </div>
 
+<?php
+// Смена типа — отдельной формой под основной: вложенных форм не бывает, а
+// действие это редкое и необратимое без истории, поэтому оно не на виду.
+$convertTargets = \App\Core\BlockConversion::targets($type);
+?>
+<?php if ($convertTargets !== []): ?>
+    <details class="form-card">
+        <summary>Сменить тип блока</summary>
+        <form method="post" action="/admin/blocks/<?= (int) $block['id'] ?>/convert"
+              data-confirm="Сменить тип блока? Прежний вид останется в «Истории изменений».">
+            <?= Csrf::field() ?>
+            <input type="hidden" name="expected_lock_version" value="<?= (int) ($block['lock_version'] ?? 1) ?>">
+            <p class="form-hint">Содержимое перенесётся в блок другого типа, оформление секции (фон, отступы, условия показа) останется прежним. Несохранённые правки формы выше не перенесутся — сначала сохраните блок. Прежний вид остаётся в «Истории изменений» и возвращается оттуда вместе с типом.</p>
+            <?php foreach ($convertTargets as $target => $lost): ?>
+                <div class="form-field">
+                    <label><input type="radio" name="to" value="<?= htmlspecialchars($target, ENT_QUOTES) ?>" required> <?= htmlspecialchars($typeLabels[$target] ?? $target, ENT_QUOTES) ?></label>
+                    <span class="form-hint">Не перенесётся: <?= htmlspecialchars(implode(', ', $lost), ENT_QUOTES) ?>.</span>
+                </div>
+            <?php endforeach; ?>
+            <button type="submit" class="btn"><?= \App\Core\AdminUi::icon('arrows-exchange') ?>Сменить тип</button>
+        </form>
+    </details>
+<?php endif; ?>
+
 <?php require __DIR__ . '/../layout/footer.php'; ?>

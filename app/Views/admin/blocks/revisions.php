@@ -20,6 +20,7 @@ require __DIR__ . '/../layout/header.php';
 /** @var string $backUrl */
 
 $typeLabel = htmlspecialchars((string) $block['type'], ENT_QUOTES);
+$typeNames = \App\Core\BlockTypeRegistry::editorLabels();
 $blockName = $block['title'] !== null && $block['title'] !== ''
     ? htmlspecialchars((string) $block['title'], ENT_QUOTES)
     : ('#' . (int) $block['id'] . ' (' . $typeLabel . ')');
@@ -44,7 +45,13 @@ $blockName = $block['title'] !== null && $block['title'] !== ''
             <tr>
                 <td><?= htmlspecialchars($fmtDate((string) $rev['created_at']), ENT_QUOTES) ?></td>
                 <td><?= htmlspecialchars((string) ($rev['author'] ?? '—'), ENT_QUOTES) ?></td>
-                <td><?= htmlspecialchars((string) ($rev['title'] ?? '—'), ENT_QUOTES) ?></td>
+                <td>
+                    <?= htmlspecialchars((string) ($rev['title'] ?? '—'), ENT_QUOTES) ?>
+                    <?php // Версия до смены типа восстанавливается вместе с типом — это стоит видеть до нажатия. ?>
+                    <?php if (($rev['type'] ?? '') !== '' && (string) $rev['type'] !== (string) $block['type']): ?>
+                        <span class="form-hint">Тип блока: «<?= htmlspecialchars((string) ($typeNames[(string) $rev['type']] ?? $rev['type']), ENT_QUOTES) ?>»</span>
+                    <?php endif; ?>
+                </td>
                 <td class="data-table__actions">
                     <form method="post" action="/admin/blocks/<?= (int) $block['id'] ?>/revisions/restore"
                           data-confirm="Восстановить блок из этой версии? Текущее состояние сохранится в истории.">
