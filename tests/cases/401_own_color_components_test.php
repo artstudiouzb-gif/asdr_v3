@@ -34,6 +34,21 @@ test('Правила цвета секции не выбирают элемен�
     assert_contains('.block-counters:not(.block-counters--panel-none)', implode(',', SectionColors::OWN_COLORS));
 });
 
+test('Плитки «Коллажа» со своей заливкой цвет секции не получают, цитата сбоку — получает', function (): void {
+    // Правило секции весит по id: стекло карточки на втором кадре получало
+    // тёмный текст светлой секции (2.36:1), светлая плитка на navy — белый.
+    foreach (['.collage__item--stat', '.collage__item--info'] as $tile) {
+        assert_true(in_array($tile, SectionColors::OWN_COLORS, true), $tile);
+    }
+    // Цитата сбоку «Портрета» стоит без заливки на фоне секции — исключать её нельзя.
+    assert_contains('.collage__item--quote:not(.collage-comp__side > *)', implode(',', SectionColors::OWN_COLORS));
+    $css = own_colors_css('blocks/collage.css');
+    assert_true(
+        (bool) preg_match('/\.collage-comp__side > \.collage-comp__quote \{[^}]*--collage-fg:\s*var\(--section-title-fg\)/', $css),
+        'цитата сбоку берёт цвет секции, а не «Вида карточек» (белый на светлом — 1.05:1)'
+    );
+});
+
 test('«Показатели»: панель красит себя сама, без подложки — цветом секции', function (): void {
     $css = own_colors_css('blocks/counters.css');
     assert_true(

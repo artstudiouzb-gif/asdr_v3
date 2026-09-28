@@ -710,7 +710,7 @@ function unique_static_values(string $css, string $property): array
  */
 const TEMPLATE_TELL_CEILINGS = [
     'uppercase' => 39,
-    'arrows' => 23,
+    'arrows' => 17,
     'middots' => 3,
 ];
 
