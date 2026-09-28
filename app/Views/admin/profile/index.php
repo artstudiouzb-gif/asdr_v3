@@ -12,23 +12,6 @@ $profileUser = $profileUser ?? null;
 $pageTitle = 'Профиль и безопасность';
 $activeNav = 'profile';
 require __DIR__ . '/../layout/header.php';
-
-function ua_short(?string $ua): string
-{
-    $ua = (string) $ua;
-    $browser = 'Браузер';
-    if (stripos($ua, 'Firefox') !== false) { $browser = 'Firefox'; }
-    elseif (stripos($ua, 'Edg') !== false) { $browser = 'Edge'; }
-    elseif (stripos($ua, 'Chrome') !== false) { $browser = 'Chrome'; }
-    elseif (stripos($ua, 'Safari') !== false) { $browser = 'Safari'; }
-    $os = '';
-    if (stripos($ua, 'Windows') !== false) { $os = 'Windows'; }
-    elseif (stripos($ua, 'Android') !== false) { $os = 'Android'; }
-    elseif (stripos($ua, 'iPhone') !== false || stripos($ua, 'iPad') !== false) { $os = 'iOS'; }
-    elseif (stripos($ua, 'Mac') !== false) { $os = 'macOS'; }
-    elseif (stripos($ua, 'Linux') !== false) { $os = 'Linux'; }
-    return trim($browser . ($os !== '' ? ' · ' . $os : ''));
-}
 ?>
 
 <div class="form-card">
@@ -249,7 +232,7 @@ $appearanceList = [
         <?php foreach ($sessions as $s): ?>
             <?php $isCurrent = hash_equals((string) $currentHash, (string) $s['sid_hash']); ?>
             <tr>
-                <td><?= htmlspecialchars(ua_short($s['user_agent'] ?? ''), ENT_QUOTES) ?>
+                <td><?= htmlspecialchars(\App\Core\UserAgentLabel::describe($s['user_agent'] ?? ''), ENT_QUOTES) ?>
                     <?php if ($isCurrent): ?><span class="badge">текущая</span><?php endif; ?>
                 </td>
                 <td><?= htmlspecialchars((string) ($s['ip_address'] ?? '—'), ENT_QUOTES) ?></td>

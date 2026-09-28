@@ -353,7 +353,7 @@ $mark = static function (bool $done, bool $started = true): string {
 <?php // ── Шаг 4. Дополнительно (Заявки и Gateway) ───────────────────────── ?>
 <div class="form-card u-inline-d8a0156797 tg-step" id="telegram-extras">
     <h2 class="u-inline-8981e56111">
-        <?= AdminUi::icon('settings', 20) ?> 4. Уведомления о заявках с сайта и Telegram Gateway
+        <?= AdminUi::icon('settings', 20) ?> 4. Уведомления о входе и заявках, Telegram Gateway
     </h2>
     <?php // enctype нужен для загрузки обложки сводки прямо из формы. ?>
     <form method="post" action="/admin/telegram/extras" class="form-grid" enctype="multipart/form-data">
@@ -373,6 +373,27 @@ $mark = static function (bool $done, bool $started = true): string {
             </div>
             <span class="form-hint">
                 Сообщения о новых заявках с сайта приходят на указанные chat_id через запятую. Укажите отрицательный ID для группы.
+            </span>
+        </div>
+
+        <div class="form-field form-field--checkbox">
+            <input type="checkbox" id="tg_login_alert_success" name="telegram_login_alert_success" value="1"
+                   <?= \App\Core\LoginAlert::successEnabled() ? 'checked' : '' ?>>
+            <label for="tg_login_alert_success">Сообщать об успешном входе в панель</label>
+            <span class="form-hint">
+                Сообщение приходит владельцу аккаунта в чат, привязанный к боту на шаге 2:
+                IP, время, устройство и способ входа. Без привязки сообщать некуда.
+            </span>
+        </div>
+
+        <div class="form-field form-field--checkbox">
+            <input type="checkbox" id="tg_login_alert_failure" name="telegram_login_alert_failure" value="1"
+                   <?= \App\Core\LoginAlert::failureEnabled() ? 'checked' : '' ?>>
+            <label for="tg_login_alert_failure">Сообщать о неудачных попытках входа</label>
+            <span class="form-hint">
+                Неверный пароль или код второго фактора — владельцу аккаунта, попытка под
+                несуществующим именем — всем администраторам с привязанным Telegram.
+                Повторы с того же адреса в течение 10 минут не присылаются.
             </span>
         </div>
 
