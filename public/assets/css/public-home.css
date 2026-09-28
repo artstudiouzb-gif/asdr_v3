@@ -55,7 +55,6 @@
     .site-home .feature-card__top { margin-bottom: 0; }
     .site-home .feature-card__title { font-size: var(--step-0); line-height: 1.35; }
     .site-home .feature-card__text { font-size: var(--step--2); line-height: 1.5; }
-    .site-home .feature-card__title::after { content: none; }
     /* Плитка иконки на главной только уменьшена. Прежде она вдобавок
        обнуляла скругление и делала фон прозрачным, а файл идёт в бандле
        последним — поэтому настройки «Фон иконок» и «Скругление углов» на

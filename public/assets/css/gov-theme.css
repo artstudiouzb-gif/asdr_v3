@@ -5035,15 +5035,9 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
     border-color: var(--gov-teal);
     border-bottom-color: var(--gov-teal);
 }
-.feature-card__title::after {
-    content: "\00a0→";
-    display: inline-block;
-    color: var(--gov-teal-text);
-    transition: transform .5s var(--feature-card-motion-ease);
-}
-.feature-card:hover .feature-card__title::after {
-    transform: translateX(4px);
-}/* Календарь мероприятий. */
+/* Стрелки у заголовка карточки нет: карточка-ссылка и так целиком кликабельна
+   (поднимается и меняет рамку при наведении), а у карточки без ссылки «→»
+   обещал переход, которого нет (DESIGN_PLAN 4.4). *//* Календарь мероприятий. */
 
 .gcal-nav { display: flex; align-items: center; gap: 14px; }
 .gcal-nav__btn { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--gov-border); border-radius: var(--radius-sm); background: var(--gov-surface); color: var(--gov-title); font-weight: 700; text-decoration: none; }
@@ -6556,14 +6550,12 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     .feature-card::before,
     .feature-card__icon,
     .feature-card__title,
-    .feature-card__title::after,
     .feature-card__arrow {
         transition: none !important;
     }
 
     .feature-card:hover,
     .feature-card:hover .feature-card__icon,
-    .feature-card:hover .feature-card__title::after,
     .feature-card:hover .feature-card__arrow {
         transform: none !important;
     }
