@@ -1119,7 +1119,7 @@ body.design-catalog-list .content-cards { display: flex; flex-direction: column;
 .site-cta { font-weight: 600; box-shadow: var(--shadow-control); transition: transform .15s, box-shadow .15s; }
 .site-cta:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }/* Hero (CTA-блок) — крупный современный вид */
 
-.block-cta { background: linear-gradient(135deg, color-mix(in srgb, var(--gov-navy) 6%, var(--surface)) , var(--surface)); border: 1px solid var(--border-color); padding: clamp(36px, 6vw, 72px); }
+.block-cta { background: linear-gradient(135deg, color-mix(in srgb, var(--gov-navy) 6%, var(--surface)) , var(--surface)); color: var(--gov-ink); border: 1px solid var(--border-color); padding: clamp(36px, 6vw, 72px); }
 .block-cta h2 { font-size: var(--font-size-h2, var(--step-6)); line-height: 1.15; letter-spacing: -.02em; margin-top: 0; }
 .block-cta a { display: inline-block; padding: 13px 30px; background: var(--gov-teal); color: #fff; text-decoration: none; font-weight: 600; margin-top: 8px; box-shadow: var(--shadow-control); transition: transform .15s, box-shadow .15s; }
 .block-cta a:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }/* Колонки быстрых ссылок — компактные карточки с ховером */
@@ -1250,7 +1250,12 @@ h1, h2 { letter-spacing: -.015em; }/* --- Блок «Партнёры» (лог�
     transform: translateY(-2px);
     box-shadow: var(--shadow-hover);
 }
-.block-banner--image { background-size: cover; background-position: center; color: #fff; transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
+/* Кадр приезжает переменной из scoped CSS блока (инлайн-стили в блоках
+   запрещены), и прочитать её здесь обязан кто-то: прежде переменную
+   печатал шаблон, а правило её не читало, и «Фото с затемнением» не
+   показывало фотографию ни разу — белый текст стоял на белой подложке.
+   Заливка основным цветом — на время загрузки кадра и на случай отказа. */
+.block-banner--image { background-color: var(--gov-navy); background-image: var(--block-banner-image); background-size: cover; background-position: center; color: #fff; transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
 .block-banner__inner { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; padding: clamp(40px, 7vw, 88px) clamp(20px, 4vw, 48px); text-align: center; }
 .block-banner__title { font-size: var(--font-size-h2, var(--step-6)); margin: 0 0 12px; line-height: 1.15; }
 .block-banner--image .block-banner__title { color: #fff; }

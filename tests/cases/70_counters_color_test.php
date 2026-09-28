@@ -40,7 +40,10 @@ test('Counters: цифры сплошного цвета, а не градиен
         assert_not_contains('background-clip: text', $rule, 'цифры красятся цветом, а не градиентом');
         assert_not_contains('text-fill-color: transparent', $rule);
     }
-    assert_contains('color: var(--counters-text, var(--gov-title)) !important;', $css);
+    // Цвет чисел — одна переменная блока: «Цвет текста» главнее, без него —
+    // цвет темы, а без подложки — цвет секции (тест 401).
+    assert_contains('color: var(--counters-fg) !important;', $css);
+    assert_contains('--counters-fg: var(--counters-text, var(--gov-title));', $css);
 });
 
 test('Counters: размер, фон, положение и выравнивание иконок настраиваются', function () {

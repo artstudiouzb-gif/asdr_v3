@@ -67,6 +67,35 @@ final class SectionColors
         '.widget--style-card',
     ];
 
+    /**
+     * Компоненты, которые красят себя целиком: у них своя заливка, свой цвет
+     * текста и своя кнопка, и всё это — настройки самого блока («Цвет фона /
+     * текста / кнопки» у «Призыва к действию»). Цвет секции туда заходить не
+     * должен вовсе.
+     *
+     * Это не SURFACES. Карточка из того списка следует настройке «цвет
+     * карточек» секции, и правило этой настройки задаёт ей фон с весом id —
+     * своя заливка компонента проиграла бы ему. Поэтому здесь не
+     * переопределение переменных, а исключение: правила цвета секции просто
+     * не выбирают элементы внутри таких компонентов.
+     *
+     * Прежде выбирали — правило весит по id, и заголовок полосы с белым
+     * текстом на тёмной заливке красился в тёмный цвет светлой секции
+     * (замерено 1.00:1), кнопка получала цвет ссылки, а белая панель
+     * «Показателей» на тёмной секции теряла заголовок.
+     *
+     * Панель «Показателей» в списке только тогда, когда она есть: без
+     * подложки показатели стоят прямо на фоне секции и обязаны брать её цвет.
+     *
+     * @var list<string>
+     */
+    public const OWN_COLORS = [
+        '.block-cta',
+        '.block-ctaband',
+        '.block-banner',
+        '.block-counters:not(.block-counters--panel-none)',
+    ];
+
     /** Светлый текст: значения переменных для тёмного фона. */
     private const LIGHT = [
         '--section-fg' => 'rgba(255,255,255,.92)',
@@ -77,7 +106,7 @@ final class SectionColors
 
     /** Тёмный текст: пригодится на светлой фотографии и на своём светлом цвете. */
     private const DARK = [
-        '--section-fg' => 'var(--text-primary)',
+        '--section-fg' => 'var(--gov-ink)',
         '--section-title-fg' => 'var(--gov-title)',
         '--section-muted-fg' => 'var(--text-muted)',
         '--section-link-fg' => 'var(--gov-teal-text)',
@@ -162,10 +191,11 @@ final class SectionColors
             $vars = $scheme === 'light' ? self::LIGHT : self::DARK;
         }
 
+        $outside = self::outsideOwnColors();
         $css = $scope . '{' . self::declarations($vars) . 'color:var(--section-fg)}'
-            . "\n" . $scope . ' ' . self::TITLE_SELECTOR . '{color:var(--section-title-fg)}'
-            . "\n" . $scope . ' ' . self::BODY_SELECTOR . '{color:var(--section-muted-fg)}'
-            . "\n" . $scope . ' ' . self::LINK_SELECTOR . '{color:var(--section-link-fg)}';
+            . "\n" . $scope . ' ' . self::TITLE_SELECTOR . $outside . '{color:var(--section-title-fg)}'
+            . "\n" . $scope . ' ' . self::BODY_SELECTOR . $outside . '{color:var(--section-muted-fg)}'
+            . "\n" . $scope . ' ' . self::LINK_SELECTOR . $outside . '{color:var(--section-link-fg)}';
 
         // Карточки темы полупрозрачны (стекло с размытием). На светлой странице
         // это читается как белая карточка, а на тёмной секции подложка
@@ -203,6 +233,12 @@ final class SectionColors
         // поверх фона секции — так карточка читается и на цвете, и на фото.
         return $surfaces . '{' . self::declarations(self::LIGHT)
             . 'background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:var(--section-fg)}';
+    }
+
+    /** Хвост селектора: «не внутри компонента со своими цветами». */
+    public static function outsideOwnColors(): string
+    {
+        return ':not(:is(' . implode(',', self::OWN_COLORS) . ') *)';
     }
 
     /** `:is(.card-a, .card-b, …)` — один селектор на весь список поверхностей. */

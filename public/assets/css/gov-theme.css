@@ -1632,7 +1632,12 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
     .feature-card, .leader-card, .mediacard, .news-card, .news-poll-card, .newsdetail-card,
     .newslist-lead, .project-card, .relnews-card, .site-search-results__item,
     .social-embed-card, .team-card, .testimonial, .textimage__info--card, .timeline-card, .widget--style-card) {
-    --section-fg: var(--text-primary);
+    /* --gov-ink, а не --text-primary: такой переменной нет нигде, и
+       объявление через неё оставляло --section-fg пустым — карточка
+       наследовала цвет секции, то есть белый текст на тёмной секции
+       ложился на белую карточку. --gov-ink — цвет body темы, поэтому на
+       обычной странице вычисленный цвет не меняется. */
+    --section-fg: var(--gov-ink);
     --section-title-fg: var(--gov-title);
     --section-muted-fg: var(--text-muted);
     --section-link-fg: var(--gov-teal-text);
@@ -4639,7 +4644,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
     background: rgba(255, 255, 255, 0.08);
 }
 .ctaband__body { display: flex; flex-direction: column; gap: 6px; }
-.ctaband__title { font-family: var(--font-heading, 'Noto Serif', serif); font-weight: 700; font-size: var(--step-2); }
+.ctaband__title { font-family: var(--font-heading, 'Noto Serif', serif); font-weight: 700; font-size: var(--step-2); color: inherit; }
 .ctaband__text { color: rgba(255,255,255,.82); line-height: var(--base-line-height, 1.5); }
 .ctaband__button { 
     display: inline-block; padding: 13px 26px; background: #fff; color: var(--gov-navy); 
