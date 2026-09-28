@@ -54,6 +54,10 @@ final class VariantPreview
         'pair' => 'два кадра внахлёст через полосу фона, карточка на втором',
         'notch' => 'широкий кадр с крупным вырезом вверху справа под справку',
         'diagonal' => 'два кадра через косую полосу, печать на разрезе',
+        'bento' => 'крупный кадр слева и плитки справа, печать на стыке',
+        'stage' => 'крупный кадр посередине, плитки по бокам, печать над кадром',
+        'panorama' => 'широкий кадр и ряд карточек на его нижнем крае',
+        'cascade' => 'три колонки со смещением, печать над средней',
         'bars' => 'горизонтальные полосы',
         'stacked' => 'одна полоса из долей',
         'meter' => 'шкала выполнения',
@@ -114,6 +118,10 @@ final class VariantPreview
             'pair' => self::pair(),
             'notch' => self::notch(),
             'diagonal' => self::diagonal(),
+            'bento' => self::bento(),
+            'stage' => self::stage(),
+            'panorama' => self::panorama(),
+            'cascade' => self::cascade(),
             'bars' => self::bars(),
             'stacked' => self::stacked(),
             'meter' => self::meter(),
@@ -534,6 +542,96 @@ final class VariantPreview
             . 'Z" fill="currentColor" opacity="0.18"/>';
 
         return $left . $right . self::disc(($top + $bottom) / 2, ($y0 + $y1) / 2, 4.5);
+    }
+
+    /** Плитка с текстом: рамка и строка — чтобы кадр и карточку не путали. */
+    private static function textTile(float $x, float $y, float $w, float $h): string
+    {
+        return self::frame($x, $y, $w, $h) . self::line($x + 2, $y + $h - 5, $w * 0.55, 0.6);
+    }
+
+    /** Кадр и плитки: ведущий 2×2 слева, четыре плитки, печать на стыке. */
+    private static function bento(): string
+    {
+        $gap = 2;
+        $cw = (self::W - self::PAD * 2 - $gap * 3) / 4;
+        $rh = (self::H - self::PAD * 2 - $gap) / 2;
+        $out = self::box(self::PAD, self::PAD, $cw * 2 + $gap, $rh * 2 + $gap, 0.3);
+        $x = self::PAD + ($cw + $gap) * 2;
+        $out .= self::textTile($x, self::PAD, $cw, $rh);
+        $out .= self::box($x + $cw + $gap, self::PAD, $cw, $rh, 0.22);
+        $out .= self::box($x, self::PAD + $rh + $gap, $cw, $rh, 0.22);
+        $out .= self::textTile($x + $cw + $gap, self::PAD + $rh + $gap, $cw, $rh);
+
+        return $out . self::disc($x - $gap / 2, self::PAD + $rh + $gap / 2, 4.5);
+    }
+
+    /** Кадр в центре: боковые плитки уже, кадр с кнопкой посередине, печать над ним. */
+    private static function stage(): string
+    {
+        $gap = 2;
+        $total = self::W - self::PAD * 2 - $gap * 3;
+        $side = $total * 5 / 24;
+        $mid = $total * 7 / 24;
+        $rh = (self::H - self::PAD * 2 - $gap) / 2;
+        $leadX = self::PAD + $side + $gap;
+        $leadW = $mid * 2 + $gap;
+        $out = self::box($leadX, self::PAD, $leadW, $rh * 2 + $gap, 0.3);
+        // Знак «пуск»: видео чаще всего стоит именно здесь.
+        $cx = $leadX + $leadW / 2;
+        $cy = self::PAD + $rh + $gap / 2;
+        $out .= '<path d="M' . self::n($cx - 2.5) . ' ' . self::n($cy - 3.5) . 'L' . self::n($cx + 3.5) . ' ' . self::n($cy)
+            . 'L' . self::n($cx - 2.5) . ' ' . self::n($cy + 3.5) . 'Z" fill="currentColor" opacity="0.85"/>';
+        $right = $leadX + $leadW + $gap;
+        $out .= self::textTile(self::PAD, self::PAD, $side, $rh);
+        $out .= self::box(self::PAD, self::PAD + $rh + $gap, $side, $rh, 0.22);
+        $out .= self::box($right, self::PAD, $side, $rh, 0.22);
+        $out .= self::textTile($right, self::PAD + $rh + $gap, $side, $rh);
+
+        return $out . self::disc($cx, self::PAD + 1.5, 4);
+    }
+
+    /** Панорама: широкий кадр, три карточки заходят на его нижний край. */
+    private static function panorama(): string
+    {
+        $w = self::W - self::PAD * 2;
+        $inset = 4;
+        $gap = 2;
+        $cw = ($w - $inset * 2 - $gap * 2) / 3;
+        $top = self::PAD + 2;
+        $bottom = $top + 22;
+        $lift = 19;
+        // Кадр рисуется с дырами под карточками (evenodd): карточка лежит на
+        // кадре и закрывает его, а не просвечивает сквозь рамку.
+        $d = 'M' . self::n(self::PAD) . ' ' . self::n($top) . 'H' . self::n(self::PAD + $w) . 'V' . self::n($bottom) . 'H' . self::n(self::PAD) . 'Z';
+        $cards = '';
+        for ($i = 0; $i < 3; $i++) {
+            $x = self::PAD + $inset + $i * ($cw + $gap);
+            $d .= 'M' . self::n($x) . ' ' . self::n($lift) . 'H' . self::n($x + $cw) . 'V' . self::n($bottom) . 'H' . self::n($x) . 'Z';
+            $cards .= self::textTile($x, $lift, $cw, 15);
+        }
+        $out = '<path d="' . $d . '" fill="currentColor" fill-rule="evenodd" opacity="0.3"/>' . $cards;
+
+        return $out . self::disc(self::W - self::PAD - 8, $top, 4);
+    }
+
+    /** Каскад: три колонки со смещением, печать занимает верх средней. */
+    private static function cascade(): string
+    {
+        $gap = 2;
+        $cw = (self::W - self::PAD * 2 - $gap * 2) / 3;
+        $x1 = self::PAD;
+        $x2 = $x1 + $cw + $gap;
+        $x3 = $x2 + $cw + $gap;
+        $out = self::box($x1, self::PAD, $cw, 19, 0.3);
+        $out .= self::textTile($x1, self::PAD + 21, $cw, 11);
+        $out .= self::disc($x2 + $cw / 2, self::PAD + 5, 4.5);
+        $out .= self::textTile($x2, self::PAD + 12, $cw, 10);
+        $out .= self::box($x2, self::PAD + 24, $cw, 8, 0.22);
+        $out .= self::box($x3, self::PAD + 3, $cw, 15, 0.22);
+        $out .= self::box($x3, self::PAD + 20, $cw, 12, 0.3);
+
+        return $out;
     }
 
     private static function mosaic(): string

@@ -4,11 +4,13 @@ use App\Core\BlockBackground;
 use App\Core\BlockData\CollageBlockNormalizer;
 use App\Core\CollageBadge;
 use App\Core\CollageComposition;
+use App\Core\CollageEnsemble;
 use App\Core\CollageLayout;
 use App\Core\Icon;
 use App\Core\Media;
 use App\Core\TitleMarkup;
 use App\Core\UrlGuard;
+use App\Core\Video;
 
 /**
  * «Коллаж»: свободная композиция из разнотипных элементов на общей сетке.
@@ -82,7 +84,24 @@ $renderItem = static function (int $index, array $item, string $extraClass = '')
     $shape = $type === 'badge' ? 'circle' : (string) $item['shape'];
     // Ссылка элемента — повторяющееся поле, схема её не приводит.
     $link = (string) ($item['link'] ?? '');
-    if ($link !== '' && !UrlGuard::isSafeLink($link)) {
+    $attrs = '';
+    if ($type === 'video') {
+        // Ролик проверяется и на выводе: данные приезжают и из файла шаблона
+        // страницы, где значения никто не сверял. YouTube приводится к одной
+        // ссылке — по ней его узнаёт лайтбокс, — файл открывается им же по
+        // признаку, а без скрипта обе ссылки просто ведут на ролик.
+        $youtube = Video::youtubeId((string) ($item['video'] ?? ''));
+        $link = $youtube !== null ? 'https://www.youtube.com/watch?v=' . $youtube : (string) ($item['video'] ?? '');
+        $extension = strtolower(pathinfo((string) parse_url($link, PHP_URL_PATH), PATHINFO_EXTENSION));
+        if ($youtube === null && (!UrlGuard::isSafeMedia($link) || !in_array($extension, CollageBlockNormalizer::VIDEO_FILES, true))) {
+            return '';
+        }
+        $videoTitle = (string) ($item['video_title'] ?? '');
+        // Имя ссылки — действие и предмет: «Смотреть видео: …». Одна подпись
+        // на кадре не говорит диктору, что по нажатию откроется плеер.
+        $attrs = ' aria-label="' . htmlspecialchars(t('Смотреть видео') . ($videoTitle !== '' ? ': ' . $videoTitle : ''), ENT_QUOTES) . '"'
+            . ($youtube === null ? ' data-lightbox-video' : '');
+    } elseif ($link !== '' && !UrlGuard::isSafeLink($link)) {
         $link = '';
     }
     $tag = $link !== '' ? 'a' : 'div';
@@ -93,7 +112,7 @@ $renderItem = static function (int $index, array $item, string $extraClass = '')
 
     ob_start();
     ?>
-    <<?= $tag ?> class="<?= $classes ?>"<?= $link !== '' ? ' href="' . htmlspecialchars($link, ENT_QUOTES) . '"' : '' ?>>
+    <<?= $tag ?> class="<?= $classes ?>"<?= $link !== '' ? ' href="' . htmlspecialchars($link, ENT_QUOTES) . '"' : '' ?><?= $attrs ?>>
         <?php if ($type === 'photo'):
             $focus = $focusMap[(string) ($item['focus'] ?? 'auto')] ?? [null, null];
             echo Media::picture(
@@ -105,7 +124,27 @@ $renderItem = static function (int $index, array $item, string $extraClass = '')
                 true,
                 '(max-width: 720px) 100vw, 50vw'
             );
-        elseif ($type === 'stat'): ?>
+        elseif ($type === 'video'):
+            $poster = (string) ($item['poster'] ?? '');
+            if ($poster !== '' && UrlGuard::isSafeMedia($poster)) {
+                // Кадр-обложка — декорация: смысл ссылки несёт её имя.
+                echo Media::picture($poster, '', null, null, 'collage__photo', true, '(max-width: 720px) 100vw, 50vw');
+            } elseif ($youtube !== null) {
+                // Превью YouTube 4:3 несёт чёрные поля сверху и снизу у
+                // широкого ролика; класс срезает их увеличением кадра.
+                ?><img class="collage__photo collage__photo--youtube" src="https://i.ytimg.com/vi/<?= htmlspecialchars($youtube, ENT_QUOTES) ?>/hqdefault.jpg" alt="" loading="lazy" decoding="async"><?php
+            } else {
+                // Без обложки у файла показывается первый кадр: `#t` просит
+                // браузер встать на него, а `preload="metadata"` не качает
+                // ролик целиком.
+                ?><video class="collage__photo" src="<?= htmlspecialchars($link, ENT_QUOTES) ?>#t=0.1" preload="metadata" muted playsinline tabindex="-1" aria-hidden="true"></video><?php
+            }
+            ?>
+            <span class="collage__play" aria-hidden="true"></span>
+            <?php if ($videoTitle !== ''): ?>
+                <span class="collage__video-title" aria-hidden="true"><?= htmlspecialchars($videoTitle, ENT_QUOTES) ?></span>
+            <?php endif; ?>
+        <?php elseif ($type === 'stat'): ?>
             <?php if (!empty($item['icon_svg'])): ?>
                 <span class="collage__stat-icon" aria-hidden="true"><?= Icon::render((string) $item['icon_svg'], 32) ?></span>
             <?php endif; ?>
@@ -212,6 +251,63 @@ $blockClasses = 'block-collage'
                 <?= $renderItem($index, $item) ?>
             <?php endforeach; ?>
         </div>
+    <?php elseif ($items !== [] && CollageEnsemble::isEnsemble($layout)):
+        // Ансамбль: места выбирает CollageEnsemble по типам элементов, сюда
+        // приходят готовые прямоугольники. Они уходят переменными (--ga,
+        // --cols, --rows), а не свойствами: scoped CSS весит по id, и узкий
+        // экран не отменил бы свойство без флага приоритета.
+        $plan = CollageEnsemble::plan($layout, $items);
+        $cascade = $layout === 'cascade';
+        if (!$cascade && $plan['columns'] !== '') {
+            $templateCss .= $scope . ' .collage-comp{--cols:' . $plan['columns'] . ';--rows:' . $plan['rows'] . ';}';
+        }
+        $tileHtml = static function (array $tile) use ($items, $renderItem, $cascade, $scope, &$templateCss): string {
+            $index = (int) $tile['index'];
+            $templateCss .= $scope . ' .collage__item--' . $index . '{'
+                . ($cascade ? '--ci:' . $index . ';' : '--ga:' . $tile['area'] . ';') . '}';
+            $class = 'collage-comp__tile'
+                . ($tile['shape'] !== '' ? ' collage-comp__tile--' . $tile['shape'] : '')
+                . ($tile['shape'] === 'lead' ? ' collage-comp__lead' : '')
+                . ($tile['ratio'] !== '' ? ' collage-comp__tile--r-' . $tile['ratio'] : '')
+                . ($tile['full'] ? ' collage-comp__tile--full' : '')
+                . ($tile['by_badge'] !== '' ? ' collage-comp__tile--by-badge-' . $tile['by_badge'] : '');
+
+            return $renderItem($index, $items[$index], $class);
+        };
+        $badge = $plan['badge'];
+        $badgeHtml = '';
+        if ($badge !== null) {
+            if (!$cascade) {
+                $templateCss .= $scope . ' .collage__item--' . (int) $badge['index'] . '{--ga:' . $badge['area'] . ';}';
+            }
+            $badgeHtml = $renderItem((int) $badge['index'], $items[(int) $badge['index']], 'collage-comp__badge collage-comp__badge--' . $badge['at']);
+        }
+        $cascadeCols = $cascade ? max(1, min(3, count($plan['tiles']))) : 0;
+        $ensembleClasses = 'collage-comp collage-comp--' . $layout
+            . ($cascade ? ' collage-comp--cascade-' . $cascadeCols : ' collage-comp--grid')
+            . ' collage__canvas--gap-' . $gap
+            . ($badge !== null ? ' collage-comp--has-badge collage-comp--badge-' . $badge['at'] : '');
+    ?>
+        <?php if ($plan['complete']): ?>
+            <div class="<?= htmlspecialchars($ensembleClasses, ENT_QUOTES) ?>">
+                <?php if ($cascade): ?>
+                    <?php for ($column = 0; $column < $cascadeCols; $column++): ?>
+                        <div class="collage-cascade__col">
+                            <?php // Печать занимает смещение второй колонки: так оно перестаёт быть пустотой. ?>
+                            <?= $column === min(1, $cascadeCols - 1) ? $badgeHtml : '' ?>
+                            <?php foreach ($plan['tiles'] as $tile): ?>
+                                <?= (int) $tile['column'] === $column ? $tileHtml($tile) : '' ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endfor; ?>
+                <?php else: ?>
+                    <?php foreach ($plan['tiles'] as $tile): ?>
+                        <?= $tileHtml($tile) ?>
+                    <?php endforeach; ?>
+                    <?= $badgeHtml ?>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
     <?php elseif ($items !== []):
         $roles = CollageComposition::roles($layout, $items);
         $slot = static fn (string $name): array => $roles['slots'][$name] ?? [];

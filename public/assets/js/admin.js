@@ -4540,6 +4540,8 @@ document.addEventListener('change', function (event) {
 
     var FIELDS = {
         photo: ['shape', 'photo', 'link'],
+        // Видео само ведёт на ролик: вторая ссылка у него спорила бы с ним.
+        video: ['shape', 'video'],
         stat: ['shape', 'stat', 'colors', 'link'],
         // У цитаты ссылки нет: прямая речь, ведущая куда-то по клику, не
         // читается как ссылка, а подчёркивать её целиком — уже не цитата.
