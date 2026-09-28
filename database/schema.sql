@@ -352,6 +352,7 @@ CREATE TABLE IF NOT EXISTS blocks (
 CREATE TABLE IF NOT EXISTS block_revisions (
     id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     block_id        INT UNSIGNED NOT NULL,
+    type            VARCHAR(40) NULL COMMENT 'тип блока в этой версии; NULL — снята до смены типа',
     title           VARCHAR(255) NULL,
     data            JSON NOT NULL,
     custom_css      TEXT NULL,
@@ -1277,7 +1278,8 @@ INSERT INTO migrations (filename) VALUES
     ('2026_08_29_content_type_icon.sql'),
     ('2026_09_01_seo_audits.sql'),
     ('2026_09_08_content_type_root_url.sql'),
-    ('2026_09_18_interface_translations.sql')
+    ('2026_09_18_interface_translations.sql'),
+    ('2026_09_28_block_revision_type.sql')
 ON DUPLICATE KEY UPDATE filename = filename;
 
 CREATE TABLE IF NOT EXISTS search_log (
