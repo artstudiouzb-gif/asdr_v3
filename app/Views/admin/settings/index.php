@@ -484,6 +484,7 @@ require __DIR__ . '/../layout/header.php';
     </div>
     <div class="admin-mt-12">
         <a href="/admin/news/import" class="btn btn--primary"><?= AdminUi::icon('database-import', 16) ?>Перейти к мастеру импорта новостей</a>
+        <a href="/admin/documents/import" class="btn"><?= AdminUi::icon('file-import', 16) ?>Импорт документов (Download Manager)</a>
     </div>
 </div>
 
