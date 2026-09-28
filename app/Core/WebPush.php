@@ -25,7 +25,11 @@ final class WebPush
     /** @param callable|null $http fn(method,url,body,headers):array{status,body,error} */
     public function __construct(?callable $http = null)
     {
-        $this->http = $http ?? static fn (string $m, string $u, string $b, array $h) => Http::request($m, $u, $b, $h);
+        // Адрес подписки присылает анонимный посетитель, поэтому запрос идёт
+        // через безопасный клиент: публичный хост и закреплённый IP. Обычный
+        // Http::request отправил бы POST на любой адрес, в том числе на
+        // 127.0.0.1 или во внутреннюю сеть хостинга (SSRF).
+        $this->http = $http ?? static fn (string $m, string $u, string $b, array $h) => Http::requestSafeRemote($m, $u, $b, $h);
     }
 
     public static function isEnabled(): bool

@@ -8,6 +8,7 @@ use App\Core\CollageLayout;
 use App\Core\Icon;
 use App\Core\Media;
 use App\Core\TitleMarkup;
+use App\Core\UrlGuard;
 
 /**
  * «Коллаж»: свободная композиция из разнотипных элементов на общей сетке.
@@ -79,7 +80,11 @@ $renderItem = static function (int $index, array $item, string $extraClass = '')
     $type = (string) $item['type'];
     // Печать всегда круглая: у неё форма не настройка, а суть.
     $shape = $type === 'badge' ? 'circle' : (string) $item['shape'];
+    // Ссылка элемента — повторяющееся поле, схема её не приводит.
     $link = (string) ($item['link'] ?? '');
+    if ($link !== '' && !UrlGuard::isSafeLink($link)) {
+        $link = '';
+    }
     $tag = $link !== '' ? 'a' : 'div';
     $classes = 'collage__item collage__item--' . $index
         . ' collage__item--' . $type
