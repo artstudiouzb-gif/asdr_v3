@@ -138,12 +138,18 @@ test('WebPushSubscription: сохранение, дубликаты, очере�
     $pdo->exec("DELETE FROM webpush_subscriptions");
     $pdo->exec("DELETE FROM webpush_queue");
 
-    assert_true(WebPushSubscription::save('https://push.example/e1', 'PK', 'AU'));
-    assert_true(WebPushSubscription::save('https://push.example/e1', 'PK2', 'AU2'), 'повтор обновляет ключи');
+    // Литеральный публичный адрес (TEST-NET-3): проверка публичности хоста
+    // проходит без DNS, и тест не зависит от сети.
+    assert_true(WebPushSubscription::save('https://203.0.113.10/e1', 'PK', 'AU'));
+    assert_true(WebPushSubscription::save('https://203.0.113.10/e1', 'PK2', 'AU2'), 'повтор обновляет ключи');
     assert_false(WebPushSubscription::save('http://insecure/e2', 'PK', 'AU'), 'только https');
+    // Адрес присылает аноним, а рассылка шлёт по нему POST от имени сервера.
+    foreach (['https://127.0.0.1/push/e3', 'https://169.254.169.254/latest/e4', 'https://10.0.0.5/internal/e5', 'https://[::1]/push/e6'] as $internal) {
+        assert_false(WebPushSubscription::save($internal, 'PK', 'AU'), 'внутренний адрес не принимается: ' . $internal);
+    }
     assert_same(1, WebPushSubscription::count());
 
-    WebPushSubscription::deleteByEndpoint('https://push.example/e1');
+    WebPushSubscription::deleteByEndpoint('https://203.0.113.10/e1');
     assert_same(0, WebPushSubscription::count());
 
     $pdo->exec("INSERT INTO news (title, slug, status, published_at) VALUES ('P', 'test-push-q', 'published', NOW())");

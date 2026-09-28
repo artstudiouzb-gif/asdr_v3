@@ -12,7 +12,7 @@ final class WebPushSubscription
     /** Сохраняет подписку (idempotent по endpoint). Возвращает false при мусоре. */
     public static function save(string $endpoint, string $p256dh, string $auth): bool
     {
-        if (!preg_match('#^https://\S{10,900}$#', $endpoint) || $p256dh === '' || $auth === '') {
+        if (!self::acceptableEndpoint($endpoint) || $p256dh === '' || $auth === '') {
             return false;
         }
         $stmt = Database::pdo()->prepare(
@@ -28,6 +28,20 @@ final class WebPushSubscription
         ]);
 
         return true;
+    }
+
+    /**
+     * Адрес push-сервиса: https и публичный хост. Подписку присылает аноним,
+     * а рассылка потом шлёт по этому адресу POST от имени сервера — адрес вида
+     * https://127.0.0.1/ или внутреннего хоста делал бы из рассылки SSRF.
+     * Списка разрешённых сервисов намеренно нет: браузер, чей сервис в него
+     * не попал, молча остался бы без уведомлений, а доступ ко внутренней
+     * сети закрывает и проверка публичности хоста.
+     */
+    public static function acceptableEndpoint(string $endpoint): bool
+    {
+        return preg_match('#^https://\S{10,900}$#', $endpoint) === 1
+            && \App\Core\UrlGuard::isSafeRemote($endpoint);
     }
 
     public static function deleteByEndpoint(string $endpoint): void
