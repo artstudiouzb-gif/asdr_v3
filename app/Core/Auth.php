@@ -20,6 +20,39 @@ final class Auth
     private const CLEAR_ON_SUCCESS = ['pair', 'account'];
 
     /**
+     * Неверных кодов в одном ожидании второго фактора. Дальше — снова пароль.
+     *
+     * Лимит на пару «IP + аккаунт» не держит перебор кода: ожидание живёт в
+     * сессии, а её cookie можно предъявлять с любого адреса, и каждый новый
+     * адрес получал свои пять попыток. Счётчик в самой сессии этого не знает.
+     */
+    public const MAX_CODE_ATTEMPTS = 5;
+
+    /**
+     * Неверных кодов на аккаунт за окно — со всех адресов вместе. Шесть цифр
+     * при окне TOTP ±1 шаг — это три подходящих кода из миллиона, и без
+     * общего предела ботнет перебирал бы их параллельно. Цена — тот, кто уже
+     * знает пароль, может на 15 минут закрыть вход и владельцу; но пароль в
+     * таком случае менять всё равно, а о каждой ошибке кода владелец узнаёт
+     * в Telegram (LoginAlert).
+     */
+    public const ACCOUNT_CODE_ATTEMPTS = 10;
+
+    /** Отправок кода в Telegram на аккаунт за окно — со всех адресов вместе. */
+    public const ACCOUNT_CODE_SENDS = 5;
+
+    /**
+     * Хэш для сверки, когда имени нет: без него неизвестное имя отвечало
+     * быстрее известного (password_verify пропускался), и по времени ответа
+     * перебирались существующие логины. Стоимость та же, что у настоящих
+     * хэшей (bcrypt, cost 12): иначе разница во времени осталась бы.
+     */
+    private const DUMMY_HASH = '$2y$12$y5X4n8BXlrDgRkrkGc7Nye52mBU8ZGJIAokLrqH4MlOxFSo8gRNvK';
+
+    /** Почему последнее ожидание второго фактора сброшено: 'attempts' | ''. */
+    private static string $pendingResetReason = '';
+
+    /**
      * Вход по паролю со вторым фактором. Каналов два и достаточно любого:
      * приложение-аутентификатор (TOTP, считается на устройстве, работает без
      * сети) и одноразовый код в Telegram — бесплатным ботом или платным
@@ -44,8 +77,10 @@ final class Auth
         }
 
         $user = User::findByUsername($username);
+        $hash = $user ? (string) $user['password_hash'] : self::DUMMY_HASH;
+        $passwordOk = password_verify($password, $hash);
 
-        if (!$user || !password_verify($password, $user['password_hash'])) {
+        if (!$user || !$passwordOk) {
             foreach (array_keys($identifiers) as $identifier) {
                 RateLimiter::recordAttempt($identifier, false);
             }
@@ -88,6 +123,7 @@ final class Auth
 
         $_SESSION['pending_user_id'] = (int) $user['id'];
         $_SESSION['pending_since'] = time();
+        $_SESSION['pending_failures'] = 0;
 
         // Код в Telegram отправляем, только если этот канал вообще подключён.
         // Приложение-аутентификатор работает офлайн, поэтому недоступный
@@ -183,13 +219,24 @@ final class Auth
      */
     private static function sendLoginCode(array $user): bool
     {
+        // Общий предел на аккаунт: иначе каждый новый адрес с известным
+        // паролем присылал бы владельцу новый код — и чат тонул бы в кодах.
+        if (!RateLimiter::throttle('2fa_send', mb_strtolower((string) $user['username']), self::ACCOUNT_CODE_SENDS, 15, false)) {
+            return false;
+        }
+
         $code = (string) random_int(100000, 999999);
         $_SESSION['pending_code_hash'] = hash('sha256', $code);
         $_SESSION['pending_code_expires'] = time() + self::CODE_TTL;
 
         $chatId = (int) ($user['telegram_chat_id'] ?? 0);
         if (TelegramBot::isConfigured() && $chatId > 0) {
-            return TelegramBot::sendLoginCode($chatId, $code);
+            // IP и устройство в сообщении — защита от подставной страницы
+            // входа: код, запрошенный с чужого адреса, владелец не введёт.
+            return TelegramBot::sendLoginCode($chatId, $code, [
+                'ip' => (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
+                'device' => UserAgentLabel::describe((string) ($_SERVER['HTTP_USER_AGENT'] ?? '')),
+            ]);
         }
 
         return TelegramGateway::sendCode((string) $user['phone'], $code);
@@ -246,7 +293,9 @@ final class Auth
         }
 
         $identifier = ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . '|2fa|' . mb_strtolower($user['username']);
-        if (RateLimiter::tooManyAttempts($identifier)) {
+        $accountIdentifier = 'admin_2fa|account|' . mb_strtolower($user['username']);
+        if (RateLimiter::tooManyAttempts($identifier)
+            || RateLimiter::tooManyAttempts($accountIdentifier, self::ACCOUNT_CODE_ATTEMPTS)) {
             return false;
         }
 
@@ -282,12 +331,20 @@ final class Auth
                 return false;
             }
             RateLimiter::recordAttempt($identifier, false);
+            RateLimiter::recordAttempt($accountIdentifier, false);
             LoginAlert::failure($user, LoginAlert::FAIL_CODE);
+
+            $_SESSION['pending_failures'] = (int) ($_SESSION['pending_failures'] ?? 0) + 1;
+            if ($_SESSION['pending_failures'] >= self::MAX_CODE_ATTEMPTS) {
+                self::clearPending();
+                self::$pendingResetReason = 'attempts';
+            }
 
             return false;
         }
 
         RateLimiter::clearAttempts($identifier);
+        RateLimiter::clearAttempts($accountIdentifier);
         self::clearPending();
         self::establishSession($user, $method);
 
@@ -405,8 +462,15 @@ final class Auth
             $_SESSION['pending_code_hash'],
             $_SESSION['pending_code_expires'],
             $_SESSION['pending_totp'],
-            $_SESSION['pending_telegram']
+            $_SESSION['pending_telegram'],
+            $_SESSION['pending_failures']
         );
+    }
+
+    /** Ожидание второго фактора сброшено из-за неверных кодов (для текста ошибки). */
+    public static function pendingResetForAttempts(): bool
+    {
+        return self::$pendingResetReason === 'attempts';
     }
 
     public static function check(): bool

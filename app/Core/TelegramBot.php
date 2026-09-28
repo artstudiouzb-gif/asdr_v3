@@ -38,15 +38,49 @@ final class TelegramBot
         return is_array($res) ? $res : null;
     }
 
-    /** Отправляет одноразовый код входа в админку привязанному аккаунту с авто-копированием по клику. */
-    public static function sendLoginCode(int $chatId, string $code): bool
+    /**
+     * Отправляет одноразовый код входа в админку привязанному аккаунту.
+     *
+     * Сообщение называет, откуда запрошен вход (IP и устройство): одноразовый
+     * код не защищает от подставной страницы входа, которая пересылает его на
+     * настоящий сайт, — а владелец, увидевший чужой адрес, код не введёт.
+     * `protect_content` запрещает пересылку и сохранение сообщения: код не
+     * уходит дальше чата, куда его прислали.
+     *
+     * @param array{ip?: string, device?: string} $context
+     */
+    public static function sendLoginCode(int $chatId, string $code, array $context = []): bool
     {
-        $safeCode = htmlspecialchars($code, ENT_QUOTES);
-        $text = "<b>Код входа в панель управления</b>\n\n"
-            . "Код: <code>{$safeCode}</code>\n\n"
-            . "⏱ <i>Действует 5 минут. Никому не сообщайте этот код.</i>";
+        $res = self::request('sendMessage', [
+            'chat_id' => $chatId,
+            'text' => self::loginCodeText($code, $context),
+            'parse_mode' => 'HTML',
+            'protect_content' => true,
+        ]);
 
-        return self::sendMessage($chatId, $text, 'HTML');
+        return $res !== null;
+    }
+
+    /** @param array{ip?: string, device?: string} $context */
+    public static function loginCodeText(string $code, array $context = []): string
+    {
+        $e = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $lines = [
+            '<b>Код входа в панель управления</b>',
+            '',
+            'Код: <code>' . $e($code) . '</code>',
+        ];
+        $ip = trim((string) ($context['ip'] ?? ''));
+        $device = trim((string) ($context['device'] ?? ''));
+        if ($ip !== '' || $device !== '') {
+            $lines[] = '';
+            $lines[] = 'Вход запрошен: ' . $e(implode(', ', array_filter([$ip !== '' ? 'IP ' . $ip : '', $device])));
+        }
+        $lines[] = '';
+        $lines[] = '⏱ <i>Действует 5 минут. Никому не сообщайте этот код. '
+            . 'Если вход начали не вы — не вводите код и смените пароль: он уже известен.</i>';
+
+        return implode("\n", $lines);
     }
 
     /**

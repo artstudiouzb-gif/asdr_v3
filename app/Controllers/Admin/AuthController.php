@@ -109,7 +109,9 @@ final class AuthController
 
         // Просроченный/сброшенный pending уводит на логин, неверный код — ошибка.
         if (Auth::pendingUserId() === null) {
-            Flash::error('Код устарел. Войдите заново — мы отправим новый.');
+            Flash::error(Auth::pendingResetForAttempts()
+                ? 'Слишком много неверных кодов. Войдите заново с паролем.'
+                : 'Код устарел. Войдите заново — мы отправим новый.');
             header('Location: /admin/login');
             exit;
         }
