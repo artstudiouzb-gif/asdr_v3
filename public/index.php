@@ -197,6 +197,8 @@ $router->post('/admin/news/import/inspect', [\App\Controllers\Admin\NewsImportCo
 $router->post('/admin/news/import/backup', [\App\Controllers\Admin\NewsImportController::class, 'backup']);
 $router->post('/admin/news/import/run', [\App\Controllers\Admin\NewsImportController::class, 'importBatch']);
 $router->post('/admin/news/import/discard', [\App\Controllers\Admin\NewsImportController::class, 'discard']);
+$router->get('/admin/documents/import', [\App\Controllers\Admin\DocumentImportController::class, 'index']);
+$router->post('/admin/documents/import/run', [\App\Controllers\Admin\DocumentImportController::class, 'run']);
 $router->get('/admin/news/create', [AdminNewsController::class, 'create']);
 $router->post('/admin/news/create', [AdminNewsController::class, 'store']);
 $router->get('/admin/news/{id}/edit', [AdminNewsController::class, 'edit']);

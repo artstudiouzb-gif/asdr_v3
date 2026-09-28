@@ -29,6 +29,21 @@
         var bar = progress ? progress.querySelector('[data-batch-bar]') : null;
         var status = document.querySelector('[data-batch-status="' + scope + '"]');
 
+        var list = document.querySelector('[data-batch-details="' + scope + '"]');
+
+        // Подробности (какого файла нет, что не принял загрузчик) нужны
+        // списком: одной строкой статуса двадцать имён файлов не прочитать.
+        function showDetails(items) {
+            if (!list) return;
+            list.textContent = '';
+            items.slice(0, 200).forEach(function (text) {
+                var li = document.createElement('li');
+                li.textContent = text;
+                list.appendChild(li);
+            });
+            list.hidden = items.length === 0;
+        }
+
         var running = false;
         var cancelled = false;
 
@@ -78,6 +93,12 @@
         }
 
         function line(scopeName, seen, totals, dry) {
+            if (scopeName === 'documents') {
+                return seen + (dry ? ' · файлов найдено: ' + totals.planned : ' · перенесено: ' + totals.imported)
+                    + (totals.skipped ? ' · уже были: ' + totals.skipped : '')
+                    + (totals.missing ? ' · файла нет: ' + totals.missing : '')
+                    + (totals.failed ? ' · не удалось: ' + totals.failed : '');
+            }
             if (scopeName === 'alt') {
                 return dry
                     ? seen + ' · без подписи: ' + totals.planned
@@ -103,15 +124,21 @@
             lock(true);
 
             var offset = 0;
-            var totals = { optimized: 0, planned: 0, skipped: 0, failed: 0, fixed: 0, empty: 0, total: 0 };
+            var totals = { optimized: 0, planned: 0, skipped: 0, failed: 0, fixed: 0, empty: 0, imported: 0, missing: 0, pages: 0, blocks: 0, total: 0 };
+            var details = [];
+            showDetails([]);
             say(dry ? 'Считаю объём работы…' : 'Обрабатываю…');
 
             try {
                 for (;;) {
                     var result = await batch(offset, dry);
-                    ['optimized', 'planned', 'skipped', 'failed', 'fixed', 'empty'].forEach(function (key) {
+                    ['optimized', 'planned', 'skipped', 'failed', 'fixed', 'empty', 'imported', 'missing', 'pages', 'blocks'].forEach(function (key) {
                         totals[key] += result[key] || 0;
                     });
+                    ['missing_files', 'errors', 'notes'].forEach(function (key) {
+                        (result[key] || []).forEach(function (text) { details.push(text); });
+                    });
+                    showDetails(details);
                     totals.total = result.total;
                     offset = result.cursor;
                     draw(offset, result.total);
@@ -133,7 +160,19 @@
             }
 
             draw(1, 1);
-            if (scope === 'alt') {
+            if (scope === 'documents') {
+                say(dry
+                    ? 'Проверено. Найдено файлов: ' + totals.planned
+                        + (totals.skipped ? ' · уже перенесено: ' + totals.skipped : '')
+                        + (totals.missing
+                            ? ' · не найдено: ' + totals.missing + ' (список ниже). Доложите их в папку или импортируйте без них.'
+                            : '. Все файлы на месте — можно импортировать.')
+                    : 'Готово. Перенесено файлов: ' + totals.imported
+                        + (totals.missing ? ' · без файла: ' + totals.missing : '')
+                        + (totals.failed ? ' · не удалось: ' + totals.failed : '')
+                        + '. Черновиков страниц создано: ' + totals.pages + ', блоков «Документы»: ' + totals.blocks
+                        + ' — найдите их в разделе «Страницы» по адресу /documents.');
+            } else if (scope === 'alt') {
                 say(dry
                     ? (totals.planned > 0
                         ? 'Без alt-текста: ' + totals.planned + ' изображений. Каждое — отдельный запрос к модели; нажмите «Подписать изображения».'
