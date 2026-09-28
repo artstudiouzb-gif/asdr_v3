@@ -109,7 +109,7 @@ test('Список поверхностей PHP и CSS не расходится
         );
     }
 
-    assert_contains('--section-fg: var(--text-primary)', $css, 'поверхность возвращает себе обычный цвет');
+    assert_contains('--section-fg: var(--gov-ink)', $css, 'поверхность возвращает себе обычный цвет');
     assert_contains('--section-title-fg: var(--gov-title)', $css);
 });
 
