@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Icon;
+use App\Core\UrlGuard;
 
 /**
  * «Кнопки»: до трёх действий в ряд, без карточки и заголовка.
@@ -15,7 +16,13 @@ use App\Core\Icon;
 // Значения проверены схемой полей (BlockFieldSchema) — читаем как есть.
 $align = (string) $data['align'];
 $size = (string) $data['size'];
-$items = array_values(array_filter((array) ($data['items'] ?? []), 'is_array'));
+// Адрес кнопки — повторяющееся поле, схема его не приводит. Проверяем здесь:
+// данные приезжают и из загруженного файла шаблона страницы, где сверены только
+// ключи, а `javascript:` в href — чужой код на публичной странице.
+$items = array_values(array_filter(
+    (array) ($data['items'] ?? []),
+    static fn ($item): bool => is_array($item) && UrlGuard::isSafeLink((string) ($item['url'] ?? ''))
+));
 ?>
 <?php if ($items !== []): ?>
     <div class="block-buttons block-buttons--<?= htmlspecialchars($align, ENT_QUOTES) ?> block-buttons--size-<?= htmlspecialchars($size, ENT_QUOTES) ?>">

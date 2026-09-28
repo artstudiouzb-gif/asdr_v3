@@ -1,9 +1,15 @@
 <?php
 
 use App\Core\BlockRenderer;
+use App\Core\UrlGuard;
 
 /** @var array $data */
-$items = is_array($data['items'] ?? null) ? $data['items'] : [];
+// Пункт с небезопасным адресом не выводится: данные приезжают и из файла
+// шаблона страницы, где сверены только ключи.
+$items = array_values(array_filter(
+    is_array($data['items'] ?? null) ? $data['items'] : [],
+    static fn ($item): bool => is_array($item) && UrlGuard::isSafeLink((string) ($item['url'] ?? ''))
+));
 $auto = !empty($data['auto']);
 $sticky = !empty($data['sticky']);
 

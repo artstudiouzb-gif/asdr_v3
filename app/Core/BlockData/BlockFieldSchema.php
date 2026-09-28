@@ -1340,6 +1340,10 @@ final class BlockFieldSchema
                     : (int) $field->default,
                 'bool' => (bool) $value,
                 'media' => BlockDataInput::safeMedia($value),
+                // Ссылка проверяется и на выводе: загруженный файл шаблона
+                // страницы сверяет только ключи, и `javascript:` из него дошёл
+                // бы до href — чужой код на публичной странице.
+                'url' => BlockDataInput::safeLink($value),
                 'icon' => Icon::cleanName($value),
                 'color' => preg_match('/^#[0-9a-f]{6}$/i', is_scalar($value) ? (string) $value : '') === 1
                     ? strtolower((string) $value)
