@@ -29,11 +29,19 @@ final class Backup
      *                          Гарантирует, что между дампом БД и архивацией
      *                          файлов не будет параллельных загрузок → нет
      *                          «висящих» ссылок при восстановлении.
+     * @param string|null $password Пароль архива (пакет переезда): дамп и файлы
+     *                          шифруются AES-256, `manifest.txt` остаётся
+     *                          открытым — по нему архив узнаётся без пароля.
+     * @param array<string, string> $extraFiles Дополнительные файлы в корне
+     *                          архива (имя => содержимое), без шифрования.
      */
-    public static function create(bool $maintenance = false): string
+    public static function create(bool $maintenance = false, ?string $password = null, array $extraFiles = []): string
     {
         if (!extension_loaded('zip')) {
             throw new \RuntimeException('Расширение PHP zip не установлено.');
+        }
+        if ($password !== null && !self::encryptionSupported()) {
+            throw new \RuntimeException('Шифрование ZIP (AES-256) на этом сервере недоступно: библиотека libzip собрана без него.');
         }
 
         $dir = self::backupDir();
@@ -90,6 +98,26 @@ final class Backup
                 date('c'),
                 (string) Config::get('app.url', '')
             ));
+            $plainEntries = ['manifest.txt'];
+            foreach ($extraFiles as $name => $content) {
+                if (preg_match('/^[A-Za-z0-9._-]+$/', $name) !== 1 || !$zip->addFromString($name, $content)) {
+                    throw new \RuntimeException('Не удалось добавить в архив ' . $name . '.');
+                }
+                $plainEntries[] = $name;
+            }
+
+            // Шифрование назначается до close(): архив пишется на диск только
+            // там, поэтому второго прохода по файлам не нужно.
+            if ($password !== null) {
+                for ($index = 0; $index < $zip->numFiles; $index++) {
+                    if (in_array($zip->getNameIndex($index), $plainEntries, true)) {
+                        continue;
+                    }
+                    if (!$zip->setEncryptionIndex($index, ZipArchive::EM_AES_256, $password)) {
+                        throw new \RuntimeException('Не удалось назначить шифрование файлу архива.');
+                    }
+                }
+            }
 
             if (!$zip->close()) {
                 throw new \RuntimeException('Не удалось завершить zip-архив.');
@@ -181,6 +209,12 @@ final class Backup
     private static function writeGuardPath(): string
     {
         return dirname(__DIR__, 2) . '/storage/cache/backup_write_guard.lock';
+    }
+
+    /** Умеет ли libzip этого сервера шифровать и расшифровывать AES-256. */
+    public static function encryptionSupported(): bool
+    {
+        return extension_loaded('zip') && ZipArchive::isEncryptionMethodSupported(ZipArchive::EM_AES_256);
     }
 
     /** Путь к sidecar-файлу с контрольной суммой архива. */
@@ -348,7 +382,7 @@ final class Backup
      * @param array{host?:string,port?:string,database:string,username:string,password?:string} $db
      * @return array{ok:bool,checksum:bool,tables:int,files:int,messages:string[]}
      */
-    public static function restore(string $zipPath, array $db, string $filesTargetDir): array
+    public static function restore(string $zipPath, array $db, string $filesTargetDir, ?string $password = null): array
     {
         $report = ['ok' => false, 'checksum' => false, 'tables' => 0, 'files' => 0, 'messages' => []];
 
@@ -378,8 +412,13 @@ final class Backup
         }
         try {
             self::assertSafeArchiveEntries($zip);
+            if ($password !== null) {
+                $zip->setPassword($password);
+            }
             if (!$zip->extractTo($tmp)) {
-                throw new \RuntimeException('Не удалось распаковать архив.');
+                throw new \RuntimeException($password !== null && $zip->status === ZipArchive::ER_WRONGPASSWD
+                    ? 'Неверный пароль архива.'
+                    : 'Не удалось распаковать архив.');
             }
         } catch (\Throwable $e) {
             self::removeTree($tmp);

@@ -17,6 +17,7 @@
 !/storage/sessions/.gitkeep
 !/storage/sessions/README.md
 /storage/updates/
+/storage/migration/
 /storage/integrity/
 /storage/tmp/
 /public/uploads/*
