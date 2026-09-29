@@ -89,6 +89,7 @@ shared-хостинге обычно `localhost`. Установщик подк�
 0 * * * *  php /path/to/app/Console/youtube_worker.php   >> /path/to/storage/logs/youtube_worker.log 2>&1
 */15 * * * * php /path/to/app/Console/watchdog.php       >> /path/to/storage/logs/watchdog.log 2>&1
 25 4 * * * php /path/to/app/Console/seo_worker.php       >> /path/to/storage/logs/seo_worker.log 2>&1
+*/15 * * * * php /path/to/app/Console/indexnow_worker.php  >> /path/to/storage/logs/indexnow_worker.log 2>&1
 40 3 * * 0 php /path/to/app/Console/restore_drill.php    >> /path/to/storage/logs/restore_drill.log 2>&1
 * * * * *  php /path/to/app/Console/update_worker.php    >> /path/to/storage/logs/update_worker.log 2>&1
 ```
@@ -116,6 +117,15 @@ Better Uptime или любого cron-монитора), чистый прох�
 `seo_worker.php` — ежедневный снимок «Поиска и индексации»: причины, по
 которым страница может не попасть в поиск, видны в `/admin/seo` без ключей
 Google/Яндекса.
+
+`indexnow_worker.php` — уведомления IndexNow: Яндекс и Bing узнают о новой или
+изменённой странице в пределах четверти часа, а не при следующем обходе карты
+сайта. Адреса берутся из самой карты (все языковые версии, без редиректов) по
+дате правки. Ключ заводится при первом запуске и отдаётся файлом
+`/indexnow.txt`; работает только при публичном `https`-адресе в `app.url`.
+Исход последней отправки — в «Состоянии системы» (строка IndexNow). Нет строки
+в crontab — нет и уведомлений; Google протокол не поддерживает, ему хватает
+карты сайта.
 
 `/health` возвращает `degraded` и шлёт алерт, если воркер перестал запускаться.
 
