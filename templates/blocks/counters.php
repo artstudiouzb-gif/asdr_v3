@@ -19,7 +19,8 @@ use App\Core\UrlGuard;
  * @var int $blockId
  */
 $title = (string) ($data['title'] ?? '');
-$items = array_values(array_filter((array) ($data['items'] ?? []), 'is_array'));
+// Данные приезжают и из файла шаблона страницы — предел сетки держит и вывод.
+$items = array_slice(array_values(array_filter((array) ($data['items'] ?? []), 'is_array')), 0, CounterFormat::MAX_ITEMS);
 // Значения проверены схемой полей (BlockFieldSchema) — читаем как есть.
 $cardBg = (string) $data['card_bg'];
 $textColor = (string) $data['text_color'];

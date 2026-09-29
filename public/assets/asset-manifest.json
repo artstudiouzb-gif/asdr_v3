@@ -68,11 +68,11 @@
     },
     "/assets/css/blocks/counters.css": {
       "path": "/assets/css/blocks/counters.min.css",
-      "sourceSha256": "8e5c616c46ab8d1c5f3279b36634f092255fe26577964652acfdc3344d66f30c",
-      "sha256": "52c472b18d3ed5d5b1f2b45d3fdc57b08898ce0e8a199efa829d98cf0885873d",
-      "raw": 18074,
-      "gzip": 3471,
-      "brotli": 3080
+      "sourceSha256": "96a25b7475aaa28d6fadba557be0cd4c0eb48173a71cdaf74b0080dc901c0ca9",
+      "sha256": "3252f577da80cf9865d09eb059c808dd3ee9f7a26d2516227bd8eb122624b5d6",
+      "raw": 19222,
+      "gzip": 3561,
+      "brotli": 3165
     },
     "/assets/css/blocks/divider.css": {
       "path": "/assets/css/blocks/divider.min.css",

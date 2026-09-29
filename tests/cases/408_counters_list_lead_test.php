@@ -57,6 +57,11 @@ test('«Авто» делит ряд без одинокого хвоста; х�
     assert_same(2, CounterFormat::columns('row', 0, 2));
     assert_same(5, CounterFormat::columns('row', 5, 7), 'явный выбор редактора главнее');
     assert_same(2, CounterFormat::columns('row', 4, 2), 'колонок не больше, чем показателей');
+    assert_same(6, CounterFormat::columns('cards', 6, 12), 'шесть колонок — выбор редактора');
+    assert_same(6, CounterFormat::columns('cards', 9, 12), 'колонок не больше шести');
+    assert_same(4, CounterFormat::columns('row', 0, 20), 'двадцать — 4 × 5, строк не больше пяти');
+    assert_same(6, CounterFormat::columns('row', 0, 30), 'полная сетка — 6 × 5');
+    assert_same(6, CounterFormat::columns('row', 0, 21), 'пять колонок оставили бы одиночку в хвосте');
     assert_same(1, CounterFormat::columns('list', 0, 5));
     assert_same(2, CounterFormat::columns('list', 3, 5), 'у списка больше двух колонок не бывает');
 
@@ -69,6 +74,23 @@ test('«Авто» делит ряд без одинокого хвоста; х�
     assert_same(2, substr_count($out['html'], 'counter--tail'), 'хвост — два последних показателя');
     assert_contains('--counters-tracks:6;--counters-span:2;--counters-tail-span:3', $out['css']);
     assert_contains('counter--odd-last', $out['html'], 'на планшете нечётный последний встаёт во всю ширину');
+});
+
+test('Показателей — до полной сетки 6 × 5, форма не пускает дальше', function (): void {
+    assert_same(30, CounterFormat::MAX_ITEMS);
+    $norm = CountersBlockNormalizer::normalize(['items' => counters_items(40)]);
+    assert_same(30, count($norm['items']), 'лишнее из присланного отбрасывается');
+
+    $raw = BlockRenderer::render(['id' => 411, 'type' => 'counters', 'custom_css' => '', 'data' => json_encode([
+        'variant' => 'cards', 'columns' => 6, 'items' => counters_items(35),
+    ])]);
+    assert_same(30, (int) preg_match_all('/class="counter(?: [^"]*)?"/', (string) $raw['html']),'вывод держит предел и для данных из файла шаблона');
+    assert_contains('block-counters--cols-6', (string) $raw['html']);
+
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/blocks/counters.css');
+    assert_contains('.block-counters--cols-6 { --counters-cols: 6; }', $css);
+    $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/pages/block_form.php');
+    assert_contains('CounterFormat::MAX_ITEMS ?>">', $form, 'форма не даёт добавить больше сетки');
 });
 
 test('Список: строки-подсетки, колонка иконок только при иконках', function (): void {

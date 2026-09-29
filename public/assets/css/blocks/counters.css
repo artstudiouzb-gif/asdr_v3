@@ -42,6 +42,7 @@
 .block-counters--cols-3 { --counters-cols: 3; }
 .block-counters--cols-4 { --counters-cols: 4; }
 .block-counters--cols-5 { --counters-cols: 5; }
+.block-counters--cols-6 { --counters-cols: 6; }
 
 /* Панель с подложкой — своя поверхность: цвет секции внутрь не наследуется
    (SectionColors::OWN_COLORS). Переменные секции объявлены заново для правил,
@@ -544,10 +545,30 @@ html[data-a11y-motion="off"] .counter--goal .counter__fill { animation: none; }
    Планшет: больше двух колонок чисел не помещается — «25 400» с подписью в
    пятой части экрана рвётся на каждом слове. Список в две колонки
    становится одной, главный показатель встаёт над списком. */
+/* Пять и шесть колонок: ячейка около 200px, и иконка сбоку отнимала у числа
+   треть ширины — «25 400» расходилось на две строки, а плашка изменения
+   выходила за карточку. Иконка встаёт над числом, число на ступень мельче. */
+@media (min-width: 1101px) {
+    :is(.block-counters--cols-5, .block-counters--cols-6):is(.block-counters--row, .block-counters--cards) .counter { flex-direction: column; }
+    :is(.block-counters--cols-5, .block-counters--cols-6):is(.block-counters--row, .block-counters--cards) .counter__body { align-self: stretch; }
+    :is(.block-counters--cols-5, .block-counters--cols-6):not(.block-counters--list, .block-counters--lead) :is(.counter__value, .counter__suffix) { font-size: var(--step-7); }
+    :is(.block-counters--cols-5, .block-counters--cols-6).block-counters--size-large:not(.block-counters--list, .block-counters--lead) :is(.counter__value, .counter__suffix) { font-size: var(--step-8); }
+}
+/* Пять и шесть колонок — только на широком экране: на планшете ячейка
+   становится уже крупного числа. */
+@media (max-width: 1100px) {
+    .block-counters--cols-5,
+    .block-counters--cols-6 { --counters-cols: 3; }
+    .block-counters--cols-5.block-counters--balanced .block-counters__grid,
+    .block-counters--cols-6.block-counters--balanced .block-counters__grid { grid-template-columns: repeat(var(--counters-cols), minmax(0, 1fr)); }
+    .block-counters--cols-5.block-counters--balanced .counter,
+    .block-counters--cols-6.block-counters--balanced .counter { grid-column: auto; }
+}
 @media (max-width: 900px) {
     .block-counters--cols-3,
     .block-counters--cols-4,
-    .block-counters--cols-5 { --counters-cols: 2; }
+    .block-counters--cols-5,
+    .block-counters--cols-6 { --counters-cols: 2; }
     .block-counters--balanced .block-counters__grid { grid-template-columns: repeat(var(--counters-cols), minmax(0, 1fr)); }
     .block-counters--balanced .counter,
     .block-counters--balanced .counter--tail { grid-column: auto; }

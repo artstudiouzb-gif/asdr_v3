@@ -42,6 +42,12 @@ final class CountersBlockNormalizer
                 continue;
             }
 
+            // Полная сетка — 6 × 5 (CounterFormat::MAX_ITEMS). Форма дальше
+            // не пускает, а лишнее из присланного отбрасывается здесь.
+            if (count($items) >= CounterFormat::MAX_ITEMS) {
+                break;
+            }
+
             $iconSvg = Icon::cleanName($item['icon_svg'] ?? '');
 
             // Значение — строка, а не целое. Целым нельзя записать «1 200»,

@@ -13,6 +13,15 @@ final class CounterFormat
     /** Виды, у которых число колонок — настройка. */
     public const COLUMN_VARIANTS = ['row', 'cards', 'list', 'progress'];
 
+    /** Колонок в ряду не больше шести: в седьмой колонке ячейка становится уже подписи. */
+    public const MAX_COLUMNS = 6;
+
+    /** Строк не больше пяти: дальше это таблица, а не показатели. */
+    public const MAX_ROWS = 5;
+
+    /** Показателей в блоке — полная сетка, 6 × 5. */
+    public const MAX_ITEMS = self::MAX_COLUMNS * self::MAX_ROWS;
+
     /** Тон изменения: цвет говорит «хорошо» или «плохо», а не «вверх» или «вниз». */
     public const TONES = ['neutral', 'good', 'bad'];
 
@@ -22,7 +31,9 @@ final class CounterFormat
      * При `auto-fit` пять показателей ложились 4 + 1, и одинокое число во
      * втором ряду читалось как ошибка вёрстки — тот же довод, что у
      * GridBalance. «Авто» выбирает деление без хвоста в одну ячейку: пять —
-     * это 3 + 2, семь — 4 + 3. Список держит одну или две колонки: в третьей
+     * это 3 + 2, семь — 4 + 3. Строк при этом не больше пяти: двадцать
+     * показателей — это 4 × 5, а не 3 × 7, поэтому колонок берётся не меньше,
+     * чем нужно на пять строк. Список держит одну или две колонки: в третьей
      * строка «число — подпись» становится уже самой подписи.
      */
     public static function columns(string $variant, int $requested, int $count): int
@@ -32,25 +43,33 @@ final class CounterFormat
             return $requested >= 2 && $count > 1 ? 2 : 1;
         }
         if ($requested >= 2) {
-            return min($requested, $count);
+            return min($requested, self::MAX_COLUMNS, $count);
         }
         if ($count <= 4) {
             return $count;
         }
-        // Сначала ровные ряды (шесть — это 3 + 3, а не 4 + 2), потом любые
-        // без одиночки в хвосте.
-        foreach ([4, 3] as $cols) {
-            if ($count % $cols === 0) {
-                return $cols;
+        // Меньше колонок, чем нужно на пять строк, брать нельзя.
+        $least = (int) ceil(min($count, self::MAX_ITEMS) / self::MAX_ROWS);
+        // Сначала обычные четыре или три колонки, и только если в них нет
+        // ровного ряда или ряда без одиночки — пять и шесть: пять показателей
+        // это 3 + 2, а не пять в строку.
+        $allowed = static fn (array $set): array => array_values(array_filter($set, static fn (int $cols): bool => $cols >= $least));
+        foreach ([$allowed([4, 3]), $allowed([5, 6])] as $options) {
+            // Сначала ровные ряды (шесть — это 3 + 3, а не 4 + 2), потом
+            // любые без одиночки в хвосте.
+            foreach ($options as $cols) {
+                if ($count % $cols === 0) {
+                    return $cols;
+                }
             }
-        }
-        foreach ([4, 3] as $cols) {
-            if ($count % $cols !== 1) {
-                return $cols;
+            foreach ($options as $cols) {
+                if ($count % $cols !== 1) {
+                    return $cols;
+                }
             }
         }
 
-        return 4;
+        return max(4, min($least, self::MAX_COLUMNS));
     }
 
     /**

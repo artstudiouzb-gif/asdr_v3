@@ -561,7 +561,8 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             ?>
             <div>
                 <label>Показатели</label>
-                <div data-repeater="items">
+                <span class="form-hint">До <?= \App\Core\CounterFormat::MAX_ITEMS ?> показателей — сетка до <?= \App\Core\CounterFormat::MAX_COLUMNS ?> колонок и <?= \App\Core\CounterFormat::MAX_ROWS ?> строк.</span>
+                <div data-repeater="items" data-repeater-max="<?= \App\Core\CounterFormat::MAX_ITEMS ?>">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row">
                             <span class="menu-panel__eyebrow">Элемент <?= (int) $i + 1 ?></span>
