@@ -261,3 +261,28 @@ test('Видео — кадр и в прежних композициях', func
     $pair = CollageComposition::roles('pair', [['type' => 'photo'], ['type' => 'video']]);
     assert_true(CollageComposition::complete('pair', $pair), 'второй кадр — видео');
 });
+
+test('Коллаж без текста держит сетку в колонке конструктора', function (): void {
+    // В половине ряда колонок блок уже 880px, и «Кадр и плитки» из одних
+    // снимков складывался в галерею: ведущий во всю ширину, плитки по две.
+    // Узкий вариант нужен числу и цитате, кадру малая плитка не мешает.
+    $photos = [
+        ['type' => 'photo', 'image' => '/uploads/public/a.jpg'],
+        ['type' => 'photo', 'image' => '/uploads/public/b.jpg'],
+        ['type' => 'video', 'video' => 'https://youtu.be/aqz-KE-bpKQ'],
+        ['type' => 'badge', 'text' => 'Стратегия'],
+    ];
+    assert_true(!CollageLayout::hasText($photos));
+    assert_true(CollageLayout::hasText([...$photos, ['type' => 'stat', 'value' => '1 200']]));
+
+    assert_contains('collage-comp--textless', ensemble_html(['layout' => 'bento', 'items' => $photos]));
+    assert_not_contains('collage-comp--textless', ensemble_html(['layout' => 'bento', 'items' => ensemble_items(5, true)]));
+    assert_contains('collage__canvas--textless', ensemble_html(['layout' => 'mosaic', 'items' => $photos]));
+
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/blocks/collage.css');
+    assert_contains('@container collage (min-width: 400px) and (max-width: 880px)', $css);
+    assert_contains('.collage-comp--grid.collage-comp--textless > .collage__item.collage__item { grid-area: var(--ga, auto);', $css);
+    assert_contains('@container cms-col (min-width: 360px) and (max-width: 560px)', $css);
+    // Возврат идёт после узкого варианта, иначе при равном весе проиграл бы.
+    assert_true(strpos($css, 'collage-comp--textless {') > strpos($css, '@container collage (max-width: 880px)'));
+});
