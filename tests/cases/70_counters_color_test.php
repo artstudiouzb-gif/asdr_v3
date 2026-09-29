@@ -41,8 +41,14 @@ test('Counters: цифры сплошного цвета, а не градиен
         assert_not_contains('text-fill-color: transparent', $rule);
     }
     // Цвет чисел — одна переменная блока: «Цвет текста» главнее, без него —
-    // цвет темы, а без подложки — цвет секции (тест 401).
-    assert_contains('color: var(--counters-fg) !important;', $css);
+    // цвет темы, а без подложки — цвет секции (тест 401). Флаг приоритета
+    // снят: он перебивал правило тёмной темы, которое затирало «Цвет текста»
+    // блока, — правила больше нет, и спорить не с кем.
+    assert_contains('color: var(--counters-fg);', $css);
+    assert_true(
+        (bool) preg_match('/\.counter__value,\s*\.counter__suffix\s*\{[^}]*color: var\(--counters-fg\);/', $css),
+        'цвет числа объявлен у самого числа'
+    );
     assert_contains('--counters-fg: var(--counters-text, var(--gov-title));', $css);
 });
 
@@ -61,8 +67,11 @@ test('Counters: размер, фон, положение и выравниван
     assert_contains('block-counters--text-align-center', $rendered['html']);
 
     $css = theme_css();
-    assert_contains('var(--counter-icon-size, 28px) !important', $css);
-    assert_contains('.block-counters--icons-no-bg .counter:hover .counter__icon', $css);
+    assert_contains('width: var(--counter-icon-size, 28px);', $css);
+    // Наведение — только у показателя-ссылки: у обычного подсветка иконки
+    // обещала переход, которого нет.
+    assert_contains('.block-counters--icons-no-bg .counter--link:hover .counter__icon', $css);
+    assert_not_contains('.counter:hover .counter__icon', $css);
     assert_contains('.block-counters--icon-pos-right .counter', $css);
     assert_contains('.block-counters--text-align-center .counter__body', $css);
 });

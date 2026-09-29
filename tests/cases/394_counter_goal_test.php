@@ -74,9 +74,12 @@ test('Поля пути к цели сохраняются и выводятся
     }
 
     $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/pages/block_form.php');
-    foreach (['target', 'base', 'base_label', 'now_label', 'target_label', 'delta'] as $key) {
+    foreach (['target', 'base', 'base_label', 'now_label', 'target_label'] as $key) {
         assert_contains("\$field('{$key}'", $form, "в форме показателя нет поля {$key}");
     }
+    // Изменение — не часть пути к цели: оно выводится у любого вида, поэтому
+    // стоит вне группы, видимой только при «цели» (тест 408).
+    assert_contains("'][delta]\"", $form, 'в форме показателя нет поля изменения');
     // Группа видна только при этих вариантах — иначе редактор видел бы поля,
     // которые ни на что не влияют.
     assert_contains('data-field-when="variant" data-field-value="progress,scale"', $form);

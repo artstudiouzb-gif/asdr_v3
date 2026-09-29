@@ -83,6 +83,9 @@ test('Блок счётчиков не имеет подъёма (translateY) п
 
     assert_not_contains('.block-counters:hover { transform: translateY', $countersCss);
     assert_not_contains('.counter:hover { transform: translateY', $countersCss);
-    assert_contains('.block-counters:hover {', $countersCss);
+    // Панель — не ссылка: рамка цвета акцента под курсором обещала действие,
+    // которого нет. Наведение осталось только у показателя-ссылки.
+    assert_not_contains('.block-counters:hover', $countersCss);
+    assert_contains('.counter--link:hover', $countersCss);
 });
 
