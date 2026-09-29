@@ -28,9 +28,10 @@ use App\Models\Setting;
  * - **Отметка сдвигается только после принятой отправки.** Отказ сети или
  *   ответ 4xx/5xx оставляет её на месте, и следующий проход повторит те же
  *   адреса; исход виден в «Состоянии системы» (память интеграций).
- * - **Публичный рендер в сеть не ходит** (тест 110): отправка живёт в воркере
- *   по cron, `app/Console/indexnow_worker.php`. Нет строки в crontab — нет и
- *   отправок, настройки для этого не нужно.
+ * - **Публичный рендер в сеть не ходит** (тест 110). Отправка идёт после
+ *   ответа на сохранение в админке (afterResponse) и, если есть строка в
+ *   crontab, воркером `app/Console/indexnow_worker.php` — он добирает
+ *   отложенные публикации, которые наступают без сохранения.
  * - **Ключ — не секрет**, его по протоколу отдают файлом (`/indexnow.txt`):
  *   он лишь доказывает, что уведомление прислал владелец домена.
  */
@@ -44,6 +45,15 @@ final class IndexNow
     /** Предел протокола на одно уведомление. */
     public const MAX_URLS = 10000;
 
+    /**
+     * Сколько ждём ответа в проходе после сохранения. Под PHP-FPM и LiteSpeed
+     * ответ редактору к этому моменту уже отдан, но под mod_php ожидание
+     * прибавляется к его запросу — поэтому короче, чем у воркера.
+     */
+    private const AFTER_RESPONSE_TIMEOUT = 5;
+
+    private static bool $scheduled = false;
+
     private const KEY_SETTING = 'indexnow_key';
     private const SENT_SETTING = 'indexnow_last_sent';
 
@@ -53,6 +63,48 @@ final class IndexNow
      * считает злоупотреблением. Два дня — окно, в котором правка ещё новость.
      */
     private const FIRST_RUN_WINDOW = 2 * 86400;
+
+    /**
+     * Уведомить после ответа: зовёт Cache::forgetPrefix('page:'), то есть
+     * любое сохранение контента, опубликованного на сайте. Так IndexNow
+     * работает и без cron: правка в админке сама сообщает поисковикам.
+     * Воркер остаётся для того, чего правка не видит, — отложенной публикации,
+     * наступившей без сохранения.
+     *
+     * Только из веб-запроса: консольные сценарии (импорт, тесты) проходят
+     * через ту же точку, и слать из них наружу незачем — у воркера свой вызов.
+     */
+    public static function afterResponse(): void
+    {
+        if (self::$scheduled || PHP_SAPI === 'cli') {
+            return;
+        }
+        self::$scheduled = true;
+        register_shutdown_function([self::class, 'flush']);
+    }
+
+    /** @internal вызывается из register_shutdown_function */
+    public static function flush(): void
+    {
+        self::$scheduled = false;
+        if (!self::isPublicBase(AppUrl::base())) {
+            return;
+        }
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        } elseif (function_exists('litespeed_finish_request')) {
+            litespeed_finish_request();
+        }
+
+        try {
+            self::run(null, self::AFTER_RESPONSE_TIMEOUT);
+        } catch (\Throwable $e) {
+            \App\Core\Logger::swallowed('IndexNow: уведомление после сохранения не отправлено', $e);
+        }
+    }
 
     public static function key(): string
     {
@@ -98,7 +150,7 @@ final class IndexNow
     }
 
     /**
-     * Адреса карты сайта, изменённые позже отметки.
+     * Адреса карты сайта, изменённые не раньше отметки.
      *
      * @return list<string>
      */
@@ -117,7 +169,9 @@ final class IndexNow
                 continue;
             }
             $ts = strtotime($lastmod);
-            if ($ts !== false && $ts > $since) {
+            // Не строго: правка в ту же секунду, что прошлая отправка, иначе
+            // потерялась бы. Повтор адреса протокол допускает.
+            if ($ts !== false && $ts >= $since) {
                 $urls[] = $loc;
             }
         }
@@ -146,7 +200,7 @@ final class IndexNow
      *
      * @return array{status: string, sent: int, message: string}
      */
-    public static function run(?int $now = null): array
+    public static function run(?int $now = null, int $timeout = 20): array
     {
         $now ??= time();
         $base = AppUrl::base();
@@ -165,7 +219,7 @@ final class IndexNow
             return ['status' => 'idle', 'sent' => 0, 'message' => 'изменённых адресов нет'];
         }
 
-        $res = Http::postJson(self::ENDPOINT, self::payload($base, $key, $urls), [], 20);
+        $res = Http::postJson(self::ENDPOINT, self::payload($base, $key, $urls), [], $timeout);
         $status = (int) $res['status'];
         // 200 — принято, 202 — принято, ключ ещё проверяется.
         if ($status === 200 || $status === 202) {
