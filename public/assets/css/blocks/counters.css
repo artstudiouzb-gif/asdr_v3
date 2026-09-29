@@ -620,6 +620,44 @@ html[data-a11y-motion="off"] .counter--goal .counter__fill { animation: none; }
     :is(.block-counters--list, .block-counters--lead) .counter:not(.counter--lead) .counter__delta { grid-column: text; grid-row: auto; justify-self: start; white-space: normal; margin-top: 4px; }
 }
 
+/* Колонка конструктора (container-name: cms-col в public-layout-polish.css).
+   Медиазапрос о ней ничего не знает: узкая часть раскладки 1:3 остаётся
+   узкой и на 1440px, и «Колонок: 4» давало там карточки по 89px (замерено
+   стендом /container-check). Пока сетка была auto-fit, она подстраивалась
+   сама; число колонок — настройка, поэтому ширину колонки спрашиваем явно
+   теми же порогами, что у медиазапросов выше. */
+@container cms-col (max-width: 720px) {
+    .block-counters:not(.block-counters--cols-1, .block-counters--cols-2) { --counters-cols: 2; }
+    .block-counters--progress.block-counters { --counters-cols: 1; }
+    .block-counters--balanced .block-counters__grid { grid-template-columns: repeat(var(--counters-cols), minmax(0, 1fr)); }
+    .block-counters--balanced.block-counters .counter { grid-column: auto; }
+    :is(.block-counters--row, .block-counters--cards):not(.block-counters--cols-1) .counter--odd-last { grid-column: 1 / -1; }
+    .block-counters--list.block-counters--cols-2 .block-counters__grid,
+    .block-counters--lead .block-counters__grid { grid-template-columns: [num] auto [text] minmax(0, 1fr) [delta] auto; }
+    .block-counters--list.block-counters--cols-2.block-counters--has-icons .block-counters__grid,
+    .block-counters--lead.block-counters--has-icons .block-counters__grid { grid-template-columns: [icon] auto [num] auto [text] minmax(0, 1fr) [delta] auto; }
+    .block-counters--list.block-counters--cols-2 .counter:nth-child(n),
+    .block-counters--list.block-counters--cols-2.block-counters--has-icons .counter:nth-child(n),
+    .block-counters--lead .counter:not(.counter--lead) { grid-column: 1 / -1; }
+    .block-counters--list.block-counters--cols-2 .counter:nth-child(2) { border-block-start: 1px solid var(--counters-rule); }
+    .block-counters--lead .counter--lead.counter { grid-column: 1 / -1; grid-row: auto; margin-bottom: 8px; }
+}
+@container cms-col (max-width: 480px) {
+    .cms-columns__col .block-counters { --counters-cols: 1; }
+    .cms-columns__col :is(.block-counters--row, .block-counters--cards) .counter { flex-direction: column; }
+    .cms-columns__col :is(.block-counters--row, .block-counters--cards) .counter__body { align-self: stretch; }
+    .cms-columns__col .block-counters--list .block-counters__grid,
+    .cms-columns__col .block-counters--list.block-counters--has-icons .block-counters__grid,
+    .cms-columns__col .block-counters--list.block-counters--cols-2 .block-counters__grid,
+    .cms-columns__col .block-counters--list.block-counters--cols-2.block-counters--has-icons .block-counters__grid,
+    .cms-columns__col .block-counters--lead .block-counters__grid,
+    .cms-columns__col .block-counters--lead.block-counters--has-icons .block-counters__grid { grid-template-columns: [num] auto [text] minmax(0, 1fr); }
+    .cms-columns__col :is(.block-counters--list, .block-counters--lead) .counter:not(.counter--lead) .counter__icon { display: none; }
+    .cms-columns__col :is(.block-counters--list, .block-counters--lead) .counter:not(.counter--lead) .counter__delta { grid-column: text; grid-row: auto; justify-self: start; white-space: normal; margin-top: 4px; }
+    .cms-columns .cms-columns__col .block-counters :is(.counter__value, .counter__suffix) { font-size: var(--step-6); }
+    .cms-columns .cms-columns__col .block-counters .counter--lead :is(.counter__value, .counter__suffix) { font-size: var(--step-8); }
+}
+
 /* Узкие экраны: крупные числа берут нижнюю границу прежнего clamp, чтобы не
    переполнять строку.
 
