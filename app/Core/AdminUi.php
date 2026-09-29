@@ -213,6 +213,7 @@ final class AdminUi
             'logs' => 'alert-triangle',
             'audit' => 'history',
             'update' => 'cloud-download',
+            'migration' => 'truck-delivery',
         ][$name] ?? $name;
 
         return self::icon($name, 18, 'admin-nav-item__icon', 1.7);

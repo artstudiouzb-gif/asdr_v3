@@ -45,7 +45,7 @@ final class BackupRestore
      *
      * @return array{ok:bool,safety_backup:string,restored_tables:int,restored_files:int,messages:string[]}
      */
-    public static function restoreLocal(string $path, string $confirmCode): array
+    public static function restoreLocal(string $path, string $confirmCode, ?string $password = null): array
     {
         if (strtoupper(trim($confirmCode)) !== self::CONFIRM_CODE) {
             throw new \RuntimeException('Неверный код подтверждения. Введите RESTORE.');
@@ -58,13 +58,13 @@ final class BackupRestore
             throw new \RuntimeException('Архив не найден или недопустимого размера: ' . basename($path));
         }
 
-        return self::restoreArchive($path, false);
+        return self::restoreArchive($path, false, $password);
     }
 
     /**
      * @return array{ok:bool,safety_backup:string,restored_tables:int,restored_files:int,messages:string[]}
      */
-    private static function restoreArchive(string $incoming, bool $ownsArchive): array
+    private static function restoreArchive(string $incoming, bool $ownsArchive, ?string $password = null): array
     {
         $stageRoot = dirname(__DIR__, 2) . '/storage/restore/' . bin2hex(random_bytes(8));
         $rollbackStage = dirname(__DIR__, 2) . '/storage/restore/rollback-' . bin2hex(random_bytes(8));
@@ -92,7 +92,7 @@ final class BackupRestore
             Setting::set('maintenance_mode', '1');
 
             $restoreStarted = true;
-            $report = Backup::restore($incoming, self::databaseConfig(), $stageRoot);
+            $report = Backup::restore($incoming, self::databaseConfig(), $stageRoot, $password);
 
             // Backup::restore разворачивает файлы в stage/uploads/*, поэтому до
             // финального переключения рабочие uploads остаются нетронутыми.
