@@ -63,6 +63,8 @@ final class VariantPreview
         'meter' => 'шкала выполнения',
         'axis' => 'точки на линии от базы к цели',
         'goal' => 'числа с полосой пути к цели',
+        'counter-list' => 'строки: число слева, подпись справа',
+        'counter-lead' => 'крупное число слева, остальные строками справа',
         'bleed' => 'текст и фото, уходящее за край',
         'photo-card' => 'фото и карточка текста поверх него',
         'wide' => 'фото во всю ширину, текст под ним со сдвигом',
@@ -127,6 +129,8 @@ final class VariantPreview
             'meter' => self::meter(),
             'axis' => self::axis(),
             'goal' => self::goal(),
+            'counter-list' => self::counterList(),
+            'counter-lead' => self::counterLead(),
             'bleed' => self::bleed(),
             'photo-card' => self::photoCard(),
             'wide' => self::wide(),
@@ -753,6 +757,44 @@ final class VariantPreview
         }
 
         return $out;
+    }
+
+    /**
+     * Строки показателей: число (плотный прямоугольник) в колонке слева,
+     * подпись справа, тонкие линейки между строками.
+     */
+    private static function counterRows(float $x, float $y, float $w, int $rows, float $rowH): string
+    {
+        $out = '';
+        for ($i = 0; $i < $rows; $i++) {
+            $top = $y + $i * $rowH;
+            if ($i > 0) {
+                $out .= self::box($x, $top, $w, 0.6, 0.3, 0);
+            }
+            $out .= self::box($x, $top + $rowH / 2 - 2.5, 12, 5, 0.65, 1);
+            $out .= self::line($x + 16, $top + $rowH / 2 - 1, $w * 0.5, 0.35);
+        }
+
+        return $out;
+    }
+
+    private static function counterList(): string
+    {
+        return self::counterRows(self::PAD, self::PAD, self::W - self::PAD * 2, 4, (self::H - self::PAD * 2) / 4);
+    }
+
+    /** Главный показатель: крупное число на подложке слева, строки справа. */
+    private static function counterLead(): string
+    {
+        $h = self::H - self::PAD * 2;
+        $leadW = 22;
+        $out = self::box(self::PAD, self::PAD, $leadW, $h, 0.14);
+        $out .= self::box(self::PAD + 3, self::PAD + 8, 15, 9, 0.7, 1.5);
+        $out .= self::line(self::PAD + 3, self::PAD + 21, 14, 0.4);
+        $out .= self::line(self::PAD + 3, self::PAD + 25, 10, 0.3);
+        $x = self::PAD + $leadW + 4;
+
+        return $out . self::counterRows($x, self::PAD, self::W - self::PAD - $x, 3, $h / 3);
     }
 
     /** Линия от базы к цели: пройденная часть, текущая точка и подписи под точками. */

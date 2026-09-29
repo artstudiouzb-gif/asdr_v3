@@ -762,24 +762,38 @@
         window.asdrSetTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
 
-    // Счётчики (группа 4): анимация инкремента числа при попадании в зону
-    // видимости. Переиспользуем IntersectionObserver. Уважает reduced-motion.
+    // Показатели: отсчёт числа при появлении. Сервер отдаёт итоговую строку в
+    // разметке (без скрипта она и видна), а атрибуты говорят, как печатать
+    // промежуточные значения: знаков после запятой, разделитель дроби и
+    // разряды через неразрывный пробел. Последний кадр — ровно та строка,
+    // что набрал редактор, а не пересобранная скриптом. «Меньше движения» —
+    // общий признак сайта (asdrReduceMotion), а не только системная настройка.
     (function () {
         var counters = document.querySelectorAll('.counter__value[data-counter-target]');
         if (!counters.length) { return; }
-        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (reduce || !('IntersectionObserver' in window)) {
-            counters.forEach(function (el) { el.textContent = el.getAttribute('data-counter-target'); });
-            return;
+        var reduce = typeof window.asdrReduceMotion === 'function' ? window.asdrReduceMotion()
+            : (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        if (reduce || !('IntersectionObserver' in window)) { return; }
+        function format(n, el) {
+            var decimals = parseInt(el.getAttribute('data-counter-decimals'), 10) || 0;
+            var text = n.toFixed(decimals);
+            var parts = text.split('.');
+            if (el.hasAttribute('data-counter-group')) {
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+            }
+            return parts.length > 1 ? parts[0] + (el.getAttribute('data-counter-sep') || ',') + parts[1] : parts[0];
         }
         function animate(el) {
-            var target = parseInt(el.getAttribute('data-counter-target'), 10) || 0;
+            var target = parseFloat(el.getAttribute('data-counter-target')) || 0;
+            var final = el.__counterFinal;
             var start = null, dur = 1400;
             function step(ts) {
                 if (start === null) { start = ts; }
                 var p = Math.min((ts - start) / dur, 1);
-                el.textContent = Math.round(p * target).toString();
-                if (p < 1) { requestAnimationFrame(step); }
+                // Замедление к концу: равномерный счёт выглядит как таймер.
+                var eased = 1 - Math.pow(1 - p, 3);
+                el.textContent = p < 1 ? format(eased * target, el) : final;
+                if (p < 1) { requestAnimationFrame(step); } else { el.style.minWidth = ''; }
             }
             requestAnimationFrame(step);
         }
@@ -789,7 +803,12 @@
             });
         }, { threshold: 0.4 });
         counters.forEach(function (el) {
-            el.textContent = '0'; // start from 0 to avoid jumping
+            el.__counterFinal = el.textContent;
+            // Ширина итогового числа держится на время отсчёта: «0» уже, чем
+            // «25 400», и подпись рядом (у списка — вся колонка чисел)
+            // ехала бы за ним на каждом кадре.
+            el.style.minWidth = el.getBoundingClientRect().width + 'px';
+            el.textContent = format(0, el);
             cio.observe(el);
         });
     })();

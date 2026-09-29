@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\BlockData;
 
+use App\Core\CounterFormat;
 use App\Core\Icon;
 
 final class CountersBlockNormalizer
@@ -63,7 +64,12 @@ final class CountersBlockNormalizer
                 'base_label' => mb_substr(BlockDataInput::plain($item, 'base_label', $locale), 0, 16),
                 'now_label' => mb_substr(BlockDataInput::plain($item, 'now_label', $locale), 0, 16),
                 'target_label' => mb_substr(BlockDataInput::plain($item, 'target_label', $locale), 0, 16),
+                // Изменение («+12 % за год») выводится у любого вида, а не только
+                // у пути к цели: число без динамики часто говорит меньше, чем
+                // его сдвиг. Направление берётся из знака, а цвет — из тона:
+                // рост безработицы — тоже «вверх», но это плохая новость.
                 'delta' => mb_substr(BlockDataInput::plain($item, 'delta', $locale), 0, 40),
+                'delta_tone' => BlockDataInput::enum($item, 'delta_tone', CounterFormat::TONES, 'neutral'),
             ];
         }
 

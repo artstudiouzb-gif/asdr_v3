@@ -538,12 +538,29 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     . $field('target_label', 'Подпись цели', '2030', 16)
                     . $field('base_label', 'Подпись базы', '2023', 16)
                     . $field('now_label', 'Подпись текущего значения', '2026', 16)
-                    . $field('delta', 'Изменение', '+6 п.п. за год', 40)
                     . '</div></fieldset>';
+            };
+            // Изменение выводится у любого вида: число без динамики часто
+            // говорит меньше, чем его сдвиг. Направление стрелки берётся из
+            // знака, а цвет — из тона: рост безработицы тоже «вверх», но это
+            // плохая новость, и красить её цветом успеха нельзя.
+            $counterDeltaFields = static function (string $i, array $item): string {
+                $tone = (string) ($item['delta_tone'] ?? 'neutral');
+                $options = '';
+                foreach (['neutral' => 'Нейтрально', 'good' => 'Хорошо — цветом акцента', 'bad' => 'Плохо — красным'] as $value => $label) {
+                    $options .= '<option value="' . $value . '"' . ($tone === $value ? ' selected' : '') . '>' . $label . '</option>';
+                }
+
+                return '<div class="form-grid-2col">'
+                    . '<div class="form-field"><label>Изменение</label><input type="text" name="items[' . $i . '][delta]" maxlength="40" value="'
+                    . htmlspecialchars((string) ($item['delta'] ?? ''), ENT_QUOTES) . '" placeholder="+12 % за год">'
+                    . '<span class="form-hint">Знак в начале («+», «−») рисует стрелку вверх или вниз.</span></div>'
+                    . '<div class="form-field"><label>Как читать изменение</label><select name="items[' . $i . '][delta_tone]">' . $options . '</select></div>'
+                    . '</div>';
             };
             ?>
             <div>
-                <label>Счётчики</label>
+                <label>Показатели</label>
                 <div data-repeater="items">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row">
@@ -556,6 +573,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                             <div class="form-field"><label>Подпись</label><input type="text" name="items[<?= $i ?>][label]" value="<?= htmlspecialchars($item['label'] ?? '', ENT_QUOTES) ?>"></div>
                             <div class="form-field"><label>Примечание</label><input type="text" name="items[<?= $i ?>][note]" maxlength="120" value="<?= htmlspecialchars($item['note'] ?? '', ENT_QUOTES) ?>" placeholder="по данным на 2026 год"></div>
                             <div class="form-field"><label>Ссылка</label><input type="text" name="items[<?= $i ?>][link]" value="<?= htmlspecialchars($item['link'] ?? '', ENT_QUOTES) ?>" placeholder="/page"></div>
+                            <?= $counterDeltaFields((string) $i, is_array($item) ? $item : []) ?>
                             <?= $counterGoalFields((string) $i, is_array($item) ? $item : []) ?>
                             <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
                             <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
@@ -572,12 +590,13 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     <div class="form-field"><label>Подпись</label><input type="text" name="items[__INDEX__][label]"></div>
                     <div class="form-field"><label>Примечание</label><input type="text" name="items[__INDEX__][note]" maxlength="120"></div>
                     <div class="form-field"><label>Ссылка</label><input type="text" name="items[__INDEX__][link]" placeholder="/page"></div>
+                    <?= $counterDeltaFields('__INDEX__', []) ?>
                     <?= $counterGoalFields('__INDEX__', []) ?>
                     <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
                     <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
                     <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
                 </template>
-                <div class="repeater-actions"><button type="button" class="btn btn--small" data-repeater-add="items"><?= \App\Core\AdminUi::icon('plus') ?>Добавить счётчик</button></div>
+                <div class="repeater-actions"><button type="button" class="btn btn--small" data-repeater-add="items"><?= \App\Core\AdminUi::icon('plus') ?>Добавить показатель</button></div>
             </div>
         <?php endif; ?>
 
