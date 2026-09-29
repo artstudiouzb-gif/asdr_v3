@@ -33,6 +33,7 @@ $textAlign = (string) $data['text_align'];
 $variant = (string) $data['variant'];
 $valueSize = (string) $data['value_size'];
 $countUp = !empty($data['count_up']);
+$deltaStyle = (string) $data['delta_style'];
 $description = (string) ($data['description'] ?? '');
 $source = trim((string) ($data['source'] ?? ''));
 $columns = CounterFormat::columns($variant, (int) $data['columns'], count($items));
@@ -74,6 +75,7 @@ $blockClasses = 'block-counters'
     . ' block-counters--' . $variant
     . ' block-counters--size-' . $valueSize
     . ' block-counters--cols-' . $columns
+    . ' block-counters--delta-' . $deltaStyle
     . ($hasIcons ? ' block-counters--has-icons' : '')
     . ($textColor !== '' ? ' block-counters--custom-text' : '')
     . ($balance !== null ? ' block-counters--balanced' : '')
