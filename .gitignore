@@ -12,6 +12,8 @@
 # Локальные секреты и инструменты среды разработки (создаёт хук старта).
 /storage/.env.local
 /storage/tools/
+# Пакеты переезда и состояние задачи (App\Core\SiteMigration): вся база сайта.
+/storage/migration/
 /storage/backups/*
 !/storage/backups/.gitkeep
 !/storage/backups/README.md

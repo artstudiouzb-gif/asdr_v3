@@ -119,3 +119,90 @@ test('Пакет не затирается: имя копии не переза�
     assert_contains('Cli::assertCli()', $script, 'замена базы — только из консоли, не веб-запросом');
     assert_contains("'--confirm=' . self::CONFIRM_CODE", (string) file_get_contents(APP_ROOT . '/app/Core/SiteMigration.php'));
 });
+
+test('Пакет шифруется: дамп закрыт паролем, манифесты открыты, неверный пароль не подходит', function (): void {
+    if (!\App\Core\Backup::encryptionSupported()) {
+        skip_test('libzip без AES-256');
+    }
+    $path = sys_get_temp_dir() . '/migration-enc-' . bin2hex(random_bytes(4)) . '.zip';
+    $zip = new \ZipArchive();
+    $zip->open($path, \ZipArchive::CREATE);
+    $zip->addFromString('database.sql', "CREATE TABLE t (id INT);\n");
+    $zip->addFromString('manifest.txt', "ASDR CMS backup\n");
+    $zip->addFromString(SiteMigration::MANIFEST, json_encode(['kind' => SiteMigration::KIND, 'key_fingerprint' => null]));
+    $zip->setEncryptionName('database.sql', \ZipArchive::EM_AES_256, 'correct-horse-battery');
+    $zip->close();
+    try {
+        assert_true(SiteMigration::isEncrypted($path), 'дамп зашифрован');
+        assert_same(SiteMigration::KIND, (SiteMigration::readManifest($path) ?? [])['kind'] ?? null, 'манифест читается без пароля');
+        assert_true(SiteMigration::passwordMatches($path, 'correct-horse-battery'));
+        assert_false(SiteMigration::passwordMatches($path, 'wrong-password-123'), 'чужой пароль не подходит');
+    } finally {
+        @unlink($path);
+    }
+
+    $backup = (string) file_get_contents(APP_ROOT . '/app/Core/Backup.php');
+    assert_contains('setEncryptionIndex($index, ZipArchive::EM_AES_256, $password)', $backup, 'Backup::create шифрует записи');
+    assert_contains('$zip->setPassword($password)', $backup, 'Backup::restore расшифровывает');
+
+    $thrown = false;
+    try {
+        SiteMigration::assertPassword('короткий');
+    } catch (\RuntimeException) {
+        $thrown = true;
+    }
+    assert_true($thrown, 'короткий пароль отклоняется');
+});
+
+test('Имя архива из формы: только голое имя .zip своего каталога', function (): void {
+    $dir = sys_get_temp_dir() . '/migration-resolve-' . bin2hex(random_bytes(4));
+    mkdir($dir);
+    touch($dir . '/pack-1.zip');
+    try {
+        assert_same($dir . '/pack-1.zip', SiteMigration::resolve($dir, 'pack-1.zip'));
+        foreach (['../pack-1.zip', 'sub/pack-1.zip', '.pack.zip', 'pack-1.zip.php', 'missing.zip', ''] as $bad) {
+            assert_same(null, SiteMigration::resolve($dir, $bad), $bad . ' не принимается');
+        }
+    } finally {
+        @unlink($dir . '/pack-1.zip');
+        @rmdir($dir);
+    }
+});
+
+test('Состояние переезда — файлом: заказ читается, пароль отдаётся воркеру один раз', function (): void {
+    $stateFile = SiteMigration::dir() . '/state.json';
+    $saved = is_file($stateFile) ? (string) file_get_contents($stateFile) : null;
+    try {
+        \App\Core\SiteMigrationState::queue(\App\Core\SiteMigrationState::TASK_IMPORT, 'admin', 'pack.zip', ['to_url' => 'https://new.uz']);
+        $state = \App\Core\SiteMigrationState::read();
+        assert_same('queued', $state['status']);
+        assert_same('https://new.uz', $state['options']['to_url']);
+        assert_true(\App\Core\SiteMigrationState::isBusy($state));
+
+        \App\Core\SiteMigrationState::storePassword('correct-horse-battery');
+        assert_false(str_contains((string) file_get_contents($stateFile), 'correct-horse'), 'пароль не в журнале');
+        assert_same('correct-horse-battery', \App\Core\SiteMigrationState::takePassword());
+        assert_same(null, \App\Core\SiteMigrationState::takePassword(), 'второй раз пароля нет');
+
+        \App\Core\SiteMigrationState::storePassword('correct-horse-battery');
+        \App\Core\SiteMigrationState::finish(\App\Core\SiteMigrationState::STATUS_FAILED, 'проба');
+        assert_same(null, \App\Core\SiteMigrationState::takePassword(), 'окончание задачи стирает пароль');
+        assert_false(\App\Core\SiteMigrationState::isBusy());
+    } finally {
+        \App\Core\SiteMigrationState::clearPassword();
+        $saved === null ? @unlink($stateFile) : file_put_contents($stateFile, $saved);
+    }
+});
+
+test('Панель переезда только заказывает: замену делает воркер из консоли', function (): void {
+    $controller = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/MigrationController.php');
+    foreach (['SiteMigration::import(', 'SiteMigration::export(', 'restoreLocal(', 'Backup::create('] as $call) {
+        assert_not_contains($call, $controller, $call . ' — не в веб-запросе');
+    }
+    preg_match_all('/public function (\w+)\(\): void\s*\{\s*(\$this->guardQueue\(\)|Auth::requireSuperAdmin\(\))/', $controller, $m);
+    assert_same(['index', 'export', 'import', 'download', 'delete', 'reset'], $m[1], 'каждое действие — только супер-админу');
+    $worker = (string) file_get_contents(APP_ROOT . '/app/Console/migration_worker.php');
+    assert_contains('Cli::assertCli()', $worker);
+    assert_contains('/storage/migration/', (string) file_get_contents(APP_ROOT . '/.gitignore'), 'пакеты не попадают в git');
+    assert_contains('/storage/migration/', (string) file_get_contents(APP_ROOT . '/.github/workflows/deploy.yml'), 'и в ветку deploy');
+});

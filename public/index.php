@@ -344,6 +344,12 @@ $router->get('/admin/update', [\App\Controllers\Admin\UpdateController::class, '
 // app/Console/update_worker.php — веб-запрос её не пережил бы (см. контроллер).
 $router->post('/admin/update/request', [\App\Controllers\Admin\UpdateController::class, 'request']);
 $router->post('/admin/update/reset', [\App\Controllers\Admin\UpdateController::class, 'reset']);
+$router->get('/admin/migration', [\App\Controllers\Admin\MigrationController::class, 'index']);
+$router->get('/admin/migration/download', [\App\Controllers\Admin\MigrationController::class, 'download']);
+$router->post('/admin/migration/export', [\App\Controllers\Admin\MigrationController::class, 'export']);
+$router->post('/admin/migration/import', [\App\Controllers\Admin\MigrationController::class, 'import']);
+$router->post('/admin/migration/delete', [\App\Controllers\Admin\MigrationController::class, 'delete']);
+$router->post('/admin/migration/reset', [\App\Controllers\Admin\MigrationController::class, 'reset']);
 $router->get('/admin/seo', [\App\Controllers\Admin\SeoController::class, 'index']);
 $router->post('/admin/seo/run', [\App\Controllers\Admin\SeoController::class, 'run']);
 $router->get('/admin/performance', [\App\Controllers\Admin\PerformanceController::class, 'index']);

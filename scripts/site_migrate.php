@@ -6,10 +6,16 @@ declare(strict_types=1);
  * Переезд сайта на другой хостинг (App\Core\SiteMigration, docs/DEPLOY.md,
  * раздел «Переезд на другой хостинг»).
  *
+ * То же делает раздел «Переезд» в панели (/admin/migration) — через воркер
+ * по cron; консоль остаётся на случай, когда панель недоступна.
+ *
  * На СТАРОМ сервере:
- *   php scripts/site_migrate.php export
- *     → storage/backups/backup_<дата>.zip и .sha256 рядом: база, загрузки и
- *       манифест переезда (адрес, версия, отпечаток ключа шифрования).
+ *   php scripts/site_migrate.php export [--no-encrypt]
+ *     → storage/migration/outgoing/backup_<дата>-migration.zip и .sha256
+ *       рядом: база, загрузки и манифест переезда (адрес, версия, отпечаток
+ *       ключа шифрования). Пароль архива спрашивается с клавиатуры (или
+ *       берётся из ASDR_MIGRATION_PASSWORD) — аргументом его не передаём:
+ *       он остался бы в истории оболочки и в списке процессов.
  *
  * На НОВОМ сервере (код уже выложен, config/config.php заполнен, установщик
  * пройден или база пустая):
@@ -47,11 +53,42 @@ $out = static function (string $line): void {
     fwrite(STDOUT, '  ✓ ' . $line . PHP_EOL);
 };
 
+// Пароль — из окружения или с клавиатуры без эха.
+$askPassword = static function (string $prompt, bool $twice): string {
+    $env = getenv('ASDR_MIGRATION_PASSWORD');
+    if (is_string($env) && $env !== '') {
+        return $env;
+    }
+    $read = static function (string $label): string {
+        fwrite(STDOUT, $label);
+        $tty = function_exists('posix_isatty') && posix_isatty(STDIN) && function_exists('shell_exec');
+        if ($tty) {
+            shell_exec('stty -echo');
+        }
+        $line = fgets(STDIN);
+        if ($tty) {
+            shell_exec('stty echo');
+            fwrite(STDOUT, PHP_EOL);
+        }
+
+        return rtrim((string) $line, "\r\n");
+    };
+    $password = $read($prompt);
+    if ($twice && !hash_equals($password, $read('Ещё раз: '))) {
+        throw new \RuntimeException('Пароли не совпадают.');
+    }
+
+    return $password;
+};
+
 try {
     switch ($command) {
         case 'export':
             fwrite(STDOUT, "Пакет переезда: база, загрузки и манифест…\n");
-            $result = SiteMigration::export();
+            $password = ($options['no_encrypt'] ?? false)
+                ? null
+                : $askPassword('Пароль архива (не короче ' . SiteMigration::PASSWORD_MIN . ' знаков): ', true);
+            $result = SiteMigration::export($password);
             $manifest = $result['manifest'];
             $out('Архив: ' . $result['archive'] . ' (' . round((int) filesize($result['archive']) / 1048576, 1) . ' МБ)');
             $out('Сумма: ' . basename($result['archive']) . '.sha256 — переносите вместе с архивом.');
@@ -67,7 +104,8 @@ try {
             if ($archive === '') {
                 throw new \RuntimeException('Укажите архив: php scripts/site_migrate.php check <архив.zip>');
             }
-            SiteMigration::preflight($archive, (bool) ($options['plain_backup'] ?? false), $out);
+            $password = SiteMigration::isEncrypted($archive) ? $askPassword('Пароль архива: ', false) : null;
+            SiteMigration::preflight($archive, (bool) ($options['plain_backup'] ?? false), $out, $password);
             $manifest = SiteMigration::readManifest($archive);
             if ($manifest !== null) {
                 $out('Пакет снят ' . $manifest['created_at'] . ' с ' . ($manifest['app_url'] ?: 'адреса без настройки')
@@ -84,7 +122,9 @@ try {
             if ($archive === '') {
                 throw new \RuntimeException('Укажите архив: php scripts/site_migrate.php import <архив.zip> --confirm=MIGRATE');
             }
+            $password = is_file($archive) && SiteMigration::isEncrypted($archive) ? $askPassword('Пароль архива: ', false) : null;
             SiteMigration::import($archive, [
+                'password' => $password,
                 'confirm' => (string) ($options['confirm'] ?? ''),
                 'from_url' => isset($options['from_url']) ? (string) $options['from_url'] : null,
                 'to_url' => isset($options['to_url']) ? (string) $options['to_url'] : null,
@@ -110,7 +150,7 @@ try {
             break;
 
         default:
-            fwrite(STDERR, "Команды: export | check <архив> | import <архив> --confirm=MIGRATE | urls --from-url= --to-url= [--apply]\n"
+            fwrite(STDERR, "Команды: export [--no-encrypt] | check <архив> | import <архив> --confirm=MIGRATE | urls --from-url= --to-url= [--apply]\n"
                 . "Подробности — docs/DEPLOY.md, «Переезд на другой хостинг».\n");
             exit(2);
     }

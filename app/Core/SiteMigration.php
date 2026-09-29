@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Models\Setting;
 use PDO;
 
 /**
@@ -29,15 +30,155 @@ use PDO;
  *    сервер, а в тексте материалов остаются абсолютные ссылки на старый адрес.
  *
  * Последовательность одна и останавливается на первой неудаче: проверка
- * окружения → сумма архива → совместимость ключа → замена базы и загрузок (с
- * откатом, как у восстановления из панели) → миграции → адрес → права →
- * эталон целостности → кэш.
+ * окружения → сумма архива → пароль → совместимость ключа → замена базы и
+ * загрузок (с откатом, как у восстановления из панели) → миграции → адрес →
+ * права → эталон целостности → кэш.
+ *
+ * **Пакет шифруется паролем** (AES-256 внутри ZIP, открывается и 7-Zip): в
+ * нём полный дамп — хеши паролей, заявки посетителей, закрытые загрузки, — и
+ * файл, который едет между серверами, не должен читаться тем, кто его
+ * перехватит. Открытым остаются только `manifest.txt` и манифест переезда:
+ * по ним архив узнаётся и сверяется без пароля.
+ *
+ * **Каталоги свои** (`storage/migration/outgoing|incoming`), а не
+ * `storage/backups`: там ротация ночного бэкапа удалила бы пакет, не
+ * дождавшийся скачивания, а репетиция восстановления взяла бы свежий
+ * зашифрованный пакет за обычную копию и подняла бы ложную тревогу.
  */
 final class SiteMigration
 {
     public const KIND = 'asdr.site-migration';
     public const MANIFEST = 'migration.json';
     public const CONFIRM_CODE = 'MIGRATE';
+
+    /** Пароль короче — перебирается; пакет содержит хеши паролей и заявки. */
+    public const PASSWORD_MIN = 12;
+
+    public static function dir(): string
+    {
+        return APP_ROOT . '/storage/migration';
+    }
+
+    /** Сюда ложится пакет со старого сервера (консоль и панель). */
+    public static function outgoingDir(): string
+    {
+        return self::dir() . '/outgoing';
+    }
+
+    /** Сюда владелец кладёт пакет на новом сервере — файловым менеджером. */
+    public static function incomingDir(): string
+    {
+        return self::dir() . '/incoming';
+    }
+
+    /**
+     * Архивы в каталоге, новые первыми.
+     *
+     * @return list<string> имена файлов
+     */
+    public static function archives(string $dir): array
+    {
+        $files = glob($dir . '/*.zip') ?: [];
+        usort($files, static fn (string $a, string $b): int => (int) filemtime($b) <=> (int) filemtime($a));
+
+        return array_map('basename', $files);
+    }
+
+    /**
+     * Путь к архиву по имени из списка. Имя приходит из формы, поэтому
+     * принимается только голое имя файла из своего каталога.
+     */
+    public static function resolve(string $dir, string $name): ?string
+    {
+        if (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]{0,150}\.zip$/', $name) !== 1) {
+            return null;
+        }
+        $path = $dir . '/' . $name;
+
+        return is_file($path) ? $path : null;
+    }
+
+    public static function assertPassword(string $password): void
+    {
+        if (mb_strlen($password) < self::PASSWORD_MIN) {
+            throw new \RuntimeException('Пароль архива — не короче ' . self::PASSWORD_MIN . ' знаков.');
+        }
+    }
+
+    /** Зашифрован ли архив: смотрим на дамп, манифест открыт всегда. */
+    public static function isEncrypted(string $archive): bool
+    {
+        $zip = new \ZipArchive();
+        if ($zip->open($archive, \ZipArchive::RDONLY) !== true) {
+            throw new \RuntimeException('Не удалось открыть архив: ' . basename($archive));
+        }
+        try {
+            $stat = $zip->statName('database.sql');
+        } finally {
+            $zip->close();
+        }
+
+        return is_array($stat) && (int) ($stat['encryption_method'] ?? 0) !== \ZipArchive::EM_NONE;
+    }
+
+    /**
+     * Подходит ли пароль. Читаются первые байты дампа — проверка мгновенная и
+     * годится для панели; полную целостность подтверждает распаковка.
+     */
+    public static function passwordMatches(string $archive, string $password): bool
+    {
+        $zip = new \ZipArchive();
+        if ($zip->open($archive, \ZipArchive::RDONLY) !== true) {
+            return false;
+        }
+        try {
+            $zip->setPassword($password);
+
+            return is_string($zip->getFromName('database.sql', 16));
+        } finally {
+            $zip->close();
+        }
+    }
+
+    /**
+     * Сведения об архиве для панели — без подсчёта суммы: хеш многогигабайтного
+     * файла веб-запрос бы не пережил, его считает воркер перед установкой.
+     *
+     * @return array{name:string, size:int, mtime:int, checksum:bool, encrypted:bool,
+     *     manifest:?array<string,mixed>, key_ok:bool, key_message:string, error:string}
+     */
+    public static function inspect(string $archive): array
+    {
+        $info = [
+            'name' => basename($archive),
+            'size' => (int) filesize($archive),
+            'mtime' => (int) filemtime($archive),
+            'checksum' => Backup::storedChecksum($archive) !== null,
+            'encrypted' => false,
+            'manifest' => null,
+            'key_ok' => false,
+            'key_message' => '',
+            'error' => '',
+        ];
+        try {
+            $info['encrypted'] = self::isEncrypted($archive);
+            $info['manifest'] = self::readManifest($archive);
+            if ($info['manifest'] === null) {
+                $info['key_message'] = 'Обычная резервная копия без манифеста переезда — ключ шифрования не сверить.';
+            } else {
+                $info['key_message'] = self::assertKeyCompatible($info['manifest']['key_fingerprint'] ?? null, self::keyFingerprint());
+                $info['key_ok'] = true;
+            }
+        } catch (\RuntimeException $e) {
+            if ($info['manifest'] !== null) {
+                $info['key_message'] = $e->getMessage();
+            } else {
+                $info['error'] = $e->getMessage();
+            }
+        }
+
+        return $info;
+    }
 
     /**
      * Отпечаток ключа шифрования: 16 hex-знаков SHA-256 с солью назначения.
@@ -66,26 +207,30 @@ final class SiteMigration
      *
      * @return array{archive: string, manifest: array<string, mixed>}
      */
-    public static function export(): array
+    public static function export(?string $password = null): array
     {
-        $path = Backup::create(false);
-        $manifest = self::manifest();
-
-        $zip = new \ZipArchive();
-        if ($zip->open($path) !== true) {
-            throw new \RuntimeException('Не удалось открыть созданную копию для записи манифеста.');
+        if ($password !== null) {
+            self::assertPassword($password);
         }
+        $dir = self::outgoingDir();
+        if (!is_dir($dir) && !mkdir($dir, 0750, true) && !is_dir($dir)) {
+            throw new \RuntimeException('Не удалось создать каталог ' . $dir . '.');
+        }
+        // Манифест кладётся при сборке, а не дописывается потом: повторное
+        // открытие переписывало бы весь архив — вдвое дольше и вдвое места.
+        $manifest = self::manifest() + ['encrypted' => $password !== null];
         $json = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
-        $zip->addFromString(self::MANIFEST, $json);
-        if (!$zip->close()) {
-            throw new \RuntimeException('Не удалось записать манифест переезда в архив.');
+        $created = Backup::create(false, $password, [self::MANIFEST => $json]);
+        $path = $dir . '/' . basename($created, '.zip') . '-migration.zip';
+        $hash = Backup::storedChecksum($created);
+        if ($hash === null || !rename($created, $path)) {
+            @unlink($created);
+            @unlink(Backup::checksumPath($created));
+            throw new \RuntimeException('Не удалось перенести пакет в ' . $dir . '.');
         }
-
-        // Архив изменился — сумма рядом с ним пересчитывается.
-        $hash = hash_file('sha256', $path);
-        if (!is_string($hash)) {
-            throw new \RuntimeException('Не удалось пересчитать контрольную сумму пакета.');
-        }
+        @unlink(Backup::checksumPath($created));
+        @chmod($path, 0640); // в пакете вся база — читать его незачем никому, кроме владельца
+        // Сумма записана с именем файла (формат sha256sum -c) — имя сменилось.
         $line = $hash . '  ' . basename($path) . "\n";
         if (file_put_contents(Backup::checksumPath($path), $line, LOCK_EX) !== strlen($line)) {
             throw new \RuntimeException('Не удалось записать контрольную сумму пакета.');
@@ -141,7 +286,7 @@ final class SiteMigration
      *
      * @param callable(string): void $report
      */
-    public static function preflight(string $archive, bool $allowPlainBackup, callable $report): void
+    public static function preflight(string $archive, bool $allowPlainBackup, callable $report, ?string $password = null): void
     {
         $failed = array_filter(
             array_merge(EnvironmentCheck::requirements(), EnvironmentCheck::permissions()),
@@ -168,6 +313,20 @@ final class SiteMigration
                 . '(в FTP — в двоичном режиме).');
         }
         $report('Контрольная сумма архива подтверждена.');
+
+        if (self::isEncrypted($archive)) {
+            if ($password === null || $password === '') {
+                throw new \RuntimeException('Архив зашифрован — нужен пароль, заданный при снятии пакета.');
+            }
+            if (!Backup::encryptionSupported()) {
+                throw new \RuntimeException('Архив зашифрован, а libzip этого сервера не умеет AES-256. '
+                    . 'Попросите хостинг обновить расширение zip или распакуйте архив 7-Zip и упакуйте без пароля.');
+            }
+            if (!self::passwordMatches($archive, $password)) {
+                throw new \RuntimeException('Неверный пароль архива.');
+            }
+            $report('Пароль архива подошёл.');
+        }
 
         $manifest = self::readManifest($archive);
         if ($manifest === null) {
@@ -362,12 +521,13 @@ final class SiteMigration
     /**
      * Установка пакета на новый сервер. Заменяет базу и загрузки целиком.
      *
-     * @param array{confirm?: string, from_url?: ?string, to_url?: ?string, plain_backup?: bool} $options
+     * @param array{confirm?: string, from_url?: ?string, to_url?: ?string, plain_backup?: bool, password?: ?string} $options
      * @param callable(string): void $report
      */
     public static function import(string $archive, array $options, callable $report): void
     {
-        self::preflight($archive, (bool) ($options['plain_backup'] ?? false), $report);
+        $password = $options['password'] ?? null;
+        self::preflight($archive, (bool) ($options['plain_backup'] ?? false), $report, $password);
         if (strtoupper(trim((string) ($options['confirm'] ?? ''))) !== self::CONFIRM_CODE) {
             throw new \RuntimeException('Установка заменяет базу и загрузки этого сервера целиком. Повторите с '
                 . '--confirm=' . self::CONFIRM_CODE . ', когда будете готовы.');
@@ -377,10 +537,25 @@ final class SiteMigration
         $fromUrl = trim((string) ($options['from_url'] ?? ($manifest['app_url'] ?? '')));
         $toUrl = trim((string) ($options['to_url'] ?? Config::get('app.url', '')));
 
-        $restored = BackupRestore::restoreLocal($archive, BackupRestore::CONFIRM_CODE);
+        $restored = BackupRestore::restoreLocal($archive, BackupRestore::CONFIRM_CODE, $password);
         $report(sprintf('База и загрузки заменены: таблиц %d, файлов %d. Страховочная копия прежнего состояния: %s.',
             $restored['restored_tables'], $restored['restored_files'], $restored['safety_backup']));
 
+        // Хвост (миграции, ссылки) идёт при закрытом сайте: код бывает новее
+        // развёрнутой базы, и до миграций страницы отдавали бы ошибку. Режим
+        // после работы — тот, что приехал с базой старого сервера.
+        $maintenanceBefore = Setting::get('maintenance_mode', '0');
+        Setting::set('maintenance_mode', '1');
+        try {
+            self::finishImport($fromUrl, $toUrl, $report);
+        } finally {
+            Setting::set('maintenance_mode', $maintenanceBefore === '1' ? '1' : '0');
+        }
+    }
+
+    /** @param callable(string): void $report */
+    private static function finishImport(string $fromUrl, string $toUrl, callable $report): void
+    {
         $pdo = Database::pdo();
         $applied = MigrationRunner::applyPending($pdo, APP_ROOT . '/database/migrations');
         $report($applied === [] ? 'Миграции: база уже соответствует коду.' : 'Применены миграции: ' . implode(', ', $applied) . '.');
