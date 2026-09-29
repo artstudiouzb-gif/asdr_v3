@@ -801,16 +801,20 @@ $hasSidebar = $sidebar !== null && trim((string) ($sidebar['html'] ?? '')) !== '
         </nav>
     <?php endif; ?>
 </article>
-<?php // Schema.org: карточка новости для поисковиков (Google Discover, Yandex). ?>
+<?php // Schema.org: карточка новости для поисковиков (Google Discover, Yandex).
+      // Издатель и автор — само ведомство: новость пишет пресс-служба, а не
+      // частное лицо, и разметка Person с названием ведомства поисковиком
+      // считается ошибкой. Узел общий с разметкой шапки (один @id). ?>
+<?php $newsOrg = \App\Core\SeoHelper::organizationRef($base); ?>
 <?= \App\Core\SchemaOrg::render(\App\Core\SchemaOrg::newsArticle(
     (string) $news['title'],
     $pageUrl,
     (string) ($news['published_at'] ?? ''),
-    (string) ($news['excerpt'] ?? ''),
-    $ogImage !== '' ? $base . $ogImage : '',
-    \App\Models\Setting::get('site_name', ''),
-    (string) ($news['updated_at'] ?? $news['published_at'] ?? ''),
-    (string) ($news['author'] ?? \App\Models\Setting::get('site_name', '')),
+    \App\Core\SeoHelper::clip((string) ($metaDescription ?: ($news['excerpt'] ?? '')), 300),
+    $ogImage !== '' ? (preg_match('#^https?://#i', $ogImage) === 1 ? $ogImage : $base . '/' . ltrim($ogImage, '/')) : '',
+    $newsOrg,
+    (string) ($news['updated_at'] ?? ''),
+    ['@type' => $newsOrg['@type'], '@id' => $newsOrg['@id'], 'name' => $newsOrg['name'], 'url' => $newsOrg['url']],
     $lang,
     (string) ($newsCategory['name'] ?? '')
 )) ?>

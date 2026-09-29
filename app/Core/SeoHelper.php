@@ -44,26 +44,11 @@ final class SeoHelper
      */
     public static function organizationSchema(string $appUrl): string
     {
-        $siteName = Setting::getLocalized("site_name", Locale::current(), "Государственный портал Республики Узбекистан");
-        $logo = Setting::get("logo_url", "");
-        if ($logo !== "" && str_starts_with($logo, "/")) {
-            $logo = rtrim($appUrl, "/") . $logo;
-        }
-
         $phone = Setting::get("contact_phone", "") ?: Setting::get("site_phone", "");
         $email = Setting::get("contact_email", "") ?: Setting::get("site_email", "");
         $address = Setting::get("contact_address", "");
 
-        $data = [
-            "@context" => "https://schema.org",
-            "@type" => "GovernmentOrganization",
-            "name" => $siteName,
-            "url" => $appUrl,
-        ];
-
-        if ($logo !== "") {
-            $data["logo"] = $logo;
-        }
+        $data = ["@context" => "https://schema.org"] + self::organizationRef($appUrl);
 
         if ($phone !== "" || $email !== "") {
             $contactPoint = ["@type" => "ContactPoint"];
@@ -86,6 +71,55 @@ final class SeoHelper
         }
 
         return "<script type=\"application/ld+json\">" . json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "</script>\n";
+    }
+
+    /**
+     * Идентификатор ведомства в микроразметке. Один на весь сайт и не зависит
+     * от языка: это один и тот же субъект, а не страница.
+     */
+    public static function organizationId(string $appUrl): string
+    {
+        return rtrim($appUrl, "/") . "/#organization";
+    }
+
+    /**
+     * Ведомство как узел микроразметки: тип, `@id`, имя, адрес и логотип.
+     *
+     * Им же подписываются издатель и автор новости. Прежде издатель был голым
+     * именем без логотипа, а автором новости выступала «персона» с названием
+     * ведомства: поисковик сверяет автора со схемой Person и такую запись
+     * считает ошибкой. Один `@id` связывает разметку шапки и статьи в граф —
+     * поисковик видит, что сайт, издатель и автор — один субъект, а не три
+     * тёзки.
+     *
+     * @return array<string, mixed>
+     */
+    public static function organizationRef(string $appUrl): array
+    {
+        $siteName = Setting::getLocalized("site_name", Locale::current(), "Государственный портал Республики Узбекистан");
+        $data = [
+            "@type" => "GovernmentOrganization",
+            "@id" => self::organizationId($appUrl),
+            "name" => $siteName,
+            "url" => rtrim($appUrl, "/") . "/",
+        ];
+
+        $logoPath = trim(Setting::get("logo_url", ""));
+        $logo = str_starts_with($logoPath, "/") && !str_starts_with($logoPath, "//")
+            ? rtrim($appUrl, "/") . $logoPath
+            : $logoPath;
+        if (preg_match('#^https?://#i', $logo) === 1) {
+            $logoNode = ["@type" => "ImageObject", "url" => $logo];
+            // Размеры есть только у своих растровых файлов; у SVG их может не быть.
+            $size = Media::dimensions($logoPath);
+            if ($size !== null) {
+                $logoNode["width"] = $size[0];
+                $logoNode["height"] = $size[1];
+            }
+            $data["logo"] = $logoNode;
+        }
+
+        return $data;
     }
 
     /**
@@ -241,7 +275,13 @@ final class SeoHelper
     }
 
     /**
-     * JSON-LD WebSite с поиском по сайту (sitelinks searchbox).
+     * JSON-LD WebSite: название сайта для выдачи и поиск по сайту.
+     *
+     * Google по разметке WebSite главной выбирает «название сайта» над
+     * сниппетом (без неё он подставляет домен или случайный заголовок).
+     * Поле поиска в выдаче (sitelinks searchbox) Google с ноября 2024 года
+     * больше не показывает; SearchAction оставлен — он корректен, его читают
+     * другие потребители, и удалять рабочую разметку ради одной выдачи незачем.
      *
      * Разметка описывает сайт целиком, поэтому выводится только на главной:
      * на каждой странице она повторяла бы одно и то же и спорила бы с
@@ -261,9 +301,11 @@ final class SeoHelper
         $data = [
             "@context" => "https://schema.org",
             "@type" => "WebSite",
+            "@id" => $home . "#website",
             "name" => $siteName,
             "url" => $home,
             "inLanguage" => $lang,
+            "publisher" => ["@id" => self::organizationId($appUrl)],
             "potentialAction" => [
                 "@type" => "SearchAction",
                 "target" => [
