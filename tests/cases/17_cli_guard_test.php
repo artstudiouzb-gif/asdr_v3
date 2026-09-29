@@ -44,3 +44,14 @@ test('CLI-only скрипты вызывают assertCli первой строк
         }
     }
 });
+
+test('Строка cron в панели зовёт консольный PHP, а не веб-версию', function () {
+    // В веб-запросе PHP_BINARY — lsphp/php-fpm: воркер, запущенный им из
+    // cron, получает не тот SAPI и отвечает «CLI only», ни разу не отработав.
+    assert_same(PHP_BINARY, Cli::binary(), 'в консоли — сам интерпретатор');
+    foreach (['UpdateController', 'MigrationController'] as $controller) {
+        $src = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/' . $controller . '.php');
+        assert_contains('Cli::binary()', $src, $controller);
+        assert_not_contains("'* * * * * ' . PHP_BINARY", $src, $controller);
+    }
+});

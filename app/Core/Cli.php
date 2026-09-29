@@ -25,6 +25,25 @@ final class Cli
     }
 
     /**
+     * Интерпретатор для строки cron, которую панель показывает владельцу.
+     *
+     * В веб-запросе `PHP_BINARY` — это веб-версия PHP (на Hostinger —
+     * `lsphp`, бывает `php-fpm`/`php-cgi`): запущенный ею из cron скрипт
+     * получает не тот SAPI, `assertCli()` отвечает «CLI only», и воркер не
+     * работает ни разу — а строка на странице выглядит верной. Консольный
+     * `php` лежит в том же каталоге; нет его там — годится `php` из PATH.
+     */
+    public static function binary(): string
+    {
+        if (self::isCli()) {
+            return PHP_BINARY;
+        }
+        $sibling = dirname(PHP_BINARY) . '/php';
+
+        return is_file($sibling) && is_executable($sibling) ? $sibling : 'php';
+    }
+
+    /**
      * Прерывает выполнение с 403, если скрипт вызван не через CLI.
      * Вызывать первой строкой в CLI-only скриптах.
      */
