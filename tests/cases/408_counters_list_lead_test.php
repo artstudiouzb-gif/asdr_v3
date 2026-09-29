@@ -176,6 +176,25 @@ test('Изменение: стрелка из знака, цвет из оцен
     assert_contains('.block-counters--custom-text .counter__delta', $css);
 });
 
+test('Вид изменения: контур по умолчанию, заливка и строка под чертой', function (): void {
+    $field = BlockFieldSchema::fields('counters')['delta_style'];
+    assert_same('outline', $field->default, 'собранные блоки сохраняют прежний контур');
+    assert_same(['outline', 'fill', 'line'], array_keys($field->options));
+
+    $legacy = BlockRenderer::render(['id' => 412, 'type' => 'counters', 'custom_css' => '', 'data' => json_encode(['items' => counters_items(2)])]);
+    assert_contains('block-counters--delta-outline', (string) $legacy['html']);
+    $fill = counters_render(['delta_style' => 'fill', 'items' => counters_items(2)]);
+    assert_contains('block-counters--delta-fill', $fill['html']);
+    $forged = counters_render(['delta_style' => 'glow', 'items' => counters_items(2)]);
+    assert_contains('block-counters--delta-outline', $forged['html'], 'значение вне набора — подделанная форма');
+
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/blocks/counters.css');
+    // На сплошном тоне подпись берёт противоположную светлоту, а не акцент.
+    assert_contains('.block-counters--delta-fill .counter__delta--good { background: var(--gov-teal-text); color: var(--counters-on-tone); }', $css);
+    assert_contains('--counters-on-tone: var(--gov-bg)', $css);
+    assert_contains('.block-counters--delta-line .counter__delta', $css);
+});
+
 test('Пояснение и источник данных выводятся, панель без ложного наведения', function (): void {
     $out = counters_render([
         'title_field' => 'Итоги года',
