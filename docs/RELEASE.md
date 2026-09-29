@@ -78,6 +78,7 @@
 17 * * * * php /path/app/Console/integrity_check.php  >> /path/storage/logs/integrity.log 2>&1
 */15 * * * * php /path/app/Console/watchdog.php       >> /path/storage/logs/watchdog.log 2>&1
 25 4 * * * php /path/app/Console/seo_worker.php       >> /path/storage/logs/seo_worker.log 2>&1
+*/15 * * * * php /path/app/Console/indexnow_worker.php  >> /path/storage/logs/indexnow_worker.log 2>&1
 40 3 * * 0 php /path/app/Console/restore_drill.php    >> /path/storage/logs/restore_drill.log 2>&1
 * * * * *  php /path/app/Console/update_worker.php    >> /path/storage/logs/update_worker.log 2>&1
 ```

@@ -606,6 +606,11 @@ if ($extraHeadCss !== '') {
     <?= \App\Core\A11ySettings::htmlAttributes($a11ySettings) ?>
 >
 <head>
+<?php // Кодировка — первой строкой <head>: браузер обязан встретить её в первых
+      // 1024 байтах, а поисковик без неё угадывает кодировку по содержимому.
+      // Заголовок Content-Type её не заменяет: сохранённая страница, кэш CDN
+      // и копия в выдаче живут без HTTP-заголовков. ?>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <?php // Синхронный и ВНЕШНИЙ по обоим требованиям сразу: синхронный — иначе
       // мигание темы до применения атрибута; внешний — публичная шапка не
@@ -629,6 +634,12 @@ if ($pageTitleText === '') {
 <?= \App\Core\Icon::browserConfigHtml() ?>
 <?php if (!empty($robotsNoindex)): ?>
 <meta name="robots" content="noindex, nofollow">
+<?php else: ?>
+<?php // Без max-image-preview:large Google показывает у страницы только
+      // миниатюру: крупная карточка в Discover и в «Главных новостях» требует
+      // этого разрешения явно. Остальные два снимают умолчательные обрезки
+      // сниппета и превью видео. Яндекс директивы понимает так же. ?>
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <?php endif; ?>
 <?php if (!empty($metaDescription)): ?>
 <meta name="description" content="<?= htmlspecialchars($metaDescription, ENT_QUOTES) ?>">

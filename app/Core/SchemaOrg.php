@@ -82,13 +82,21 @@ final class SchemaOrg
                 '@id' => $url,
             ],
         ];
-        if ($datePublished !== '') {
-            $data['datePublished'] = date('c', (int) strtotime($datePublished));
+        // Даты — ташкентским временем со смещением (ISO 8601): `date(strtotime())`
+        // считала в таймзоне сервера и на неразобранной дате печатала 1970 год,
+        // а поисковик по такой дате решает, свежая ли новость.
+        $published = DateFormatter::format($datePublished, 'c');
+        $modified = DateFormatter::format($dateModified, 'c');
+        if ($published !== '') {
+            $data['datePublished'] = $published;
         }
-        if ($dateModified !== '') {
-            $data['dateModified'] = date('c', (int) strtotime($dateModified));
-        } elseif ($datePublished !== '') {
-            $data['dateModified'] = date('c', (int) strtotime($datePublished));
+        // Правка раньше публикации — это черновик, который правили до выхода:
+        // для читателя новость изменилась в момент публикации, не раньше.
+        if ($modified === '' || ($published !== '' && $modified < $published)) {
+            $modified = $published;
+        }
+        if ($modified !== '') {
+            $data['dateModified'] = $modified;
         }
         if ($description !== '') {
             $data['description'] = mb_substr($description, 0, 300);

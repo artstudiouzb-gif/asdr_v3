@@ -494,7 +494,7 @@ final class Media
         return self::imageDimensions($url)['width'] ?? $fallback;
     }
 
-    private static function localUploadPath(string $url): ?string
+    public static function localUploadPath(string $url): ?string
     {
         $urlPrefix = rtrim((string) Config::get('paths.public_uploads_url', '/uploads/public'), '/');
         $diskBase = rtrim((string) Config::get('paths.public_uploads', ''), '/');
