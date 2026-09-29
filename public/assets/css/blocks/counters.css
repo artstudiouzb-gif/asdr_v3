@@ -34,9 +34,11 @@
     /* «Плохо» — красный, подобранный под 4.5:1 на белом (6.3:1) и на тёмной
        поверхности темы (7.7:1). «Хорошо» — акцент сайта в текстовой роли. */
     --counters-bad: #be123c;
+    /* Подпись на сплошном тоне оценки (вид изменения «Заливка»). */
+    --counters-on-tone: #fff;
     --counters-cols: 4;
 }
-:root[data-theme="dark"] .block-counters { --counters-bad: #fda4af; }
+:root[data-theme="dark"] .block-counters { --counters-bad: #fda4af; --counters-on-tone: var(--gov-bg); }
 .block-counters--cols-1 { --counters-cols: 1; }
 .block-counters--cols-2 { --counters-cols: 2; }
 .block-counters--cols-3 { --counters-cols: 3; }
@@ -199,6 +201,43 @@ body.design-surface-interactive .block-counters--panel-auto,
     clip-path: polygon(50% 6%, 96% 90%, 4% 90%);
 }
 .counter__delta--down::before { rotate: 180deg; }
+
+/* Вид изменения — настройка блока (`delta_style`): контур (выше), заливка
+   или строка под чертой.
+   Заливка — сплошной тон оценки, а не тонированная подложка: у подложки текст
+   оставался бы акцентом и уходил ниже 4.5:1, а на сплошном тоне подпись берёт
+   противоположную светлоту (--counters-on-tone: белая на светлой теме, цвет
+   фона на тёмной, где тона светлые). Углы прямые — это метка, а не кнопка. */
+.block-counters--delta-fill .counter__delta {
+    padding: 3px 8px;
+    border: 0;
+    border-radius: 0;
+    background: color-mix(in srgb, var(--counters-fg) 9%, transparent);
+    color: var(--counters-fg);
+}
+.block-counters--delta-fill .counter__delta--good { background: var(--gov-teal-text); color: var(--counters-on-tone); }
+.block-counters--delta-fill .counter__delta--bad { background: var(--counters-bad); color: var(--counters-on-tone); }
+.block-counters--delta-fill.block-counters--custom-text .counter__delta { background: color-mix(in srgb, var(--counters-fg) 16%, transparent); color: var(--counters-fg); }
+/* Строка под чертой: ни рамки, ни фона — тонкий разделитель отделяет
+   изменение от подписи и тянется на ширину текста показателя. */
+.block-counters--delta-line .counter__delta {
+    inline-size: auto;
+    align-self: stretch;
+    margin-top: 10px;
+    padding: 8px 0 0;
+    border: 0;
+    border-top: 1px solid var(--counters-rule);
+    border-radius: 0;
+}
+/* У пути к цели изменение стоит в строке под полосой — черта там лишняя. */
+.block-counters--delta-line .counter__goal .counter__delta { align-self: auto; margin-top: 0; padding: 0; border-top: 0; }
+/* В строке списка изменение стоит своей колонкой справа: черта слева. */
+.block-counters--delta-line:is(.block-counters--list, .block-counters--lead) .counter:not(.counter--lead) .counter__delta {
+    align-self: center;
+    padding: 0 0 0 12px;
+    border-top: 0;
+    border-inline-start: 1px solid var(--counters-rule);
+}
 
 /* --- Иконка --- */
 .counter__icon {
