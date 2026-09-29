@@ -344,6 +344,12 @@ final class Cache
     public static function forgetPrefix(string $prefix): void
     {
         $cleanPrefix = rtrim($prefix, ':');
+        // Сброс кэша страниц — единственная точка, через которую проходит
+        // любое сохранение опубликованного контента: отсюда поисковики и
+        // узнают о правке (IndexNow, отправка после ответа).
+        if ($cleanPrefix === 'page') {
+            Seo\IndexNow::afterResponse();
+        }
 
         // Очищаем L1 память для совпавших ключей
         foreach (array_keys(self::$memoryCache) as $k) {

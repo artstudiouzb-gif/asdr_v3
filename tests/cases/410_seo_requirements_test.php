@@ -149,3 +149,20 @@ test('IndexNow: файл ключа — вне языкового редирек
         }
     }
 });
+
+test('IndexNow без cron: сохранение контента само уведомляет поисковики после ответа', function () {
+    // Точка одна — сброс кэша страниц: через неё проходит любое сохранение
+    // опубликованного контента.
+    $cache = (string) file_get_contents(APP_ROOT . '/app/Core/Cache.php');
+    assert_contains('Seo\IndexNow::afterResponse()', $cache);
+
+    // Из консоли (импорт, тесты) наружу не ходим: у воркера свой вызов.
+    App\Core\Cache::forgetPrefix('page:');
+    $scheduled = (new ReflectionClass(App\Core\Seo\IndexNow::class))->getStaticPropertyValue('scheduled');
+    assert_false($scheduled, 'в CLI отправка после ответа не планируется');
+
+    // Правка в ту же секунду, что прошлая отправка, не теряется.
+    $xml = '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://example.uz/a</loc>'
+        . '<lastmod>2026-09-05T00:00:00+05:00</lastmod></url></urlset>';
+    assert_same(['https://example.uz/a'], App\Core\Seo\IndexNow::changedUrls($xml, (int) strtotime('2026-09-05T00:00:00+05:00')));
+});
