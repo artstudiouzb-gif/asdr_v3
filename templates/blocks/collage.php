@@ -42,6 +42,8 @@ $gap = (string) $data['gap'];
 $cardStyle = (string) $data['card_style'];
 $items = array_values(array_filter((array) ($data['items'] ?? []), 'is_array'));
 $composed = CollageLayout::isComposed($layout);
+// Композиция без текста держит сетку и в узкой колонке (см. collage.css).
+$textless = !CollageLayout::hasText($items);
 
 $scope = '#block-' . (int) $blockId;
 $templateCss = $scope . ' .collage__canvas{--collage-cols:' . $columns . ';--collage-rows:' . $rows . ';}';
@@ -246,7 +248,7 @@ $blockClasses = 'block-collage'
 <div class="<?= htmlspecialchars($blockClasses, ENT_QUOTES) ?>">
     <?php if ($title !== ''): ?><h2 class="section-head__title block-collage__title"><?= TitleMarkup::html($title) ?></h2><?php endif; ?>
     <?php if ($items !== [] && !$composed): ?>
-        <div class="collage__canvas collage__canvas--ratio-<?= htmlspecialchars($ratio, ENT_QUOTES) ?> collage__canvas--gap-<?= htmlspecialchars($gap, ENT_QUOTES) ?>">
+        <div class="collage__canvas collage__canvas--ratio-<?= htmlspecialchars($ratio, ENT_QUOTES) ?> collage__canvas--gap-<?= htmlspecialchars($gap, ENT_QUOTES) ?><?= $textless ? ' collage__canvas--textless' : '' ?>">
             <?php foreach ($items as $index => $item): ?>
                 <?= $renderItem($index, $item) ?>
             <?php endforeach; ?>
@@ -286,6 +288,7 @@ $blockClasses = 'block-collage'
         $ensembleClasses = 'collage-comp collage-comp--' . $layout
             . ($cascade ? ' collage-comp--cascade-' . $cascadeCols : ' collage-comp--grid')
             . ' collage__canvas--gap-' . $gap
+            . ($textless ? ' collage-comp--textless' : '')
             . ($badge !== null ? ' collage-comp--has-badge collage-comp--badge-' . $badge['at'] : '');
     ?>
         <?php if ($plan['complete']): ?>

@@ -125,6 +125,34 @@ final class CollageLayout
         };
     }
 
+    /**
+     * Типы элементов, несущие текст: число, цитата, справка. Им нужна ширина
+     * строки, и узкий коллаж ради них складывается в столбец или в две
+     * колонки. Композиции без них (кадры, видео, печать, узор) держат свою
+     * сетку и в колонке конструктора — складывать их незачем: снимку в
+     * четверти полотна шириной 110px ничего не мешает, а цифре «1 200» —
+     * мешает.
+     *
+     * @var list<string>
+     */
+    public const TEXT_TYPES = ['stat', 'quote', 'info'];
+
+    /**
+     * Есть ли в коллаже элемент с текстом.
+     *
+     * @param array<int, array<string, mixed>> $items
+     */
+    public static function hasText(array $items): bool
+    {
+        foreach ($items as $item) {
+            if (in_array((string) ($item['type'] ?? ''), self::TEXT_TYPES, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /** Пресет ли это (то есть места считаются, а не берутся из формы). */
     public static function isPreset(string $layout): bool
     {
