@@ -41,8 +41,15 @@ final class Backup
             throw new \RuntimeException('Не удалось создать каталог для бэкапов.');
         }
 
+        // Имя по секундам бывает занято: страховочная копия перед
+        // восстановлением снимается в ту же секунду, что и пакет рядом с ней,
+        // и прежний OVERWRITE молча затирал архив, который собирались
+        // восстанавливать (замерено при установке пакета переезда).
         $timestamp = date('Y-m-d_His');
         $zipPath = $dir . '/backup_' . $timestamp . '.zip';
+        for ($n = 2; file_exists($zipPath); $n++) {
+            $zipPath = $dir . '/backup_' . $timestamp . '-' . $n . '.zip';
+        }
         $writeGuard = self::acquireWriteGuard();
 
         $prevMaintenance = null;
