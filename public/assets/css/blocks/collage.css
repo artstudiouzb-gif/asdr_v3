@@ -12,11 +12,13 @@
     grid-template-columns: repeat(var(--collage-cols, 6), minmax(0, 1fr));
     grid-template-rows: repeat(var(--collage-rows, 4), minmax(0, 1fr));
     gap: var(--collage-gap, 20px);
-    aspect-ratio: 4 / 3;
+    /* Пропорция — переменной: композиция без текста возвращает её в узкой
+       колонке (см. ниже), и второй список пропорций разъехался бы с этим. */
+    aspect-ratio: var(--collage-ratio, 4 / 3);
 }
-.collage__canvas--ratio-1-1 { aspect-ratio: 1 / 1; }
-.collage__canvas--ratio-3-4 { aspect-ratio: 3 / 4; }
-.collage__canvas--ratio-16-9 { aspect-ratio: 16 / 9; }
+.collage__canvas--ratio-1-1 { --collage-ratio: 1 / 1; }
+.collage__canvas--ratio-3-4 { --collage-ratio: 3 / 4; }
+.collage__canvas--ratio-16-9 { --collage-ratio: 16 / 9; }
 .collage__canvas--gap-none { --collage-gap: 0px; }
 .collage__canvas--gap-small { --collage-gap: 10px; }
 .collage__canvas--gap-medium { --collage-gap: 20px; }
@@ -305,6 +307,27 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
     :is(.collage__item--photo, .collage__item--video) { aspect-ratio: 4 / 3; }
     .collage__item--badge { block-size: 160px; }
     .collage__item--pattern { display: none; }
+}
+
+/* Композиция без текста (кадры, видео, печать, узор) в колонке сетку
+   сохраняет. Столбец нужен ради строки: число и цитата в ячейке шириной
+   60px рвутся на слоги, а снимку там ничего не мешает — зато сложенный в
+   столбец коллаж из четырёх кадров становится лентой фотографий высотой в
+   два экрана, и композиция, ради которой блок выбран, пропадает. Нижняя
+   граница — 360px: уже этого у сетки 6×4 ячейка меньше полусотни пикселей
+   и для кадра. На телефоне (медиазапрос выше) складывается всё. */
+@media (min-width: 721px) {
+    @container cms-col (min-width: 360px) and (max-width: 560px) {
+        .collage__canvas--textless {
+            display: grid;
+            grid-template-columns: repeat(var(--collage-cols, 6), minmax(0, 1fr));
+            grid-template-rows: repeat(var(--collage-rows, 4), minmax(0, 1fr));
+            aspect-ratio: var(--collage-ratio, 4 / 3);
+        }
+        .collage__canvas--textless > :is(.collage__item--photo, .collage__item--video) { aspect-ratio: auto; }
+        .collage__canvas--textless > .collage__item--badge { block-size: auto; }
+        .collage__canvas--textless > .collage__item--pattern { display: block; }
+    }
 }
 
 /* --- Вид карточек показателей и цитат (настройка блока) ---
@@ -680,10 +703,14 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
 /* Печать: абсолютно спозиционирована в области ведущего (--ga), то есть
    сидит на его крае ровно там, где сходятся соседние плитки. Высоту ряда
    сервер не знает, а область знает сама сетка. */
-.collage-comp--grid > .collage-comp__badge--end { top: calc(50% - var(--bs) / 2); right: calc(var(--bs) / -2 - var(--cg) / 2); }
-.collage-comp--grid > .collage-comp__badge--start { top: calc(50% - var(--bs) / 2); left: calc(var(--bs) / -2 - var(--cg) / 2); }
-.collage-comp--grid > .collage-comp__badge--top-end { top: calc(var(--bs) / -3); right: 6%; }
-.collage-comp--grid > .collage-comp__badge--top-center { top: calc(var(--bs) / -3); left: calc(50% - var(--bs) / 2); }
+/* Координаты — переменными: узкий вариант уводит печать в угол, а
+   композиция без текста возвращает её на место, и второй копии чисел для
+   этого не нужно. */
+.collage-comp--grid > .collage-comp__badge { top: var(--b-top); right: var(--b-right, auto); left: var(--b-left, auto); }
+.collage-comp__badge--end { --b-top: calc(50% - var(--bs) / 2); --b-right: calc(var(--bs) / -2 - var(--cg) / 2); }
+.collage-comp__badge--start { --b-top: calc(50% - var(--bs) / 2); --b-left: calc(var(--bs) / -2 - var(--cg) / 2); }
+.collage-comp__badge--top-end { --b-top: calc(var(--bs) / -3); --b-right: 6%; }
+.collage-comp__badge--top-center { --b-top: calc(var(--bs) / -3); --b-left: calc(50% - var(--bs) / 2); }
 /* Печать на верхнем крае выступает над композицией: место под неё — у самой
    композиции, иначе она ложилась бы на заголовок блока. */
 :is(.collage-comp--badge-top-end, .collage-comp--badge-top-center) { padding-block-start: calc(var(--bs) / 3); }
@@ -759,6 +786,28 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
     .collage-cascade__col > .collage-comp__tile:last-child { flex-grow: 0; }
     .collage-comp__tile--wide.collage__item--quote .collage__quote-text,
     .collage-comp__tile--band.collage__item--quote .collage__quote-text { font-size: var(--step-1); }
+}
+
+/* Ансамбль без текста держит свою сетку от 400px: узкий вариант существует
+   ради числа и цитаты (в четверти полотна шириной 200px цитата рвётся на
+   двух словах), а кадру малая плитка не мешает. Без этого «Кадр и плитки»
+   в половине ряда колонок терял композицию целиком: ведущий во всю ширину,
+   под ним плитки по две — то есть обычная галерея. Ряд здесь ниже, чем на
+   широком полотне: при 140px строки плитка в сотню шириной выходила
+   вертикальной полосой. Каскад остаётся в двух колонках — это тоже его
+   раскладка, а не столбец. Правила ниже только возвращают прочитанное из
+   переменных; вес — выше узкого варианта, порядок — после него. */
+@container collage (min-width: 400px) and (max-width: 880px) {
+    .collage-comp--grid.collage-comp--textless {
+        grid-template-columns: var(--cols);
+        grid-template-rows: var(--rows);
+        --row: clamp(90px, 20cqi, 230px);
+        padding-block-start: 0;
+    }
+    .collage-comp--grid.collage-comp--textless:is(.collage-comp--badge-top-end, .collage-comp--badge-top-center) { padding-block-start: calc(var(--bs) / 3); }
+    .collage-comp--grid.collage-comp--textless > .collage__item.collage__item { grid-area: var(--ga, auto); aspect-ratio: auto; }
+    .collage-comp--grid.collage-comp--textless > .collage-comp__badge { top: var(--b-top); right: var(--b-right, auto); left: var(--b-left, auto); }
+    .collage-comp--panorama.collage-comp--textless > .collage-comp__tile:not(.collage-comp__lead) { box-shadow: var(--shadow-overlay); }
 }
 
 /* Планшет в узком варианте: квадратный кадр в половине полотна шириной
