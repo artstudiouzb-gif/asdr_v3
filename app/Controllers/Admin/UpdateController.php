@@ -55,7 +55,7 @@ final class UpdateController
             'repo' => Updater::repo(),
             'worker' => self::workerStatus(),
             'confirmCode' => self::CONFIRM_CODE,
-            'cronLine' => '* * * * * ' . PHP_BINARY . ' ' . APP_ROOT . '/app/Console/update_worker.php'
+            'cronLine' => '* * * * * ' . \App\Core\Cli::binary() . ' ' . APP_ROOT . '/app/Console/update_worker.php'
                 . ' >> ' . APP_ROOT . '/storage/logs/update_worker.log 2>&1',
         ]);
     }
