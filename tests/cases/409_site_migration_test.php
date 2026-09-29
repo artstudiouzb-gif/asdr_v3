@@ -82,23 +82,28 @@ test('Замена адреса в базе: подсчёт ничего не п
     migration_test_db();
     $pdo = Database::pdo();
     $pdo->exec('DROP TABLE IF EXISTS migration_url_probe');
-    $pdo->exec('CREATE TABLE migration_url_probe (id INT PRIMARY KEY, body TEXT, meta JSON NULL)');
+    // meta — текст с JSON внутри, как данные блоков: запись «https:\/\/» там
+    // сохраняется. Колонка типа JSON в MySQL хранит значение нормализованным
+    // (без «\/»), в MariaDB — как текст; её проверяем только на исчезновение
+    // старого адреса.
+    $pdo->exec('CREATE TABLE migration_url_probe (id INT PRIMARY KEY, body TEXT, meta LONGTEXT NULL, doc JSON NULL)');
     try {
-        $ins = $pdo->prepare('INSERT INTO migration_url_probe (id, body, meta) VALUES (?, ?, ?)');
-        $ins->execute([1, 'См. https://old.asdr.uz/news и https://old.asdr.uz.', null]);
-        $ins->execute([2, 'https://old.asdr.uzbek.uz/x', json_encode(['u' => 'https://old.asdr.uz/doc'])]);
-        $ins->execute([3, 'без ссылок', null]);
+        $ins = $pdo->prepare('INSERT INTO migration_url_probe (id, body, meta, doc) VALUES (?, ?, ?, ?)');
+        $ins->execute([1, 'См. https://old.asdr.uz/news и https://old.asdr.uz.', null, null]);
+        $ins->execute([2, 'https://old.asdr.uzbek.uz/x', json_encode(['u' => 'https://old.asdr.uz/doc']), json_encode(['u' => 'https://old.asdr.uz/j'])]);
+        $ins->execute([3, 'без ссылок', null, null]);
 
         $dry = SiteMigration::replaceUrl($pdo, 'https://old.asdr.uz', 'https://asdr.uz', true);
-        assert_same(2, $dry['migration_url_probe'] ?? 0, 'строка 1 (текст) и строка 2 (JSON)');
+        assert_same(3, $dry['migration_url_probe'] ?? 0, 'текст строки 1, JSON-текст и JSON-колонка строки 2');
         $body = (string) $pdo->query('SELECT body FROM migration_url_probe WHERE id = 1')->fetchColumn();
         assert_contains('old.asdr.uz', $body, 'подсчёт ничего не меняет');
 
         SiteMigration::replaceUrl($pdo, 'https://old.asdr.uz', 'https://asdr.uz', false);
-        $rows = $pdo->query('SELECT id, body, meta FROM migration_url_probe ORDER BY id')->fetchAll(\PDO::FETCH_ASSOC);
+        $rows = $pdo->query('SELECT id, body, meta, doc FROM migration_url_probe ORDER BY id')->fetchAll(\PDO::FETCH_ASSOC);
         assert_same('См. https://asdr.uz/news и https://asdr.uz.', $rows[0]['body']);
         assert_same('https://old.asdr.uzbek.uz/x', $rows[1]['body'], 'чужой хост остался');
-        assert_contains('https:\/\/asdr.uz\/doc', (string) $rows[1]['meta']);
+        assert_contains('https:\/\/asdr.uz\/doc', (string) $rows[1]['meta'], 'экранированная запись JSON заменена');
+        assert_not_contains('old.asdr.uz', (string) $rows[1]['doc'], 'колонка JSON — в любой нормализации');
         assert_same([], SiteMigration::replaceUrl($pdo, 'https://old.asdr.uz', 'https://asdr.uz', true), 'повтор — ноль');
     } finally {
         $pdo->exec('DROP TABLE IF EXISTS migration_url_probe');
