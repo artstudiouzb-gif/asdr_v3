@@ -79,7 +79,7 @@ test('Admin backup: восстановление защищено подтвер
 
     assert_contains("backup_action'] ?? '') === 'restore'", $controller);
     assert_contains('BackupRestore::restoreUploaded', $controller);
-    assert_contains("private const CONFIRM_CODE = 'RESTORE'", $restore);
+    assert_contains("public const CONFIRM_CODE = 'RESTORE'", $restore);
     assert_contains('$safetyPath = Backup::create(false);', $restore);
     assert_contains('self::assertCompatibleArchive($incoming);', $restore);
     assert_contains('self::rollbackSwap($swap);', $restore);

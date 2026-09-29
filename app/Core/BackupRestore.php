@@ -15,7 +15,7 @@ use App\Models\Setting;
  */
 final class BackupRestore
 {
-    private const CONFIRM_CODE = 'RESTORE';
+    public const CONFIRM_CODE = 'RESTORE';
     private const MAX_ARCHIVE_BYTES = 2_147_483_648; // 2 GiB hard safety limit.
 
     /**
@@ -33,7 +33,39 @@ final class BackupRestore
             throw new \RuntimeException('Расширение PHP zip не установлено.');
         }
 
-        $incoming = self::storeIncomingArchive((string) $upload['tmp_name'], (string) $upload['name']);
+        return self::restoreArchive(self::storeIncomingArchive((string) $upload['tmp_name'], (string) $upload['name']), true);
+    }
+
+    /**
+     * То же восстановление из архива, лежащего на сервере (переезд на другой
+     * хостинг, `SiteMigration`). Форма панели упирается в лимит загрузки
+     * хостинга, а архив сайта с фотографиями его превышает — поэтому файл
+     * кладут файловым менеджером, а восстановление идёт из консоли. Архив
+     * владельца после работы остаётся на месте.
+     *
+     * @return array{ok:bool,safety_backup:string,restored_tables:int,restored_files:int,messages:string[]}
+     */
+    public static function restoreLocal(string $path, string $confirmCode): array
+    {
+        if (strtoupper(trim($confirmCode)) !== self::CONFIRM_CODE) {
+            throw new \RuntimeException('Неверный код подтверждения. Введите RESTORE.');
+        }
+        if (!extension_loaded('zip')) {
+            throw new \RuntimeException('Расширение PHP zip не установлено.');
+        }
+        $size = is_file($path) ? (int) filesize($path) : 0;
+        if ($size <= 0 || $size > self::MAX_ARCHIVE_BYTES) {
+            throw new \RuntimeException('Архив не найден или недопустимого размера: ' . basename($path));
+        }
+
+        return self::restoreArchive($path, false);
+    }
+
+    /**
+     * @return array{ok:bool,safety_backup:string,restored_tables:int,restored_files:int,messages:string[]}
+     */
+    private static function restoreArchive(string $incoming, bool $ownsArchive): array
+    {
         $stageRoot = dirname(__DIR__, 2) . '/storage/restore/' . bin2hex(random_bytes(8));
         $rollbackStage = dirname(__DIR__, 2) . '/storage/restore/rollback-' . bin2hex(random_bytes(8));
         $safetyPath = '';
@@ -142,8 +174,10 @@ final class BackupRestore
             }
             self::removeTree($stageRoot);
             self::removeTree($rollbackStage);
-            @unlink($incoming);
-            @unlink(Backup::checksumPath($incoming));
+            if ($ownsArchive) {
+                @unlink($incoming);
+                @unlink(Backup::checksumPath($incoming));
+            }
         }
     }
 
