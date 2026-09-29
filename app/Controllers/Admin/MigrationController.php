@@ -71,7 +71,7 @@ final class MigrationController
             'appUrl' => rtrim((string) Config::get('app.url', ''), '/'),
             'confirmCode' => SiteMigration::CONFIRM_CODE,
             'passwordMin' => SiteMigration::PASSWORD_MIN,
-            'cronLine' => '* * * * * ' . PHP_BINARY . ' ' . APP_ROOT . '/app/Console/migration_worker.php'
+            'cronLine' => '* * * * * ' . \App\Core\Cli::binary() . ' ' . APP_ROOT . '/app/Console/migration_worker.php'
                 . ' >> ' . APP_ROOT . '/storage/logs/migration_worker.log 2>&1',
         ]);
     }

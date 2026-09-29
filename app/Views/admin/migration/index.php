@@ -75,6 +75,11 @@ $canQueue = $worker['alive'] && !$busy;
             выполнить. Заведите в панели хостинга задание cron — раз в минуту; после переезда его можно снять:
         </div>
         <pre><code><?= $e($cronLine) ?></code></pre>
+        <p class="settings-card__subtitle">
+            На Hostinger: hPanel → «Расширенные» → «Cron Jobs» → «Пользовательский», команда — строка выше
+            без пяти звёздочек в начале, во всех полях времени — <code>*</code> (каждую минуту). Через минуту
+            после сохранения обновите эту страницу: статус сменится на «Отвечает».
+        </p>
     <?php endif; ?>
 </div>
 
@@ -171,6 +176,9 @@ $canQueue = $worker['alive'] && !$busy;
             <button type="submit" class="btn btn--primary" <?= $canQueue ? '' : 'disabled' ?>>
                 <?= AdminUi::icon('package') ?>Снять пакет переезда
             </button>
+            <?php if (!$worker['alive']): ?>
+                <p class="settings-card__subtitle">Кнопка станет активной, когда заработает фоновый воркер — см. «Фоновый воркер» выше.</p>
+            <?php endif; ?>
         </form>
     <?php endif; ?>
 
@@ -288,6 +296,9 @@ $canQueue = $worker['alive'] && !$busy;
                 <button type="submit" class="btn btn--danger" <?= $canQueue ? '' : 'disabled' ?>>
                     <?= AdminUi::icon('upload') ?>Установить пакет
                 </button>
+                <?php if (!$worker['alive']): ?>
+                    <p class="settings-card__subtitle">Кнопка станет активной, когда заработает фоновый воркер — см. «Фоновый воркер» выше.</p>
+                <?php endif; ?>
             </form>
         <?php endif; ?>
         <form method="post" action="/admin/migration/delete" data-confirm="Удалить архив <?= $e($file['name']) ?>?">
