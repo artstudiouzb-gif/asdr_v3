@@ -24,6 +24,22 @@ final class Database
     private static ?array $lastConfig = null;
     private static float $lastUsedAt = 0.0;
 
+    /** @var class-string<PDO> */
+    private static string $pdoClass = PDO::class;
+
+    /**
+     * Класс соединения. Нужен тестам: их соединение прячет транзакцию теста
+     * от кода и откатывает её после каждого сценария (tests/lib.php). Боевой
+     * код его не зовёт.
+     */
+    public static function usePdoClass(string $class): void
+    {
+        if (!is_a($class, PDO::class, true)) {
+            throw new \InvalidArgumentException('Класс соединения обязан наследовать PDO: ' . $class);
+        }
+        self::$pdoClass = $class;
+    }
+
     /** @param array<string, mixed> $config */
     public static function init(array $config): void
     {
@@ -41,7 +57,8 @@ final class Database
         );
 
         try {
-            self::$connection = new PDO($dsn, $config['username'], $config['password'], [
+            $class = self::$pdoClass;
+            self::$connection = new $class($dsn, $config['username'], $config['password'], [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,

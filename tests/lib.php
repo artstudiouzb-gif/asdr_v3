@@ -114,8 +114,10 @@ function assert_not_contains(string $needle, string $haystack, string $message =
 
 function run_tests(): int
 {
+    IsolatedPdo::$armed = true;
     foreach (TestRunner::$tests as $t) {
         TestRunner::$current = $t['name'];
+        test_isolation_begin();
         try {
             ($t['fn'])();
             TestRunner::$passed++;
@@ -130,6 +132,8 @@ function run_tests(): int
             foreach (explode("\n", (string) $e->getMessage()) as $line) {
                 fwrite(STDOUT, "      {$line}\n");
             }
+        } finally {
+            test_isolation_end();
         }
     }
 
@@ -145,6 +149,37 @@ function run_tests(): int
     ));
 
     return TestRunner::$failed === 0 ? 0 : 1;
+}
+
+/**
+ * Транзакция сценария (см. tests/isolated_pdo.php). Соединение, открытое уже
+ * внутри теста, получает её само в конструкторе.
+ */
+function test_isolation_begin(): void
+{
+    if (\App\Core\Database::isConnected()) {
+        $pdo = \App\Core\Database::pdo();
+        if ($pdo instanceof IsolatedPdo) {
+            $pdo->beginOuter();
+        }
+    }
+}
+
+/**
+ * Откат сценария и сброс того, что процесс помнит о базе: после отката кэш
+ * держал бы строки, которых в ней уже нет.
+ */
+function test_isolation_end(): void
+{
+    if (\App\Core\Database::isConnected()) {
+        $pdo = \App\Core\Database::pdo();
+        if ($pdo instanceof IsolatedPdo) {
+            $pdo->endOuter();
+        }
+    }
+    \App\Models\Setting::forgetCache();
+    \App\Models\User::forgetCache();
+    \App\Models\Page::forgetMenuTargets();
 }
 
 /**
@@ -315,3 +350,5 @@ function public_print_css(): string
  * читают оттуда же — второй список разъехался бы с первым молча.
  */
 require_once __DIR__ . '/budgets.php';
+require_once __DIR__ . '/isolated_pdo.php';
+\App\Core\Database::usePdoClass(IsolatedPdo::class);

@@ -150,9 +150,12 @@ final class PhotoAlbum
             ':c' => mb_substr(trim($coverUrl), 0, 500),
             ':p' => $published ? 1 : 0,
         ]);
+        // id читаем до сброса кэша: bustPageCache() на холодном кэше настроек
+        // ходит в settings и обнуляет lastInsertId().
+        $id = (int) Database::pdo()->lastInsertId();
         self::bustPageCache();
 
-        return (int) Database::pdo()->lastInsertId();
+        return $id;
     }
 
     public static function update(int $id, string $title, string $description, string $coverUrl, bool $published, bool $featured = false): void
@@ -293,9 +296,12 @@ final class PhotoAlbum
             ':cr' => mb_substr(trim($credit), 0, 255),
             ':o' => $next,
         ]);
+        // id читаем до сброса кэша: bustPageCache() на холодном кэше настроек
+        // ходит в settings и обнуляет lastInsertId().
+        $id = (int) Database::pdo()->lastInsertId();
         self::bustPageCache();
 
-        return (int) Database::pdo()->lastInsertId();
+        return $id;
     }
 
     public static function deleteImage(int $imageId): void

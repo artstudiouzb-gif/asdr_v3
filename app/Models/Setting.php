@@ -109,6 +109,17 @@ final class Setting
      * пишется). Используется живым превью настроек дизайна: страница
      * рендерится с «примеренными» значениями без их сохранения.
      */
+    /**
+     * Забыть прочитанные настройки: следующее чтение пойдёт в базу. Нужен
+     * тестам после отката транзакции сценария — иначе кэш держал бы значения
+     * строк, которых в базе уже нет.
+     */
+    public static function forgetCache(): void
+    {
+        self::$cache = null;
+        self::$cacheFromDatabase = false;
+    }
+
     public static function overrideInMemory(string $key, string $value): void
     {
         self::all(); // прогреваем кэш
