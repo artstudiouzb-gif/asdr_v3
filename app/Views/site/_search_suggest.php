@@ -17,7 +17,8 @@
             <li>
                 <a class="search-suggest__item" href="<?= htmlspecialchars($item['url'], ENT_QUOTES) ?>">
                     <?php if (!empty($item['image'])): ?>
-                        <img src="<?= htmlspecialchars((string) $item['image'], ENT_QUOTES) ?>" class="search-suggest__thumb" alt="" loading="lazy">
+                        <?php // Миниатюра под полем поиска — уменьшенная копия, не оригинал. ?>
+                        <img src="<?= htmlspecialchars(\App\Core\Media::thumbUrl((string) $item['image']), ENT_QUOTES) ?>" class="search-suggest__thumb" alt="" loading="lazy" decoding="async">
                     <?php endif; ?>
                     <div class="search-suggest__info">
                         <span class="search-suggest__title"><?= htmlspecialchars($item['title'], ENT_QUOTES) ?></span>

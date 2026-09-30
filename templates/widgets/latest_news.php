@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Locale;
+use App\Core\Media;
 use App\Models\News;
 
 /** @var array $data */
@@ -12,10 +13,15 @@ $showThumb = !empty($data['show_thumb']);
     <?php foreach ($items as $item): ?>
         <li class="widget-latest-news__item">
             <?php if ($showThumb): ?>
-                <?php $cover = News::getCoverImage($item); ?>
+                <?php
+                // Кадр 68×48: оригинал обложки весит сотни килобайт, а на экране
+                // от него остаётся ноготь. Берём самую мелкую уменьшенную копию
+                // (-400.webp); у файла без копий и у превью YouTube — сам адрес.
+                $cover = Media::thumbUrl((string) News::getCoverImage($item));
+                ?>
                 <a class="widget-latest-news__thumb" href="<?= htmlspecialchars(Locale::url('news/' . $item['slug'], $lang), ENT_QUOTES) ?>" aria-label="<?= htmlspecialchars($item['title'], ENT_QUOTES) ?>">
                     <?php if (!empty($cover)): ?>
-                        <img src="<?= htmlspecialchars($cover, ENT_QUOTES) ?>" alt="" loading="lazy">
+                        <img src="<?= htmlspecialchars($cover, ENT_QUOTES) ?>" alt="" loading="lazy" decoding="async">
                     <?php else: ?>
                         <span class="widget-latest-news__no-thumb"></span>
                     <?php endif; ?>
