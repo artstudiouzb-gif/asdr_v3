@@ -64,7 +64,9 @@ final class MediaCleaner
     }
 
     /**
-     * Число упоминаний файла во всех таблицах системы.
+     * Число упоминаний файла во всех таблицах контента (обход ведёт
+     * `MediaUsage`: ручной список таблиц здесь пропускал обложки, альбомы,
+     * видео и конструкторы шапки).
      *
      * Запись в files считается владением медиабиблиотеки. Поэтому удаление
      * связи с новостью не удаляет физический файл: он остаётся доступным для
@@ -75,48 +77,12 @@ final class MediaCleaner
         if ($publicUrl === '') {
             return 0;
         }
-        $pdo = Database::pdo();
-        $basename = basename((string) (parse_url($publicUrl, PHP_URL_PATH) ?? $publicUrl));
-        $like = '%' . $basename . '%';
-        $total = 0;
-
-        $likeQueries = [
-            'SELECT COUNT(*) FROM blocks WHERE data LIKE :v',
-            'SELECT COUNT(*) FROM news WHERE content LIKE :v',
-            'SELECT COUNT(*) FROM news_translations WHERE content LIKE :v',
-        ];
-        $exactQueries = [
-            'SELECT COUNT(*) FROM news WHERE image = :exact',
-            'SELECT COUNT(*) FROM news_images WHERE path = :exact',
-            "SELECT COUNT(*) FROM pages WHERE entity_type = 'project' AND cover_image = :exact",
-            'SELECT COUNT(*) FROM team_members WHERE photo = :exact',
-            'SELECT COUNT(*) FROM settings WHERE `value` = :exact',
-        ];
-
-        foreach ($likeQueries as $sql) {
-            try {
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindValue(':v', $like);
-                $stmt->execute();
-                $total += (int) $stmt->fetchColumn();
-            } catch (\Throwable $e) {
-                Logger::error('referenceCount (like) failed: ' . $e->getMessage());
-            }
-        }
-        foreach ($exactQueries as $sql) {
-            try {
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindValue(':exact', $publicUrl);
-                $stmt->execute();
-                $total += (int) $stmt->fetchColumn();
-            } catch (\Throwable $e) {
-                Logger::error('referenceCount (exact) failed: ' . $e->getMessage());
-            }
-        }
+        $basename = basename((string) (parse_url($publicUrl, PHP_URL_PATH) ?: $publicUrl));
+        $total = MediaUsage::mentions(['stored_name' => $basename, 'access_type' => 'public']);
 
         if ($basename !== '') {
             try {
-                $stmt = $pdo->prepare('SELECT COUNT(*) FROM files WHERE stored_name = :stored');
+                $stmt = Database::pdo()->prepare('SELECT COUNT(*) FROM files WHERE stored_name = :stored');
                 $stmt->execute([':stored' => $basename]);
                 $total += (int) $stmt->fetchColumn();
             } catch (\Throwable $e) {
