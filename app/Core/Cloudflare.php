@@ -318,7 +318,7 @@ final class Cloudflare
      * Поэтому рядом с объяснением печатается и сам ответ: он короткий, а спорить
      * с ним нельзя.
      */
-    private static function rawTail(string $raw): string
+    public static function rawTail(string $raw): string
     {
         $raw = trim(preg_replace('/\s+/', ' ', $raw) ?? $raw);
         if ($raw === '') {
@@ -373,9 +373,7 @@ final class Cloudflare
      */
     private static function probePurge(string $zoneName = ''): array
     {
-        $base = $zoneName !== ''
-            ? 'https://' . $zoneName
-            : rtrim((string) Config::get('app.url', ''), '/');
+        $base = self::purgeProbeBase($zoneName);
         if ($base === '') {
             return ['ok' => false, 'text' => 'не задан адрес сайта (app.url)', 'data' => null, 'raw' => ''];
         }
@@ -392,6 +390,17 @@ final class Cloudflare
 
 
     /**
+     * Адрес, по которому идёт пробная очистка: домен самой зоны, а без него —
+     * адрес сайта. Чужой домен Cloudflare отвергает независимо от прав.
+     */
+    public static function purgeProbeBase(string $zoneName): string
+    {
+        return $zoneName !== ''
+            ? 'https://' . $zoneName
+            : rtrim((string) Config::get('app.url', ''), '/');
+    }
+
+    /**
      * Человеческая причина отказа из ответа API.
      *
      * Cloudflare кладёт подробность не в `errors[].message`, а в `error_chain`:
@@ -401,7 +410,7 @@ final class Cloudflare
      *
      * @param mixed $data разобранный JSON ответа
      */
-    private static function errorText(mixed $data, int $status): string
+    public static function errorText(mixed $data, int $status): string
     {
         if (!is_array($data) || !isset($data['errors'][0]) || !is_array($data['errors'][0])) {
             return 'HTTP ' . $status;

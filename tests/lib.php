@@ -183,6 +183,50 @@ function test_isolation_end(): void
 }
 
 /**
+ * Готовая разметка вьюхи или шаблона блока с заданными переменными.
+ *
+ * Тест, читающий текст шаблона, ломается от переименования переменной и
+ * проходит, когда строка на месте, а вывод уже другой. Проверять надо то, что
+ * получит посетитель, — эта функция и даёт его. Своя область видимости у
+ * каждого вызова, поэтому переменные одного рендера до другого не доживают.
+ *
+ * @param array<string, mixed> $vars
+ */
+function render_view(string $relativePath, array $vars = []): string
+{
+    $__file = APP_ROOT . '/' . ltrim($relativePath, '/');
+    extract($vars, EXTR_SKIP);
+    ob_start();
+    try {
+        require $__file;
+    } finally {
+        $out = (string) ob_get_clean();
+    }
+
+    return $out;
+}
+
+/**
+ * Записи новостей в том виде, в каком их отдаёт модель списку, — для рендера
+ * ленты и блоков без базы.
+ *
+ * @return list<array<string, mixed>>
+ */
+function sample_news_rows(int $count): array
+{
+    $rows = [];
+    for ($i = 0; $i < $count; $i++) {
+        $rows[] = [
+            'id' => $i + 1, 'slug' => 'probe-news-' . $i, 'title' => 'Новость ' . $i,
+            'image' => '/uploads/public/probe-news-' . $i . '.jpg', 'published_at' => '2026-07-19 10:00:00',
+            'excerpt' => 'Анонс новости ' . $i, 'category_id' => 0, 'badge' => '', 'badge_color' => null,
+        ];
+    }
+
+    return $rows;
+}
+
+/**
  * Сбрасывает «ручные» настройки дизайна в памяти на время теста.
  *
  * Настройки дизайна живут в общей таблице settings, и тесты, которые их

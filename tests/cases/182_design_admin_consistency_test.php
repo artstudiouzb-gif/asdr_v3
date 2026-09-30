@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Core\DesignSettings;
+use App\Models\Setting;
+
 test('дизайн сайта показывает все глобальные поля и доступные вкладки', function (): void {
     $view = (string) file_get_contents(APP_ROOT . '/app/Views/admin/design/index.php');
 
@@ -20,12 +23,39 @@ test('дизайн сайта показывает все глобальные �
 });
 
 test('частичная форма дизайна не сбрасывает отсутствующие опции', function (): void {
-    $settings = (string) file_get_contents(APP_ROOT . '/app/Core/DesignSettings.php');
+    ensure_test_db();
+    reset_design_state();
+    // Две опции с выбором из списка: одну выставляем заранее, другую шлём
+    // формой. Частичная форма (новая версия конструктора, пресет) не обязана
+    // знать про все опции, и отсутствующая не должна откатываться к умолчанию.
+    $options = array_values(array_filter(
+        array_keys(DesignSettings::OPTIONS),
+        static fn (string $k): bool => count((array) (DesignSettings::OPTIONS[$k]['choices'] ?? [])) > 1
+    ));
+    [$kept, $sent] = [$options[0], $options[1]];
+    $keptValue = (string) array_keys((array) DesignSettings::OPTIONS[$kept]['choices'])[1];
+    $sentValue = (string) array_keys((array) DesignSettings::OPTIONS[$sent]['choices'])[1];
+    Setting::set('design_' . $kept, $keptValue);
 
-    assert_contains("if (!array_key_exists(\$key, \$input))", $settings);
-    assert_contains("'heading_line_height_custom' => Setting::get", $settings);
-    assert_contains("'space_small' => \$spacings['space_small']", $settings);
-    assert_contains("preg_replace('/[^\\p{L}\\p{N}]+/u'", $settings);
+    DesignSettings::save([$sent => $sentValue]);
+    assert_same($keptValue, (string) DesignSettings::current()[$kept], 'опция, которой нет в форме, осталась прежней');
+    assert_same($sentValue, (string) DesignSettings::current()[$sent]);
+});
+
+test('своя конфигурация дизайна хранит интервалы и называется по-русски', function (): void {
+    ensure_test_db();
+    reset_design_state();
+    Setting::set('design_user_presets', '');
+    Setting::set('design_heading_line_height_custom', '1.3');
+
+    $slug = (string) DesignSettings::saveUserPreset('Моя тема');
+    // Прежняя ASCII-регулярка превращала любое русское или узбекское
+    // название в один ключ «preset», и вторая конфигурация затирала первую.
+    assert_same('моя-тема', $slug);
+    assert_same('ozbek-2', (string) DesignSettings::saveUserPreset('Ozbek 2'));
+    $appearance = DesignSettings::userPresets()[$slug]['appearance'] ?? [];
+    assert_same('1.3', (string) ($appearance['heading_line_height_custom'] ?? ''), 'ручной межстрочный заголовков входит в снимок');
+    assert_true(($appearance['space_small'] ?? '') !== '', 'семантические интервалы входят в снимок');
 });
 
 test('шапка и подвал используют собственные конструкторы как источник истины', function (): void {

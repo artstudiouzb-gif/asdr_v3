@@ -142,8 +142,11 @@ test('Заголовки редакционных разделов исполь�
     assert_contains('.block-text__title::before', $css, 'у блока «Текст» свой заголовок, ему маркер нужен отдельно');
     assert_contains('font-size: var(--font-size-h2', $css);
 
-    $designSettings = (string) file_get_contents(APP_ROOT . '/app/Core/DesignSettings.php');
-    assert_contains('.block-timeline__title', $designSettings, 'таймлайн должен брать H2 из настроек типографики');
+    assert_contains(
+        '.block-timeline__title',
+        \App\Core\DesignSettings::TYPO_SIZES['fs_h2'][1],
+        'таймлайн должен брать H2 из настроек типографики'
+    );
 });
 
 test('Оформление заголовка не перечисляет типы блоков поимённо', function (): void {

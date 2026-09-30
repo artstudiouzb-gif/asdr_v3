@@ -975,10 +975,10 @@ function quality_budgets(): array
             'guard' => 'tests/cases/293_phpstan_baseline_budget_test.php',
             'why' => 'новый код проверяется целиком, старый долг посчитан и виден; '
                 . 'дописать находку в эталон вместо починки нельзя',
-            // 724 -> 578 -> 577 -> 570 -> 565 -> 480 -> 427 -> 360: каждая закрытая находка
+            // 724 -> 578 -> 577 -> 570 -> 565 -> 480 -> 427 -> 360 -> 359: каждая закрытая находка
             // оказывалась настоящим отказом под strict_types (см. коммиты). В
             // эталоне остались только «нет типа значений массива».
-            'ceiling' => static fn (): int => 360,
+            'ceiling' => static fn (): int => 359,
             'measure' => static function (): array {
                 $baseline = APP_ROOT . '/phpstan-baseline.neon';
                 if (!is_file($baseline)) {
@@ -1140,6 +1140,23 @@ function quality_budgets(): array
             'ceiling' => static fn (): int => 659,
             'measure' => static function (): array {
                 return quality_regex_in_files(quality_controller_files(), '/\$_(POST|GET|REQUEST)\b/');
+            },
+        ],
+        'tests_source_reads' => [
+            'title' => 'Тесты, читающие текст конкретного PHP-файла',
+            'unit' => 'шт',
+            'guard' => 'tests/cases/415_behavior_over_source_test.php',
+            'why' => 'проверка «строка есть в исходнике» падает от переименования '
+                . 'переменной и проходит, когда строка на месте, а вывод уже другой. '
+                . 'Проверяется поведение: render_view() для вьюх и шаблонов, вызов '
+                . 'метода, запись в тестовой базе. Обход всех шаблонов на запрещённый '
+                . 'приём (glob) сюда не считается — это правило, а не подглядывание',
+            'ceiling' => static fn (): int => 639,
+            'measure' => static function (): array {
+                return quality_regex_in_files(
+                    glob(APP_ROOT . '/tests/cases/*.php') ?: [],
+                    '/file_get_contents\([^;]*?\/(app|templates)\/[^;]*?\.php[\'"]/'
+                );
             },
         ],
     ];
