@@ -189,6 +189,7 @@ final class AdminUi
             'news_categories' => 'category',
             'pages' => 'file-text',
             'snippets' => 'template',
+            'links' => 'unlink',
             'heroes' => 'slideshow',
             'projects' => 'briefcase',
             'albums' => 'photo',

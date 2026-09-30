@@ -16,17 +16,17 @@ use App\Core\MediaUsage;
 test('каждая таблица схемы разобрана: владелец известен или таблица служебная', function () {
     $schema = (string) file_get_contents(dirname(__DIR__, 2) . '/database/schema.sql');
     preg_match_all('/CREATE TABLE IF NOT EXISTS `?([a-z0-9_]+)`?/', $schema, $m);
-    $tables = (new ReflectionClassConstant(MediaUsage::class, 'TABLES'))->getValue();
+    $tables = (new ReflectionClassConstant(\App\Core\ContentLocator::class, 'TABLES'))->getValue();
     // Таблицы без картинок и ссылок — ни владельца, ни исключения им не нужно,
     // но решение о каждой обязано быть принято явно, а не по забывчивости.
     $plain = ['users', 'interface_translations', 'content_types', 'content_type_fields'];
     $unsorted = [];
     foreach (array_unique($m[1]) as $table) {
-        if (!isset($tables[$table]) && !in_array($table, MediaUsage::IGNORED_TABLES, true) && !in_array($table, $plain, true)) {
+        if (!isset($tables[$table]) && !in_array($table, \App\Core\ContentLocator::IGNORED_TABLES, true) && !in_array($table, $plain, true)) {
             $unsorted[] = $table;
         }
     }
-    assert_same([], $unsorted, 'новой таблице нужна строка в MediaUsage::TABLES или IGNORED_TABLES');
+    assert_same([], $unsorted, 'новой таблице нужна строка в ContentLocator::TABLES или IGNORED_TABLES');
 });
 
 test('упоминание узнаётся по основе имени, включая уменьшенные копии и JSON', function () {

@@ -97,6 +97,27 @@ final class Http
     }
 
     /**
+     * Код ответа по внешнему адресу без скачивания страницы: тело обрывается
+     * на первом же байте, а код к этому моменту уже известен из заголовков.
+     * Нужен проверке ссылок — ей важно «жива ли», а не содержимое, и тяжёлая
+     * живая страница не должна выглядеть битой из-за лимита размера.
+     *
+     * @return array{status:int, body:string, error:string}
+     */
+    public static function probeSafeRemote(string $url, int $timeout = 10): array
+    {
+        $target = UrlGuard::safeRemoteTarget($url);
+        if ($target === null) {
+            return ['status' => 0, 'body' => '', 'error' => 'unsafe remote URL'];
+        }
+        if (!function_exists('curl_init')) {
+            return ['status' => 0, 'body' => '', 'error' => 'secure remote requests require cURL'];
+        }
+
+        return self::viaPinnedCurl('GET', $url, '', ['User-Agent: Mozilla/5.0 (compatible; LinkCheck)'], $timeout, $target, 1, true);
+    }
+
+    /**
      * @param array<int, string> $headers
      * @return array{status:int, body:string, error:string}
      */
@@ -140,7 +161,8 @@ final class Http
         array $headers,
         int $timeout,
         array $target,
-        int $maxResponseBytes
+        int $maxResponseBytes,
+        bool $statusOnly = false
     ): array {
         $responseBody = '';
         $tooLarge = false;
@@ -185,7 +207,10 @@ final class Http
         $error = $ok === false ? (string) curl_error($ch) : '';
 
         if ($tooLarge) {
-            return ['status' => 0, 'body' => '', 'error' => 'remote response exceeds size limit'];
+            // Зонду тело не нужно: обрыв на первом байте и есть его работа.
+            return $statusOnly && $status > 0
+                ? ['status' => $status, 'body' => '', 'error' => '']
+                : ['status' => 0, 'body' => '', 'error' => 'remote response exceeds size limit'];
         }
         $primaryAllowed = false;
         $primaryPacked = @inet_pton($primaryIp);
