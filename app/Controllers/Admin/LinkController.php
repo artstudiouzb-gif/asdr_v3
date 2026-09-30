@@ -9,6 +9,7 @@ use App\Core\Csrf;
 use App\Core\Flash;
 use App\Core\Heartbeat;
 use App\Core\LinkChecker;
+use App\Core\Redirect;
 use App\Core\View;
 
 /**
@@ -48,7 +49,6 @@ final class LinkController
         }
         $result['broken'] > 0 ? Flash::error($message) : Flash::success($message);
 
-        header('Location: /admin/links');
-        exit;
+        Redirect::to('/admin/links');
     }
 }

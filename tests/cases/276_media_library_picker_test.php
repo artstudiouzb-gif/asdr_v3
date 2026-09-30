@@ -41,8 +41,10 @@ test('Окно выбора медиа: поиск и сортировка сч�
 test('Выдача медиабиблиотеки: белый список видов и порядков, счётчики и вес файла', function (): void {
     $controller = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/FileController.php');
 
-    assert_contains('in_array($type, FileEntry::libraryTypes(), true)', $controller);
-    assert_contains('in_array($sort, FileEntry::librarySorts(), true)', $controller);
+    // Белый список видов и порядков держит InputBag::oneOf: чужое значение
+    // заменяется умолчанием (поведение проверяет тест 414).
+    assert_contains("oneOf('type', array_values(FileEntry::libraryTypes()), 'image')", $controller);
+    assert_contains("oneOf('sort', array_values(FileEntry::librarySorts()), 'date_desc')", $controller);
     assert_contains("'counts' => FileEntry::libraryCounts(\$query)", $controller);
     assert_contains("'size' => (int) (\$file['size'] ?? 0)", $controller);
     assert_contains("'created_at' =>", $controller);
