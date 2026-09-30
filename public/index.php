@@ -489,6 +489,8 @@ $router->get('/admin/files', [AdminFileController::class, 'index']);
 $router->get('/admin/media/list', [AdminFileController::class, 'library']);
 $router->post('/admin/files/upload', [AdminFileController::class, 'upload']);
 $router->post('/admin/files/chunk', [\App\Controllers\Admin\ChunkedUploadController::class, 'chunk']);
+$router->get('/admin/links', [\App\Controllers\Admin\LinkController::class, 'index']);
+$router->post('/admin/links/run', [\App\Controllers\Admin\LinkController::class, 'run']);
 $router->get('/admin/files/{id}/usage', [AdminFileController::class, 'usage']);
 $router->post('/admin/files/{id}/delete', [AdminFileController::class, 'destroy']);
 $router->post('/admin/files/{id}/regenerate-token', [AdminFileController::class, 'regenerateToken']);
