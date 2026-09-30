@@ -85,6 +85,9 @@ final class Router
             $regex = $this->compile($route['pattern']);
             if (preg_match($regex, $path, $matches)) {
                 $params = array_filter($matches, static fn ($key) => !is_int($key), ARRAY_FILTER_USE_KEY);
+                if (self::requiresCsrf($path)) {
+                    Csrf::verifyRequest();
+                }
                 $this->invoke($route['handler'], $params);
                 return;
             }
@@ -92,6 +95,30 @@ final class Router
 
         http_response_code(404);
         View::render('errors/404');
+    }
+
+    /**
+     * Области, где любой изменяющий запрос обязан нести CSRF-токен.
+     *
+     * Прежде проверку звало каждое действие само — 211 вызовов на 217
+     * маршрутов, и новое действие без этой строки молча оставалось без
+     * защиты: форма работает, ошибки нет, а подделанный запрос проходит.
+     * Теперь её делает роутер до вызова контроллера. Вызовы в самих действиях
+     * остаются и не мешают: проверка не одноразовая, токен живёт в сессии.
+     * Публичные приёмники (`/_vitals`, `/push/*`, формы сайта) сюда не входят:
+     * анонимный маяк токена не несёт, у форм своя защита (honeypot, капча).
+     */
+    private const CSRF_PREFIXES = ['/admin', '/repo'];
+
+    public static function requiresCsrf(string $path): bool
+    {
+        foreach (self::CSRF_PREFIXES as $prefix) {
+            if ($path === $prefix || str_starts_with($path, $prefix . '/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
