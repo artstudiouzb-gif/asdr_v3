@@ -9,6 +9,7 @@ use App\Core\Config;
 use App\Core\Csrf;
 use App\Core\Flash;
 use App\Core\MediaMetadataSchema;
+use App\Core\MediaUsage;
 use App\Core\RbacGuard;
 use App\Core\Uploader;
 use App\Core\View;
@@ -31,8 +32,21 @@ final class FileController
             'sort' => in_array($sort, ['date_desc', 'date_asc', 'size_desc', 'name_asc'], true) ? $sort : 'date_desc',
             'per_page' => in_array($perPage, [24, 48, 96], true) ? $perPage : 48,
             'page' => max(1, min(100000, (int) ($_GET['page'] ?? 1))),
+            'usage' => ($_GET['usage'] ?? '') === 'unused' ? 'unused' : '',
         ];
-        $total = FileEntry::filteredCount($filters, $canManageProtected);
+        // «Не используется» считается одним проходом по базе, а не запросом:
+        // упоминания лежат в тексте и JSON десятков таблиц, SQL-фильтра для
+        // них нет. Поэтому отбор идёт в PHP по всему списку, а страница
+        // вырезается уже из отобранного.
+        $unused = null;
+        if ($filters['usage'] === 'unused') {
+            $referenced = MediaUsage::referencedKeys();
+            $unused = array_values(array_filter(
+                FileEntry::filtered($filters, $canManageProtected, 100000, 0),
+                static fn (array $file): bool => !isset($referenced[MediaUsage::keyOf($file)])
+            ));
+        }
+        $total = $unused !== null ? count($unused) : FileEntry::filteredCount($filters, $canManageProtected);
         $pages = max(1, (int) ceil($total / $filters['per_page']));
         $filters['page'] = min($filters['page'], $pages);
         $offset = ($filters['page'] - 1) * $filters['per_page'];
@@ -43,7 +57,9 @@ final class FileController
         }, ARRAY_FILTER_USE_BOTH);
 
         View::render('admin/files/index', [
-            'items' => FileEntry::filtered($filters, $canManageProtected, $filters['per_page'], $offset),
+            'items' => $unused !== null
+                ? array_slice($unused, $offset, $filters['per_page'])
+                : FileEntry::filtered($filters, $canManageProtected, $filters['per_page'], $offset),
             'availableDates' => FileEntry::availableDates(),
             'canManageProtected' => $canManageProtected,
             'filters' => $filters,
@@ -167,16 +183,13 @@ final class FileController
             if (($file['access_type'] ?? '') === 'protected') {
                 RbacGuard::requirePermission('manage_protected_files');
             }
-            // Переиспользование файлов: не удаляем файл, который ещё где-то
-            // используется — иначе сломались бы связанные сущности.
-            $publicUrl = FileEntry::publicUrl($file);
-            $refs = \App\Core\MediaCleaner::referenceCount($publicUrl);
-            // Сама запись files считается владением файла. Для явного удаления
-            // из медиабиблиотеки вычитаем её и проверяем внешние ссылки.
-            $externalRefs = max(0, $refs - 1);
-            if ($externalRefs > 0) {
-                Flash::error("Файл используется в {$externalRefs} местах и не может быть удалён. Сначала уберите его из этих записей.");
-                header('Location: /admin/files');
+            // Используемый файл не удаляем — иначе сломались бы связанные
+            // записи. Вместо числа показываем сами места: «используется в
+            // трёх местах» не говорит, куда идти.
+            $usage = MediaUsage::find($file);
+            if ($usage !== []) {
+                Flash::error('Файл нельзя удалить: он стоит в записях сайта. Уберите его из мест ниже и повторите удаление.');
+                header('Location: /admin/files/' . (int) $file['id'] . '/usage');
                 exit;
             }
 
@@ -203,6 +216,31 @@ final class FileController
 
         header('Location: /admin/files');
         exit;
+    }
+
+    /**
+     * Где используется файл: список записей со ссылками на их формы.
+     *
+     * @param array<string, string> $params
+     */
+    public function usage(array $params): void
+    {
+        Auth::requireLogin();
+
+        $file = FileEntry::findById((int) $params['id']);
+        if (!$file) {
+            http_response_code(404);
+            View::render('errors/404');
+            return;
+        }
+        if (($file['access_type'] ?? '') === 'protected') {
+            RbacGuard::requirePermission('manage_protected_files');
+        }
+
+        View::render('admin/files/usage', [
+            'file' => $file,
+            'usage' => MediaUsage::find($file),
+        ]);
     }
 
     /** @param array<string, string> $params */
@@ -247,9 +285,7 @@ final class FileController
                 View::render('errors/403');
                 return;
             }
-            $publicUrl = FileEntry::publicUrl($file);
-            $externalRefs = max(0, \App\Core\MediaCleaner::referenceCount($publicUrl) - 1);
-            if ($externalRefs > 0) {
+            if (MediaUsage::find($file) !== []) {
                 $skippedCount++;
                 continue;
             }
@@ -274,7 +310,7 @@ final class FileController
         if ($deletedCount > 0) {
             Flash::success("Удалено файлов: {$deletedCount}." . ($skippedCount > 0 ? " Пропущено (используются в записях): {$skippedCount}." : ''));
         } elseif ($skippedCount > 0) {
-            Flash::error("Выбранные файлы ({$skippedCount}) используются в контенте и не могут быть удалены.");
+            Flash::error("Выбранные файлы ({$skippedCount}) используются в контенте и не могут быть удалены. Где именно — ссылка «Где используется» у файла.");
         }
 
         header('Location: /admin/files');

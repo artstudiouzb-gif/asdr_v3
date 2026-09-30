@@ -136,5 +136,8 @@ test('устаревшие gallery-assets больше не подключают
 test('медиабиблиотека владеет файлом до явного удаления', function (): void {
     $cleaner = (string) file_get_contents(APP_ROOT . '/app/Core/MediaCleaner.php');
     assert_contains('SELECT COUNT(*) FROM files WHERE stored_name = :stored', $cleaner);
-    assert_contains('max(0, $refs - 1)', (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/FileController.php'));
+    // Явное удаление спрашивает только внешние упоминания: сама запись files
+    // в обход «где используется» не входит.
+    assert_contains('MediaUsage::find($file)', (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/FileController.php'));
+    assert_true(in_array('files', \App\Core\MediaUsage::IGNORED_TABLES, true));
 });

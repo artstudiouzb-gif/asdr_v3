@@ -12,7 +12,7 @@ require __DIR__ . '/../layout/header.php';
 /** @var array $items */
 /** @var array $availableDates */
 /** @var bool $canManageProtected */
-/** @var array{q:string,type:string,date:string,sort:string,per_page:int,page:int} $filters */
+/** @var array{q:string,type:string,date:string,sort:string,per_page:int,page:int,usage:string} $filters */
 /** @var array<string, mixed> $filterParams */
 /** @var int $total */
 /** @var int $pages */
@@ -61,6 +61,12 @@ $searchQuery = $filters['q'];
                 <option value="image" <?= $selectedType === 'image' ? 'selected' : '' ?>>Изображения</option>
                 <option value="video" <?= $selectedType === 'video' ? 'selected' : '' ?>>Видео</option>
                 <option value="document" <?= $selectedType === 'document' ? 'selected' : '' ?>>Документы</option>
+            </select>
+
+            <!-- Файлы, на которые не ссылается ни одна запись -->
+            <select name="usage" data-autosubmit aria-label="Использование">
+                <option value="">Используемые и нет</option>
+                <option value="unused" <?= ($filters['usage'] ?? '') === 'unused' ? 'selected' : '' ?>>Не используется</option>
             </select>
 
             <!-- Фильтр по дате создания -->
@@ -227,6 +233,7 @@ $searchQuery = $filters['q'];
                         <td class="data-table__action-cell">
                             <div class="data-table__actions">
                                 <button type="button" class="btn btn--small" data-copy-link="<?= htmlspecialchars($url, ENT_QUOTES) ?>">Ссылка</button>
+                                <a class="btn btn--small" href="/admin/files/<?= (int) $item['id'] ?>/usage">Где используется</a>
                                 <form method="post" action="/admin/files/<?= (int) $item['id'] ?>/delete" data-confirm="Удалить файл «<?= htmlspecialchars((string) $item['original_name'], ENT_QUOTES) ?>»?">
                                     <?= Csrf::field() ?>
                                     <button type="submit" class="btn btn--small btn--danger">Удалить</button>
@@ -273,6 +280,7 @@ $searchQuery = $filters['q'];
             </div>
 
             <div class="u-inline-ffed13198a">
+                <a href="" class="btn" id="modal_usage_link">Где используется</a>
                 <form method="post" action="" id="modal_delete_form" data-confirm="Вы уверены, что хотите навсегда удалить этот медиафайл?">
                     <?= Csrf::field() ?>
                     <button type="submit" class="btn btn--danger">Удалить навсегда</button>
@@ -453,6 +461,7 @@ $searchQuery = $filters['q'];
     var modalFileUrl = document.getElementById('modal_file_url');
     var modalCopyBtn = document.getElementById('modal_copy_btn');
     var modalDeleteForm = document.getElementById('modal_delete_form');
+    var modalUsageLink = document.getElementById('modal_usage_link');
 
     document.querySelectorAll('.media-card').forEach(function(card) {
         card.addEventListener('click', function(e) {
@@ -487,6 +496,7 @@ $searchQuery = $filters['q'];
             if (modalFileAccess) modalFileAccess.textContent = access === 'public' ? 'Открытый' : 'Защищённый';
             if (modalFileUrl) modalFileUrl.value = fullUrl;
             if (modalDeleteForm) modalDeleteForm.action = '/admin/files/' + id + '/delete';
+            if (modalUsageLink) modalUsageLink.href = '/admin/files/' + id + '/usage';
 
             if (previewContainer) {
                 if (isImg) {
