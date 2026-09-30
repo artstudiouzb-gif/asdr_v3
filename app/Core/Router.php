@@ -273,13 +273,20 @@ final class Router
 
     private function invoke(callable|array $handler, array $params): void
     {
-        if (is_array($handler)) {
-            [$class, $method] = $handler;
-            $controller = new $class();
-            $controller->$method($params);
-            return;
-        }
+        try {
+            if (is_array($handler)) {
+                [$class, $method] = $handler;
+                $controller = new $class();
+                $controller->$method($params);
+                return;
+            }
 
-        $handler($params);
+            $handler($params);
+        } catch (RedirectException $redirect) {
+            // Редирект — законный конец действия, а не ошибка: `Redirect::to()`
+            // заменяет пару header() + exit, и заголовок ставится здесь, одним
+            // местом для всех контроллеров.
+            header($redirect->headerLine(), true, $redirect->status);
+        }
     }
 }

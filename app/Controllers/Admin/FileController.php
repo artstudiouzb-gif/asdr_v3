@@ -8,9 +8,12 @@ use App\Core\Auth;
 use App\Core\Config;
 use App\Core\Csrf;
 use App\Core\Flash;
+use App\Core\Input;
+use App\Core\InputBag;
 use App\Core\MediaMetadataSchema;
 use App\Core\MediaUsage;
 use App\Core\RbacGuard;
+use App\Core\Redirect;
 use App\Core\Uploader;
 use App\Core\View;
 use App\Models\FileEntry;
@@ -21,19 +24,18 @@ final class FileController
     {
         Auth::requireLogin();
         $canManageProtected = RbacGuard::can('manage_protected_files');
-        $type = trim((string) ($_GET['type'] ?? ''));
-        $date = trim((string) ($_GET['date'] ?? ''));
-        $sort = trim((string) ($_GET['sort'] ?? 'date_desc'));
-        $perPage = (int) ($_GET['per_page'] ?? 48);
+        $query = Input::query();
+        $date = $query->str('date');
         $filters = [
-            'q' => mb_substr(trim((string) ($_GET['q'] ?? '')), 0, 120),
-            'type' => in_array($type, ['', 'image', 'video', 'document'], true) ? $type : '',
+            'q' => $query->str('q', '', 120),
+            'type' => $query->oneOf('type', ['', 'image', 'video', 'document'], ''),
             'date' => preg_match('/^\d{4}-\d{2}$/', $date) === 1 ? $date : '',
-            'sort' => in_array($sort, ['date_desc', 'date_asc', 'size_desc', 'name_asc'], true) ? $sort : 'date_desc',
-            'per_page' => in_array($perPage, [24, 48, 96], true) ? $perPage : 48,
-            'page' => max(1, min(100000, (int) ($_GET['page'] ?? 1))),
-            'usage' => ($_GET['usage'] ?? '') === 'unused' ? 'unused' : '',
+            'sort' => $query->oneOf('sort', ['date_desc', 'date_asc', 'size_desc', 'name_asc'], 'date_desc'),
+            'per_page' => $query->oneOf('per_page', ['24', '48', '96'], '48'),
+            'page' => $query->int('page', 1, 1, 100000),
+            'usage' => $query->oneOf('usage', ['unused'], ''),
         ];
+        $filters['per_page'] = (int) $filters['per_page'];
         // «Не используется» считается одним проходом по базе, а не запросом:
         // упоминания лежат в тексте и JSON десятков таблиц, SQL-фильтра для
         // них нет. Поэтому отбор идёт в PHP по всему списку, а страница
@@ -88,13 +90,12 @@ final class FileController
         // Фильтр по виду файлов: image (по умолчанию), raster, svg, video,
         // audio, document, all_files, all. Список видов — у модели, чтобы
         // выдача и счётчики боковой колонки не разошлись.
-        $type = (string) ($_GET['type'] ?? 'image');
-        $type = in_array($type, FileEntry::libraryTypes(), true) ? $type : 'image';
-        $sort = (string) ($_GET['sort'] ?? 'date_desc');
-        $sort = in_array($sort, FileEntry::librarySorts(), true) ? $sort : 'date_desc';
-        $limit = max(1, min(500, (int) ($_GET['limit'] ?? 300)));
-        $offset = max(0, (int) ($_GET['offset'] ?? 0));
-        $query = trim((string) ($_GET['q'] ?? ''));
+        $get = Input::query();
+        $type = $get->oneOf('type', array_values(FileEntry::libraryTypes()), 'image');
+        $sort = $get->oneOf('sort', array_values(FileEntry::librarySorts()), 'date_desc');
+        $limit = $get->int('limit', 300, 1, 500);
+        $offset = $get->int('offset', 0, 0);
+        $query = $get->str('q');
 
         $items = [];
         foreach (FileEntry::libraryFiltered($type, $limit, $offset, $query, $sort) as $file) {
@@ -115,7 +116,8 @@ final class FileController
         // AJAX-сохранение описания уже загруженного файла. Оно использует
         // существующий защищённый POST-маршрут, поэтому отдельный публичный API
         // для метаданных не появляется.
-        $metadataId = (int) ($_POST['metadata_id'] ?? 0);
+        $post = Input::post();
+        $metadataId = $post->int('metadata_id', 0, 0);
         if ($metadataId > 0) {
             $file = FileEntry::findById($metadataId);
             if ($file === null) {
@@ -127,12 +129,12 @@ final class FileController
 
             try {
                 $updated = FileEntry::updateMetadata($metadataId, [
-                    'alt_text' => self::nullableText($_POST['alt_text'] ?? '', 255),
-                    'caption' => self::nullableText($_POST['caption'] ?? '', 255),
-                    'description' => self::nullableText($_POST['description'] ?? '', 4000),
-                    'credit' => self::nullableText($_POST['credit'] ?? '', 255),
-                    'focal_x' => self::nullablePercent($_POST['focal_x'] ?? null),
-                    'focal_y' => self::nullablePercent($_POST['focal_y'] ?? null),
+                    'alt_text' => self::nullableText($post->str('alt_text'), 255),
+                    'caption' => self::nullableText($post->str('caption'), 255),
+                    'description' => self::nullableText($post->str('description'), 4000),
+                    'credit' => self::nullableText($post->str('credit'), 255),
+                    'focal_x' => self::nullablePercent($post->str('focal_x')),
+                    'focal_y' => self::nullablePercent($post->str('focal_y')),
                 ]);
             } catch (\Throwable $e) {
                 $this->json(['ok' => false, 'error' => 'Не удалось сохранить метаданные файла.'], 500);
@@ -148,15 +150,14 @@ final class FileController
             ]);
         }
 
-        $accessType = ($_POST['access_type'] ?? 'public') === 'protected' ? 'protected' : 'public';
+        $accessType = $post->oneOf('access_type', ['public', 'protected'], 'public');
         if ($accessType === 'protected') {
             RbacGuard::requirePermission('manage_protected_files');
         }
 
         if (empty($_FILES['file']) || ($_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
             Flash::error('Выберите файл для загрузки.');
-            header('Location: /admin/files');
-            exit;
+            Redirect::to('/admin/files');
         }
 
         try {
@@ -168,8 +169,7 @@ final class FileController
             Flash::error($e->getMessage());
         }
 
-        header('Location: /admin/files');
-        exit;
+        Redirect::to('/admin/files');
     }
 
     /** @param array<string, string> $params */
@@ -189,8 +189,7 @@ final class FileController
             $usage = MediaUsage::find($file);
             if ($usage !== []) {
                 Flash::error('Файл нельзя удалить: он стоит в записях сайта. Уберите его из мест ниже и повторите удаление.');
-                header('Location: /admin/files/' . (int) $file['id'] . '/usage');
-                exit;
+                Redirect::to('/admin/files/' . (int) $file['id'] . '/usage');
             }
 
             $basePath = $file['access_type'] === 'protected'
@@ -214,8 +213,7 @@ final class FileController
             Flash::success('Файл удалён.');
         }
 
-        header('Location: /admin/files');
-        exit;
+        Redirect::to('/admin/files');
     }
 
     /**
@@ -252,8 +250,7 @@ final class FileController
 
         FileEntry::regenerateToken((int) $params['id']);
         Flash::success('Токен доступа обновлён.');
-        header('Location: /admin/files');
-        exit;
+        Redirect::to('/admin/files');
     }
 
     public function bulkDelete(): void
@@ -261,14 +258,17 @@ final class FileController
         Auth::requireLogin();
         Csrf::verifyRequest();
 
-        $ids = $_POST['ids'] ?? [];
-        if (is_string($ids)) {
-            $ids = json_decode($ids, true) ?: [];
+        // Список приходит полями ids[] или одной строкой JSON (массовое
+        // удаление из сетки медиатеки собирает его скриптом).
+        $post = Input::post();
+        $ids = $post->ids('ids');
+        if ($ids === []) {
+            $decoded = json_decode($post->str('ids'), true);
+            $ids = is_array($decoded) ? (new InputBag(['ids' => $decoded]))->ids('ids') : [];
         }
-        if (!is_array($ids) || empty($ids)) {
+        if ($ids === []) {
             Flash::error('Не выбраны файлы для удаления.');
-            header('Location: /admin/files');
-            exit;
+            Redirect::to('/admin/files');
         }
 
         $deletedCount = 0;
@@ -313,8 +313,7 @@ final class FileController
             Flash::error("Выбранные файлы ({$skippedCount}) используются в контенте и не могут быть удалены. Где именно — ссылка «Где используется» у файла.");
         }
 
-        header('Location: /admin/files');
-        exit;
+        Redirect::to('/admin/files');
     }
 
     /** @return array<string, mixed> */

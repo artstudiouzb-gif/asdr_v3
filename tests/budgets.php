@@ -489,6 +489,49 @@ function quality_count_in_files(array $files, string $needle): int
     return $total;
 }
 
+/**
+ * Файлы контроллеров — для бюджетов на exit и прямые суперглобалы.
+ *
+ * @return list<string>
+ */
+function quality_controller_files(): array
+{
+    $files = [];
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(APP_ROOT . '/app/Controllers', FilesystemIterator::SKIP_DOTS));
+    foreach ($it as $file) {
+        if ($file instanceof SplFileInfo && $file->getExtension() === 'php') {
+            $files[] = $file->getPathname();
+        }
+    }
+    sort($files);
+
+    return $files;
+}
+
+/**
+ * Число совпадений регулярки по файлам плюс пять самых частых.
+ *
+ * @param list<string> $files
+ * @return array{value: int, detail: string}
+ */
+function quality_regex_in_files(array $files, string $pattern): array
+{
+    $perFile = [];
+    foreach ($files as $path) {
+        $n = (int) preg_match_all($pattern, (string) file_get_contents($path));
+        if ($n > 0) {
+            $perFile[basename($path)] = $n;
+        }
+    }
+    arsort($perFile);
+    $top = [];
+    foreach (array_slice($perFile, 0, 5, true) as $name => $n) {
+        $top[] = $name . '=' . $n;
+    }
+
+    return ['value' => array_sum($perFile), 'detail' => implode(', ', $top)];
+}
+
 /** Пять самых частых файлов по числу вхождений — для объяснения при падении. */
 function quality_top_files(array $files, string $needle): string
 {
@@ -1073,6 +1116,30 @@ function quality_budgets(): array
                     'value' => quality_brotli_size($path),
                     'detail' => 'по собранному бандлу; свежесть — npm run check:assets',
                 ];
+            },
+        ],
+        'controller_exit' => [
+            'title' => 'exit в контроллерах',
+            'unit' => 'шт',
+            'guard' => 'tests/cases/414_controller_helpers_test.php',
+            'why' => 'exit обрывает процесс: действие с ним нельзя вызвать из теста, '
+                . 'не потеряв весь прогон. Редирект — Redirect::to(), он бросает '
+                . 'исключение, которое ловит роутер',
+            'ceiling' => static fn (): int => 272,
+            'measure' => static function (): array {
+                return quality_regex_in_files(quality_controller_files(), '/\bexit\b/');
+            },
+        ],
+        'controller_superglobals' => [
+            'title' => 'Прямое чтение $_POST/$_GET в контроллерах',
+            'unit' => 'шт',
+            'guard' => 'tests/cases/414_controller_helpers_test.php',
+            'why' => 'приведение писалось по месту в каждой строке и расходилось: '
+                . 'где-то пробелы обрезали, где-то нет, массив вместо строки давал '
+                . '«Array» или TypeError. Правило одно — InputBag (Input::post/query)',
+            'ceiling' => static fn (): int => 659,
+            'measure' => static function (): array {
+                return quality_regex_in_files(quality_controller_files(), '/\$_(POST|GET|REQUEST)\b/');
             },
         ],
     ];
