@@ -139,5 +139,5 @@ test('медиабиблиотека владеет файлом до явног
     // Явное удаление спрашивает только внешние упоминания: сама запись files
     // в обход «где используется» не входит.
     assert_contains('MediaUsage::find($file)', (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/FileController.php'));
-    assert_true(in_array('files', \App\Core\MediaUsage::IGNORED_TABLES, true));
+    assert_true(in_array('files', \App\Core\ContentLocator::IGNORED_TABLES, true));
 });
