@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Core\Database;
+use App\Core\TranslationGroupHelper;
+use App\Models\News;
+use App\Models\Page;
+
 test('Страницы сохраняют выбранный сайдбар и проверяют копирование языковых блоков', function (): void {
     $controller = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/PageController.php');
 
@@ -41,21 +46,38 @@ test('Расширенные переводы новостей обновляю�
 });
 
 test('Новый перевод новости открывается без текста оригинала, а slug строится из нового заголовка', function (): void {
-    $helper = (string) file_get_contents(APP_ROOT . '/app/Core/TranslationGroupHelper.php');
+    ensure_test_db();
+    $pdo = Database::pdo();
+    $slug = 'tr-src-' . bin2hex(random_bytes(3));
+    $pdo->prepare("INSERT INTO news (title, slug, lang, status, excerpt, content, meta_title, meta_description)
+        VALUES ('Оригинал', ?, 'ru', 'published', 'Лид', '<p>Текст</p>', 'SEO', 'Описание')")->execute([$slug]);
+    $sourceId = (int) $pdo->lastInsertId();
+
+    $uzId = TranslationGroupHelper::createTranslation('news', $sourceId, 'uz');
+    $enId = TranslationGroupHelper::createTranslation('news', $sourceId, 'en');
+    $stmt = $pdo->prepare('SELECT * FROM news WHERE id = ?');
+    $stmt->execute([$uzId]);
+    $uz = $stmt->fetch();
+    $stmt->execute([$enId]);
+    $en = $stmt->fetch();
+
+    // Скопированный текст оригинала выглядел бы готовым переводом, и русская
+    // статья ушла бы на /uz под видом узбекской.
+    assert_same('', (string) $uz['title'], 'заголовок перевода новости не копируется');
+    foreach (['excerpt' => 'лид', 'content' => 'текст', 'meta_title' => 'SEO-заголовок', 'meta_description' => 'SEO-описание'] as $col => $what) {
+        assert_same(null, $uz[$col], $what . ' перевода новости не копируется');
+    }
+    assert_same('uz', (string) $uz['lang']);
+    // Черновик не занимает читаемый адрес: технический slug заменяется при
+    // первом сохранении адресом из заголовка на языке перевода.
+    assert_true(TranslationGroupHelper::isProvisionalNewsSlug((string) $uz['slug']), 'технический slug до первого сохранения');
+    assert_false(TranslationGroupHelper::isProvisionalNewsSlug($slug), 'обычный slug техническим не считается');
+    assert_true($uz['slug'] !== $en['slug'], 'технические slug нескольких черновиков не конфликтуют');
+    assert_same((int) $uz['translation_group_id'], (int) $en['translation_group_id'], 'версии в одной группе');
+    assert_same($uzId, TranslationGroupHelper::createTranslation('news', $sourceId, 'uz'), 'повтор возвращает ту же версию');
+
     $controller = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/NewsController.php');
     $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/news/form.php');
-
-    assert_contains(
-        'NEWS_TRANSLATION_DRAFT_SLUG_PREFIX',
-        $helper,
-        'новая языковая версия получает отдельный технический slug до первого сохранения'
-    );
-    assert_contains('bin2hex(random_bytes(6))', $helper, 'технические slug нескольких черновиков не конфликтуют');
-    assert_contains("':t' => ''", $helper, 'заголовок перевода новости не копируется');
-    assert_contains("':e' => null", $helper, 'лид перевода новости не копируется');
-    assert_contains("':c' => null", $helper, 'текст перевода новости не копируется');
-    assert_contains("':mt' => null", $helper, 'SEO-заголовок перевода новости не копируется');
-    assert_contains("':md' => null", $helper, 'SEO-описание перевода новости не копируется');
     assert_contains(
         'TranslationGroupHelper::isProvisionalNewsSlug($existingSlug)',
         $controller,
@@ -89,13 +111,36 @@ test('Новости валидируют медиа, локализуют webho
 });
 
 test('Дубликаты страниц и новостей становятся самостоятельными группами перевода', function (): void {
-    foreach (['Page.php', 'News.php'] as $file) {
-        $model = (string) file_get_contents(APP_ROOT . '/app/Models/' . $file);
-        assert_contains("'translation_group_id' => null", $model, "{$file}: копия отделяется от исходной группы");
-        assert_contains('SET translation_group_id = id', $model, "{$file}: копия получает собственную группу");
-        assert_contains('self::slugExists($s, null, $lang)', $model, "{$file}: slug проверяется в языке копии");
-    }
+    ensure_test_db();
+    $pdo = Database::pdo();
+    $slug = 'dup-' . bin2hex(random_bytes(3));
 
-    $news = (string) file_get_contents(APP_ROOT . '/app/Models/News.php');
-    assert_contains("copyChildren('news_polls'", $news, 'опрос копируется без голосов');
+    // Оригинал — версия в чужой группе: копия обязана из неё выйти, иначе
+    // у группы оказалось бы две записи одного языка.
+    $pdo->prepare("INSERT INTO news (title, slug, lang, status, translation_group_id) VALUES ('Новость', ?, 'uz', 'published', 999999)")
+        ->execute([$slug]);
+    $newsId = (int) $pdo->lastInsertId();
+    $pdo->prepare("INSERT INTO news_polls (news_id, question, options_json) VALUES (?, 'Вопрос?', '[\"Да\",\"Нет\"]')")
+        ->execute([$newsId]);
+    $copyId = (int) News::duplicate($newsId);
+    $stmt = $pdo->prepare('SELECT slug, lang, status, translation_group_id FROM news WHERE id = ?');
+    $stmt->execute([$copyId]);
+    $copy = $stmt->fetch();
+    assert_same($copyId, (int) $copy['translation_group_id'], 'новость: копия получает собственную группу');
+    assert_same('uz', (string) $copy['lang']);
+    assert_same('draft', (string) $copy['status']);
+    assert_true($copy['slug'] !== $slug, 'новость: slug копии свободен в её языке');
+    $polls = $pdo->prepare('SELECT COUNT(*) FROM news_polls WHERE news_id = ?');
+    $polls->execute([$copyId]);
+    assert_same(1, (int) $polls->fetchColumn(), 'опрос копируется');
+
+    $pdo->prepare("INSERT INTO pages (title, slug, lang, status, translation_group_id) VALUES ('Страница', ?, 'uz', 'published', 999999)")
+        ->execute([$slug]);
+    $pageId = (int) $pdo->lastInsertId();
+    $pageCopyId = (int) Page::duplicate($pageId);
+    $stmt = $pdo->prepare('SELECT slug, lang, translation_group_id FROM pages WHERE id = ?');
+    $stmt->execute([$pageCopyId]);
+    $pageCopy = $stmt->fetch();
+    assert_same($pageCopyId, (int) $pageCopy['translation_group_id'], 'страница: копия получает собственную группу');
+    assert_true($pageCopy['slug'] !== $slug, 'страница: slug копии свободен в её языке');
 });

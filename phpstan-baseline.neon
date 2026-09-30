@@ -661,12 +661,6 @@ parameters:
 			path: app/Core/DesignSettings.php
 
 		-
-			message: '#^Method App\\Core\\DesignSettings\:\:typographyOverrides\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/DesignSettings.php
-
-		-
 			message: '#^Method App\\Core\\DocumentPresenter\:\:prepare\(\) has parameter \$document with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

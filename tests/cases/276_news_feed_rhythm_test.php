@@ -299,24 +299,43 @@ test('Кадры первого ряда ленты не ленивые, ост�
     // первого ряда это значит, что верх ленты дорисовывается последним — при
     // том, что он уже на экране. Обложка цикла не ленива всегда, две
     // компактные рядом с ней — по решению вызывающего.
-    $card = (string) file_get_contents(APP_ROOT . '/app/Views/site/_news_rhythm_card.php');
-    $list = (string) file_get_contents(APP_ROOT . '/app/Views/site/_news_list.php');
-    $feature = (string) file_get_contents(APP_ROOT . '/templates/blocks/news_feature.php');
+    // Проверяется готовая разметка, а не текст шаблона: рендерим ленту и
+    // мозаику блока на одинаковых записях и считаем ленивые кадры.
+    \App\Models\Setting::overrideInMemory('perf_lazy_load', '1');
+    $items = sample_news_rows(8);
+    $lazyByCard = static function (string $html): array {
+        preg_match_all('~<a class="relnews-card relnews-card--(\w+)".*?</a>~s', $html, $m, PREG_SET_ORDER);
 
-    assert_contains('$cardLazy = !$isHero && empty($cardEager);', $card, 'ленивость считается из слота и флага места');
-    assert_contains('$cardSizes, $isHero, ', $card, 'высокий приоритет остаётся только у обложки');
-    assert_true(
-        !str_contains($card, "'relnews-card__img', !$" . 'isHero'),
-        'ленивость больше не выводится из одного слота'
-    );
+        return array_map(static fn (array $c): string => $c[1] . ':' . (str_contains($c[0], 'loading="lazy"') ? 'lazy' : 'eager'), $m);
+    };
 
+    $list = render_view('app/Views/site/_news_list.php', ['items' => $items, 'page' => 1, 'pages' => 1, 'category' => '']);
+    $cards = $lazyByCard($list);
+    assert_same(8, count($cards), 'все карточки ленты выведены');
     // Первый ряд — обложка на две ячейки плюс две компактные.
-    assert_contains('$cardEager = $index < 3;', $list, 'лента открывает первый ряд без ленивой загрузки');
+    assert_same(['hero:eager', 'compact:eager', 'compact:eager'], array_slice($cards, 0, 3), 'первый ряд ленты не ленив');
+    foreach (array_slice($cards, 3) as $n => $state) {
+        assert_true(str_ends_with($state, ':lazy'), 'карточка ' . ($n + 4) . ' ленты должна быть ленивой: ' . $state);
+    }
+    // Высокий приоритет — только у обложки: назначить его всему ряду значит
+    // не назначить никому.
+    assert_same(1, substr_count($list, 'fetchpriority="high"'), 'высокий приоритет только у обложки');
 
-    // Флаг обязан приходить из каждой итерации: партиал подключается через
-    // require в общую область видимости, и значение прошлой карточки иначе
-    // доживёт до следующей.
-    assert_contains('$cardEager = false;', $feature, 'мозаика блока задаёт флаг явно, а не наследует его');
+    // Мозаика блока встаёт где угодно: ленива каждая карточка, кроме обложки
+    // цикла. Флаг задаётся в каждой итерации, поэтому значение, оставшееся в
+    // области видимости от ленты, сюда не доживает.
+    $mosaic = render_view('templates/blocks/news_feature.php', ['cardEager' => true, 'data' => [
+        'title' => '', 'all_text' => '', 'all_url' => '', 'variant' => 'mosaic', 'news' => array_map(
+            static fn (array $i): array => ['url' => '/news/' . $i['slug'], 'title' => $i['title'], 'cover' => $i['image'],
+                'published_at' => $i['published_at'], 'excerpt' => $i['excerpt']],
+            $items
+        ),
+    ]]);
+    $cards = $lazyByCard($mosaic);
+    assert_true($cards !== [], 'мозаика выведена');
+    foreach ($cards as $state) {
+        assert_same(str_starts_with($state, 'hero:') ? 'hero:eager' : substr($state, 0, (int) strpos($state, ':')) . ':lazy', $state);
+    }
 });
 
 test('Мягкое появление кадра новости вешает только JS и только на незагруженный кадр', function () {

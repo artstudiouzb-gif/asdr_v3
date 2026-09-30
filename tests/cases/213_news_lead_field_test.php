@@ -56,23 +56,43 @@ test('Форма даёт компактный редактор и три чес
 });
 
 test('Полный лид хранится, а карточки используют уместную для макета плотность', function () {
-    $latest = (string) file_get_contents(APP_ROOT . '/templates/blocks/news_latest.php');
-    $feature = (string) file_get_contents(APP_ROOT . '/templates/blocks/news_feature.php');
-    $listing = (string) file_get_contents(APP_ROOT . '/app/Views/site/_news_list.php');
-    // Разметка ритмической карточки — одна на ленту /news и на мозаику блока.
-    $card = (string) file_get_contents(APP_ROOT . '/app/Views/site/_news_rhythm_card.php');
+    // Хранится лид целиком, а режет его каждый макет по своей плотности:
+    // карточка последних новостей до 180 знаков, крупная подборки — до 260.
+    $longLead = trim(str_repeat('Слово лида для проверки длины. ', 20));
+    $excerptOf = static function (string $html, string $class): string {
+        preg_match('~<span class="' . $class . '">(.*?)</span>~s', $html, $m);
 
-    assert_contains("excerpt((string) \$item['excerpt'], 180)", $latest);
-    assert_contains("excerpt((string) \$featured['excerpt'], 260)", $feature);
+        return html_entity_decode((string) ($m[1] ?? ''), ENT_QUOTES);
+    };
+    $rows = array_map(
+        static fn (array $r): array => ['url' => '/news/' . $r['slug'], 'title' => $r['title'], 'cover' => $r['image'],
+            'image' => $r['image'], 'published_at' => $r['published_at'], 'excerpt' => $longLead],
+        sample_news_rows(3)
+    );
+    $latest = $excerptOf(render_view('templates/blocks/news_latest.php', ['blockId' => 1, 'data' => ['news' => $rows]]), 'news-card__excerpt');
+    $feature = $excerptOf(render_view('templates/blocks/news_feature.php', ['data' => [
+        'title' => '', 'all_text' => '', 'all_url' => '', 'variant' => 'cards', 'news' => $rows,
+    ]]), 'newslist-lead__excerpt');
+    assert_true(mb_strlen($latest) > 120 && mb_strlen($latest) <= 181, 'карточка последних новостей — до 180 знаков: ' . mb_strlen($latest));
+    assert_true(mb_strlen($feature) > 180 && mb_strlen($feature) <= 261, 'крупная карточка подборки — до 260 знаков: ' . mb_strlen($feature));
+    assert_true(mb_strlen($longLead) > 261, 'полный лид длиннее обоих пределов');
+
+    // Лента проверяется готовой разметкой: 14 карточек — один цикл ритма.
+    $listing = render_view('app/Views/site/_news_list.php', ['items' => sample_news_rows(14), 'page' => 1, 'pages' => 1, 'category' => '']);
+    preg_match_all('~<a class="relnews-card relnews-card--(\w+)".*?</a>~s', $listing, $cards, PREG_SET_ORDER);
+    assert_same(14, count($cards));
 
     assert_not_contains('newslist-lead__excerpt', $listing, 'лента /news не дублирует лид описанием');
     // Анонс есть у обоих крупных видов ритма — в компактную карточку он не
-    // помещается, а обрезанный до строки ничего не сообщает.
-    assert_contains("\$cardExcerpt = \$isHero || \$isWide ? trim((string) (\$card['excerpt'] ?? '')) : '';", $card, 'анонс — только у крупных карточек');
-    // Класс карточки — это её слот из ритма: один источник правды вместо
-    // трёх условий в шаблоне (App\Core\NewsFeedRhythm::slot()).
-    assert_contains('relnews-card relnews-card--<?= $slot ?>', $card, 'вид карточки задаёт ритм');
-    assert_contains('NewsFeedRhythm::SLOT_WIDE', $card, 'широкая карточка отличается от обложки');
+    // помещается, а обрезанный до строки ничего не сообщает. Класс карточки —
+    // это её слот из ритма (App\Core\NewsFeedRhythm::slot()).
+    $slots = [];
+    foreach ($cards as $card) {
+        $slots[] = $card[1];
+        assert_same($card[1] !== 'compact', str_contains($card[0], 'Анонс новости'), 'анонс — только у крупных карточек: ' . $card[1]);
+    }
+    assert_same(1, count(array_keys($slots, 'hero', true)), 'обложка одна на цикл');
+    assert_same(1, count(array_keys($slots, 'wide', true)), 'широкая карточка отличается от обложки');
     // «Читать подробнее» в ленте нет вовсе: карточка сама является ссылкой,
     // диктору надпись была скрыта (aria-hidden), то есть не сообщала ничего и
     // ему, а на четырнадцати карточках страницы рисовала лишнюю строку.

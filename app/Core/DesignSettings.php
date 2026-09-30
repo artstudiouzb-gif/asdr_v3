@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Core\Design\CssValue;
+use App\Core\Design\FontCatalog;
+use App\Core\Design\Surfaces;
+use App\Core\Design\Typography;
+use App\Core\Design\UserPresets;
 use App\Models\Setting;
 
 /**
@@ -31,165 +36,6 @@ final class DesignSettings
         'custom' => ['Свои цвета', '', ''],
     ];
 
-    /**
-     * Локальный каталог шрифтов из Google Fonts с полной поддержкой узбекской
-     * кириллицы (cyrillic-ext + cyrillic). Третий элемент используется только
-     * локальным установщиком при сохранении, браузер к Google Fonts не обращается.
-     * slug => [подпись, CSS-стек, параметр family для css2 API].
-     */
-    public const GOOGLE_FONTS = [
-        'pt-serif' => ['PT Serif (антиква)', "'PT Serif', 'PT Serif Fallback', Georgia, serif", 'PT+Serif:wght@400;700'],
-        'lora' => ['Lora (антиква)', "'Lora', Georgia, serif", 'Lora:wght@400;600;700'],
-        'merriweather' => ['Merriweather (антиква)', "'Merriweather', Georgia, serif", 'Merriweather:wght@400;700'],
-        'noto-serif' => ['Noto Serif (антиква)', "'Noto Serif', 'Noto Serif Fallback', Georgia, serif", 'Noto+Serif:wght@400;600;700'],
-        'ibm-plex-serif' => ['IBM Plex Serif (антиква)', "'IBM Plex Serif', Georgia, serif", 'IBM+Plex+Serif:wght@400;600;700'],
-        'cormorant' => ['Cormorant Garamond (антиква)', "'Cormorant Garamond', Georgia, serif", 'Cormorant+Garamond:wght@500;600;700'],
-        'pt-sans' => ['PT Sans', "'PT Sans', 'PT Sans Fallback', system-ui, sans-serif", 'PT+Sans:wght@400;700'],
-        'inter' => ['Inter', "'Inter', 'Inter Fallback', system-ui, sans-serif", 'Inter:wght@400;600;700'],
-        'inter-tight' => ['Inter Tight', "'Inter Tight', 'Inter Tight Fallback', system-ui, sans-serif", 'Inter+Tight:wght@400;500;600;700'],
-        'montserrat' => ['Montserrat', "'Montserrat', 'Montserrat Fallback', system-ui, sans-serif", 'Montserrat:wght@400;600;700'],
-        'roboto' => ['Roboto', "'Roboto', system-ui, sans-serif", 'Roboto:wght@400;500;700'],
-        'open-sans' => ['Open Sans', "'Open Sans', system-ui, sans-serif", 'Open+Sans:wght@400;600;700'],
-        'noto-sans' => ['Noto Sans', "'Noto Sans', 'Noto Sans Fallback', system-ui, sans-serif", 'Noto+Sans:wght@400;600;700'],
-        'source-sans' => ['Source Sans 3', "'Source Sans 3', system-ui, sans-serif", 'Source+Sans+3:wght@400;600;700'],
-        'ibm-plex-sans' => ['IBM Plex Sans', "'IBM Plex Sans', system-ui, sans-serif", 'IBM+Plex+Sans:wght@400;600;700'],
-        'manrope' => ['Manrope', "'Manrope', 'Manrope Fallback', system-ui, sans-serif", 'Manrope:wght@400;600;700'],
-        'rubik' => ['Rubik', "'Rubik', system-ui, sans-serif", 'Rubik:wght@400;500;700'],
-        'raleway' => ['Raleway', "'Raleway', system-ui, sans-serif", 'Raleway:wght@400;600;700'],
-        'exo2' => ['Exo 2', "'Exo 2', system-ui, sans-serif", 'Exo+2:wght@400;600;700'],
-        'golos' => ['Golos Text', "'Golos Text', system-ui, sans-serif", 'Golos+Text:wght@400;600;700'],
-    ];
-
-    /**
-     * Рукописные семейства — отдельный каталог, а не строки в GOOGLE_FONTS.
-     *
-     * Тот каталог предлагается для текста и заголовков всего сайта, и
-     * рукописное семейство там было бы ловушкой: выбрал «красиво» — получил
-     * нечитаемый сайт. Здесь у шрифта одна роль: выделенное слово в заголовке
-     * (`*слово*`) и подпись под текстом. Обе — короткие куски в несколько слов.
-     *
-     * В списке только семейства с подмножествами cyrillic-ext + cyrillic +
-     * latin: без cyrillic-ext не рисуются узбекские Ғғ Ққ Ҳҳ, а установка
-     * такого шрифта отвалится проверкой покрытия (Marck Script поэтому и не
-     * попал в список, хотя кириллица у него есть).
-     */
-    public const SCRIPT_FONTS = [
-        'caveat' => ['Caveat (от руки, разборчивый)', "'Caveat', 'Segoe Script', cursive", 'Caveat:wght@400;600;700'],
-        'bad-script' => ['Bad Script (почерк ручкой)', "'Bad Script', 'Segoe Script', cursive", 'Bad+Script:wght@400'],
-        'great-vibes' => ['Great Vibes (каллиграфия)', "'Great Vibes', cursive", 'Great+Vibes:wght@400'],
-        'pacifico' => ['Pacifico (вывеска)', "'Pacifico', cursive", 'Pacifico:wght@400'],
-    ];
-
-    /** Сгенерированный каталог из app/Core/data, прочитанный один раз за запрос. */
-    /** @var array<string, array{0:string,1:string,2:string}>|null */
-    private static ?array $googleIndex = null;
-
-    /**
-     * Остальные семейства Google Fonts с узбекской кириллицей.
-     *
-     * GOOGLE_FONTS — двадцать отобранных семейств, и до появления этого файла
-     * ничего кроме них редактору не предлагалось: «каталог Google Fonts» в
-     * форме означал двадцать строк. Полный список лежит сгенерированным файлом
-     * (`npm run build:fonts-index`), потому что он меняется несколько раз в год,
-     * а зависеть от доступности чужого сервиса в момент, когда администратор
-     * открыл форму, незачем — по той же причине заранее собран индекс спрайта
-     * иконок.
-     *
-     * Семейства, уже названные в GOOGLE_FONTS и SCRIPT_FONTS, отсюда убраны —
-     * и по слугу, и по имени семейства: у «Exo 2» слуг в каталоге `exo2`, а в
-     * индексе `exo-2`, и без сверки по имени один шрифт стоял бы в списке
-     * дважды с разными подписями.
-     *
-     * @return array<string, array{0:string,1:string,2:string}>
-     */
-    public static function googleFontsExtra(): array
-    {
-        if (self::$googleIndex === null) {
-            $file = __DIR__ . '/data/google-fonts-index.php';
-            $index = is_file($file) ? require $file : [];
-            /** @var array<string, array{0:string,1:string,2:string}> $rows */
-            $rows = is_array($index) ? $index : [];
-
-            $known = [];
-            foreach (self::GOOGLE_FONTS + self::SCRIPT_FONTS as $entry) {
-                $known[strtolower(explode(':', $entry[2])[0])] = true;
-            }
-
-            $extra = [];
-            foreach ($rows as $slug => $entry) {
-                if (isset(self::GOOGLE_FONTS[$slug]) || isset(self::SCRIPT_FONTS[$slug])) {
-                    continue;
-                }
-                if (isset($known[strtolower(explode(':', $entry[2])[0])])) {
-                    continue;
-                }
-                $extra[$slug] = $entry;
-            }
-            self::$googleIndex = $extra;
-        }
-
-        return self::$googleIndex;
-    }
-
-    /**
-     * Каталог для ролей «текст» и «заголовки»: отобранные семейства первыми,
-     * за ними остальные из индекса.
-     *
-     * @return array<string, array{0:string,1:string,2:string}>
-     */
-    public static function googleFontCatalog(): array
-    {
-        return self::GOOGLE_FONTS + self::googleFontsExtra();
-    }
-
-    /**
-     * Все каталоги одним списком: тот, кто скачивает файлы и собирает
-     * @font-face, различий между ролями не знает — ему нужен адрес.
-     *
-     * @return array<string, array{0:string,1:string,2:string}>
-     */
-    public static function fontCatalog(): array
-    {
-        return self::googleFontCatalog() + self::SCRIPT_FONTS;
-    }
-
-    /** Стек выбранного рукописного шрифта или '' — если он не выбран. */
-    public static function scriptFontStack(): string
-    {
-        $slug = (string) Setting::get('design_font_script', '');
-
-        return isset(self::SCRIPT_FONTS[$slug]) ? self::SCRIPT_FONTS[$slug][1] : '';
-    }
-
-    /**
-     * Шрифтовые пресеты: значение опции font_style => [подпись, CSS-стек].
-     *
-     * В админке этот список подписан «Локальные — без внешних запросов»,
-     * поэтому называть здесь можно только семейства из поставки (Noto Sans,
-     * Noto Serif) и системные стеки. Пресет с чужим семейством выглядел бы
-     * рабочим, а рисовался бы Arial: файла нет, скачать его через font_style
-     * нечем — слуга каталога у пресета не бывает.
-     */
-    public const FONTS = [
-        'noto' => ['Noto Sans', "'Noto Sans', 'Noto Sans Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"],
-        'system' => ['Системный', "system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif"],
-        'serif' => ['С засечками', "Georgia, 'Times New Roman', serif"],
-        'custom' => ['Свой шрифт', ''],
-    ];
-
-    /**
-     * Прежние значения font_style, оставшиеся в БД от набора шрифтов до
-     * перехода на Noto. Читаются как ближайший живой пресет: без этого
-     * сохранённый «inter» стал бы неизвестным ключом и молча превращался в
-     * «свой шрифт» с пустым стеком.
-     */
-    private const LEGACY_FONT_STYLES = ['pt' => 'noto', 'inter' => 'noto'];
-
-    /** Ключ пресета шрифта с учётом прежних значений. */
-    public static function fontStyleKey(string $style): string
-    {
-        return self::LEGACY_FONT_STYLES[$style] ?? $style;
-    }
 
     public const OPTIONS = [
         'palette' => [
@@ -496,186 +342,23 @@ final class DesignSettings
     /** Точный базовый размер текста, 12–24px; пусто — значение пресета. */
     public static function fontSizeCustom(): string
     {
-        return self::normalizePixelValue((string) Setting::get('design_font_size_custom', ''), 12, 24);
+        return CssValue::pixels((string) Setting::get('design_font_size_custom', ''), 12, 24);
     }
 
     public static function normalizeFontSize(string $raw): string
     {
-        return self::normalizePixelValue($raw, 12, 24);
+        return CssValue::pixels($raw, 12, 24);
     }
 
     /** Точное скругление, 0–48px; пусто — значение пресета. */
-    /**
-     * Цвет тени карточек. Прежде тень была зашита в код тремя строками
-     * `rgba(16,24,40,…)`: «Стиль карточек» выбирал форму, а цвет и силу
-     * поменять было нечем — на тёплой или тёмной палитре холодная серо-синяя
-     * тень читается грязным пятном.
-     */
-    public static function shadowColor(): string
-    {
-        return SettingsValidator::hexColor(
-            (string) Setting::get('design_shadow_color', self::SHADOW_COLOR_DEFAULT),
-            self::SHADOW_COLOR_DEFAULT
-        );
-    }
-
-    /**
-     * Сила тени в процентах от прежней: 100 — как было, 0 — тени нет вовсе.
-     * Верхняя граница 300 % — дальше тень перестаёт быть тенью и становится
-     * заливкой под карточкой.
-     */
-    public static function shadowStrength(): int
-    {
-        $raw = trim((string) Setting::get('design_shadow_strength', ''));
-        if ($raw === '' || !is_numeric($raw)) {
-            return 100;
-        }
-
-        return max(0, min(300, (int) round((float) $raw)));
-    }
-
-    /**
-     * Цвет подложки текста на крупных карточках новостей (обложка и широкая).
-     *
-     * Прежде он был зашит литералом `rgba(6,14,28,…)` в четырёх местах темы:
-     * на тёплой или светлой палитре холодная почти-чёрная вуаль читается
-     * чужой, а поменять её было нечем — тот же случай, что был с тенью
-     * карточек.
-     */
-    public static function veilColor(): string
-    {
-        return SettingsValidator::hexColor(
-            (string) Setting::get('design_veil_color', self::VEIL_COLOR_DEFAULT),
-            self::VEIL_COLOR_DEFAULT
-        );
-    }
-
-    /**
-     * Плотность подложки в процентах от прежней: 100 — как было (.88).
-     *
-     * Нижняя граница 40 %, а не 0: подложка существует затем, чтобы белый
-     * заголовок читался на **любой** фотографии, и прозрачная вуаль вернула бы
-     * читаемость в зависимость от кадра. Верхняя — 113 %, дальше плотность
-     * упирается в единицу и настройка перестаёт что-либо менять.
-     */
-    public static function veilStrength(): int
-    {
-        $raw = trim((string) Setting::get('design_veil_strength', ''));
-        if ($raw === '' || !is_numeric($raw)) {
-            return 100;
-        }
-
-        return max(40, min(113, (int) round((float) $raw)));
-    }
-
-    /**
-     * Подложка текста крупной карточки: цвет, плотность и цвет самого текста.
-     *
-     * Цвет текста не задаётся редактором, а **считается по контрасту**: светлая
-     * вуаль требует тёмного заголовка, тёмная — светлого, и белый литерал на
-     * жёлтой вуали дал бы нечитаемую строку, о которой никто бы не узнал.
-     *
-     * Контраст проверяется на обоих краях: подложка лежит на фотографии, а та
-     * бывает и белой, и чёрной, поэтому годной считается плотность, при которой
-     * заголовок проходит 4.5:1 в **худшем** из двух случаев. Если выбранной
-     * плотности не хватает, она поднимается до первой достаточной — настройка
-     * не должна позволять молча сломать читаемость. Поднятие возвращается
-     * отдельным признаком, чтобы форма могла о нём сказать.
-     *
-     * @return array{rgb: string, alpha: float, fg: string, ratio: float, raised: bool}
-     */
-    public static function newsVeil(): array
-    {
-        $veil = AccentContrast::toRgb(self::veilColor());
-        $wanted = min(1.0, self::VEIL_ALPHA_BASE * self::veilStrength() / 100);
-
-        $best = static function (float $alpha) use ($veil): array {
-            $pick = ['fg' => '#ffffff', 'ratio' => 0.0];
-            foreach ([self::VEIL_FG_LIGHT, self::VEIL_FG_DARK] as $fg) {
-                // Худший из краёв: подложка на белом кадре и на чёрном.
-                $worst = min(
-                    AccentContrast::ratio($fg, self::blend($veil, [255, 255, 255], $alpha)),
-                    AccentContrast::ratio($fg, self::blend($veil, [0, 0, 0], $alpha))
-                );
-                if ($worst > $pick['ratio']) {
-                    $pick = ['fg' => $fg, 'ratio' => $worst];
-                }
-            }
-
-            return $pick;
-        };
-
-        $alpha = $wanted;
-        $pick = $best($alpha);
-        while ($pick['ratio'] < AccentContrast::AA_NORMAL && $alpha < 1.0) {
-            $alpha = min(1.0, round($alpha + 0.01, 2));
-            $pick = $best($alpha);
-        }
-
-        return [
-            'rgb' => implode(', ', $veil),
-            'alpha' => round($alpha, 3),
-            'fg' => $pick['fg'],
-            'ratio' => round($pick['ratio'], 2),
-            'raised' => $alpha > $wanted + 0.0001,
-        ];
-    }
-
-    /**
-     * Цвет вуали плотности $alpha, положенной на кадр цвета $photo.
-     *
-     * Смешение считается в sRGB — там же, где его считает браузер, — иначе
-     * проверка контраста отвечала бы не про то, что видно на экране.
-     *
-     * @param array{0:int,1:int,2:int} $veil
-     * @param array{0:int,1:int,2:int} $photo
-     */
-    private static function blend(array $veil, array $photo, float $alpha): string
-    {
-        $mix = [];
-        foreach ([0, 1, 2] as $i) {
-            $mix[$i] = (int) round($alpha * $veil[$i] + (1 - $alpha) * $photo[$i]);
-        }
-
-        return AccentContrast::toHex($mix);
-    }
-
-    /** Тень карточек: форма из «Стиля карточек», цвет и сила — из настроек. */
-    public static function cardShadow(string $style): string
-    {
-        if ($style === 'flat') {
-            return 'none';
-        }
-        $strength = self::shadowStrength() / 100;
-        if ($strength <= 0) {
-            return 'none';
-        }
-        $color = static function (float $alpha) use ($strength): string {
-            $hex = ltrim(self::shadowColor(), '#');
-            $alpha = min(1.0, round($alpha * $strength, 3));
-
-            return sprintf(
-                'rgba(%d,%d,%d,%s)',
-                (int) hexdec(substr($hex, 0, 2)),
-                (int) hexdec(substr($hex, 2, 2)),
-                (int) hexdec(substr($hex, 4, 2)),
-                rtrim(rtrim(number_format($alpha, 3, '.', ''), '0'), '.') ?: '0'
-            );
-        };
-
-        return $style === 'elevated'
-            ? '0 10px 30px ' . $color(0.12)
-            : '0 1px 3px ' . $color(0.06) . ', 0 6px 18px ' . $color(0.05);
-    }
-
     public static function radiusCustom(): string
     {
-        return self::normalizePixelValue((string) Setting::get('design_radius_custom', ''), 0, 48);
+        return CssValue::pixels((string) Setting::get('design_radius_custom', ''), 0, 48);
     }
 
     public static function normalizeRadius(string $raw): string
     {
-        return self::normalizePixelValue($raw, 0, 48);
+        return CssValue::pixels($raw, 0, 48);
     }
 
     /**
@@ -684,7 +367,7 @@ final class DesignSettings
      */
     public static function sectionMarkerThickness(): string
     {
-        return self::normalizePixelValue((string) Setting::get('design_section_marker_thickness', ''), 1, 12);
+        return CssValue::pixels((string) Setting::get('design_section_marker_thickness', ''), 1, 12);
     }
 
     /**
@@ -694,7 +377,7 @@ final class DesignSettings
      */
     public static function sectionMarkerHeight(): string
     {
-        return self::normalizePixelValue((string) Setting::get('design_section_marker_height', ''), 4, 80);
+        return CssValue::pixels((string) Setting::get('design_section_marker_height', ''), 4, 80);
     }
 
     /** Подъём feature-card и карточек, наследующих его hover, 0–20px. */
@@ -733,279 +416,7 @@ final class DesignSettings
 
     public static function normalizeNewsDetailSpacing(string $raw): string
     {
-        return self::normalizePixelValue($raw, 0, 200);
-    }
-
-    /**
-     * Размеры шрифта по элементам: ключ формы fs_* => [подпись, CSS-селектор,
-     * placeholder-значение темы]. Пустое значение — размер темы не трогаем.
-     * Правила выводятся с !important, чтобы предсказуемо перекрывать
-     * компонентные clamp()-размеры тем (панель a11y всё равно сильнее).
-     */
-    /** Прежний цвет зашитой тени: холодный сине-серый. */
-    public const SHADOW_COLOR_DEFAULT = '#101828';
-
-    /** Прежний цвет подложки текста крупных карточек: rgb(6, 14, 28). */
-    public const VEIL_COLOR_DEFAULT = '#060e1c';
-
-    /** Плотность подложки при силе 100 % — ровно та, что была зашита в теме. */
-    public const VEIL_ALPHA_BASE = 0.88;
-
-    /** Кандидаты в цвет заголовка поверх подложки. */
-    public const VEIL_FG_LIGHT = '#ffffff';
-    public const VEIL_FG_DARK = '#0b1a30';
-
-    public const TYPO_SIZES = [
-        'fs_h1' => ['Заголовок H1', '.block-hero__title, .content-pagehead__title, .listing__title, .projdetail__title, .catdetail__title, .translation-notice__title, .newsdetail__title, .newsdetail-phero__title, .reader-mode__headline', '42'],
-        'fs_h2' => ['Заголовок H2', '.section-title, .block-title, .block-text__title, .bio__title, .content-list__head h1, .block-news__title, .block-categories__title, .block-contact-cards__title, .block-projects__title, .block-team__title, .block-testimonials__title, .block-banner__title, .block-featband__title, .block-map__title, .block-partners__title, .textimage__title, .subscribe-block__title, .section-head__title, .newslist-lead__title, .catdetail__subtitle, .block-timeline__title', '32'],
-        'fs_h3' => ['Заголовок H3', '.orgstruct__head-name, .timeline-cta__title, .ctaband__title, .featband__name, .bio-career__title, .bio-quote__mark, .widget__title, .bio-extra__title, .block-team__group-title, .newsdetail-card__title, .newsdetail-timeline__title, .newsdetail-subscribe__title', '24'],
-        'fs_h4' => ['Заголовок H4', '.block-team__unit-title, .newsdetail-timeline__heading', '20'],
-        'fs_h5' => ['Заголовок H5', '', '18'],
-        'fs_h6' => ['Заголовок H6', '', '16'],
-        'fs_lead' => ['Вводный и крупный текст', '.content-pagehead__lead, .content-list__lead, .listing__lead, .block-hero__lead, .block-hero__subtitle, .block-banner__text, .newsdetail__lead, .newsdetail-phero__lead, .newslist-lead__excerpt, .bio-quote__text, .rich-content--lead', '17'],
-        'fs_card_title' => ['Заголовки карточек и этапов', '.card__title, .content-card__title, .feature-card__title, .contact-card__title, .stage__title, .stage-item__title, .doc-card__title, .repo-card__title, .project-card__title, .album-card__title, .imgcard__title, .catcard__title, .catdetail__card-title, .faq-item__q, .newsdetail-doc__title, .block-map__card-title, .gcal-list__title, .bio-edu__degree, .icon-text__value', '16'],
-        // Карточка новости живёт своей жизнью: её заголовок стоит в ленте из
-        // четырнадцати карточек и в подборках на главной, где длина строки
-        // другая, чем у карточки документа или этапа. Пустое поле — размер
-        // берётся у «Заголовков карточек», как было до появления настройки.
-        'fs_news_title' => ['Заголовки карточек новостей', '.news-card__title, .relnews-card__title, .adjnews__title, .newsdocs-item__title, .news-poll-card__question, .widget-latest-news__title', '16'],
-        'fs_card_text' => ['Текст карточек и этапов', '.feature-card__text, .stage__text, .stage-item__text, .act-card__desc, .doc-card__desc, .repo-card__desc, .news-card__desc, .news-card__excerpt, .project-card__desc, .relnews-card__excerpt, .imgcard__desc, .catcard__excerpt, .timeline-item__text, .featband__text, .bio-career__text, .newsdetail-timeline__desc, .newsdetail-points__item, .faq-item__a, .contact-card__item, .block-map__card-address', '14'],
-        'fs_meta' => ['Метаданные и подписи', '.crumbs, .content-crumbs, .content-card__meta, .content-detail__date, .stage__year, .stage__label, .act-card__number, .act-card__date, .act-card__meta, .news-card__date, .news-card__meta, .project-card__meta, .album-card__meta, .relnews-card__date, .adjnews__date, .newsdocs-item__date, .doc-card__meta, .catcard__created, .catcard__meta-item, .catcard__file, .catdetail__date, .newsdetail__meta, .newsdetail__source, .newsdetail-gallery__caption, .newsdetail-timeline__date, .newsdetail-event__label, .newsdetail-doc__meta, .newsdetail-points__number, .bio-career__years, .bio-edu__years, .bio-edu__org, .block-text__media-caption, .article-media__caption, .article-media__credit, .media-caption, .gcal-list__time, .gcal-list__loc, .icon-text__label', '13'],
-        'fs_small' => ['Мелкий и вспомогательный текст', 'small, .form-hint, .section-head__eyebrow, .block-hero__eyebrow, .content-badge, .newsdetail__badge, .news-badge, .faq-item__category, .search-suggest__type, .search-suggest__meta, .site-search-results__type, .news-poll-card__badge, .news-poll-card__meta', '13'],
-        'fs_btn' => ['Кнопки и ссылки-действия', '.block-cta__button, .block-banner__button, .block-hero__button, .timeline-card__button, .timeline-cta__button, .ctaband__button, .newsdetail__btn, .newsdetail__reader-btn, .newsdetail-dl-btn, .doc-card__action, .act-card__action, .catcard__more, .content-toolbar__reset, .news-card__more, .block-map__card-link, .section-head__all, .gcal-nav__all, .btn-cta, .btn, button, input[type="button"], input[type="submit"]', '15'],
-        'fs_menu' => ['Главное меню', '.site-menu__link', '13'],
-        'fs_topbar' => ['Верхняя панель', '.site-topbar', '13'],
-    ];
-
-    /**
-     * Шкала типографики: коэффициент между соседними ступенями. Размеры
-     * заголовков считаются от базового размера текста, а не задаются каждый
-     * отдельно — иначе H2 легко оказывается мельче H3, что и случалось.
-     *
-     * ключ => [подпись, коэффициент, пояснение]
-     */
-    public const TYPO_SCALES = [
-        // Значение по умолчанию — «не вмешиваться»: на уже работающем сайте
-        // включение шкалы поменяло бы все заголовки разом, без спроса.
-        'theme' => ['Как в теме', 0.0, 'Размеры остаются такими, какие заданы в теме. Ничего не меняется.'],
-        'compact' => ['Компактная', 1.2, 'Плотный ритм: много текста на экране, заголовки не давят.'],
-        'classic' => ['Классическая', 1.25, 'Сбалансированная шкала для информационных сайтов.'],
-        'expressive' => ['Выразительная', 1.333, 'Крупные заголовки, сильный контраст с текстом.'],
-    ];
-
-    /** Ступени шкалы относительно базового размера; H6 — половина шага. */
-    private const SCALE_STEPS = ['fs_h6' => 0.5, 'fs_h5' => 1, 'fs_h4' => 2, 'fs_h3' => 3, 'fs_h2' => 4, 'fs_h1' => 5];
-
-    public static function typoScale(): string
-    {
-        $scale = (string) Setting::get('design_typo_scale', 'theme');
-
-        return isset(self::TYPO_SCALES[$scale]) ? $scale : 'theme';
-    }
-
-    /**
-     * Размеры заголовков по выбранной шкале — то, что применится, если не
-     * задано точное значение вручную.
-     *
-     * @return array<string,string> ключ fs_* => '32px'
-     */
-    public static function scaleSizes(): array
-    {
-        $ratioSetting = self::TYPO_SCALES[self::typoScale()][1];
-        if ($ratioSetting <= 1.0) {
-            return []; // «Как в теме» — размеры не навязываем
-        }
-
-        $base = (float) (preg_replace('/[^0-9.]/', '', self::fontSizeCustom()) ?: 0);
-        if ($base <= 0) {
-            $base = (float) (['sm' => 15, 'md' => 16, 'lg' => 17, 'xl' => 18][self::current()['font_size'] ?? 'md'] ?? 16);
-        }
-        $ratio = $ratioSetting;
-
-        $sizes = [];
-        foreach (self::SCALE_STEPS as $key => $step) {
-            // Округляем до целого: дробные размеры вроде 13.12px и порождают
-            // ощущение, что шкалы нет.
-            $sizes[$key] = ((string) (int) round($base * ($ratio ** $step))) . 'px';
-        }
-
-        return $sizes;
-    }
-
-    /**
-     * Итоговые размеры по элементам: ручное значение важнее шкалы,
-     * при пустом поле для заголовков берётся шкала.
-     *
-     * @return array<string,string> ключ => '17px' или '' (не задан)
-     */
-    public static function typographySizes(): array
-    {
-        $scale = self::scaleSizes();
-        $sizes = [];
-        foreach (self::TYPO_SIZES as $key => $_) {
-            $manual = self::normalizeFsSize((string) Setting::get('design_' . $key, ''));
-            $sizes[$key] = $manual !== '' ? $manual : ($scale[$key] ?? '');
-        }
-
-        // Заголовки карточек новостей отделены от остальных карточек, но
-        // незаданное поле обязано означать «как раньше»: до появления
-        // настройки эти заголовки слушались «Заголовков карточек», и пустое
-        // значение не должно менять размер на уже настроенном сайте.
-        if ($sizes['fs_news_title'] === '') {
-            $sizes['fs_news_title'] = $sizes['fs_card_title'];
-        }
-
-        return $sizes;
-    }
-
-    /** Только ручные переопределения — для формы в админке. @return array<string,string> */
-    public static function typographyOverrides(): array
-    {
-        $sizes = [];
-        foreach (self::TYPO_SIZES as $key => $_) {
-            $sizes[$key] = self::normalizeFsSize((string) Setting::get('design_' . $key, ''));
-        }
-
-        return $sizes;
-    }
-
-    /** Нормализует размер шрифта элемента (8–96px); '' — не задан/невалиден. */
-    public static function normalizeFsSize(string $raw): string
-    {
-        return self::normalizePixelValue($raw, 8, 96);
-    }
-
-    /**
-     * `:not(...)` со всеми классами компонентных групп типографики.
-     *
-     * Нужен правилу по тегу заголовка: элемент, чей класс владелец явно
-     * отнёс к «Заголовкам карточек», «Служебным подписям» и прочим группам,
-     * должен слушаться этой группы, а не уровня заголовка. Берём только
-     * простые селекторы вида «.class» — составные вроде «.a .b» в :not()
-     * значили бы не то, что ожидается.
-     */
-    private static function componentTitleExclusion(): string
-    {
-        $classes = [];
-        foreach (['fs_lead', 'fs_card_title', 'fs_news_title', 'fs_card_text', 'fs_meta', 'fs_menu', 'fs_topbar'] as $group) {
-            foreach (explode(',', self::TYPO_SIZES[$group][1]) as $selector) {
-                $selector = trim($selector);
-                if (preg_match('/^\.[A-Za-z0-9_-]+$/', $selector) === 1) {
-                    $classes[$selector] = true;
-                }
-            }
-        }
-
-        return $classes === [] ? '' : ':not(' . implode(',', array_keys($classes)) . ')';
-    }
-
-    /** CSS-правила для заданных размеров по элементам ('' — ничего не задано). */
-    public static function typographyCss(): string
-    {
-        $rules = '';
-        $variables = '';
-        $headingRules = '';
-        $sizes = self::typographySizes();
-        foreach ($sizes as $key => $size) {
-            if ($size !== '') {
-                $variable = '--font-size-' . str_replace('_', '-', substr($key, 3));
-                $variables .= $variable . ':' . $size . ';';
-                $rules .= self::TYPO_SIZES[$key][1] . '{font-size:var(' . $variable . ') !important;}';
-            }
-        }
-
-        // Компонентный класс не должен менять семантический уровень заголовка:
-        // <h3 class="..."> получает настройку H3, даже если класс по ошибке
-        // попал в другую группу. :root + [class]/:not([class]) дают правилу
-        // достаточную специфичность против компонентных селекторов.
-        //
-        // Исключение — классы, явно перечисленные в компонентных группах
-        // («Заголовки карточек» и т.п.). Заголовок карточки остаётся <h2> по
-        // структуре страницы (h1 → h3 axe считает пропуском уровня), но
-        // размер ему задаёт своя группа, а не настройка H2: иначе увеличение
-        // H2 раздувало и карточки в списках.
-        $componentExclusion = self::componentTitleExclusion();
-        foreach (['fs_h1' => 'h1', 'fs_h2' => 'h2', 'fs_h3' => 'h3', 'fs_h4' => 'h4', 'fs_h5' => 'h5', 'fs_h6' => 'h6'] as $key => $tag) {
-            if (($sizes[$key] ?? '') === '') {
-                continue;
-            }
-            $variable = '--font-size-' . substr($key, 3);
-            $headingRules .= ':root body ' . $tag . '[class]' . $componentExclusion
-                . ',:root body ' . $tag . ':not([class]){font-size:var(' . $variable . ') !important;}';
-        }
-
-        // Служебные подписи используют отдельный tracking-токен: интервал
-        // заголовков для uppercase-номеров и дат семантически не подходит.
-        if (self::metaLetterSpacingCustom() !== '') {
-            $rules .= self::TYPO_SIZES['fs_meta'][1]
-                . '{letter-spacing:var(--meta-letter-spacing) !important;}';
-        }
-
-        return ($variables !== '' ? ':root{' . $variables . '}' : '') . $rules . $headingRules;
-    }
-
-    /** Точный межстрочный интервал, 1–2.5 (без единиц); пусто — значение пресета. */
-    public static function lineHeightCustom(): string
-    {
-        return self::normalizeLineHeight((string) Setting::get('design_line_height_custom', ''));
-    }
-
-    public static function headingLineHeightCustom(): string
-    {
-        return self::normalizeLineHeight((string) Setting::get('design_heading_line_height_custom', ''));
-    }
-
-    public static function normalizeLineHeight(string $raw): string
-    {
-        $raw = trim(str_replace(',', '.', $raw));
-        if ($raw === '' || !preg_match('/^\d(?:\.\d{1,2})?$/', $raw)) {
-            return '';
-        }
-        $value = (float) $raw;
-        if ($value < 1 || $value > 2.5) {
-            return '';
-        }
-
-        return rtrim(rtrim(number_format($value, 2, '.', ''), '0'), '.');
-    }
-
-    /** Точный межбуквенный интервал метаданных, -0.1–0.3em; пусто — тема. */
-    public static function metaLetterSpacingCustom(): string
-    {
-        return self::normalizeMetaLetterSpacing(
-            (string) Setting::get('design_meta_letter_spacing_custom', '')
-        );
-    }
-
-    public static function normalizeMetaLetterSpacing(string $raw): string
-    {
-        $raw = strtolower(trim(str_replace(',', '.', $raw)));
-        $raw = preg_replace('/em$/', '', $raw) ?? '';
-        if ($raw === '' || !preg_match('/^-?(?:\d+(?:\.\d{1,3})?|\.\d{1,3})$/', $raw)) {
-            return '';
-        }
-        $value = (float) $raw;
-        if ($value < -0.1 || $value > 0.3) {
-            return '';
-        }
-
-        return rtrim(rtrim(number_format($value, 3, '.', ''), '0'), '.') . 'em';
-    }
-
-    private static function normalizePixelValue(string $raw, float $min, float $max): string
-    {
-        $raw = strtolower(trim(str_replace(',', '.', $raw)));
-        $raw = preg_replace('/px$/', '', $raw) ?? '';
-        if ($raw === '' || !preg_match('/^\d{1,3}(?:\.\d)?$/', $raw)) {
-            return '';
-        }
-        $value = (float) $raw;
-        if ($value < $min || $value > $max) {
-            return '';
-        }
-        $normalized = rtrim(rtrim(number_format($value, 1, '.', ''), '0'), '.');
-
-        return $normalized . 'px';
+        return CssValue::pixels($raw, 0, 200);
     }
 
     /**
@@ -1229,20 +640,20 @@ final class DesignSettings
         if (array_key_exists('section_marker_thickness', $input)) {
             Setting::set(
                 'design_section_marker_thickness',
-                self::normalizePixelValue((string) $input['section_marker_thickness'], 1, 12)
+                CssValue::pixels((string) $input['section_marker_thickness'], 1, 12)
             );
         }
         if (array_key_exists('section_marker_height', $input)) {
             Setting::set(
                 'design_section_marker_height',
-                self::normalizePixelValue((string) $input['section_marker_height'], 4, 80)
+                CssValue::pixels((string) $input['section_marker_height'], 4, 80)
             );
         }
         if (array_key_exists('menu_divider_thickness', $input)) {
-            Setting::set('design_menu_divider_thickness', self::normalizePixelValue((string) $input['menu_divider_thickness'], 0, 10));
+            Setting::set('design_menu_divider_thickness', CssValue::pixels((string) $input['menu_divider_thickness'], 0, 10));
         }
         if (array_key_exists('menu_divider_height', $input)) {
-            Setting::set('design_menu_divider_height', self::normalizePixelValue((string) $input['menu_divider_height'], 2, 100));
+            Setting::set('design_menu_divider_height', CssValue::pixels((string) $input['menu_divider_height'], 2, 100));
         }
 
         // Ручные цвета и шрифт сохраняются отдельно от активного пресета.
@@ -1419,204 +830,6 @@ final class DesignSettings
         return true;
     }
 
-    // --- Пользовательские конфигурации (сохранённые администратором) ---
-
-    private const USER_PRESETS_KEY = 'design_user_presets';
-    private const USER_PRESETS_MAX = 10;
-
-    /** @return array<string,array{label:string,values:array<string,string>,colors?:array<int,string>,appearance?:array<string,string>}> */
-    public static function userPresets(): array
-    {
-        $json = Setting::get(self::USER_PRESETS_KEY, '');
-        $data = $json !== '' ? json_decode($json, true) : null;
-
-        return is_array($data) ? $data : [];
-    }
-
-    /**
-     * Сохраняет ТЕКУЩИЕ настройки дизайна как именованную конфигурацию.
-     * Вместе с опциями снапшотится ручная тройка цвет/акцент/шрифт — чтобы
-     * пресет с палитрой «Свои цвета» восстанавливался в точности.
-     * Возвращает slug или null (пустое имя / превышен лимит).
-     */
-    public static function saveUserPreset(string $name): ?string
-    {
-        $name = mb_substr(trim($name), 0, 40);
-        if ($name === '') {
-            return null;
-        }
-
-        $presets = self::userPresets();
-        // Сохраняем буквы любого языка: прежняя ASCII-регулярка превращала
-        // почти все русские/узбекские названия в один ключ "preset".
-        $baseSlug = preg_replace('/[^\p{L}\p{N}]+/u', '-', mb_strtolower($name)) ?: 'preset';
-        $baseSlug = trim($baseSlug, '-') ?: 'preset';
-        $slug = $baseSlug;
-        if (isset($presets[$slug]) && (string) ($presets[$slug]['label'] ?? '') !== $name) {
-            $suffix = 2;
-            do {
-                $slug = $baseSlug . '-' . $suffix++;
-            } while (isset($presets[$slug]));
-        }
-        if (!isset($presets[$slug]) && count($presets) >= self::USER_PRESETS_MAX) {
-            return null;
-        }
-
-        $custom = self::customAppearance();
-        $semantic = self::semanticColors();
-        $spacings = self::semanticSpacings();
-        $presets[$slug] = [
-            'label' => $name,
-            'values' => self::current(),
-            'colors' => [
-                $custom['color_primary'],
-                $custom['color_accent'],
-                $custom['font_family'],
-            ],
-            'appearance' => [
-                'color_primary' => $custom['color_primary'],
-                'color_accent' => $custom['color_accent'],
-                'font_family' => $custom['font_family'],
-                'font_face_name' => Setting::get('font_face_name', ''),
-                'font_url' => Setting::get('font_url', ''),
-                'default_theme' => Setting::get('default_theme', 'light'),
-                'font_google_heading' => Setting::get('design_font_google_heading', ''),
-                'font_google_body' => Setting::get('design_font_google_body', ''),
-                'font_script' => Setting::get('design_font_script', ''),
-                'font_size_custom' => Setting::get('design_font_size_custom', ''),
-                'radius_custom' => Setting::get('design_radius_custom', ''),
-                'newsdetail_padding_top' => Setting::get('design_newsdetail_padding_top', ''),
-                'newsdetail_padding_bottom' => Setting::get('design_newsdetail_padding_bottom', ''),
-                'line_height_custom' => Setting::get('design_line_height_custom', ''),
-                'heading_line_height_custom' => Setting::get('design_heading_line_height_custom', ''),
-                'meta_letter_spacing_custom' => Setting::get('design_meta_letter_spacing_custom', ''),
-                'typo_scale' => self::typoScale(),
-            ] + array_combine(
-                array_keys(self::TYPO_SIZES),
-                array_map(static fn (string $k): string => (string) Setting::get('design_' . $k, ''), array_keys(self::TYPO_SIZES))
-            ) + [
-                'bg_primary' => $semantic['bg_primary'],
-                'bg_surface' => $semantic['bg_surface'],
-                'text_main' => $semantic['text_main'],
-                'text_muted' => $semantic['text_muted'],
-                'border_color' => $semantic['border_color'],
-                'space_small' => $spacings['space_small'],
-                'space_premium' => $spacings['space_premium'],
-                'space_max' => $spacings['space_max'],
-            ],
-        ];
-        Setting::set(self::USER_PRESETS_KEY, self::encodePresets($presets));
-        Setting::set('design_preset', 'user:' . $slug);
-
-        return $slug;
-    }
-
-    public static function deleteUserPreset(string $slug): bool
-    {
-        $presets = self::userPresets();
-        if (!isset($presets[$slug])) {
-            return false;
-        }
-        unset($presets[$slug]);
-        Setting::set(self::USER_PRESETS_KEY, self::encodePresets($presets));
-        if (Setting::get('design_preset', '') === 'user:' . $slug) {
-            Setting::set('design_preset', '');
-        }
-
-        return true;
-    }
-
-    public static function applyUserPreset(string $slug): bool
-    {
-        $presets = self::userPresets();
-        if (!isset($presets[$slug])) {
-            return false;
-        }
-        $preset = $presets[$slug];
-        $values = (array) ($preset['values'] ?? []);
-        $colors = (array) ($preset['colors'] ?? []);
-        $appearance = (array) ($preset['appearance'] ?? []);
-        // Сначала восстанавливаем ручные значения, затем применяем через
-        // обычный save. Так они сохраняются и после переключения пресетов.
-        if (($values['palette'] ?? '') === 'custom' && count($colors) === 3) {
-            if ($colors[0] !== '') { Setting::set('design_custom_color_primary', (string) $colors[0]); }
-            if ($colors[1] !== '') { Setting::set('design_custom_color_accent', (string) $colors[1]); }
-        }
-        if (($values['font_style'] ?? '') === 'custom' && ($colors[2] ?? '') !== '') {
-            Setting::set('design_custom_font_family', (string) $colors[2]);
-        }
-        // Новые пресеты хранят весь единый блок оформления; colors остаётся
-        // fallback для конфигураций, созданных до унификации.
-        $appearanceInput = array_intersect_key($appearance, array_flip(array_merge([
-            'color_primary', 'color_accent', 'font_family', 'font_face_name',
-            'font_url', 'default_theme', 'font_google_heading', 'font_google_body',
-            'font_script',
-            'font_size_custom', 'radius_custom', 'line_height_custom',
-            'newsdetail_padding_top', 'newsdetail_padding_bottom',
-            'heading_line_height_custom', 'meta_letter_spacing_custom', 'typo_scale',
-            'bg_primary', 'bg_surface', 'text_main', 'text_muted', 'border_color',
-            'space_small', 'space_premium', 'space_max',
-        ], array_keys(self::TYPO_SIZES))));
-        // Старые пользовательские конфигурации не знали об этих полях: при
-        // их применении сбрасываем текущие переопределения, а не наследуем их.
-        $appearanceInput = array_merge([
-            'font_google_heading' => '',
-            'font_google_body' => '',
-            'font_script' => '',
-            'font_size_custom' => '',
-            'radius_custom' => '',
-            'newsdetail_padding_top' => '',
-            'newsdetail_padding_bottom' => '',
-            'line_height_custom' => '',
-            'heading_line_height_custom' => '',
-            'meta_letter_spacing_custom' => '',
-            // Конфигурации, сохранённые до появления шкалы, восстанавливают
-            // поведение «как в теме», а не наследуют текущую шкалу.
-            'typo_scale' => 'theme',
-            // Старые конфигурации не содержали семантические интервалы.
-            'space_small' => 'clamp(14px, 2.5vw, 24px)',
-            'space_premium' => 'clamp(28px, 4vw, 56px)',
-            'space_max' => 'clamp(40px, 5vw, 76px)',
-        ], array_fill_keys(array_keys(self::TYPO_SIZES), ''), $appearanceInput);
-        self::save(array_merge($values, $appearanceInput));
-
-        Setting::set('design_preset', 'user:' . $slug);
-
-        return true;
-    }
-
-    /** Префикс автокопий дизайна — по нему они узнаются и чистятся. */
-    public const DESIGN_BACKUP_PREFIX = 'Автокопия дизайна';
-
-    /** Сколько автокопий держим: они делят лимит с обычными конфигурациями. */
-    private const DESIGN_BACKUP_KEEP = 2;
-
-    /**
-     * Снимок текущих настроек перед применением конфигурации: применение
-     * переписывает всё разом, а отмены у раздела «Дизайн» нет.
-     *
-     * @return string|null название копии либо null, если сохранить не вышло
-     */
-    public static function autoBackupPreset(): ?string
-    {
-        // Старые автокопии убираем заранее — иначе упрёмся в лимит наборов.
-        $presets = self::userPresets();
-        $auto = array_filter(
-            $presets,
-            static fn (array $p): bool => str_starts_with((string) ($p['label'] ?? ''), self::DESIGN_BACKUP_PREFIX)
-        );
-        if (count($auto) >= self::DESIGN_BACKUP_KEEP) {
-            foreach (array_slice(array_keys($auto), 0, count($auto) - self::DESIGN_BACKUP_KEEP + 1) as $slug) {
-                unset($presets[$slug]);
-            }
-            Setting::set(self::USER_PRESETS_KEY, self::encodePresets($presets));
-        }
-
-        $name = self::DESIGN_BACKUP_PREFIX . ': ' . date('d.m.Y H:i');
-
-        return self::saveUserPreset($name) !== null ? $name : null;
-    }
-
     /**
      * CSS-переменные для фронтенда на основе текущих значений.
      * @param array<string,string> $v
@@ -1775,21 +988,169 @@ final class DesignSettings
               : '');
     }
 
-    /**
-     * Пресеты строкой для настройки.
-     *
-     * `json_encode()` объявлена как `string|false` и при негодных данных (битая
-     * кодировка в названии пресета) отдаёт `false`. В файле со `strict_types`
-     * это значение уходило в `Setting::set()` типизированным параметром, то
-     * есть сохранение раздела «Дизайн» падало с `TypeError`, ничего не говоря о
-     * причине. `JSON_THROW_ON_ERROR` называет её вслух и не даёт записать в
-     * настройку мусор вместо пресетов.
-     *
-     * @param array<mixed> $presets
-     */
-    private static function encodePresets(array $presets): string
+    // --- Фасад: вынесенные части «Дизайна» (App\Core\Design\*). Вызывающие и
+    // тесты обращаются к DesignSettings как раньше; новое пишется сразу туда.
+
+    // FontCatalog
+    public const GOOGLE_FONTS = FontCatalog::GOOGLE_FONTS;
+    public const SCRIPT_FONTS = FontCatalog::SCRIPT_FONTS;
+    public const FONTS = FontCatalog::FONTS;
+
+    /** @return array<string, array{0:string,1:string,2:string}> */
+    public static function googleFontsExtra(): array
     {
-        return json_encode($presets, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        return FontCatalog::googleFontsExtra();
     }
 
+    /** @return array<string, array{0:string,1:string,2:string}> */
+    public static function googleFontCatalog(): array
+    {
+        return FontCatalog::googleFontCatalog();
+    }
+
+    /** @return array<string, array{0:string,1:string,2:string}> */
+    public static function fontCatalog(): array
+    {
+        return FontCatalog::fontCatalog();
+    }
+
+    public static function scriptFontStack(): string
+    {
+        return FontCatalog::scriptFontStack();
+    }
+
+    public static function fontStyleKey(string $style): string
+    {
+        return FontCatalog::fontStyleKey($style);
+    }
+
+    // Typography
+    public const TYPO_SIZES = Typography::TYPO_SIZES;
+    public const TYPO_SCALES = Typography::TYPO_SCALES;
+
+    public static function typoScale(): string
+    {
+        return Typography::typoScale();
+    }
+
+    /** @return array<string,string> ключ fs_* => '32px' */
+    public static function scaleSizes(): array
+    {
+        return Typography::scaleSizes();
+    }
+
+    /** @return array<string,string> ключ => '17px' или '' (не задан) */
+    public static function typographySizes(): array
+    {
+        return Typography::typographySizes();
+    }
+
+    /** @return array<string,string> */
+    public static function typographyOverrides(): array
+    {
+        return Typography::typographyOverrides();
+    }
+
+    public static function normalizeFsSize(string $raw): string
+    {
+        return Typography::normalizeFsSize($raw);
+    }
+
+    public static function typographyCss(): string
+    {
+        return Typography::typographyCss();
+    }
+
+    public static function lineHeightCustom(): string
+    {
+        return Typography::lineHeightCustom();
+    }
+
+    public static function headingLineHeightCustom(): string
+    {
+        return Typography::headingLineHeightCustom();
+    }
+
+    public static function normalizeLineHeight(string $raw): string
+    {
+        return Typography::normalizeLineHeight($raw);
+    }
+
+    public static function metaLetterSpacingCustom(): string
+    {
+        return Typography::metaLetterSpacingCustom();
+    }
+
+    public static function normalizeMetaLetterSpacing(string $raw): string
+    {
+        return Typography::normalizeMetaLetterSpacing($raw);
+    }
+
+    // Surfaces
+    public const SHADOW_COLOR_DEFAULT = Surfaces::SHADOW_COLOR_DEFAULT;
+    public const VEIL_COLOR_DEFAULT = Surfaces::VEIL_COLOR_DEFAULT;
+    public const VEIL_ALPHA_BASE = Surfaces::VEIL_ALPHA_BASE;
+    public const VEIL_FG_LIGHT = Surfaces::VEIL_FG_LIGHT;
+    public const VEIL_FG_DARK = Surfaces::VEIL_FG_DARK;
+
+    public static function shadowColor(): string
+    {
+        return Surfaces::shadowColor();
+    }
+
+    public static function shadowStrength(): int
+    {
+        return Surfaces::shadowStrength();
+    }
+
+    public static function veilColor(): string
+    {
+        return Surfaces::veilColor();
+    }
+
+    public static function veilStrength(): int
+    {
+        return Surfaces::veilStrength();
+    }
+
+    /** @return array{rgb: string, alpha: float, fg: string, ratio: float, raised: bool} */
+    public static function newsVeil(): array
+    {
+        return Surfaces::newsVeil();
+    }
+
+    public static function cardShadow(string $style): string
+    {
+        return Surfaces::cardShadow($style);
+    }
+
+    // UserPresets
+    public const DESIGN_BACKUP_PREFIX = UserPresets::DESIGN_BACKUP_PREFIX;
+
+    /** @return array<string,array{label:string,values:array<string,string>,colors?:array<int,string>,appearance?:array<string,string>}> */
+    public static function userPresets(): array
+    {
+        return UserPresets::userPresets();
+    }
+
+    public static function saveUserPreset(string $name): ?string
+    {
+        return UserPresets::saveUserPreset($name);
+    }
+
+    public static function deleteUserPreset(string $slug): bool
+    {
+        return UserPresets::deleteUserPreset($slug);
+    }
+
+    public static function applyUserPreset(string $slug): bool
+    {
+        return UserPresets::applyUserPreset($slug);
+    }
+
+    /** @return string|null название копии либо null, если сохранить не вышло */
+    public static function autoBackupPreset(): ?string
+    {
+        return UserPresets::autoBackupPreset();
+    }
 }

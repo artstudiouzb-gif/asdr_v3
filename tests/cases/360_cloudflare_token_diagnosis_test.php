@@ -42,13 +42,20 @@ test('Global API Key и Zone ID не принимаются за API-токен'
 });
 
 test('Причина отказа доходит до сообщения, а не теряется в error_chain', function (): void {
-    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
-    assert_contains("error_chain", $source, 'подробность ответа обязана читаться');
-    assert_contains('6003', $source, 'код «Invalid request headers» объясняется отдельно');
+    $msg = Cloudflare::errorText(['errors' => [[
+        'code' => 6003, 'message' => 'Invalid request headers',
+        'error_chain' => [['code' => 6111, 'message' => 'Invalid format for Authorization header']],
+    ]]], 400);
+    assert_contains('Invalid format for Authorization header', $msg, 'подробность из error_chain обязана читаться');
+    assert_contains('Global API Key', $msg, 'код «Invalid request headers» объясняется отдельно');
 
     // Сообщение о неверном формате выдаётся до похода в сеть: ждать ответа
     // API, чтобы узнать про вставленный Zone ID, незачем.
-    assert_contains('looksLikeToken', $source, 'форма токена проверяется в verify()');
+    \App\Models\Setting::overrideInMemory('cf_api_token', '0123456789abcdef0123456789abcdef');
+    \App\Models\Setting::overrideInMemory('cf_zone_id', 'zone');
+    $verdict = Cloudflare::verify();
+    assert_false($verdict['ok']);
+    assert_contains('не Zone ID', $verdict['message'], 'форма токена проверяется в verify() до запроса');
 
     $controller = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/PerformanceController.php');
     assert_contains('Cloudflare::normalizeToken', $controller, 'токен чистится при сохранении');
@@ -77,9 +84,8 @@ test('Проверка связи спрашивает все три звена,
 test('Причина отказа очистки доходит до сообщения, а не только до журнала', function (): void {
     // «Cloudflare: ошибка очистки» не подсказывает, что чинить, а журнал на
     // shared-хостинге владелец не читает: до storage/logs он не доходит.
-    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
-    assert_contains('lastError', $source, 'причина отказа обязана сохраняться');
-    assert_contains('cache.purge', $source, 'отказ прав объясняется, а не только пересказывается');
+    $msg = Cloudflare::errorText(['errors' => [['code' => 10000, 'message' => 'Requires permission "cache.purge"']]], 403);
+    assert_contains('Cache Purge', $msg, 'отказ прав объясняется, а не только пересказывается');
 
     $controller = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/PerformanceController.php');
     assert_contains('Cloudflare::lastError()', $controller, 'сообщение панели обязано называть причину');
@@ -95,18 +101,21 @@ test('Подсказка написана на формулировки, кот�
     // и подсказка не срабатывала ни разу. Эти две строки сняты с боевого
     // журнала: 'Authentication error' (токен не принят) и 'Unable to purge.
     // Unauthorized.' (токен узнан, права Cache Purge нет).
-    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
-    assert_contains("'Unable to purge'", $source, 'формулировка отказа очистки');
-    assert_contains("'Authentication error'", $source, 'формулировка непринятого токена');
-    assert_contains('Cache Purge', $source, 'подсказка называет право');
+    foreach (['Unable to purge. Unauthorized.', 'Authentication error'] as $real) {
+        $msg = Cloudflare::errorText(['errors' => [['code' => 10000, 'message' => $real]]], 403);
+        assert_contains('Cache Purge', $msg, 'подсказка срабатывает на «' . $real . '» и называет право');
+    }
+    $plain = Cloudflare::errorText(['errors' => [['code' => 7003, 'message' => 'Could not route']]], 400);
+    assert_not_contains('Причин три', $plain, 'на чужую ошибку подсказка про права не вешается');
 });
 
 test('Код ошибки Cloudflare попадает в сообщение', function (): void {
     // Одна и та же фраза приходит с разными кодами, и без кода причину
     // приходится угадывать по формулировке — что уже подводило.
-    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
-    assert_contains("' (код '", $source, 'код обязан печататься рядом с текстом');
-    assert_contains('ведёт партнёр', $source, 'причина «зону ведёт партнёр» названа');
+    $msg = Cloudflare::errorText(['errors' => [['code' => 1234, 'message' => 'Unable to purge']]], 403);
+    assert_contains('(код 1234)', $msg, 'код обязан печататься рядом с текстом');
+    assert_contains('ведёт партнёр', $msg, 'причина «зону ведёт партнёр» названа');
+    assert_same('HTTP 502', Cloudflare::errorText('not json', 502), 'без разобранного ответа — код HTTP, а не пустота');
 });
 
 /*
@@ -157,19 +166,20 @@ test('Зона не того домена — это отдельная поло
 test('Пробная очистка идёт по домену зоны, а не по адресу сайта', function (): void {
     // Адрес чужого домена Cloudflare отвергает независимо от прав, и такой
     // отказ читался бы как нехватка права, которого на деле хватает.
-    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
-    $probe = explode('private static function probePurge', $source)[1] ?? '';
-    assert_contains("'https://' . \$zoneName", $probe, 'проба обязана брать домен у самой зоны');
-    assert_contains('app.url', $probe, 'без имени зоны остаётся прежний адрес сайта');
+    assert_same('https://asdr.uz', Cloudflare::purgeProbeBase('asdr.uz'), 'проба обязана брать домен у самой зоны');
+    $site = rtrim((string) \App\Core\Config::get('app.url', ''), '/');
+    assert_same($site, Cloudflare::purgeProbeBase(''), 'без имени зоны остаётся прежний адрес сайта');
 });
 
 test('Ответ Cloudflare печатается как есть, а не только в пересказе', function (): void {
-    $source = (string) file_get_contents(APP_ROOT . '/app/Core/Cloudflare.php');
-    assert_contains('ответ Cloudflare:', $source, 'сырой ответ обязан доходить до владельца');
-    assert_contains('rawTail', $source, 'хвост с ответом собирается отдельно');
-    assert_contains("'raw' =>", $source, 'проба обязана вернуть тело ответа');
+    $raw = '{"success":false,' . "\n" . '"errors":[{"code":10000}]}';
+    assert_same(' [ответ Cloudflare: {"success":false, "errors":[{"code":10000}]}]', Cloudflare::rawTail($raw),
+        'сырой ответ доходит до владельца, переводы строк схлопнуты');
+    assert_same('', Cloudflare::rawTail('   '), 'пустой ответ не рисует пустые скобки');
+    assert_true(mb_strlen(Cloudflare::rawTail(str_repeat('я', 1000))) < 340, 'длинный ответ обрезается');
 
     // Третью причину назвали только после того, как первые две не подтвердились.
-    assert_contains('Причин три', $source, 'причин у отказа очистки три, а не две');
-    assert_contains('не может больше своего хозяина', $source, 'роль в чужом аккаунте режет права токена');
+    $msg = Cloudflare::errorText(['errors' => [['code' => 10000, 'message' => 'Unable to purge']]], 403);
+    assert_contains('Причин три', $msg, 'причин у отказа очистки три, а не две');
+    assert_contains('не может больше своего хозяина', $msg, 'роль в чужом аккаунте режет права токена');
 });
