@@ -62,6 +62,16 @@ $scope = '#block-' . (int) $blockId;
 // одинокая карточка (пятёрка ложится 3+2). Сетка с дырой справа читается как
 // незагрузившийся блок, а не как замысел.
 $autoColumns = $columns === 0;
+// Бегущая лента — у карточек с фотографией и от трёх карточек: ей нужен хотя
+// бы один повтор набора, иначе в шве видна пустота, а две карточки в ленте
+// читаются миганием. В остальных случаях значение ведёт себя как сетка.
+$marquee = $layout === 'marquee' && ($variant === 'image' || $imageBelow) && $itemCount >= 3;
+if ($marquee && $autoColumns) {
+    // Подбор «без одинокой карточки в последнем ряду» ленте не нужен: рядов у
+    // неё нет, колонки задают только ширину карточки.
+    $columns = 5;
+    $autoColumns = false;
+}
 if ($autoColumns) {
     $columns = $itemCount <= 5 && $itemCount > 0
         ? $itemCount
@@ -76,6 +86,14 @@ if ($autoColumns) {
     $templateCss .= \App\Core\GridBalance::css($blockId, '.cards-grid', '.feature-card', $itemCount, $columns);
 }
 $templateCss .= $scope . ' .block-cards{' . $cardStyle . '}';
+if ($marquee) {
+    // Время круга — от числа карточек: с одним временем на всех длинный набор
+    // летел бы, а короткий полз.
+    $perCard = ['slow' => 10, 'normal' => 7, 'fast' => 5][(string) $data['marquee_speed']];
+    $templateCss .= $scope . ' .imgcards-marquee{--marquee-time:' . ($itemCount * $perCard) . 's;'
+        . '--marquee-ratio:' . str_replace('-', '/', (string) $data['marquee_ratio'])
+        . ((int) $data['marquee_gap'] >= 0 ? ';--marquee-gap:' . (int) $data['marquee_gap'] . 'px' : '') . ';}';
+}
 $templateCss .= $scope . ' .feature-card__icon{width:' . $iconBoxSize . 'px;height:' . $iconBoxSize . 'px;}';
 $cardClasses = ($cardBg !== '' ? ' block-cards--custom-bg' : '')
     . ($textColor !== '' ? ' block-cards--custom-text' : '')
@@ -101,7 +119,7 @@ if ($variant === 'icon' && $visualStyle === 'new') {
 ?>
 <?php if ($variant === 'image' || $imageBelow): ?>
     <?php
-    $carousel = $layout !== 'grid' && $itemCount > 1;
+    $carousel = !in_array($layout, ['grid', 'marquee'], true) && $itemCount > 1;
     $desktopCarousel = $explicitSlider || ($layout === 'auto' && $itemCount > $columns);
     ?>
     <div class="block-imgcards<?= $imageBelow ? ' block-imgcards--below' : '' ?>"<?= $carousel ? ' data-carousel' : '' ?>>
@@ -114,6 +132,40 @@ if ($variant === 'icon' && $visualStyle === 'new') {
         </div>
         <?php if ($items === []): ?>
             <p class="block-imgcards__empty"><?= htmlspecialchars(t('Карточки ещё не добавлены.'), ENT_QUOTES) ?></p>
+        <?php elseif ($marquee): ?>
+            <?php // Набор выводится дважды: копия догоняет оригинал ровно тогда,
+                  // когда он ушёл на свою ширину, и шва не видно. Копия — для
+                  // глаз: она скрыта от диктора и не повторяет ссылок, иначе
+                  // с клавиатуры каждую карточку пришлось бы проходить дважды.
+                  // Под курсором и при фокусе лента стоит, рукой её можно
+                  // прокрутить — механика общая с «Партнёрами» (.marquee). ?>
+            <div class="imgcards-marquee<?= (int) $data['marquee_gap'] === 0 ? ' imgcards-marquee--flush' : '' ?> marquee" tabindex="0" role="group" aria-label="<?= htmlspecialchars(t('Карточки — прокрутка вбок'), ENT_QUOTES) ?>">
+                <div class="marquee__track">
+                <?php foreach (array_merge($items, $items) as $index => $item): ?>
+                    <?php
+                    $copy = $index >= $itemCount;
+                    $url = $copy ? '' : $safeLink($item);
+                    $image = trim((string) ($item['image'] ?? ''));
+                    ?>
+                    <?php if ($url !== ''): ?>
+                    <a class="imgcard<?= $imageBelow ? ' imgcard--below' : '' ?>" href="<?= htmlspecialchars($url, ENT_QUOTES) ?>">
+                    <?php else: ?>
+                    <div class="imgcard<?= $imageBelow ? ' imgcard--below' : '' ?>"<?= $copy ? ' aria-hidden="true"' : '' ?>>
+                    <?php endif; ?>
+                        <?php if ($image !== ''): ?>
+                            <?= Media::picture($image, $copy ? '' : (string) ($item['title'] ?? ''), null, null, 'imgcard__media ' . $mediaClasses, true, '(max-width: 560px) 70vw, (max-width: 1000px) 40vw, ' . (int) round(100 / max(1, $columns)) . 'vw') ?>
+                        <?php else: ?>
+                            <span class="imgcard__media" aria-hidden="true"></span>
+                        <?php endif; ?>
+                        <?php if (!$imageBelow): ?><span class="imgcard__overlay"></span><?php endif; ?>
+                        <span class="imgcard__body">
+                            <span class="imgcard__title"><?= htmlspecialchars((string) ($item['title'] ?? ''), ENT_QUOTES) ?></span>
+                            <?php if (!empty($item['text'])): ?><span class="imgcard__text"><?= htmlspecialchars((string) $item['text'], ENT_QUOTES) ?></span><?php endif; ?>
+                        </span>
+                    <?php if ($url !== ''): ?></a><?php else: ?></div><?php endif; ?>
+                <?php endforeach; ?>
+                </div>
+            </div>
         <?php else: ?>
             <div class="imgcards-grid<?= $desktopCarousel ? ' imgcards-grid--carousel' : ($carousel ? ' imgcards-grid--mobile-carousel' : '') ?>"<?= $carousel ? ' data-carousel-track tabindex="0" role="group" aria-label="' . htmlspecialchars(t('Карточки — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
                 <?php foreach ($items as $item): ?>

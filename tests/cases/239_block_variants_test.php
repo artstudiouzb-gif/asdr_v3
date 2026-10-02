@@ -610,6 +610,50 @@ test('Карточки: раскладка выбирается редактор
     assert_not_contains('data-carousel', $compactAuto['html']);
 });
 
+test('Карточки: бегущая лента выводит набор дважды, копию прячет от диктора', function () {
+    $items = [
+        ['title' => 'Альфа', 'text' => 'Выпускник 2022', 'image' => '/uploads/public/a.jpg', 'url' => '/alfa'],
+        ['title' => 'Бета', 'image' => '/uploads/public/b.jpg'],
+        ['title' => 'Гамма', 'image' => '/uploads/public/c.jpg', 'url' => 'javascript:alert(1)'],
+    ];
+
+    $lane = variant_block('cards_grid', ['variant' => 'image', 'layout' => 'marquee', 'items' => $items], 781);
+    assert_contains('imgcards-marquee marquee', $lane['html']);
+    assert_same(6, substr_count($lane['html'], 'class="imgcard"'), 'набор выведен дважды — иначе в шве пустота');
+    assert_same(3, substr_count($lane['html'], 'aria-hidden="true">'), 'копия скрыта от диктора');
+    assert_same(1, substr_count($lane['html'], 'href="/alfa"'), 'копия не повторяет ссылку');
+    assert_not_contains('javascript:', $lane['html']);
+    assert_not_contains('data-carousel', $lane['html'], 'стрелки ленте не нужны');
+    // Время круга — от числа карточек, пропорция кадра — книжная по умолчанию.
+    assert_contains('--marquee-time:21s;--marquee-ratio:3/4;', $lane['css']);
+    assert_contains('{--cards-cols:5;}', $lane['css'], 'авто-колонки ленты — пять, а не подбор рядов');
+
+    $fast = variant_block('cards_grid', ['variant' => 'image_below', 'layout' => 'marquee', 'marquee_speed' => 'fast', 'marquee_ratio' => '16-9', 'items' => $items], 782);
+    assert_same(6, substr_count($fast['html'], 'class="imgcard imgcard--below"'));
+    assert_contains('--marquee-time:15s;--marquee-ratio:16/9;', $fast['css']);
+
+    // Промежуток: по умолчанию общий из «Дизайна» (своего числа нет), ноль —
+    // сплошная полоса с прямыми углами.
+    assert_not_contains('--marquee-gap', $lane['css']);
+    assert_not_contains('imgcards-marquee--flush', $lane['html']);
+    $flush = variant_block('cards_grid', ['variant' => 'image', 'layout' => 'marquee', 'marquee_gap' => 0, 'items' => $items], 785);
+    assert_contains(';--marquee-gap:0px;}', $flush['css']);
+    assert_contains('imgcards-marquee imgcards-marquee--flush marquee', $flush['html']);
+    $wide = variant_block('cards_grid', ['variant' => 'image', 'layout' => 'marquee', 'marquee_gap' => 32, 'items' => $items], 786);
+    assert_contains(';--marquee-gap:32px;}', $wide['css']);
+    // Значение мимо списка — подделка формы, а не «ближайшее допустимое».
+    $forged = variant_block('cards_grid', ['variant' => 'image', 'layout' => 'marquee', 'marquee_gap' => 13, 'items' => $items], 787);
+    assert_not_contains('--marquee-gap', $forged['css']);
+
+    // Двух карточек мало, а у варианта без фото ленты нет — там это сетка.
+    $short = variant_block('cards_grid', ['variant' => 'image', 'layout' => 'marquee', 'items' => array_slice($items, 0, 2)], 783);
+    assert_not_contains('marquee', $short['html']);
+    assert_not_contains('data-carousel', $short['html']);
+    $icon = variant_block('cards_grid', ['variant' => 'icon', 'layout' => 'marquee', 'items' => $items], 784);
+    assert_not_contains('marquee', $icon['html']);
+    assert_not_contains('data-carousel', $icon['html']);
+});
+
 test('Карточки: разметка стрелок и точек — одна на все варианты', function () {
     $partial = (string) file_get_contents(APP_ROOT . '/templates/blocks/partials/carousel_nav.php');
     $template = (string) file_get_contents(APP_ROOT . '/templates/blocks/cards_grid.php');
