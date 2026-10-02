@@ -229,7 +229,6 @@ html[data-a11y-images="off"] .repo-main * {
     *::after {
         transition-property: opacity, color, background-color, border-color, outline-color,
             text-decoration-color, fill, stroke, box-shadow, filter !important;
-        scroll-behavior: auto !important;
     }
 }
 
@@ -273,17 +272,47 @@ html[data-a11y-images="off"] .repo-main * {
     @keyframes email-tilt { to { --motion-still: 1; } }
 }
 
+/* ===== Полная остановка =====
+   Тумблер «остановка анимаций» в панели — выбор посетителя, уровень «Без
+   анимаций» в «Дизайне» — выбор владельца; действуют они одинаково и
+   объявлены одним правилом. Вес — атрибут плюс элемент: правило перебивает
+   компонентные переходы с флагом приоритета (у кнопок темы `all`). */
 html[data-a11y-motion="off"] *,
 html[data-a11y-motion="off"] *::before,
-html[data-a11y-motion="off"] *::after {
+html[data-a11y-motion="off"] *::after,
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after {
     animation: none !important;
     transition: none !important;
-    scroll-behavior: auto !important;
 }
 /* Блок с появлением при скролле ждёт прокрутки прозрачным. Без переходов
    он возникал бы рывком, когда до него доберутся, — при остановленных
    анимациях он виден сразу. */
-html[data-a11y-motion="off"] [data-reveal] { opacity: 1 !important; transform: none !important; }
+html[data-a11y-motion="off"] [data-reveal],
+html[data-motion="off"] [data-reveal] { opacity: 1 !important; transform: none !important; }
+
+/* ===== «Спокойные» («Дизайн» → «Анимации на сайте») =====
+   Выбор владельца, атрибут data-motion на <html>. Медиазапросом его не
+   выразить, поэтому это не копия слоя «уменьшить движение», а своё
+   правило: ключевых кадров нет вовсе (переопределять их поштучно, как для
+   системной настройки, по атрибуту нельзя), переходы — только у цвета и
+   прозрачности, блоки проявляются на месте. */
+html[data-motion="calm"] *,
+html[data-motion="calm"] *::before,
+html[data-motion="calm"] *::after {
+    animation: none !important;
+    transition-property: opacity, color, background-color, border-color, outline-color,
+        text-decoration-color, fill, stroke, box-shadow, filter !important;
+}
+html[data-motion="calm"] [data-reveal] { transform: none; }
+
+/* Плавная прокрутка к якорю объявлена у самого <html> (frontend.css, вне
+   «уменьшить движение»), и правила на `*` его не задевают — `html[…] *`
+   выбирает потомков. Вес атрибута и так больше, флаг не нужен. */
+html[data-a11y-motion="off"],
+html[data-motion="calm"],
+html[data-motion="off"] { scroll-behavior: auto; }
 
 /* Переход между страницами (View Transitions) правило выше не гасит: его
    псевдоэлементы живут в отдельном дереве у корня и под `*` не попадают.
@@ -299,7 +328,10 @@ html[data-a11y-motion="off"] [data-reveal] { opacity: 1 !important; transform: n
 }
 html[data-a11y-motion="off"]::view-transition-group(*),
 html[data-a11y-motion="off"]::view-transition-old(*),
-html[data-a11y-motion="off"]::view-transition-new(*) {
+html[data-a11y-motion="off"]::view-transition-new(*),
+html[data-motion="off"]::view-transition-group(*),
+html[data-motion="off"]::view-transition-old(*),
+html[data-motion="off"]::view-transition-new(*) {
     animation: none;
 }
 

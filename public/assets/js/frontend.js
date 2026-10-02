@@ -164,8 +164,11 @@
     (function () {
         var frames = document.querySelectorAll('[data-hero-youtube-background]');
         if (!frames.length) { return; }
-        var reduceMotion = window.matchMedia
-            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // Общий признак, а не медиазапрос: ролик — движение, и его гасят и
+        // тумблер панели, и уровень анимаций сайта, а не только система.
+        var reduceMotion = typeof window.asdrReduceMotion === 'function'
+            ? window.asdrReduceMotion()
+            : !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
         frames.forEach(function (frame) {
             if (reduceMotion) {
@@ -1371,7 +1374,9 @@
         if (!document.body.classList.contains('design-scrolltop')) { return; }
         var btn = document.querySelector('[data-scroll-top]');
         if (!btn) { return; }
-        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var reduce = typeof window.asdrReduceMotion === 'function'
+            ? window.asdrReduceMotion()
+            : !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
         var shown = false;
         var toggle = function () {
             var need = window.scrollY > 600;

@@ -163,7 +163,7 @@ test('Уменьшить движение: переходы остаются у 
     assert_false(str_contains($bundle, '[data-reveal]{opacity:1!important;transform:none!important;transition:none}'), 'мгновенного показа при системной настройке нет');
     // Явная остановка в панели гасит всё и показывает блоки сразу.
     assert_contains('html[data-a11y-motion=off] *', $bundle);
-    assert_contains('html[data-a11y-motion=off] [data-reveal]{opacity:1!important;transform:none!important}', $bundle);
+    assert_contains('html[data-a11y-motion=off] [data-reveal],', $bundle);
 });
 
 test('Уменьшить движение: системная настройка не включает тумблер «остановка анимаций»', function (): void {
@@ -177,5 +177,32 @@ test('Уменьшить движение: системная настройка
     // Обложка: сдвиг и перелив разведены, «уменьшить движение» снимает только сдвиг.
     $hero = (string) file_get_contents(APP_ROOT . '/public/assets/css/blocks/hero.min.css');
     assert_contains('opacity calc(var(--hero-duration) * var(--hero-fade))', $hero);
-    assert_contains('[data-a11y-motion=off] .hero{--hero-motion:0;--hero-fade:0', $hero);
+    assert_same(1, preg_match('~\[data-a11y-motion=off\] \.hero,[^{]*\{--hero-motion:0;--hero-fade:0~', $hero));
+});
+
+test('Уровень анимаций сайта: выбор владельца в «Дизайне», атрибут на <html>', function (): void {
+    $option = \App\Core\DesignSettings::OPTIONS['motion'];
+    assert_same(['full', 'calm', 'off'], array_keys($option['choices']));
+    assert_same('full', $option['default'], 'без настройки сайт не меняется');
+
+    assert_same('', \App\Core\DesignSettings::motionAttribute([]), '«Полные» ничего не печатают');
+    assert_same('', \App\Core\DesignSettings::motionAttribute(['motion' => 'full']));
+    assert_same('data-motion="calm"', \App\Core\DesignSettings::motionAttribute(['motion' => 'calm']));
+    assert_same('data-motion="off"', \App\Core\DesignSettings::motionAttribute(['motion' => 'off']));
+    assert_same('', \App\Core\DesignSettings::motionAttribute(['motion' => '"><script>']), 'чужое значение не уходит в атрибут');
+
+    $bundle = motion_built_css()['public.min.css'];
+    // «Спокойные»: ключевых кадров нет, переходы — только цвет и прозрачность.
+    assert_contains('html[data-motion=calm] *,html[data-motion=calm] ::after,html[data-motion=calm] ::before{animation:none!important;transition-property:opacity,', $bundle);
+    assert_contains('html[data-motion=calm] [data-reveal]{transform:none}', $bundle);
+    // «Без анимаций»: то же, что тумблер панели.
+    // «Без анимаций» — то же правило, что тумблер панели, а не его копия.
+    assert_same(1, preg_match('~html\[data-a11y-motion=off\] \*,[^{]*html\[data-motion=off\] \*[^{]*\{animation:none!important;transition:none!important\}~', $bundle));
+    assert_contains('html[data-a11y-motion=off] [data-reveal],html[data-motion=off] [data-reveal]{opacity:1!important;transform:none!important}', $bundle);
+
+    $hero = motion_built_css()['blocks/hero.min.css'];
+    assert_contains('[data-motion=calm] .hero', $hero, 'обложка при «Спокойных» не ждёт перелива, которого нет');
+
+    $init = (string) file_get_contents(APP_ROOT . '/public/assets/js/theme-init.js');
+    assert_contains("root.getAttribute('data-motion')", $init, 'скрипты слышат уровень сайта');
 });
