@@ -91,7 +91,8 @@ if ($marquee) {
     // летел бы, а короткий полз.
     $perCard = ['slow' => 10, 'normal' => 7, 'fast' => 5][(string) $data['marquee_speed']];
     $templateCss .= $scope . ' .imgcards-marquee{--marquee-time:' . ($itemCount * $perCard) . 's;'
-        . '--marquee-ratio:' . str_replace('-', '/', (string) $data['marquee_ratio']) . ';}';
+        . '--marquee-ratio:' . str_replace('-', '/', (string) $data['marquee_ratio'])
+        . ((int) $data['marquee_gap'] >= 0 ? ';--marquee-gap:' . (int) $data['marquee_gap'] . 'px' : '') . ';}';
 }
 $templateCss .= $scope . ' .feature-card__icon{width:' . $iconBoxSize . 'px;height:' . $iconBoxSize . 'px;}';
 $cardClasses = ($cardBg !== '' ? ' block-cards--custom-bg' : '')
@@ -138,7 +139,7 @@ if ($variant === 'icon' && $visualStyle === 'new') {
                   // с клавиатуры каждую карточку пришлось бы проходить дважды.
                   // Под курсором и при фокусе лента стоит, рукой её можно
                   // прокрутить — механика общая с «Партнёрами» (.marquee). ?>
-            <div class="imgcards-marquee marquee" tabindex="0" role="group" aria-label="<?= htmlspecialchars(t('Карточки — прокрутка вбок'), ENT_QUOTES) ?>">
+            <div class="imgcards-marquee<?= (int) $data['marquee_gap'] === 0 ? ' imgcards-marquee--flush' : '' ?> marquee" tabindex="0" role="group" aria-label="<?= htmlspecialchars(t('Карточки — прокрутка вбок'), ENT_QUOTES) ?>">
                 <div class="marquee__track">
                 <?php foreach (array_merge($items, $items) as $index => $item): ?>
                     <?php

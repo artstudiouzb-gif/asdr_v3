@@ -4236,6 +4236,8 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
     aspect-ratio: var(--marquee-ratio, 3 / 4);
 }
 .imgcards-marquee .imgcard--below { aspect-ratio: auto; align-self: stretch; }
+/* Сплошная полоса: скруглённые углы встык оставляли бы между кадрами клинья. */
+.imgcards-marquee--flush .imgcard { border-radius: 0; }
 .imgcards-marquee .imgcard--below .imgcard__media { aspect-ratio: var(--marquee-ratio, 3 / 4); }
 @media (max-width: 1000px) { .imgcards-marquee { --marquee-cols: 2.5; } }
 @media (max-width: 560px) { .imgcards-marquee { --marquee-cols: 1.4; } }

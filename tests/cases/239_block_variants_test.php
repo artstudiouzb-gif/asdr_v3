@@ -632,6 +632,19 @@ test('Карточки: бегущая лента выводит набор дв
     assert_same(6, substr_count($fast['html'], 'class="imgcard imgcard--below"'));
     assert_contains('--marquee-time:15s;--marquee-ratio:16/9;', $fast['css']);
 
+    // Промежуток: по умолчанию общий из «Дизайна» (своего числа нет), ноль —
+    // сплошная полоса с прямыми углами.
+    assert_not_contains('--marquee-gap', $lane['css']);
+    assert_not_contains('imgcards-marquee--flush', $lane['html']);
+    $flush = variant_block('cards_grid', ['variant' => 'image', 'layout' => 'marquee', 'marquee_gap' => 0, 'items' => $items], 785);
+    assert_contains(';--marquee-gap:0px;}', $flush['css']);
+    assert_contains('imgcards-marquee imgcards-marquee--flush marquee', $flush['html']);
+    $wide = variant_block('cards_grid', ['variant' => 'image', 'layout' => 'marquee', 'marquee_gap' => 32, 'items' => $items], 786);
+    assert_contains(';--marquee-gap:32px;}', $wide['css']);
+    // Значение мимо списка — подделка формы, а не «ближайшее допустимое».
+    $forged = variant_block('cards_grid', ['variant' => 'image', 'layout' => 'marquee', 'marquee_gap' => 13, 'items' => $items], 787);
+    assert_not_contains('--marquee-gap', $forged['css']);
+
     // Двух карточек мало, а у варианта без фото ленты нет — там это сетка.
     $short = variant_block('cards_grid', ['variant' => 'image', 'layout' => 'marquee', 'items' => array_slice($items, 0, 2)], 783);
     assert_not_contains('marquee', $short['html']);
