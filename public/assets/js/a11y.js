@@ -74,24 +74,13 @@
         return Object.keys(DEFAULTS).some(function (key) { return state[key] !== DEFAULTS[key]; });
     }
 
-    /** Системная настройка «уменьшить движение» действует как выключенный
-     *  тумблер, пока посетитель не выбрал иное сам. Тот же учёт есть в
-     *  theme-init.js — там он срабатывает до первой отрисовки. */
+    /** Системная настройка «уменьшить движение» тумблер не включает: она
+     *  убирает перемещение через CSS, а тумблер — явный выбор «остановить
+     *  всё». Тот же уговор описан в theme-init.js. */
     function effectiveState(state) {
         var copy = {};
         Object.keys(state).forEach(function (key) { copy[key] = state[key]; });
-        try {
-            if (copy.motion === DEFAULTS.motion && !hasExplicit('motion')
-                && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                copy.motion = 'off';
-            }
-        } catch (error) {}
         return copy;
-    }
-
-    function hasExplicit(name) {
-        var raw = readCookie(COOKIE);
-        return raw.indexOf('=') !== -1 && new URLSearchParams(raw).get(name) !== null;
     }
 
     /** Прежнее значение «остановки анимаций»: событие шлём только на смену. */

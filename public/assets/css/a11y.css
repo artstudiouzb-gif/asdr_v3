@@ -191,24 +191,86 @@ html[data-a11y-images="off"] .repo-main * {
 }
 
 /* ===== Анимации ===== */
-/* ===== Системная настройка «уменьшить движение» =====
-   Тумблер в панели ниже сбрасывает движение целиком, а системная настройка
-   до этого гасила только появление карточек ([data-reveal], .anim-card).
-   Посетитель, попросивший ОС убрать анимации, всё равно получал подъёмы
-   карточек, сдвиги кнопок и плавные подчёркивания.
+/* Кадры выдвижной панели объявлены выше списка замен для «уменьшить
+   движение», а не рядом с правилами панели. Бандл собирается вторым уровнем
+   CleanCSS, и он переносит блок @media назад, к предыдущему такому же:
+   замена, записанная после определения, в собранном файле оказывалась перед
+   ним и не действовала (её поймал тест 417). */
+@keyframes a11y-drawer-in {
+    from { transform: translateX(100%); }
+    to { transform: none; }
+}
+@keyframes a11y-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 
-   Длительность 0.01ms, а не none: события transitionend/animationend
-   продолжают приходить, если на них когда-нибудь повесят обработчик.
-   Сейчас таких нет, но правило переживёт появление первого. */
+/* ===== Системная настройка «уменьшить движение» =====
+   Это просьба убрать ПЕРЕМЕЩЕНИЕ, а не любую анимацию. Людям с
+   вестибулярными нарушениями плохо от сдвига, масштаба, вращения и
+   прокрутки; смена прозрачности и цвета им не мешает. Прежде здесь стояло
+   сжатие всех анимаций и переходов до 0.01ms, а `theme-init.js` вдобавок
+   включал по системной настройке тумблер «остановка анимаций», — и сайт
+   при выключенных «эффектах анимации» Windows (обычное дело на служебных
+   компьютерах и в удалённом рабочем столе) становился не спокойным, а
+   мёртвым: проявление фото, смена цвета при наведении, смена слайда —
+   всё рывком.
+
+   Теперь уровней два. Здесь — переходы только по свойствам, которые ничего
+   не перемещают: transform, позиции и размеры меняются мгновенно, цвет и
+   прозрачность — плавно. Ключевые кадры со сдвигом каждый файл
+   переопределяет у себя в том же медиазапросе (перемещение заменяется
+   проявлением или неподвижностью): правило на все элементы не умеет
+   отличить один @keyframes от другого. Это сверяет тест 417. Полная
+   остановка — тумблер ниже, явный выбор посетителя. */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+        transition-property: opacity, color, background-color, border-color, outline-color,
+            text-decoration-color, fill, stroke, box-shadow, filter !important;
         scroll-behavior: auto !important;
     }
+}
+
+/* Ключевые кадры общего бандла со сдвигом. Из двух одноимённых @keyframes
+   действует последний, а этот файл идёт в бандле после frontend.css и
+   gov-theme.css, поэтому переопределения собраны здесь, одним списком.
+   Появления (меню, подсказки, тосты, карточки) становятся проявлением —
+   содержимое по-прежнему не возникает рывком. Повторяющиеся украшения
+   (бегущая лента, блики, пульсации, вращение, покачивание иконок) стоят.
+   Кадры неподвижности несут ничего не меняющую переменную: пустой
+   @keyframes минификатор выбрасывает, и тогда действовал бы исходный. */
+@media (prefers-reduced-motion: reduce) {
+    @keyframes card-reveal { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes faq-fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes langDropdownFade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes submenu-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes richLightboxFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pushPromptSlideUp { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes quotePopoverPop { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes toast-slide-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes toast-slide-out { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes hdr-slide-down { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes a11y-drawer-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes marquee { to { --motion-still: 1; } }
+    @keyframes hero-button-sheen { to { --motion-still: 1; } }
+    @keyframes skeleton-shimmer { to { --motion-still: 1; } }
+    @keyframes button-shimmer { to { --motion-still: 1; } }
+    @keyframes hero-media-zoom { to { --motion-still: 1; } }
+    @keyframes title-reveal-wipe { to { --motion-still: 1; } }
+    @keyframes pushBellPulse { to { --motion-still: 1; } }
+    @keyframes gov-pulse-ring { to { --motion-still: 1; } }
+    @keyframes hero-play-pulse { to { --motion-still: 1; } }
+    @keyframes map-pin-float { to { --motion-still: 1; } }
+    @keyframes map-pin-shadow { to { --motion-still: 1; } }
+    @keyframes map-pin-ripple { to { --motion-still: 1; } }
+    @keyframes map-pin-dot-pulse { to { --motion-still: 1; } }
+    @keyframes sun-rays-spin { to { --motion-still: 1; } }
+    @keyframes moon-star-twinkle { to { --motion-still: 1; } }
+    @keyframes eye-pupil-pulse { to { --motion-still: 1; } }
+    @keyframes phone-wiggle { to { --motion-still: 1; } }
+    @keyframes email-tilt { to { --motion-still: 1; } }
 }
 
 html[data-a11y-motion="off"] *,
@@ -218,6 +280,10 @@ html[data-a11y-motion="off"] *::after {
     transition: none !important;
     scroll-behavior: auto !important;
 }
+/* Блок с появлением при скролле ждёт прокрутки прозрачным. Без переходов
+   он возникал бы рывком, когда до него доберутся, — при остановленных
+   анимациях он виден сразу. */
+html[data-a11y-motion="off"] [data-reveal] { opacity: 1 !important; transform: none !important; }
 
 /* Переход между страницами (View Transitions) правило выше не гасит: его
    псевдоэлементы живут в отдельном дереве у корня и под `*` не попадают.
@@ -328,20 +394,8 @@ html[data-a11y-reading="on"] .cms-block {
 /* Панель выезжает справа, а не появляется рывком. Открытие анимируется
    ключевыми кадрами, потому что элемент выходит из display:none и обычный
    transition на нём не сработал бы. */
-@keyframes a11y-drawer-in {
-    from { transform: translateX(100%); }
-    to { transform: none; }
-}
-@keyframes a11y-backdrop-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
 .a11y-drawer:not([hidden]) { animation: a11y-drawer-in .28s cubic-bezier(0.16, 1, 0.3, 1); }
 .a11y-backdrop:not([hidden]) { animation: a11y-backdrop-in .28s ease; }
-@media (prefers-reduced-motion: reduce) {
-    .a11y-drawer:not([hidden]),
-    .a11y-backdrop:not([hidden]) { animation: none; }
-}
 
 /* Системная настройка повышенного контраста работает и без открытия панели
    доступности. Меняем только семантические токены, не ломая тему и бренд. */

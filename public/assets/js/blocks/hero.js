@@ -17,6 +17,13 @@
             : window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     }
 
+    // Смена слайда при «уменьшить движение» — плавная смена прозрачностью
+    // (CSS снимает сдвиг, но не перелив), поэтому таймеры перехода ждут его
+    // целиком. Мгновенной смена становится только с тумблером панели.
+    function stopMotion() {
+        return !!(window.asdrStopMotion && window.asdrStopMotion());
+    }
+
     function isMobile() { return window.matchMedia(MOBILE_QUERY).matches; }
     function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -169,7 +176,7 @@
             return;
         }
 
-        var delay = reduceMotion() ? 0 : Math.round((duration || 0) / 2);
+        var delay = stopMotion() ? 0 : Math.round((duration || 0) / 2);
         if (delay <= 0) {
             document.body.classList.toggle('is-hero-light', light);
 
@@ -277,7 +284,7 @@
             leaving.set(previous, window.setTimeout(function () {
                 previous.classList.remove('is-leaving');
                 leaving.delete(previous);
-            }, reduceMotion() ? 0 : duration));
+            }, stopMotion() ? 0 : duration));
             current = next;
             var slide = slides[current];
             window.clearTimeout(leaving.get(slide));

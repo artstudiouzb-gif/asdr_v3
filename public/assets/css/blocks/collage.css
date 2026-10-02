@@ -467,6 +467,14 @@ a.collage__item:focus-visible { outline: 3px solid var(--gov-teal); outline-offs
     }
 }
 @keyframes collage-card-in { from { transform: translate(var(--dx, 0), var(--dy, 0)); } }
+/* «Уменьшить движение»: печать не вращается, карточка стоит в вырезе сразу.
+   Файл блока грузится после бандла, поэтому кадры переопределяются здесь, а
+   не в общем списке a11y.css; переменная — заглушка, пустой @keyframes
+   выбросил бы минификатор. */
+@media (prefers-reduced-motion: reduce) {
+    @keyframes collage-badge-spin { to { --motion-still: 1; } }
+    @keyframes collage-card-in { to { --motion-still: 1; } }
+}
 
 /* Затухание последней строки придумано для невысокой ячейки сетки. У
    композиций клетка задана пропорцией, и маска гасила бы строку, которой

@@ -874,9 +874,10 @@
     ].join(', ');
 
     (function () {
-        // «Меньше движения» — приём не откладывается, а не проводится вовсе:
-        // класс не вешается, и снимать его потом не с чего.
-        if (typeof window.asdrReduceMotion === 'function' && window.asdrReduceMotion()) { return; }
+        // Проявление — только прозрачность, поэтому системное «уменьшить
+        // движение» его не отменяет. Отменяет «остановка анимаций» в панели:
+        // тогда класс не вешается, и снимать его потом не с чего.
+        if (typeof window.asdrStopMotion === 'function' && window.asdrStopMotion()) { return; }
 
         var imgs = Array.prototype.slice.call(document.querySelectorAll(SOFT_MEDIA));
         imgs.forEach(function (img) {
@@ -905,7 +906,12 @@
         var body = document.body;
         if (!body || !/\bdesign-title-(fade|wipe)\b/.test(body.className)) { return; }
         if (!('IntersectionObserver' in window)) { return; }
-        if (typeof window.asdrReduceMotion === 'function' && window.asdrReduceMotion()) { return; }
+        // Проявление целиком — смена прозрачности, его системное «уменьшить
+        // движение» не касается; проявление «слева направо» ведёт градиент по
+        // строке, и это уже движение. Тумблер панели гасит оба.
+        if (typeof window.asdrStopMotion === 'function' && window.asdrStopMotion()) { return; }
+        if (/\bdesign-title-wipe\b/.test(body.className)
+            && typeof window.asdrReduceMotion === 'function' && window.asdrReduceMotion()) { return; }
         var contrast = document.documentElement.getAttribute('data-a11y-contrast');
         if (contrast && contrast !== 'normal') { return; }
 
@@ -1582,7 +1588,10 @@
     // JS, старом браузере или reduced-motion карточки остаются видимыми.
     (function () {
         'use strict';
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+        // Системное «уменьшить движение» каскад не отменяет: CSS оставляет
+        // карточкам одно проявление, без сдвига и масштаба. Отменяет его
+        // «остановка анимаций» в панели.
+        if (typeof window.asdrStopMotion === 'function' && window.asdrStopMotion()) { return; }
         if (!('IntersectionObserver' in window)) { return; }
         var GRIDS = '.imgcards-grid, .collage-comp--grid, .newslist-grid, .icon-text__grid, .mediagallery-grid, .albums-grid, .cards-grid, .cat-grid, .block-news__grid, .block-counters__grid, .docslist-grid, .docslist-acts, .contact-cards, .block-partners__grid, .block-team__grid, .block-projects__grid, .block-faq__list, .stages, .timeline-list, .featband, .media-list, .newsdocs-news, .newsdocs-docs';
         var sections = Array.prototype.slice.call(document.querySelectorAll('[data-reveal-items]'));
