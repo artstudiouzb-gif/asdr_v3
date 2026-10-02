@@ -4224,6 +4224,21 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
 .imgcards-grid--carousel .imgcard, .cards-track > * { flex: 0 0 calc((100% - var(--card-gap, 20px) * (var(--cards-cols, 4) - 1)) / var(--cards-cols, 4)); scroll-snap-align: start; }
 @media (max-width: 1000px) { .imgcards-grid--carousel .imgcard, .cards-track > * { flex: 0 0 calc((100% - var(--card-gap, 20px)) / 2); } }
 @media (max-width: 560px) { .imgcards-grid--carousel .imgcard, .cards-track > * { flex: 0 0 85%; } }
+/* Бегущая лента карточек с фото. Ширину карточки считает ширина самой ленты
+   (контейнер измерения), а не дорожка: дорожка шириной max-content, и доля от
+   неё зависела бы сама от себя. Колонок на телефоне и планшете дробное число,
+   чтобы край следующей карточки был виден — лента читается движущейся, а не
+   застывшей сеткой. Пропорция кадра — настройка блока (--marquee-ratio). */
+.imgcards-marquee { container-type: inline-size; --marquee-gap: var(--card-gap, 20px); }
+.imgcards-marquee .imgcard {
+    flex: none;
+    width: calc((100cqw - var(--marquee-gap) * (var(--marquee-cols, var(--cards-cols, 5)) - 1)) / var(--marquee-cols, var(--cards-cols, 5)));
+    aspect-ratio: var(--marquee-ratio, 3 / 4);
+}
+.imgcards-marquee .imgcard--below { aspect-ratio: auto; align-self: stretch; }
+.imgcards-marquee .imgcard--below .imgcard__media { aspect-ratio: var(--marquee-ratio, 3 / 4); }
+@media (max-width: 1000px) { .imgcards-marquee { --marquee-cols: 2.5; } }
+@media (max-width: 560px) { .imgcards-marquee { --marquee-cols: 1.4; } }
 /* Плитка категории — строка с иконкой: на телефоне она занимала бы 85 %
    экрана ради одного слова. Кадр слайдера у неё вдвое мельче. */
 @media (max-width: 560px) { .cat-grid.cards-track > * { flex: 0 0 calc((100% - var(--card-gap, 20px)) / 2); } }

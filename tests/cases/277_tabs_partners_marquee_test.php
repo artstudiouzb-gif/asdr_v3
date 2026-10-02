@@ -73,7 +73,7 @@ test('Партнёры: бегущая строка выводит набор д
 
     $marquee = rhythm_block_html('partners', ['variant' => 'marquee', 'items' => $items]);
     assert_contains('block-partners--marquee', $marquee);
-    assert_contains('block-partners__marquee-track', $marquee);
+    assert_contains('class="marquee__track"', $marquee, 'механика ленты общая с «Карточками»');
     assert_same(6, substr_count($marquee, 'block-partners__item'), 'набор выведен дважды — иначе в шве видна пустота');
     assert_same(1, substr_count($marquee, 'href="https://example.org"'), 'копия не повторяет ссылку');
     assert_contains('aria-hidden="true" title="Альфа"', $marquee, 'копия скрыта от диктора');
@@ -84,17 +84,17 @@ test('Партнёры: бегущая строка выводит набор д
     assert_not_contains('block-partners--marquee', $short);
 
     $row = rhythm_block_html('partners', ['items' => $items]);
-    assert_not_contains('block-partners__marquee', $row, 'обычный вариант остаётся сеткой');
+    assert_not_contains('marquee__track', $row, 'обычный вариант остаётся сеткой');
 });
 
 test('Партнёры: лента стоит под курсором и при фокусе внутри', function () {
     $css = theme_css() . (string) file_get_contents(APP_ROOT . '/public/assets/css/frontend.css');
 
-    assert_contains('.block-partners__marquee:hover .block-partners__marquee-track,', $css);
-    assert_contains('.block-partners__marquee:focus-within .block-partners__marquee-track { animation-play-state: paused; }', $css);
+    assert_contains('.marquee:hover .marquee__track,', $css);
+    assert_contains('.marquee:focus-within .marquee__track { animation-play-state: paused; }', $css);
     // Половина ширины дорожки совпадает с набором только вместе с отступом
     // после последнего логотипа — иначе в шве не хватает промежутка.
-    assert_contains('padding-inline-end: var(--card-gap, 24px);', $css);
+    assert_contains('padding-inline-end: var(--marquee-gap, var(--card-gap, 24px));', $css);
     assert_contains('to { transform: translateX(-50%); }', $css);
 });
 
