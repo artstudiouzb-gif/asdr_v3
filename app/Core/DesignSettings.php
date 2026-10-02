@@ -965,6 +965,22 @@ final class DesignSettings
     }
 
     /**
+     * Атрибут уровня анимаций для <html>. Атрибут, а не класс на <body>, по
+     * двум причинам: скрипты (theme-init.js) спрашивают его до того, как
+     * <body> разобран, а правило «уровня» обязано весить больше компонентных
+     * переходов с флагом приоритета — режимный класс на <body> по правилам
+     * темы обёрнут в :where() и не весит ничего. «Полные» не печатаются.
+     *
+     * @param array<string,string> $v
+     */
+    public static function motionAttribute(array $v): string
+    {
+        $level = (string) ($v['motion'] ?? 'full');
+
+        return in_array($level, ['calm', 'off'], true) ? 'data-motion="' . $level . '"' : '';
+    }
+
+    /**
      * Классы глобального дизайна для <body>.
      *
      * Шапка, поиск, мобильное меню и подвал имеют собственные конструкторы и
@@ -974,20 +990,6 @@ final class DesignSettings
      *
      * @param array<string,string> $v
      */
-    /**
-     * Атрибут уровня анимаций для <html>. Атрибут, а не класс на <body>, по
-     * двум причинам: скрипты (theme-init.js) спрашивают его до того, как
-     * <body> разобран, а правило «уровня» обязано весить больше компонентных
-     * переходов с флагом приоритета — режимный класс на <body> по правилам
-     * темы обёрнут в :where() и не весит ничего. «Полные» не печатаются.
-     */
-    public static function motionAttribute(array $v): string
-    {
-        $level = (string) ($v['motion'] ?? 'full');
-
-        return in_array($level, ['calm', 'off'], true) ? 'data-motion="' . $level . '"' : '';
-    }
-
     public static function bodyClasses(array $v): string
     {
         return trim(sprintf(
