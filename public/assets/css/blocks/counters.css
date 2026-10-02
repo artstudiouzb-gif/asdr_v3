@@ -577,6 +577,7 @@ body.design-surface-interactive .block-counters--panel-auto,
 }
 @media (prefers-reduced-motion: reduce) {
     .counter--goal .counter__fill { animation: none; }
+    @keyframes counter-goal-grow { to { --motion-still: 1; } }
 }
 html[data-a11y-motion="off"] .counter--goal .counter__fill { animation: none; }
 

@@ -58,6 +58,7 @@
     /* Движение: 1 — обычный режим, 0 — «меньше движения». Множитель, а не
        отдельный набор правил: он гасит и длительность, и сдвиг разом. */
     --hero-motion: 1;
+    --hero-fade: 1;
     --hero-shift: 0px;
     --hero-dir: 1;
     --hero-kenburns: none;
@@ -116,10 +117,13 @@
     visibility: hidden;
     pointer-events: none;
     transform: translateX(calc(var(--hero-shift) * var(--hero-dir) * var(--hero-motion)));
+    /* Сдвиг и перелив разведены: «уменьшить движение» снимает сдвиг
+       (--hero-motion), а смена прозрачностью (--hero-fade) остаётся — иначе
+       слайд сменялся бы рывком. Оба гасит только тумблер панели. */
     transition:
-        opacity calc(var(--hero-duration) * var(--hero-motion)) ease,
+        opacity calc(var(--hero-duration) * var(--hero-fade)) ease,
         transform calc(var(--hero-duration) * var(--hero-motion)) ease,
-        visibility 0s linear calc(var(--hero-duration) * var(--hero-motion));
+        visibility 0s linear calc(var(--hero-duration) * var(--hero-fade));
 }
 
 .hero__slide.is-active {
@@ -700,20 +704,22 @@
 }
 
 /*
- * Меньше движения: анимации и переходы гасятся, слайд меняется мгновенно.
+ * Меньше движения: сдвиг, наезд кадра и блик гасятся, слайд сменяется
+ * плавной сменой прозрачности.
  * Автопрокрутку и фоновое видео отключает скрипт — он спрашивает
  * window.asdrReduceMotion(), который учитывает и системную настройку, и
  * тумблер «остановка анимаций» из панели настроек отображения.
  */
 @media (prefers-reduced-motion: reduce) {
     .hero { --hero-motion: 0; --hero-kenburns: none; }
-    .hero__cta { transition: none; }
     .hero__cta::after { content: none; animation: none; }
+    @keyframes hero-cta-shimmer { to { --motion-still: 1; } }
+    @keyframes hero-kenburns { to { --motion-still: 1; } }
 }
 
-/* Тумблер «остановка анимаций» из панели настроек отображения — тот же
-   выключатель, только заданный посетителем вручную. */
-[data-a11y-motion="off"] .hero { --hero-motion: 0; --hero-kenburns: none; }
+/* Тумблер «остановка анимаций» из панели настроек отображения — явный выбор
+   посетителя: гасится и перелив, слайд меняется мгновенно. */
+[data-a11y-motion="off"] .hero { --hero-motion: 0; --hero-fade: 0; --hero-kenburns: none; }
 
 /*
  * До загрузки JavaScript кадры доступны горизонтальной прокруткой.

@@ -300,10 +300,14 @@ summary:focus-visible {
 @media (scripting: none) {
     [data-reveal] { opacity: 1; transform: none; }
 }
+/* «Уменьшить движение» снимает только сдвиг: блок проявляется на месте.
+   Полностью появление гасит тумблер панели (a11y.css). */
 @media (prefers-reduced-motion: reduce) {
-    [data-reveal] { opacity: 1 !important; transform: none !important; transition: none; }
+    [data-reveal] { transform: none !important; }
 }/* Мягкий каскад появления карточек в сетках. Класс .anim-card навешивает
-   САМ JS — без JS (или при reduced-motion) карточки просто видны. *//* Появление карточки описано ключевыми кадрами, а не переходом. Переход тут
+   САМ JS — без JS (или при «остановке анимаций») карточки просто видны. При
+   системном «уменьшить движение» кадры card-reveal переопределены в a11y.css
+   одним проявлением, без сдвига и масштаба. *//* Появление карточки описано ключевыми кадрами, а не переходом. Переход тут
    не работает: у карточек темы (.feature-card, .news-card, …) объявлен свой
    `transition`, а тема грузится после базы и заменяет список целиком — opacity
    в нём нет, и каскад просто не проявлялся. Заливка `backwards` держит
@@ -336,9 +340,6 @@ summary:focus-visible {
     --card-reveal-shift: 8px;
     --card-reveal-scale: .995;
     --card-reveal-duration: .85s;
-}
-@media (prefers-reduced-motion: reduce) {
-    .anim-card { opacity: 1 !important; animation: none !important; }
 }
 
 .block-text__title { font-size: var(--step-5); margin-bottom: 12px; }
@@ -959,9 +960,7 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
     from { opacity: 0; transform: translateY(-6px); }
     to { opacity: 1; transform: translateY(0); }
 }
-@media (prefers-reduced-motion: reduce) {
-    .faq-item[open] .faq-item__a { animation: none; }
-}/* --- Каталог пользовательских типов контента (Документы/Вакансии/Тендеры) --- *//* Страницы фотоальбомов: ширина как у остальных списков сайта, а не
+/* --- Каталог пользовательских типов контента (Документы/Вакансии/Тендеры) --- *//* Страницы фотоальбомов: ширина как у остальных списков сайта, а не
    узкая статейная колонка — иначе сетка карточек выглядела обрезанной. */
 
 .content-list { max-width: var(--container-max, 1440px); margin: 0 auto; padding: 24px 20px 56px; }
