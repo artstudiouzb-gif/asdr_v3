@@ -186,6 +186,20 @@ final class DesignSettings
             ],
             'default' => 'off',
         ],
+        // Уровень анимаций сайта. Выбор владельца действует только в сторону
+        // «меньше»: посетитель, попросивший меньше движения (системная
+        // настройка или тумблер панели), получает своё и при «Полных».
+        'motion' => [
+            'label' => 'Анимации на сайте',
+            'hint' => 'Полные — всё как задумано: появление блоков, переходы слайдов, бегущие ленты, автопрокрутка. Спокойные — без движения и украшений: плавно меняются только цвет и прозрачность при наведении, блоки проявляются на месте. Без анимаций — всё сменяется сразу. Посетитель, который сам попросил меньше движения, получает его при любом выборе.',
+            'group' => 'Общие',
+            'choices' => [
+                'full' => 'Полные',
+                'calm' => 'Спокойные',
+                'off' => 'Без анимаций',
+            ],
+            'default' => 'full',
+        ],
         'block_surface' => [
             'label' => 'Подложки блоков',
             'hint' => 'Кому карточка: всем блокам или только тому, что открывается по нажатию.',
@@ -233,22 +247,22 @@ final class DesignSettings
         'classic' => [
             'label' => 'Классический',
             'desc' => 'Строгий официальный стиль, умеренные отступы.',
-            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'sm', 'density' => 'standard', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'arrow', 'button_fill' => 'off', 'palette' => 'gov_blue', 'font_style' => 'system'],
+            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'sm', 'density' => 'standard', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'arrow', 'button_fill' => 'off', 'motion' => 'full', 'palette' => 'gov_blue', 'font_style' => 'system'],
         ],
         'modern' => [
             'label' => 'Современный',
             'desc' => 'Крупные скругления, воздух, акцентная шапка.',
-            'values' => ['container' => 'wide', 'radius' => 'large', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'lg', 'line_height' => 'relaxed', 'heading_line_height' => 'tight', 'heading_font_weight' => '800', 'heading_letter_spacing' => 'tight', 'button' => 'pill', 'block_surface' => 'all', 'card_style' => 'elevated', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'fade', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'draw', 'button_fill' => 'accent', 'palette' => 'violet', 'font_style' => 'noto'],
+            'values' => ['container' => 'wide', 'radius' => 'large', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'lg', 'line_height' => 'relaxed', 'heading_line_height' => 'tight', 'heading_font_weight' => '800', 'heading_letter_spacing' => 'tight', 'button' => 'pill', 'block_surface' => 'all', 'card_style' => 'elevated', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'fade', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'draw', 'button_fill' => 'accent', 'motion' => 'full', 'palette' => 'violet', 'font_style' => 'noto'],
         ],
         'minimal' => [
             'label' => 'Минимал',
             'desc' => 'Прямые углы, максимум воздуха, список в каталоге.',
-            'values' => ['container' => 'narrow', 'radius' => 'none', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'square', 'block_surface' => 'all', 'card_style' => 'flat', 'sidebar_position' => 'fixed', 'catalog_layout' => 'list', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'off', 'scroll_top' => 'on', 'link_style' => 'draw', 'button_fill' => 'primary', 'palette' => 'graphite', 'font_style' => 'serif'],
+            'values' => ['container' => 'narrow', 'radius' => 'none', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'square', 'block_surface' => 'all', 'card_style' => 'flat', 'sidebar_position' => 'fixed', 'catalog_layout' => 'list', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'off', 'scroll_top' => 'on', 'link_style' => 'draw', 'button_fill' => 'primary', 'motion' => 'full', 'palette' => 'graphite', 'font_style' => 'serif'],
         ],
         'compact' => [
             'label' => 'Компактный',
             'desc' => 'Плотная сетка, маленькие карточки — много данных.',
-            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'xs', 'density' => 'compact', 'font_size' => 'sm', 'line_height' => 'tight', 'heading_line_height' => 'tight', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'tight', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'fixed', 'catalog_layout' => 'cards_sm', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'arrow', 'button_fill' => 'off', 'palette' => 'classic_red', 'font_style' => 'system'],
+            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'xs', 'density' => 'compact', 'font_size' => 'sm', 'line_height' => 'tight', 'heading_line_height' => 'tight', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'tight', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'fixed', 'catalog_layout' => 'cards_sm', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'arrow', 'button_fill' => 'off', 'motion' => 'full', 'palette' => 'classic_red', 'font_style' => 'system'],
         ],
     ];
 
@@ -960,6 +974,20 @@ final class DesignSettings
      *
      * @param array<string,string> $v
      */
+    /**
+     * Атрибут уровня анимаций для <html>. Атрибут, а не класс на <body>, по
+     * двум причинам: скрипты (theme-init.js) спрашивают его до того, как
+     * <body> разобран, а правило «уровня» обязано весить больше компонентных
+     * переходов с флагом приоритета — режимный класс на <body> по правилам
+     * темы обёрнут в :where() и не весит ничего. «Полные» не печатаются.
+     */
+    public static function motionAttribute(array $v): string
+    {
+        $level = (string) ($v['motion'] ?? 'full');
+
+        return in_array($level, ['calm', 'off'], true) ? 'data-motion="' . $level . '"' : '';
+    }
+
     public static function bodyClasses(array $v): string
     {
         return trim(sprintf(

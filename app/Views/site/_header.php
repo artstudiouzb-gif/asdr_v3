@@ -604,6 +604,7 @@ if ($extraHeadCss !== '') {
     lang="<?= htmlspecialchars($currentLang, ENT_QUOTES) ?>"
     data-theme="<?= htmlspecialchars($defaultTheme, ENT_QUOTES) ?>"
     <?= \App\Core\A11ySettings::htmlAttributes($a11ySettings) ?>
+    <?= \App\Core\DesignSettings::motionAttribute($designVals) ?>
 >
 <head>
 <?php // Кодировка — первой строкой <head>: браузер обязан встретить её в первых
