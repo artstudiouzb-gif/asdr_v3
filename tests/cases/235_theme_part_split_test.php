@@ -70,15 +70,18 @@ test('В вынесенных частях темы нет чужих прави
             }
         };
 
-        foreach (split_css_rules($css) as [$selector, $body]) {
-            if (str_starts_with($selector, '@')) {
-                foreach (split_css_rules($body) as [$inner]) {
-                    $check($inner);
+        // At-правила разбираются вглубь: @keyframes бывает и внутри @media
+        // (замена кадров для «уменьшить движение»), и его шаги — тоже шаги.
+        $walk = static function (string $css) use (&$walk, $check): void {
+            foreach (split_css_rules($css) as [$selector, $body]) {
+                if (str_starts_with($selector, '@')) {
+                    $walk($body);
+                    continue;
                 }
-                continue;
+                $check($selector);
             }
-            $check($selector);
-        }
+        };
+        $walk($css);
 
         assert_same(
             [],

@@ -1556,6 +1556,15 @@ body .site-header--borders-container.site-header--transparent:not(.is-scrolled) 
     transition: all 0.2s ease-in-out !important;
     text-decoration: none !important;
     border: none !important;
+}
+/* Переход `all` с флагом приоритета перебивает общее правило «уменьшить
+   движение» (a11y.css): там вес селектора нулевой. Тот же список, тот же вес,
+   но правило идёт позже — подъём кнопки при наведении не анимируется. */
+@media (prefers-reduced-motion: reduce) {
+    .block-hero__button, .block-cta a, .content-detail__download, .site-search__submit,
+    .block-cta__button, .btn-cta, .btn, input[type="button"], input[type="submit"], input[type="reset"] {
+        transition-property: background, box-shadow, color, border-color !important;
+    }
 }/* Подпись кнопки объявлена отдельно, потому что у блока со своим цветом
    кнопки она считается по контрасту с заливкой (`--cta-btn-fg`), а этот
    флаг приоритета побеждал расчёт: жёлтая кнопка получала белую подпись —
