@@ -14,11 +14,11 @@
       "/assets/css/public-editorial-pages.css",
       "/assets/css/public-home.css"
     ],
-    "sourceSha256": "2f85c5c032acb8c04b1fcf5ccea3fb53e269c72f9b2b4a331e237d5043c88138",
-    "sha256": "5d901181678d597e9b4007f03893ec621ad0b42196a576d07c02e3a2aeb7a7d1",
-    "raw": 392148,
-    "gzip": 66148,
-    "brotli": 51356
+    "sourceSha256": "0d76e4182b688902202a685d8747149ce6eae8381eb24e72050df3f7331a391b",
+    "sha256": "c202d558a649ec669b36987172dc50993df69687ca282500884974d5356b0ff3",
+    "raw": 392745,
+    "gzip": 66206,
+    "brotli": 51402
   },
   "js": {
     "path": "/assets/js/public.min.js",
@@ -27,11 +27,11 @@
       "/assets/js/frontend.js",
       "/assets/js/forms.js"
     ],
-    "sourceSha256": "ee1faf1c07778c8d79148dcfc5389c25fc85b7b1a0f39c50d5dde693a7c2f3db",
-    "sha256": "d276a3da9bc1ccf3bd10982f1a7dbf24bdbc98120928c9a6453b50dd04e45f10",
-    "raw": 60058,
-    "gzip": 16035,
-    "brotli": 14071
+    "sourceSha256": "af82f607c5afe8819572b6fe009d479d0b9d335970ab19f2314e970b6797d3d4",
+    "sha256": "e2652dbc854102fe063fc01297c83e3be44d2a3e73735833d45ff6fb84821afe",
+    "raw": 60206,
+    "gzip": 16037,
+    "brotli": 14070
   },
   "blocks": {
     "/assets/css/blocks/buttons.css": {
@@ -100,11 +100,11 @@
     },
     "/assets/css/blocks/hero.css": {
       "path": "/assets/css/blocks/hero.min.css",
-      "sourceSha256": "6f52488dea853f96e5b7ade40d1ff90dc82934856acda87b0647d49be94654f3",
-      "sha256": "c5dc71f83ff96fd8a5e9c185e18adb56e811db47f86969d818c5d3dc53aae27e",
-      "raw": 12949,
-      "gzip": 3308,
-      "brotli": 2947
+      "sourceSha256": "bd2508698b8baf9da735babd7037cf6440f5ceccbcdd20ee581937827c3178f4",
+      "sha256": "493124dc9d74e47c641c80b47a649e2bbe899ebb9cbc758e52eb85618d05d495",
+      "raw": 12998,
+      "gzip": 3319,
+      "brotli": 2955
     },
     "/assets/css/blocks/image.css": {
       "path": "/assets/css/blocks/image.min.css",
