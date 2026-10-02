@@ -24,8 +24,8 @@ $desktopCarousel = !$marquee && count($items) > $columns;
 if ($marquee) {
     // Скорость ленты — от числа логотипов: с одним и тем же временем полного
     // круга длинный набор летел бы, а короткий полз.
-    $templateCss = '#block-' . (int) $blockId . ' .block-partners__marquee-track{'
-        . '--partners-marquee-time:' . (count($items) * 6) . 's}';
+    $templateCss = '#block-' . (int) $blockId . ' .marquee{'
+        . '--marquee-time:' . (count($items) * 6) . 's}';
 } else {
     $templateCss = '@media (min-width:721px){#block-' . (int) $blockId
         . ' .block-partners__grid{--partners-cols:' . $columns . '}}';
@@ -60,8 +60,8 @@ $head = \App\Core\SectionHead::render([
               // диктора, а сама дорожка объявлена списком партнёров.
               // Прокрутить ленту можно и рукой: под курсором она стоит. ?>
         <?php if ($marquee): ?>
-        <div class="block-partners__marquee" tabindex="0" role="group" aria-label="<?= htmlspecialchars(t('Партнёры'), ENT_QUOTES) ?>">
-            <div class="block-partners__marquee-track">
+        <div class="marquee" tabindex="0" role="group" aria-label="<?= htmlspecialchars(t('Партнёры'), ENT_QUOTES) ?>">
+            <div class="marquee__track">
         <?php else: ?>
         <div class="block-partners__grid<?= $desktopCarousel ? ' block-partners__grid--carousel' : '' ?>"<?= $carousel ? ' data-carousel-track tabindex="0" role="group" aria-label="' . htmlspecialchars(t('Партнёры — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
         <?php endif; ?>

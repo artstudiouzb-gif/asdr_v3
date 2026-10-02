@@ -1154,29 +1154,36 @@ h1, h2 { letter-spacing: -.015em; }/* --- Блок «Партнёры» (лог�
 }
 @media (max-width: 900px) {
     .block-partners__grid { grid-template-columns: repeat(auto-fit, minmax(140px, 200px)); }
-}/* --- Вариант «бегущая строка» ---
-   Набор логотипов выведен дважды, дорожка едет ровно на половину своей ширины
-   — в этот момент копия оказывается там, где был оригинал, и шва не видно.
-   Половина считается точно только с отступом после последнего логотипа: без
-   него в шве не хватало бы одного промежутка. Ширина промежутка та же, что у
-   ряда: лента и сетка не должны выглядеть по-разному свёрстанными. */
+}/* --- Бегущая лента (.marquee) ---
+   Одна механика на «Партнёров» и «Карточки с фото»: набор выведен дважды,
+   дорожка едет ровно на половину своей ширины — в этот момент копия
+   оказывается там, где был оригинал, и шва не видно. Половина считается
+   точно только с отступом после последнего элемента: без него в шве не
+   хватало бы одного промежутка. Время круга и промежуток приезжают
+   переменными от блока (--marquee-time, --marquee-gap). */
 
-.block-partners__marquee { overflow-x: auto; scrollbar-width: none; }
-.block-partners__marquee::-webkit-scrollbar { display: none; }
-.block-partners__marquee-track {
+.marquee { overflow-x: auto; scrollbar-width: none; }
+.marquee::-webkit-scrollbar { display: none; }
+.marquee__track {
     display: flex;
     align-items: center;
-    gap: var(--card-gap, 24px);
-    padding-inline-end: var(--card-gap, 24px);
+    gap: var(--marquee-gap, var(--card-gap, 24px));
+    padding-inline-end: var(--marquee-gap, var(--card-gap, 24px));
     width: max-content;
-    animation: block-partners-marquee var(--partners-marquee-time, 40s) linear infinite;
-}/* Под курсором и при фокусе внутри лента стоит: иначе логотип не поймать
-   мышью, а с клавиатуры не прочитать название. */
+    animation: marquee var(--marquee-time, 40s) linear infinite;
+}/* Под курсором и при фокусе внутри лента стоит: иначе элемент не поймать
+   мышью, а с клавиатуры не прочитать подпись. */
 
-.block-partners__marquee:hover .block-partners__marquee-track,
-.block-partners__marquee:focus-within .block-partners__marquee-track { animation-play-state: paused; }
+.marquee:hover .marquee__track,
+.marquee:focus-within .marquee__track { animation-play-state: paused; }
+/* Системное «меньше движения»: тумблер панели гасит анимации своим правилом,
+   а без него лента ехала бы и у того, кто движение отключил в ОС. Стоящую
+   ленту листают рукой — она прокручивается. */
+@media (prefers-reduced-motion: reduce) {
+    .marquee__track { animation: none; }
+}
 .block-partners--marquee .block-partners__item { flex: none; width: 200px; justify-content: center; }
-@keyframes block-partners-marquee {
+@keyframes marquee {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
 }
