@@ -2450,6 +2450,15 @@
         });
 
         return {
+            // Перенос блока в колонку перезагружает конструктор: несохранённый
+            // порядок сначала уходит на сервер, иначе он пропал бы молча.
+            flush: function (next) {
+                if (!dirty || !pendingSave) { next(); return; }
+                pendingSave(function (ok) {
+                    if (ok) { dirty = false; }
+                    next();
+                });
+            },
             markDirty: function (saveFn) {
                 if (!bar) { build(); }
                 if (hideTimer) { window.clearTimeout(hideTimer); hideTimer = null; }
@@ -2461,33 +2470,147 @@
         };
     })();
 
-    // --- Drag-and-drop сортировка блоков (задача 134, нативный HTML5 DnD) ---
+    // --- Drag-and-drop блоков (задача 134, нативный HTML5 DnD) ---
+    // Порядок блоков страницы копится и сохраняется кнопкой панели порядка.
+    // Перенос между страницей и ячейками колонок/вкладок меняет структуру, и
+    // он сохраняется сразу (/admin/blocks/{id}/place) с перезагрузкой: вид
+    // конструктора после него собирает сервер, а не скрипт.
     document.querySelectorAll('[data-block-sortable]').forEach(function (list) {
-        var dragged = null;
+        var dragged = null;      // элемент, который тянут
+        var fromCell = null;     // вложенный блок: его ячейка; блок страницы — null
+        var marker = null;       // строка-указатель места вставки
+        var dropCell = null;     // ячейка под курсором
+        var placing = false;     // идёт перенос в другое место: порядок не копим
+
+        function isContainerItem(el) { return !!(el.nextElementSibling && el.nextElementSibling.classList.contains('columns-editor')); }
+
+        function clearMarks() {
+            if (marker && marker.parentNode) { marker.parentNode.removeChild(marker); }
+            if (dropCell) { dropCell.classList.remove('is-drop-target'); dropCell = null; }
+            list.classList.remove('is-drop-target');
+        }
+        function showMarker(parent, before) {
+            if (!marker) { marker = document.createElement('div'); marker.className = 'block-drop-marker'; }
+            parent.insertBefore(marker, before);
+        }
+        function nextByY(items, y) {
+            for (var i = 0; i < items.length; i++) {
+                var box = items[i].getBoundingClientRect();
+                if (y < box.top + box.height / 2) { return items[i]; }
+            }
+            return null;
+        }
+        // Порядок места назначения: id по указателю, сам блок — на его месте.
+        function orderAround(items, id) {
+            var order = [];
+            var placed = false;
+            Array.prototype.forEach.call(marker.parentNode.children, function (el) {
+                if (el === marker) { order.push(id); placed = true; return; }
+                if (items.indexOf(el) !== -1 && el.getAttribute('data-block-id') !== id) { order.push(el.getAttribute('data-block-id')); }
+            });
+            if (!placed) { order.push(id); }
+            return order;
+        }
+        function place(id, target, order) {
+            placing = true;
+            var body = new URLSearchParams();
+            body.append('csrf_token', list.getAttribute('data-csrf'));
+            body.append('format', 'json');
+            body.append('target', target);
+            order.forEach(function (o) { body.append('order[]', o); });
+            ReorderBar.flush(function () {
+                fetch('/admin/blocks/' + encodeURIComponent(id) + '/place', {
+                    method: 'POST', body: body, credentials: 'same-origin',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                }).then(function (r) { return r.json(); })
+                  .then(function (res) {
+                      if (res.ok) { window.location.reload(); return; }
+                      window.alert(res.error || 'Не удалось переместить блок.');
+                      window.location.reload();
+                  })
+                  .catch(function () { window.alert('Сетевая ошибка: блок не перемещён.'); });
+            });
+        }
+
+        function start(el, cell, e) {
+            dragged = el;
+            fromCell = cell;
+            el.classList.add('is-dragging');
+            try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', ''); } catch (err) {}
+        }
 
         list.querySelectorAll('.block-list-item').forEach(function (item) {
             item.addEventListener('dragstart', function (e) {
-                dragged = item;
-                item.classList.add('is-dragging');
-                try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', ''); } catch (err) {}
+                if (e.target !== item) { return; }
+                start(item, null, e);
             });
             item.addEventListener('dragend', function () {
                 item.classList.remove('is-dragging');
-                ReorderBar.markDirty(saveOrder);
+                clearMarks();
+                dragged = null;
+                if (!placing) { ReorderBar.markDirty(saveOrder); }
+            });
+        });
+        list.querySelectorAll('.columns-editor__child').forEach(function (child) {
+            child.addEventListener('dragstart', function (e) {
+                e.stopPropagation();
+                start(child, child.closest('[data-place-target]'), e);
+            });
+            child.addEventListener('dragend', function () {
+                child.classList.remove('is-dragging');
+                clearMarks();
+                dragged = null;
+            });
+        });
+
+        // Ячейки колонок и вкладок принимают любой блок, кроме контейнера.
+        list.querySelectorAll('[data-place-target]').forEach(function (cell) {
+            cell.addEventListener('dragover', function (e) {
+                e.stopPropagation();
+                if (!dragged || (!fromCell && isContainerItem(dragged))) { clearMarks(); return; }
+                e.preventDefault();
+                if (dropCell !== cell) { clearMarks(); dropCell = cell; cell.classList.add('is-drop-target'); }
+                var kids = Array.prototype.slice.call(cell.querySelectorAll('.columns-editor__child:not(.is-dragging)'));
+                var before = nextByY(kids, e.clientY) || cell.querySelector('.columns-editor__add');
+                showMarker(cell, before);
+            });
+            cell.addEventListener('drop', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!dragged || !marker) { return; }
+                var id = dragged.getAttribute('data-block-id');
+                var kids = Array.prototype.slice.call(cell.querySelectorAll('.columns-editor__child'));
+                place(id, cell.getAttribute('data-place-target'), orderAround(kids, id));
             });
         });
 
         list.addEventListener('dragover', function (e) {
+            if (!dragged || e.target.closest('.columns-editor')) { return; }
             e.preventDefault();
-            if (!dragged) { return; }
-            var after = null;
             var items = Array.prototype.slice.call(list.querySelectorAll('.block-list-item:not(.is-dragging)'));
-            for (var i = 0; i < items.length; i++) {
-                var box = items[i].getBoundingClientRect();
-                if (e.clientY < box.top + box.height / 2) { after = items[i]; break; }
+            var after = nextByY(items, e.clientY);
+            if (fromCell) {
+                // Вложенный блок выносится на страницу: показываем место, а
+                // сам элемент остаётся в колонке до ответа сервера.
+                if (dropCell) { dropCell.classList.remove('is-drop-target'); dropCell = null; }
+                list.classList.add('is-drop-target');
+                showMarker(list, after);
+                return;
             }
+            clearMarks();
+            // Блок контейнера ходит вместе со своими колонками; вставка
+            // перед контейнером — до него, а не между ним и колонками.
+            var editor = isContainerItem(dragged) ? dragged.nextElementSibling : null;
             if (after == null) { list.appendChild(dragged); }
             else { list.insertBefore(dragged, after); }
+            if (editor) { dragged.parentNode.insertBefore(editor, dragged.nextSibling); }
+        });
+        list.addEventListener('drop', function (e) {
+            if (!dragged || !fromCell || !marker || e.target.closest('.columns-editor')) { return; }
+            e.preventDefault();
+            var id = dragged.getAttribute('data-block-id');
+            var items = Array.prototype.slice.call(list.querySelectorAll('.block-list-item'));
+            place(id, '0', orderAround(items, id));
         });
 
         function saveOrder(done) {

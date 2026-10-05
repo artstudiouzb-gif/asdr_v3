@@ -323,6 +323,123 @@ final class Block
         }
     }
 
+    /**
+     * Число ячеек контейнера: колонок у «Колонок» (2–4), непустых вкладок у
+     * «Вкладок» (до 10). Одно правило на конструктор и на перенос блока:
+     * ячейка, которой конструктор не рисует, — место, где блок пропал бы из
+     * вида редактора.
+     *
+     * @param array<string, mixed> $container
+     */
+    public static function cellCount(array $container): int
+    {
+        $data = json_decode((string) ($container['data'] ?? '{}'), true) ?: [];
+        if ((string) ($container['type'] ?? '') === 'tabs') {
+            $count = 0;
+            foreach ((array) ($data['items'] ?? []) as $tab) {
+                if (is_array($tab) && trim((string) ($tab['title'] ?? '')) !== '') {
+                    $count++;
+                }
+            }
+
+            return min(10, $count);
+        }
+        $columns = (int) ($data['columns'] ?? 2);
+
+        return $columns >= 2 && $columns <= 4 ? $columns : 2;
+    }
+
+    /**
+     * Почему блок нельзя поставить в это место, или null, если можно.
+     * $parent = null — верхний уровень страницы.
+     *
+     * @param array<string, mixed> $block
+     * @param array<string, mixed>|null $parent
+     */
+    public static function placementError(array $block, ?array $parent, int $columnIndex): ?string
+    {
+        if ($parent === null) {
+            return null;
+        }
+        if ((int) $parent['id'] === (int) $block['id']
+            || (int) $parent['page_id'] !== (int) $block['page_id']
+            || (string) $parent['lang'] !== (string) $block['lang']
+            || $parent['parent_block_id'] !== null
+            || !BlockTypeRegistry::isContainer((string) $parent['type'])
+        ) {
+            return 'Сюда блок переместить нельзя: место принадлежит другой странице или не является колонками и вкладками.';
+        }
+        if (BlockTypeRegistry::isContainer((string) $block['type'])) {
+            return 'Колонки и вкладки нельзя вкладывать друг в друга.';
+        }
+        if ($columnIndex < 0 || $columnIndex >= self::cellCount($parent)) {
+            return 'Такой колонки или вкладки нет.';
+        }
+
+        return null;
+    }
+
+    /**
+     * Ставит блок в ячейку контейнера ($parentId) или на верхний уровень
+     * страницы (null) и раскладывает порядок внутри места назначения по
+     * $orderedIds. Блоки места, которых в списке нет, идут следом в прежнем
+     * порядке, а сам блок без позиции встаёт в конец: присланный порядок —
+     * подсказка браузера, и потерять из-за неё блок нельзя. Проверку места
+     * делает placementError().
+     *
+     * @param array<int, int> $orderedIds
+     */
+    public static function place(int $id, ?int $parentId, int $columnIndex, array $orderedIds = []): void
+    {
+        $block = self::findById($id);
+        if ($block === null) {
+            return;
+        }
+        $columnIndex = $parentId === null ? 0 : $columnIndex;
+
+        $pdo = Database::pdo();
+        $pdo->beginTransaction();
+        try {
+            $pdo->prepare('UPDATE blocks SET parent_block_id = :parent, column_index = :col WHERE id = :id')
+                ->execute([':parent' => $parentId, ':col' => $columnIndex, ':id' => $id]);
+
+            $sql = 'SELECT id FROM blocks WHERE page_id = :page_id AND lang = :lang AND parent_block_id <=> :parent';
+            $params = [':page_id' => (int) $block['page_id'], ':lang' => (string) $block['lang'], ':parent' => $parentId];
+            if ($parentId !== null) {
+                $sql .= ' AND column_index = :col';
+                $params[':col'] = $columnIndex;
+            }
+            $stmt = $pdo->prepare($sql . ' ORDER BY sort_order ASC, id ASC');
+            $stmt->execute($params);
+            $existing = array_map('intval', $stmt->fetchAll(\PDO::FETCH_COLUMN));
+            $inPlace = array_flip($existing);
+
+            $final = [];
+            foreach ($orderedIds as $orderedId) {
+                $orderedId = (int) $orderedId;
+                if (isset($inPlace[$orderedId]) && !isset($final[$orderedId])) {
+                    $final[$orderedId] = true;
+                }
+            }
+            foreach ($existing as $existingId) {
+                if ($existingId !== $id && !isset($final[$existingId])) {
+                    $final[$existingId] = true;
+                }
+            }
+            $final[$id] = true;
+
+            $update = $pdo->prepare('UPDATE blocks SET sort_order = :order WHERE id = :id');
+            $order = 1;
+            foreach (array_keys($final) as $placedId) {
+                $update->execute([':order' => $order++, ':id' => $placedId]);
+            }
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
     public static function copyLanguageBlocks(int $pageId, string $fromLang, string $toLang): int
     {
         $sourceBlocks = self::forPage($pageId, $fromLang, true);
