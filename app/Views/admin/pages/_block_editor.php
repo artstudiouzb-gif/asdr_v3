@@ -67,8 +67,7 @@ foreach ($blocks as $b) {
 // «Переместить в…» — тот же перенос, что и перетаскиванием, но с клавиатуры
 // и без JavaScript. Текущее место в списке не предлагается.
 $placeForm = static function (array $block, string $current) use ($placeTargets): string {
-    $targets = ['0' => 'На страницу (отдельным блоком)'] + $placeTargets;
-    unset($targets[$current]);
+    $targets = array_diff_key(['0' => 'На страницу (отдельным блоком)'] + $placeTargets, [$current => true]);
     if ($targets === [] || BlockTypeRegistry::isContainer((string) $block['type'])) {
         return '';
     }
