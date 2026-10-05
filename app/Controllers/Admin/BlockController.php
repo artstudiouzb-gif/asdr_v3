@@ -422,6 +422,69 @@ final class BlockController
         echo json_encode(['ok' => true]);
     }
 
+    /**
+     * Перенос готового блока в колонку или вкладку контейнера, между ними и
+     * обратно на страницу. Цель приходит строкой: «0» — верхний уровень,
+     * «<id контейнера>:<номер ячейки>» — ячейка. Перетаскивание шлёт ещё и
+     * порядок места назначения (order[]) и ждёт JSON; форма «Переместить в…»
+     * (клавиатура, без JavaScript) ставит блок в конец и получает редирект.
+     *
+     * @param array<string, string> $params
+     */
+    public function place(array $params): void
+    {
+        Auth::requireLogin();
+        Csrf::verifyRequest();
+
+        $input = \App\Core\Input::post();
+        $json = $input->str('format', '', 8) === 'json';
+        $block = Block::findById((int) $params['id']);
+        if ($block === null) {
+            $this->placeResult($json, '/admin/pages', 'Блок не найден.', 404);
+            return;
+        }
+
+        $target = $input->str('target', '', 32);
+        $parent = null;
+        $columnIndex = 0;
+        $error = null;
+        if (preg_match('/^(\d+):(\d+)$/', $target, $m) === 1) {
+            $parent = Block::findById((int) $m[1]);
+            $columnIndex = (int) $m[2];
+            if ($parent === null) {
+                $error = 'Колонок или вкладок, куда переносится блок, больше нет.';
+            }
+        } elseif ($target !== '0') {
+            $error = 'Не указано, куда переместить блок.';
+        }
+        $error ??= Block::placementError($block, $parent, $columnIndex);
+        if ($error !== null) {
+            $this->placeResult($json, $this->pageEditUrl($block), $error, 422);
+            return;
+        }
+
+        Block::place((int) $block['id'], $parent !== null ? (int) $parent['id'] : null, $columnIndex, $input->ids('order'));
+        \App\Core\Cache::clearPageCache((int) $block['page_id']);
+
+        $this->placeResult($json, $this->pageEditUrl($block), null, 200, $parent === null ? 'Блок вынесен на страницу.' : 'Блок перемещён.');
+    }
+
+    private function placeResult(bool $json, string $back, ?string $error, int $status, string $success = ''): void
+    {
+        if ($json) {
+            http_response_code($status);
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode($error === null ? ['ok' => true] : ['ok' => false, 'error' => $error], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+            return;
+        }
+        if ($error === null) {
+            Flash::success($success);
+        } else {
+            Flash::error($error);
+        }
+        \App\Core\Redirect::to($back);
+    }
+
     /** @param array<string, string> $params */
     public function move(array $params): void
     {

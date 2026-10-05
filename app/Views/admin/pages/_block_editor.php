@@ -34,12 +34,55 @@ if (!isset($blocks)) {
 $blockTypeLabels = BlockTypeRegistry::editorLabels();
 
 // Дочерние блоки контейнеров (колонки, вкладки): подгружаем детей каждого.
+// Подписи ячеек считаются здесь же: ими подписаны и колонки конструктора, и
+// пункты «Переместить в…» — две копии разошлись бы при первой правке.
 $columnsChildren = [];
+$cellTitles = [];
+$placeTargets = [];
 foreach ($blocks as $b) {
-    if (BlockTypeRegistry::isContainer((string) $b['type'])) {
-        $columnsChildren[(int) $b['id']] = \App\Models\Block::childrenOf((int) $b['id']);
+    if (!BlockTypeRegistry::isContainer((string) $b['type'])) {
+        continue;
+    }
+    $containerId = (int) $b['id'];
+    $columnsChildren[$containerId] = \App\Models\Block::childrenOf($containerId);
+    $cdata = json_decode((string) $b['data'], true) ?: [];
+    $titles = [];
+    $cellCount = \App\Models\Block::cellCount($b);
+    if ($b['type'] === 'tabs') {
+        foreach ((array) ($cdata['items'] ?? []) as $tab) {
+            $tabTitle = is_array($tab) ? trim((string) ($tab['title'] ?? '')) : '';
+            if ($tabTitle !== '') { $titles[] = $tabTitle; }
+        }
+        $titles = array_slice($titles, 0, $cellCount);
+    } else {
+        for ($ci = 0; $ci < $cellCount; $ci++) { $titles[] = 'Колонка ' . ($ci + 1); }
+    }
+    $cellTitles[$containerId] = $titles;
+    $containerName = (string) ($b['title'] ?: (($blockTypeLabels[$b['type']] ?? $b['type']) . ' #' . $containerId));
+    foreach ($titles as $ci => $cellTitle) {
+        $placeTargets[$containerId . ':' . $ci] = $containerName . ' → ' . $cellTitle;
     }
 }
+
+// «Переместить в…» — тот же перенос, что и перетаскиванием, но с клавиатуры
+// и без JavaScript. Текущее место в списке не предлагается.
+$placeForm = static function (array $block, string $current) use ($placeTargets): string {
+    $targets = ['0' => 'На страницу (отдельным блоком)'] + $placeTargets;
+    unset($targets[$current]);
+    if ($targets === [] || BlockTypeRegistry::isContainer((string) $block['type'])) {
+        return '';
+    }
+    $html = '<details class="block-place"><summary class="btn btn--small" title="Переместить в колонку, вкладку или на страницу">'
+        . \App\Core\AdminUi::icon('arrows-move') . 'Переместить</summary>'
+        . '<form method="post" action="/admin/blocks/' . (int) $block['id'] . '/place" class="block-place__form">'
+        . Csrf::field()
+        . '<select name="target" aria-label="Куда переместить блок">';
+    foreach ($targets as $value => $label) {
+        $html .= '<option value="' . htmlspecialchars((string) $value, ENT_QUOTES) . '">' . htmlspecialchars($label, ENT_QUOTES) . '</option>';
+    }
+
+    return $html . '</select><button type="submit" class="btn btn--small btn--primary">Переместить</button></form></details>';
+};
 ?>
     <h2 class="u-inline-9f7cb1fbb6"><?= htmlspecialchars($blockEditorTitle, ENT_QUOTES) ?></h2>
     <?php
@@ -81,7 +124,7 @@ foreach ($blocks as $b) {
     <?php endif; ?>
 
     <?php if (!empty($blocks)): ?>
-        <p class="form-hint">Перетаскивайте блоки за значок ⠿ для изменения порядка (сохраняется автоматически).</p>
+        <p class="form-hint">Перетаскивайте блоки за значок ⠿: по странице — чтобы изменить порядок, в колонку или вкладку — чтобы вложить готовый блок, из колонки на страницу — чтобы вынести его обратно. То же делает кнопка «Переместить».</p>
     <?php endif; ?>
     <div class="block-list" data-block-sortable
          data-page-id="<?= (int) $page['id'] ?>"
@@ -126,6 +169,7 @@ foreach ($blocks as $b) {
                     <?= Csrf::field() ?>
                     <button type="submit" class="btn btn--small<?= $blockActive ? '' : ' btn--warning' ?>"><?= $blockActive ? \App\Core\AdminUi::icon('eye-off') . 'Скрыть' : \App\Core\AdminUi::icon('eye') . 'Показать' ?></button>
                 </form>
+                <?= $placeForm($block, '0') ?>
                 <a class="btn btn--small btn--secondary" href="/admin/blocks/<?= (int) $block['id'] ?>/edit"><?= \App\Core\AdminUi::icon('edit') ?>Редактировать</a>
                 <form method="post" action="/admin/blocks/<?= (int) $block['id'] ?>/delete" data-confirm="Удалить блок «<?= htmlspecialchars($block['title'] ?: ('Блок #' . $block['id']), ENT_QUOTES) ?>»?">
                     <?= Csrf::field() ?>
@@ -134,22 +178,10 @@ foreach ($blocks as $b) {
             </div>
         </div>
         <?php if (BlockTypeRegistry::isContainer((string) $block['type'])):
-            $cdata = json_decode((string) $block['data'], true) ?: [];
             // Ячейка наполнения — колонка у «Колонок» и вкладка у «Вкладок»:
             // хранятся они одинаково (column_index), различаются подписи.
-            $cellTitles = [];
-            if ($block['type'] === 'tabs') {
-                foreach ((array) ($cdata['items'] ?? []) as $tab) {
-                    $tabTitle = trim((string) ($tab['title'] ?? ''));
-                    if ($tabTitle !== '') { $cellTitles[] = $tabTitle; }
-                }
-                $cellTitles = array_slice($cellTitles, 0, 10);
-            } else {
-                $colCount = (int) ($cdata['columns'] ?? 2);
-                if ($colCount < 2 || $colCount > 4) { $colCount = 2; }
-                for ($ci = 0; $ci < $colCount; $ci++) { $cellTitles[] = 'Колонка ' . ($ci + 1); }
-            }
-            $colCount = count($cellTitles);
+            $blockCells = $cellTitles[(int) $block['id']] ?? [];
+            $colCount = count($blockCells);
             $kids = $columnsChildren[(int) $block['id']] ?? [];
         ?>
         <div class="columns-editor u-inline-8bccce3cd1">
@@ -158,12 +190,15 @@ foreach ($blocks as $b) {
             <?php endif; ?>
             <div class="columns-editor__grid columns-editor__grid--<?= max(2, min(4, $colCount)) ?>">
                 <?php for ($ci = 0; $ci < $colCount; $ci++): ?>
-                    <div class="columns-editor__col">
-                        <div class="columns-editor__col-title"><?= htmlspecialchars($cellTitles[$ci], ENT_QUOTES) ?></div>
+                    <?php $cellKey = (int) $block['id'] . ':' . $ci; ?>
+                    <div class="columns-editor__col" data-place-target="<?= $cellKey ?>">
+                        <div class="columns-editor__col-title"><?= htmlspecialchars($blockCells[$ci], ENT_QUOTES) ?></div>
                         <?php foreach ($kids as $kid): if ((int) $kid['column_index'] !== $ci) { continue; } ?>
-                            <div class="columns-editor__child">
-                                <span><?= htmlspecialchars($kid['title'] ?: ($blockTypeLabels[$kid['type']] ?? $kid['type']), ENT_QUOTES) ?></span>
+                            <div class="columns-editor__child" draggable="true" data-block-id="<?= (int) $kid['id'] ?>">
+                                <span class="block-list-item__handle" title="Зажмите и перетащите в другую колонку или на страницу" aria-hidden="true">⠿</span>
+                                <span class="columns-editor__child-name"><?= htmlspecialchars($kid['title'] ?: ($blockTypeLabels[$kid['type']] ?? $kid['type']), ENT_QUOTES) ?></span>
                                 <span class="columns-editor__child-actions">
+                                    <?= $placeForm($kid, $cellKey) ?>
                                     <a class="btn btn--small" href="/admin/blocks/<?= (int) $kid['id'] ?>/edit" title="Редактировать" aria-label="Редактировать"><?= \App\Core\AdminUi::icon('edit') ?></a>
                                     <form method="post" action="/admin/blocks/<?= (int) $kid['id'] ?>/delete" data-confirm="Удалить вложенный блок?">
                                         <?= Csrf::field() ?><button class="btn btn--small btn--danger" title="Удалить" aria-label="Удалить"><?= \App\Core\AdminUi::icon('trash') ?></button>
