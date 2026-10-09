@@ -78,7 +78,12 @@ final class View
             || str_starts_with($template, 'errors/');
     }
 
-    private static function wantsCyrillic(): bool
+    /**
+     * Узбекская кириллица выбрана посетителем. Читают двое: полная страница
+     * и фрагмент списка (Fragment) — пагинация и фильтры приходят именно им,
+     * и без проверки здесь вторая страница ленты возвращалась латиницей.
+     */
+    public static function wantsCyrillic(): bool
     {
         if (Locale::current() !== 'uz') {
             return false;
