@@ -79,6 +79,28 @@ test('Кириллица: узбекская латиница переводит
     assert_same('ў ғ ў ғ ў ғ', UzCyrillic::text("oʹ gʹ o′ g′ o´ g´"));
 });
 
+test('Кириллица: заимствования и стыки морфем', function () {
+    // Официальная латиница пишет «ц» буквой «s» и не пишет «ъ»/«ь».
+    assert_same('Франция объектлар ОБЪЕКТ субъект подъезд', UzCyrillic::text('Fransiya obyektlar OBYEKT subyekt podyezd'));
+    assert_same('премьер-министр курьер Мирзиёев Алиев', UzCyrillic::text('premyer-ministr kuryer Mirziyoyev Aliyev'));
+    assert_same('акция функция конференция станция коррупция', UzCyrillic::text('aksiya funksiya konferensiya stansiya korrupsiya'));
+    assert_same('пенсия экспансия Россия комиссия', UzCyrillic::text('pensiya ekspansiya Rossiya komissiya'));
+    assert_same('цирк сирка цемент центр принцип', UzCyrillic::text('sirk sirka sement sentr prinsip'));
+    // «ts» на стыке основы и суффикса — «тс», а не «ц».
+    assert_same('айтса кетсин аҳамиятсиз маърифатсевар', UzCyrillic::text('aytsa ketsin ahamiyatsiz maʼrifatsevar'));
+    assert_same('медицина процент концерт коэффициент', UzCyrillic::text('meditsina protsent kontsert koeffitsiyent'));
+    // «e» после гласной — «э».
+    assert_same('аэропорт поэзия эълон клиент', UzCyrillic::text('aeroport poeziya eʼlon klient'));
+    // Месяц без окончания сохраняет «ь».
+    assert_same('5-сентябрь сентябрда 7-февралдаги ОКТЯБРЬ', UzCyrillic::text('5-sentabr sentabrda 7-fevraldagi OKTABR'));
+});
+
+test('Кириллица: кавычки, разделитель и иностранные слова', function () {
+    assert_same('‘Янги Ўзбекистон’ тоғ \'Мирзо\'', UzCyrillic::text("‘Yangi O‘zbekiston’ tog‘ 'Mirzo'"));
+    assert_same('Исҳоқ МАЪЛУМОТ', UzCyrillic::text('Isʼhoq MAʼLUMOT'));
+    assert_same('Facebook YouTube iPhone Google АҚШда ТошДУ', UzCyrillic::text('Facebook YouTube iPhone Google AQShda ToshDU'));
+});
+
 test('Кириллица: адреса, почта и сущности остаются латиницей', function () {
     assert_same('info@asr.uz', UzCyrillic::text('info@asr.uz'));
     assert_same('https://artstudio.uz/uz', UzCyrillic::text('https://artstudio.uz/uz'));
