@@ -38,6 +38,8 @@ final class WidgetRenderer
         // Настроек нет: раздел определяется по открытой странице, а показывать
         // или нет — решает размещение виджета в колонке.
         'section_menu' => [],
+        // Кадры последних публикаций из сохранённой копии ленты (InstagramFeed).
+        'instagram_feed' => ['count' => 6],
     ];
 
     /**
@@ -195,6 +197,10 @@ final class WidgetRenderer
                 break;
             case 'team_list':
                 $data['items'] = array_slice(TeamMember::published($lang), 0, (int) ($data['count'] ?? 5));
+                break;
+            case 'instagram_feed':
+                $data['posts'] = InstagramFeed::posts((int) ($data['count'] ?? 6));
+                $data['profile_url'] = InstagramFeed::profileUrl();
                 break;
             case 'photo_slider':
                 // Случайная цель выбирается на сервере только ради запасного

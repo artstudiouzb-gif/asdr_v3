@@ -114,6 +114,14 @@
       "gzip": 514,
       "brotli": 411
     },
+    "/assets/css/blocks/instagram-feed.css": {
+      "path": "/assets/css/blocks/instagram-feed.min.css",
+      "sourceSha256": "d07dffc6bf07f8a959205906e215a14206dcea771343ca3b251d46477db2a127",
+      "sha256": "b72248e49b6c60974779f63a189f57b969deb9dfe0c4b29d8080eca37ac5fac9",
+      "raw": 1860,
+      "gzip": 797,
+      "brotli": 640
+    },
     "/assets/css/blocks/leader-card.css": {
       "path": "/assets/css/blocks/leader-card.min.css",
       "sourceSha256": "fa55adecf6e005de3232371006e936c420c58459ea6237527fe89e2696a46047",

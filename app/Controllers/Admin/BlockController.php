@@ -663,6 +663,8 @@ final class BlockController
                 return BlockFieldSchema::normalize('image', $_POST, $locale);
             case 'embed':
                 return BlockFieldSchema::normalize('embed', $_POST, $locale);
+            case 'instagram_feed':
+                return BlockFieldSchema::normalize('instagram_feed', $_POST, $locale);
             case 'chart':
                 return BlockFieldSchema::normalize('chart', $_POST, $locale);
             case 'divider':
@@ -912,7 +914,7 @@ final class BlockController
                 return array_merge(
                     BlockFieldSchema::normalize('map_point', $_POST, $locale),
                     // Адрес карты принимается и ссылкой, и целым тегом <iframe>.
-                    ['embed_url' => \App\Core\MapEmbedUrl::normalize($_POST['embed_url'] ?? '')]
+                    ['embed_url' => \App\Core\MapEmbedUrl::normalize(\App\Core\Input::post()->str('embed_url'))]
                 );
             case 'org_structure':
                 $branches = [];

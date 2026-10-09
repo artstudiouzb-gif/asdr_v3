@@ -29,6 +29,7 @@ const EXPECTED_BLOCK_TYPES = [
     'bio_education', 'anchor_nav', 'stages', 'text_image',
     'docs_list', 'map_point', 'org_structure', 'leader_card', 'icon_text',
     'collage', 'table', 'image', 'embed', 'chart', 'divider', 'buttons',
+    'instagram_feed',
 ];
 
 test('Реестр блоков: все источники используют одинаковый набор типов', function () {

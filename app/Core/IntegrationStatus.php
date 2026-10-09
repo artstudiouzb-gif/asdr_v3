@@ -45,6 +45,7 @@ final class IntegrationStatus
         'telegram' => 'Telegram (публикации и коды входа)',
         'mail' => 'Почта (SMTP)',
         'youtube' => 'YouTube (импорт роликов)',
+        'instagram_feed' => 'Instagram (лента на сайте)',
         'ai' => 'ИИ (анонсы, alt-тексты, вычитка)',
         'indexnow' => 'IndexNow (уведомления Яндекса и Bing)',
     ];

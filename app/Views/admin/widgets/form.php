@@ -80,7 +80,7 @@ $currentType = $widget['type'] ?? 'latest_news';
         <?php $showType = static fn (string $t) => $isEdit ? ($currentType === $t) : true; ?>
 
         <!-- Настройки: количество (latest_news / projects_list / team_list) -->
-        <?php foreach (['latest_news', 'projects_list', 'team_list'] as $countType): ?>
+        <?php foreach (['latest_news', 'projects_list', 'team_list', 'instagram_feed'] as $countType): ?>
             <?php if ($showType($countType)): ?>
                 <div class="form-field<?= (!$isEdit && $countType !== 'latest_news') ? ' is-hidden' : '' ?>" data-wtype="<?= $countType ?>">
                     <label>Сколько элементов показывать</label>
@@ -95,6 +95,15 @@ $currentType = $widget['type'] ?? 'latest_news';
                 <input type="checkbox" id="show_thumb" name="show_thumb" value="1" <?= !empty($data['show_thumb']) ? 'checked' : '' ?>>
                 <label for="show_thumb">Отображать миниатюры фотографий к новостям</label>
             </div>
+        <?php endif; ?>
+
+        <!-- Настройки: instagram_feed -->
+        <?php if ($showType('instagram_feed')): ?>
+            <p class="form-hint<?= (!$isEdit) ? ' is-hidden' : '' ?>" data-wtype="instagram_feed">
+                Кадры берутся из сохранённой копии ленты; подключение аккаунта и
+                обновление — в разделе <a href="/admin/social#social-instagram-feed">Соцсети → Лента Instagram</a>.
+                Пока постов нет, виджет на сайте не выводится.
+            </p>
         <?php endif; ?>
 
         <!-- Настройки: section_menu -->
