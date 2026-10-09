@@ -14,6 +14,22 @@ use App\Core\BlockTypeRegistry;
  */
 const SAMPLE_EXEMPT = ['columns', 'slider', 'form'];
 
+/**
+ * «Лента Instagram» показывает сохранённую копию постов, а не данные блока:
+ * пока ленту не загрузили, блок честно пуст. Образец проверяется на ленте с
+ * одним постом и именем аккаунта — так, как её оставляет первый импорт.
+ * Запись живёт в транзакции теста и откатывается вместе с ней.
+ */
+function seed_instagram_feed_for_samples(): void
+{
+    \App\Models\Setting::set('instagram_feed_username', 'asdr_uz');
+    \App\Models\Setting::set('instagram_feed_posts', (string) json_encode([[
+        'id' => '1', 'type' => 'IMAGE', 'caption' => 'Matn',
+        'permalink' => 'https://www.instagram.com/p/AAA/',
+        'image' => '/uploads/public/instagram-1.jpg', 'timestamp' => '',
+    ]]));
+}
+
 test('Образцы: есть у каждого содержательного типа блока', function () {
     foreach (array_keys(BlockRenderer::defaults()) as $type) {
         if (in_array($type, SAMPLE_EXEMPT, true)) {
@@ -28,6 +44,7 @@ test('Образцы: есть у каждого содержательного 
 
 test('Образцы: блок с образцом виден на странице', function () {
     ensure_test_db();
+    seed_instagram_feed_for_samples();
     foreach (array_keys(BlockRenderer::defaults()) as $i => $type) {
         if (in_array($type, SAMPLE_EXEMPT, true)) {
             continue;
@@ -55,6 +72,7 @@ test('Образцы: «Команда» с группировкой — ина�
 
 test('Образцы: без разметки в экранируемых полях и без нерабочих полей', function () {
     ensure_test_db();
+    seed_instagram_feed_for_samples();
     foreach (array_keys(BlockRenderer::defaults()) as $i => $type) {
         if (in_array($type, SAMPLE_EXEMPT, true)) {
             continue;

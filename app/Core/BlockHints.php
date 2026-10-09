@@ -252,6 +252,11 @@ final class BlockHints
         if (in_array($type, ['news_latest', 'news_feature', 'news_docs'], true)) {
             return true;
         }
+        // Лента Instagram ведёт на профиль из своих настроек — если имя
+        // аккаунта там уже есть (его подставляет и первый проход импорта).
+        if ($type === 'instagram_feed') {
+            return InstagramFeed::profileUrl() !== '';
+        }
         $source = (string) ($data['source'] ?? 'manual');
 
         return ($type === 'cards_grid' && ($data['variant'] ?? 'icon') === 'image' && $source === 'projects')
