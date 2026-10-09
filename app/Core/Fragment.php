@@ -27,15 +27,32 @@ final class Fragment
     /** @param array<string,mixed> $data */
     public static function render(string $template, array $data = []): void
     {
-        $html = View::renderPartial($template, $data);
-        if (Asset::cdnBase() !== '') {
-            $html = Asset::rewriteMedia($html);
-        }
+        $html = self::html($template, $data);
 
         header('Content-Type: text/html; charset=UTF-8');
         // Фрагмент — такой же публичный GET-ответ, как и страница: те же
         // заголовки кэширования (шаблон 'site/' включает их применение).
         PublicResponseCache::apply('site/fragment');
         echo $html;
+    }
+
+    /**
+     * Разметка фрагмента в том же виде, что и у полной страницы: письменность
+     * и адреса CDN. Пагинация и фильтры ленты приходят именно фрагментом, и
+     * без кириллицы здесь вторая страница возвращалась латиницей.
+     *
+     * @param array<string,mixed> $data
+     */
+    public static function html(string $template, array $data = []): string
+    {
+        $html = View::renderPartial($template, $data);
+        if (View::wantsCyrillic()) {
+            $html = UzCyrillic::html($html);
+        }
+        if (Asset::cdnBase() !== '') {
+            $html = Asset::rewriteMedia($html);
+        }
+
+        return $html;
     }
 }
