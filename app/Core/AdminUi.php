@@ -62,6 +62,7 @@ final class AdminUi
             'team_list' => 'users',
             'projects_list' => 'briefcase',
             'news_latest' => 'document',
+            'instagram_feed' => 'instagram',
             'partners' => 'shield',
             'subscribe' => 'send',
             'faq' => 'info',

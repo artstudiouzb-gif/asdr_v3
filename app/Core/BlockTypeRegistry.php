@@ -71,6 +71,7 @@ final class BlockTypeRegistry
         'chart' => [], // схема: BlockFieldSchema
         'divider' => [], // схема: BlockFieldSchema
         'buttons' => [], // схема: BlockFieldSchema
+        'instagram_feed' => [], // схема: BlockFieldSchema
     ];
 
     /** Короткие русские названия для сообщений редактору. */
@@ -93,6 +94,7 @@ final class BlockTypeRegistry
         'icon_text' => 'Иконка и текст', 'collage' => 'Коллаж', 'table' => 'Таблица',
         'image' => 'Изображение', 'embed' => 'Внешняя врезка',
         'chart' => 'Диаграмма', 'divider' => 'Разделитель', 'buttons' => 'Кнопки',
+        'instagram_feed' => 'Лента Instagram',
     ];
 
     /**
@@ -130,6 +132,7 @@ final class BlockTypeRegistry
         'chart' => 'Диаграмма (столбцы, доли, показатель к цели)',
         'divider' => 'Разделитель (линия, знак или пустое место)',
         'buttons' => 'Кнопки (до трёх в ряд)',
+        'instagram_feed' => 'Лента Instagram (последние публикации)',
         // Аккордеон и цитата — это FAQ и «Отзывы»: разметка, скрипт и стили у
         // них те же, и отдельные блоки-близнецы разъехались бы с ними при
         // первой правке. Названы так, чтобы редактор их нашёл по своему слову.

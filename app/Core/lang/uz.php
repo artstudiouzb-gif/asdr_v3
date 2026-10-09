@@ -488,4 +488,6 @@ return [
     'Разделы сайта' => 'Sayt boʻlimlari',
     'Путь к цели' => 'Maqsad sari yoʻl',
     'цель' => 'maqsad',
+    'откроется в Instagram' => 'Instagramda ochiladi',
+    'Подписаться в Instagram' => 'Instagramda obuna bo‘lish',
 ];
