@@ -282,6 +282,37 @@ test('Письменность запоминается, не сбрасывая
     }
 });
 
+test('Кириллица: фрагмент списка (пагинация, фильтры) переводится, как и страница', function () {
+    $beforeCookie = $_COOKIE[A11ySettings::COOKIE] ?? null;
+    $beforeLang = \App\Core\Locale::current();
+    $item = ['type' => 'Yangilik', 'title' => 'Fransiya bilan hamkorlik', 'url' => '/uz/news/fransiya', 'excerpt' => ''];
+
+    try {
+        \App\Core\Locale::set('uz');
+        $_COOKIE[A11ySettings::COOKIE] = A11ySettings::toCookie(['script' => 'cyrl'] + A11ySettings::DEFAULTS);
+        $html = \App\Core\Fragment::html('site/_search_suggest', ['results' => [$item], 'query' => 'x', 'allUrl' => '/uz/search?q=x']);
+        assert_contains('Франция билан ҳамкорлик', $html, 'вторая страница ленты обязана прийти кириллицей');
+        assert_contains('href="/uz/news/fransiya"', $html, 'адрес ссылки не переводится');
+
+        $_COOKIE[A11ySettings::COOKIE] = A11ySettings::toCookie(A11ySettings::DEFAULTS);
+        $latin = \App\Core\Fragment::html('site/_search_suggest', ['results' => [$item], 'query' => 'x', 'allUrl' => '/uz/search?q=x']);
+        assert_contains('Fransiya bilan hamkorlik', $latin);
+    } finally {
+        \App\Core\Locale::set($beforeLang);
+        if ($beforeCookie === null) {
+            unset($_COOKIE[A11ySettings::COOKIE]);
+        } else {
+            $_COOKIE[A11ySettings::COOKIE] = $beforeCookie;
+        }
+    }
+});
+
+test('Кириллица: узбекская страница не уходит в общий кеш (CDN не соблюдает Vary: Cookie)', function () {
+    assert_false(\App\Core\PublicResponseCache::sharedCacheable(false, 'uz'), 'латинская копия из CDN досталась бы читателю кириллицы');
+    assert_true(\App\Core\PublicResponseCache::sharedCacheable(false, 'ru'));
+    assert_false(\App\Core\PublicResponseCache::sharedCacheable(true, 'ru'), 'свои настройки отображения — только браузеру');
+});
+
 test('Кириллица применяется только к публичным страницам на узбекском', function () {
     $view = (string) file_get_contents(dirname(__DIR__, 2) . '/app/Core/View.php');
 

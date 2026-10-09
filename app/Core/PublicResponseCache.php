@@ -138,7 +138,16 @@ final class PublicResponseCache
         $personalized = A11ySettings::isActive(
             A11ySettings::fromCookie($_COOKIE[A11ySettings::COOKIE] ?? null)
         );
-        if ($personalized) {
+        // Узбекская страница зависит от cookie письменности целиком: текст
+        // переводит в кириллицу сервер (View::wantsCyrillic), клиент этого
+        // повторить не может. Общему кешу «Vary: Cookie» не объяснишь —
+        // Cloudflare и CDN хостинга его не учитывают, — поэтому латинская
+        // копия из CDN уходила и тому, кто выбрал кириллицу: переключение
+        // срабатывало только на странице, куда вела ссылка с ?lang (она идёт
+        // мимо кеша), а следующий переход снова приносил латиницу. Узбекский
+        // ответ хранит только браузер, а он Vary по cookie соблюдает.
+        $scriptDependent = Locale::current() === 'uz';
+        if (!self::sharedCacheable($personalized, Locale::current())) {
             header(sprintf('Cache-Control: private, max-age=%d', $browserTtl));
         } else {
             header(sprintf(
@@ -156,13 +165,22 @@ final class PublicResponseCache
         //
         // Ответ с непустыми настройками отображения в общий кеш уже не попал
         // (Cache-Control: private выше), поэтому Vary по ним не нужен.
-        // Исключение — узбекская кириллица: её даёт транслитерация готовой
-        // страницы на сервере (View::wantsCyrillic), клиент это повторить не
-        // может, поэтому узбекские ответы по-прежнему зависят от cookie.
-        self::sendVary(Locale::current() === 'uz');
+        // Исключение — узбекская кириллица (см. выше): браузеру нужен Vary по
+        // cookie, чтобы после смены письменности не взять свою прежнюю копию.
+        self::sendVary($scriptDependent);
         self::$cacheable = true;
         self::$snapshotable = !$personalized
             && ((string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_QUERY) ?? '')) === '';
+    }
+
+    /**
+     * Можно ли ответ отдать общему кешу (CDN). Нельзя персональному (свои
+     * настройки отображения) и узбекскому: его текст зависит от cookie
+     * письменности, а «Vary: Cookie» CDN не соблюдают.
+     */
+    public static function sharedCacheable(bool $personalized, string $lang): bool
+    {
+        return !$personalized && $lang !== 'uz';
     }
 
     /**
