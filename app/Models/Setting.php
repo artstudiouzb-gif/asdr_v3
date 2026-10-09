@@ -138,6 +138,7 @@ final class Setting
             'telegram_bot_token',
             'webpush_vapid_private',
             'youtube_api_key',
+            'instagram_feed_token',
         ], true) || preg_match('/^social_(telegram|facebook|linkedin|instagram)_token$/', $key) === 1;
     }
 }

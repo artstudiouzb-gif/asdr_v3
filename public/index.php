@@ -457,6 +457,8 @@ $router->get('/admin/social', [\App\Controllers\Admin\SocialController::class, '
 $router->post('/admin/social', [\App\Controllers\Admin\SocialController::class, 'update']);
 $router->post('/admin/social/run', [\App\Controllers\Admin\SocialController::class, 'runNow']);
 $router->post('/admin/social/retry', [\App\Controllers\Admin\SocialController::class, 'retry']);
+$router->post('/admin/social/instagram-feed', [\App\Controllers\Admin\SocialController::class, 'instagramFeed']);
+$router->post('/admin/social/instagram-feed/sync', [\App\Controllers\Admin\SocialController::class, 'instagramSync']);
 
 // --- Admin: Telegram — бот, коды входа, канал, уведомления (супер-админ) ---
 $router->get('/admin/telegram', [\App\Controllers\Admin\TelegramController::class, 'index']);

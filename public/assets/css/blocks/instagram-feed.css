@@ -1,0 +1,101 @@
+/* «Лента Instagram»: квадратные кадры последних публикаций — блок страницы
+   и виджет сайдбара (разметка общая: templates/blocks/partials/instagram_grid.php).
+
+   Число колонок приходит переменной --ig-cols из scoped CSS блока; ниже
+   720px и в узкой колонке конструктора сетка сама берёт три и две колонки. */
+
+.ig-feed { --ig-gap: clamp(8px, 1vw, 14px); }
+
+.ig-feed__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--ig-cols, 4), minmax(0, 1fr));
+    gap: var(--ig-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* «Одной строкой» — полоса с прокруткой: кадров больше, чем колонок, и
+   лишние уходят вбок, а не во второй ряд. */
+.ig-feed--row .ig-feed__grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - (var(--ig-cols, 4) - 1) * var(--ig-gap)) / var(--ig-cols, 4));
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding-bottom: 6px;
+}
+.ig-feed--row .ig-feed__cell { scroll-snap-align: start; }
+
+.ig-feed__item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+}
+.ig-feed__item:focus-visible {
+    outline: 3px solid var(--gov-teal);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+}
+
+.ig-feed__frame {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--gov-bg-alt);
+}
+.ig-feed__frame picture { display: block; width: 100%; height: 100%; }
+.ig-feed__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter .25s ease;
+}
+/* Наведение — светом, а не наездом: кадров в ряду много, и движение под
+   курсором дёргало бы всю сетку. */
+.ig-feed__item:hover .ig-feed__img { filter: brightness(.86); }
+
+/* Ролик и карусель отмечены значком, как в самом Instagram. Тень у глифа —
+   кадр бывает и белым. */
+.ig-feed__kind {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: inline-flex;
+    color: #fff;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .55));
+}
+
+.ig-feed__caption {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: var(--step--1);
+    line-height: 1.4;
+    color: var(--section-muted-fg, var(--gov-muted));
+}
+
+/* Виджет сайдбара: три колонки и плотнее. */
+.widget-instagram .ig-feed { --ig-cols: 3; --ig-gap: 6px; }
+.widget-instagram__more { display: inline-block; margin-top: 12px; }
+
+@media (max-width: 720px) {
+    .ig-feed__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+    .ig-feed__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ig-feed--row .ig-feed__grid { grid-auto-columns: 46%; }
+}
+
+/* В колонке конструктора считаем по её ширине, а не по экрану: доля
+   колонки от экрана не зависит. */
+@container cms-col (max-width: 480px) {
+    .ig-feed__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

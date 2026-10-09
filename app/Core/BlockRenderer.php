@@ -459,6 +459,11 @@ final class BlockRenderer
             if (str_contains($rendered['html'], 'widget--photo_slider')) {
                 $assets['slider'] = true;
             }
+            // Виджет «Лента Instagram» внутри блока: стили у него общие с
+            // блоком, а на попадании в кэш шаблон виджета их не попросит.
+            if (str_contains($rendered['html'], 'widget--instagram_feed')) {
+                $assets['instagram_feed'] = true;
+            }
             if (!empty($rendered['preload_image']) && $preloadImages === []) {
                 // Одного LCP-кандидата достаточно: дополнительные high-priority
                 // preload конкурировали бы с CSS и шрифтами первого экрана.
@@ -815,6 +820,7 @@ final class BlockRenderer
             'news_docs' => self::enrichNewsDocs($data),
             'cards_grid' => self::enrichCardsGrid($data),
             'media_gallery' => self::enrichMediaGallery($data),
+            'instagram_feed' => self::enrichInstagramFeed($data),
             default => $data,
         };
     }
@@ -887,6 +893,22 @@ final class BlockRenderer
         if (trim((string) ($data['all_url'] ?? '')) === '') {
             $data['all_url'] = Locale::url('projects', $lang);
         }
+        return $data;
+    }
+
+    /**
+     * Посты берутся из сохранённой копии ленты: в Instagram страница не ходит.
+     * Ссылка «Подписаться» без своего адреса ведёт на профиль из настроек.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private static function enrichInstagramFeed(array $data): array
+    {
+        $data['posts'] = InstagramFeed::posts((int) ($data['limit'] ?? 8));
+        $own = trim((string) ($data['all_url'] ?? ''));
+        $data['profile_url'] = $own !== '' ? $own : InstagramFeed::profileUrl();
+
         return $data;
     }
 

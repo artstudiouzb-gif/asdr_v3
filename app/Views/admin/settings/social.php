@@ -77,6 +77,7 @@ $tokenGuides = [
     <a href="#social-facebook"><?= \App\Core\AdminUi::icon('facebook', 16) ?>Facebook</a>
     <a href="#social-linkedin"><?= \App\Core\AdminUi::icon('linkedin', 16) ?>LinkedIn</a>
     <a href="#social-instagram"><?= \App\Core\AdminUi::icon('instagram', 16) ?>Instagram</a>
+    <a href="#social-instagram-feed"><?= \App\Core\AdminUi::icon('instagram', 16) ?>Лента на сайте</a>
     <a href="/admin/telegram#telegram-channel"><?= \App\Core\AdminUi::icon('telegram', 16) ?>Telegram</a>
     <a href="#social-queue"><?= \App\Core\AdminUi::icon('performance', 16) ?>Очередь</a>
 </nav>
@@ -162,6 +163,97 @@ $tokenGuides = [
             в панель и проверка прав бота в канале.
         </div>
     </div>
+</div>
+
+<?php
+/** @var array{enabled: bool, own_token: bool, limit: int, username: string, profile_url: string, last_sync: string, last_result: string} $instagramFeed */
+/** @var list<array{caption: string, permalink: string, image: string}> $instagramPosts */
+$igFeed = $instagramFeed ?? \App\Core\InstagramFeed::settings();
+$igPosts = $instagramPosts ?? [];
+?>
+<div class="form-card social-section" id="social-instagram-feed">
+    <h2>Лента Instagram на сайте</h2>
+    <p class="form-hint">
+        Последние публикации аккаунта показывают блок страницы «Лента Instagram»
+        (например, отдельной секцией внизу главной) и виджет сайдбара с тем же
+        названием. Сайт хранит копию постов и кадров у себя: страница не ходит в
+        Instagram при каждом показе, а ссылки Instagram на снимки живут
+        несколько дней.
+    </p>
+    <p class="form-hint">
+        <strong>Доступ.</strong> Если выше заполнены токен и IG User ID для
+        публикации в Instagram, отдельный токен не нужен — лента читает посты
+        теми же данными. Для аккаунта, подключённого через «Instagram Login»,
+        вставьте его токен (начинается с <code>IG</code>): он продлевается
+        автоматически раз в неделю.
+    </p>
+    <div class="form-hint">
+        Состояние:
+        <?php if (!empty($instagramReady)): ?>
+            <span class="badge badge--published">доступ настроен</span>
+        <?php else: ?>
+            <span class="badge badge--draft">нет токена</span>
+        <?php endif; ?>
+        <?php if ($igFeed['last_sync'] !== ''): ?>
+            · обновлено <?= htmlspecialchars($igFeed['last_sync'], ENT_QUOTES) ?>
+            <?php if ($igFeed['last_result'] !== ''): ?>
+                — <?= htmlspecialchars($igFeed['last_result'], ENT_QUOTES) ?>
+            <?php endif; ?>
+        <?php else: ?>
+            · ещё не обновлялась
+        <?php endif; ?>
+    </div>
+
+    <form method="post" action="/admin/social/instagram-feed" class="form-grid">
+        <?= Csrf::field() ?>
+        <div class="form-field form-field--checkbox">
+            <input type="checkbox" id="instagram_feed_enabled" name="instagram_feed_enabled" value="1" <?= $igFeed['enabled'] ? 'checked' : '' ?>>
+            <label for="instagram_feed_enabled">Обновлять ленту автоматически (cron)</label>
+        </div>
+        <div class="form-field">
+            <label for="instagram_feed_username">Имя аккаунта</label>
+            <input type="text" id="instagram_feed_username" name="instagram_feed_username" maxlength="31" autocomplete="off"
+                   value="<?= htmlspecialchars($igFeed['username'], ENT_QUOTES) ?>" placeholder="asdr_uz">
+            <span class="form-hint">Для ссылки «Подписаться». Пусто — имя подставится само при первом обновлении.</span>
+        </div>
+        <div class="form-field">
+            <label for="instagram_feed_limit">Сколько последних постов хранить</label>
+            <input type="number" id="instagram_feed_limit" name="instagram_feed_limit" min="1" max="<?= \App\Core\InstagramFeed::MAX_POSTS ?>" value="<?= (int) $igFeed['limit'] ?>">
+        </div>
+        <div class="form-field">
+            <label for="instagram_feed_token">Свой токен ленты (необязательно)</label>
+            <input type="password" id="instagram_feed_token" name="instagram_feed_token" maxlength="1000" autocomplete="new-password"
+                   placeholder="<?= $igFeed['own_token'] ? 'Сохранён — оставьте пустым без изменений' : 'Пусто — берутся данные публикации в Instagram' ?>">
+            <?php if ($igFeed['own_token']): ?>
+                <label class="form-hint"><input type="checkbox" name="instagram_feed_clear_token" value="1"> Удалить сохранённый токен</label>
+            <?php endif; ?>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить настройки ленты</button>
+        </div>
+    </form>
+
+    <form method="post" action="/admin/social/instagram-feed/sync">
+        <?= Csrf::field() ?>
+        <button type="submit" class="btn btn--outline" <?= empty($instagramReady) ? 'disabled' : '' ?>><?= \App\Core\AdminUi::icon('reset', 16) ?>Обновить ленту сейчас</button>
+        <span class="form-hint">Для cron: <code>0 * * * * php <?= htmlspecialchars(defined('APP_ROOT') ? APP_ROOT : '/path/to/site', ENT_QUOTES) ?>/app/Console/instagram_worker.php</code></span>
+    </form>
+
+    <?php if ($igPosts !== []): ?>
+        <h3>Сохранённые публикации (<?= count($igPosts) ?>)</h3>
+        <table class="data-table">
+            <thead><tr><th>Кадр</th><th>Подпись</th><th>Ссылка</th></tr></thead>
+            <tbody>
+                <?php foreach ($igPosts as $post): ?>
+                    <tr>
+                        <td><img src="<?= htmlspecialchars(\App\Core\Media::thumbUrl($post['image']), ENT_QUOTES) ?>" alt="" width="56" height="56" loading="lazy"></td>
+                        <td><?= htmlspecialchars(excerpt($post['caption'], 140), ENT_QUOTES) ?></td>
+                        <td><a href="<?= htmlspecialchars($post['permalink'], ENT_QUOTES) ?>" target="_blank" rel="noopener noreferrer">Открыть</a></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
 </div>
 
 <?php

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Models\FileEntry;
 use App\Models\Setting;
 use App\Models\Video;
 
@@ -241,52 +240,9 @@ final class YoutubeImport
         ])));
 
         foreach ($candidates as $url) {
-            $tmp = null;
-            try {
-                $res = Http::getSafeRemote($url, ['Accept: image/*'], 20, self::THUMB_MAX_BYTES);
-                if ((int) $res['status'] !== 200 || strlen($res['body']) < 1024) {
-                    continue;
-                }
-                $temp = tempnam(sys_get_temp_dir(), 'ytimg_');
-                if ($temp === false) {
-                    return null;
-                }
-                $tmp = $temp;
-                if (file_put_contents($tmp, $res['body']) === false) {
-                    @unlink($tmp);
-                    continue;
-                }
-                $mime = (string) (new \finfo(FILEINFO_MIME_TYPE))->file($tmp);
-                $ext = match ($mime) {
-                    'image/jpeg' => 'jpg',
-                    'image/png' => 'png',
-                    'image/webp' => 'webp',
-                    default => null,
-                };
-                if ($ext === null) {
-                    @unlink($tmp);
-                    continue;
-                }
-                $named = $tmp . '.' . $ext;
-                @rename($tmp, $named);
-                $file = Uploader::storeFromPath(
-                    $named,
-                    'youtube-' . $youtubeId . '.' . $ext,
-                    (int) filesize($named),
-                    'public',
-                    $userId,
-                    false,
-                    self::THUMB_MAX_BYTES,
-                    ['jpg', 'jpeg', 'png', 'webp']
-                );
-                @unlink($named);
-
-                return FileEntry::publicUrl($file);
-            } catch (\Throwable $e) {
-                if ($tmp !== null) {
-                    @unlink($tmp);
-                }
-                Logger::swallowed('YoutubeImport: кадр-превью не сохранён (' . $url . ')', $e);
+            $local = RemoteImage::import($url, 'youtube-' . $youtubeId, $userId, 'YoutubeImport (' . $url . ')', self::THUMB_MAX_BYTES);
+            if ($local !== null) {
+                return $local;
             }
         }
 

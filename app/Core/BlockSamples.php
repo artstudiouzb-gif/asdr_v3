@@ -182,6 +182,15 @@ final class BlockSamples
                 'unit' => '%',
                 'caption' => 'По данным на 2026 год',
             ],
+            'instagram_feed' => [
+                'title' => 'Мы в Instagram',
+                'limit' => 8,
+                'layout' => 'grid',
+                'columns' => 4,
+                'captions' => false,
+                'all_text' => 'Подписаться',
+                'all_url' => '',
+            ],
             'embed' => [
                 'title' => 'Запись заседания',
                 'url' => 'https://youtu.be/aqz-KE-bpKQ',

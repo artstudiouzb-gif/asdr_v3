@@ -355,6 +355,18 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             <?= \App\Core\BlockData\BlockFieldSchema::formHtml('chart', $data) ?>
         <?php endif; ?>
 
+        <?php if ($type === 'instagram_feed'): ?>
+            <?php $igFeed = \App\Core\InstagramFeed::settings(); ?>
+            <p class="form-hint">
+                Блок показывает последние публикации из сохранённой копии ленты.
+                Подключение аккаунта и обновление — в разделе
+                <a href="/admin/social#social-instagram-feed">Соцсети → Лента Instagram</a>.
+                <?php if (\App\Core\InstagramFeed::posts(1) === []): ?>
+                    <strong>Пока постов нет — до первого обновления блок на сайте не выводится.</strong>
+                <?php endif; ?>
+            </p>
+            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('instagram_feed', $data) ?>
+        <?php endif; ?>
         <?php if ($type === 'embed'): ?>
             <?= \App\Core\BlockData\BlockFieldSchema::formHtml('embed', $data) ?>
         <?php endif; ?>

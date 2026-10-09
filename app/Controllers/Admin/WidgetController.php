@@ -171,7 +171,7 @@ final class WidgetController
                 'count' => max(1, min(20, (int) ($_POST['count'] ?? 5))),
                 'show_thumb' => !empty($_POST['show_thumb']),
             ],
-            'projects_list', 'team_list' => [
+            'projects_list', 'team_list', 'instagram_feed' => [
                 'count' => max(1, min(20, (int) ($_POST['count'] ?? 5))),
             ],
             'contacts' => [

@@ -8,6 +8,9 @@ use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Flash;
 use App\Core\Heartbeat;
+use App\Core\Input;
+use App\Core\InstagramFeed;
+use App\Core\Redirect;
 use App\Core\SocialPublisher;
 use App\Core\SocialSettings;
 use App\Core\View;
@@ -49,6 +52,9 @@ final class SocialController
             'queueLog' => SocialPost::recent(40),
             'queueCounts' => SocialPost::counts(),
             'workerStatus' => Heartbeat::status()['social'] ?? null,
+            'instagramFeed' => InstagramFeed::settings(),
+            'instagramReady' => InstagramFeed::isConfigured(),
+            'instagramPosts' => InstagramFeed::posts(InstagramFeed::MAX_POSTS),
         ]);
     }
 
@@ -139,6 +145,35 @@ final class SocialController
         Flash::success('Настройки соцсетей сохранены.');
         header('Location: /admin/social#social-settings');
         exit;
+    }
+
+    /** Настройки ленты Instagram на сайте (блок и виджет «Лента Instagram»). */
+    public function instagramFeed(): void
+    {
+        Auth::requireSuperAdmin();
+        Csrf::verifyRequest();
+
+        InstagramFeed::saveSettings(Input::post());
+        Flash::success('Настройки ленты Instagram сохранены.');
+        Redirect::to('/admin/social#social-instagram-feed');
+    }
+
+    /**
+     * Обновить ленту сейчас — то же, что делает cron-воркер. Нужна и для
+     * первого прохода: без него блок на сайте пуст до ближайшего запуска cron.
+     */
+    public function instagramSync(): void
+    {
+        Auth::requireSuperAdmin();
+        Csrf::verifyRequest();
+
+        $result = InstagramFeed::sync(Auth::id());
+        if ($result['ok']) {
+            Flash::success('Лента Instagram обновлена: ' . $result['summary'] . '.');
+        } else {
+            Flash::error('Лента Instagram не обновлена: ' . $result['error'] . '.');
+        }
+        Redirect::to('/admin/social#social-instagram-feed');
     }
 
     /** Повторить одну публикацию, завершившуюся ошибкой. */

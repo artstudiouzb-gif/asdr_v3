@@ -9,7 +9,7 @@ use App\Core\WidgetRenderer;
 
 final class Widget
 {
-    public const TYPES = ['latest_news', 'contacts', 'custom_html', 'projects_list', 'team_list', 'subscribe', 'photo_slider', 'section_menu'];
+    public const TYPES = ['latest_news', 'contacts', 'custom_html', 'projects_list', 'team_list', 'subscribe', 'photo_slider', 'section_menu', 'instagram_feed'];
 
     public const TYPE_LABELS = [
         'latest_news' => 'Последние новости',
@@ -20,6 +20,7 @@ final class Widget
         'subscribe' => 'Форма подписки на новости',
         'photo_slider' => 'Фотокарусель',
         'section_menu' => 'Меню раздела',
+        'instagram_feed' => 'Лента Instagram',
     ];
 
     public static function all(): array

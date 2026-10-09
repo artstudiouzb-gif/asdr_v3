@@ -487,4 +487,6 @@ return [
     'Разделы сайта' => 'Site sections',
     'Путь к цели' => 'Progress to target',
     'цель' => 'target',
+    'откроется в Instagram' => 'opens on Instagram',
+    'Подписаться в Instagram' => 'Follow on Instagram',
 ];
