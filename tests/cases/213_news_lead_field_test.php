@@ -47,7 +47,7 @@ test('Форма даёт компактный редактор и три чес
         strpos($form, 'data-lead-previews') > strpos($form, '6. SEO Оптимизация'),
         'предпросмотр расположен после заполнения текста и SEO'
     );
-    assert_contains("var isLead = textarea.hasAttribute('data-lead-editor')", $editor);
+    assert_contains("textarea.hasAttribute('data-lead-editor')", $editor);
     assert_contains("len < 180", $admin);
     assert_contains("len > 360", $admin);
     assert_contains("text.length > 160", $admin, 'SEO остаётся отдельным кратким предпросмотром');

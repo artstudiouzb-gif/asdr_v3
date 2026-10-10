@@ -415,9 +415,9 @@ require __DIR__ . '/../layout/header.php';
 
                 <div class="form-field col-12">
                     <label for="maintenance_message">Сообщение посетителям сайта</label>
-                    <input type="text" id="maintenance_message" name="maintenance_message" maxlength="500"
-                           value="<?= htmlspecialchars($settings['maintenance_message'] ?? '', ENT_QUOTES) ?>"
-                           placeholder="Сайт временно закрыт на техническое обслуживание.">
+                    <textarea id="maintenance_message" name="maintenance_message" rows="4" data-notice-editor
+                              placeholder="Сайт временно закрыт на техническое обслуживание."><?= htmlspecialchars($settings['maintenance_message'] ?? '', ENT_QUOTES) ?></textarea>
+                    <p class="form-hint">Enter — новый абзац, Shift+Enter — перенос строки. Можно выделить текст жирным, задать цвет, размер и выравнивание. Пустое поле — стандартный текст.</p>
                 </div>
             </div>
         </section>
