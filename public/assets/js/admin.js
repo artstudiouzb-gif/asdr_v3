@@ -2398,7 +2398,7 @@
 
     // --- Автономный WYSIWYG (задача 75): инициализация на textarea[data-wysiwyg] ---
     if (window.ArtEditor) {
-        document.querySelectorAll('textarea[data-wysiwyg], textarea[data-lead-editor]').forEach(function (ta) {
+        document.querySelectorAll('textarea[data-wysiwyg], textarea[data-lead-editor], textarea[data-notice-editor]').forEach(function (ta) {
             window.ArtEditor.attach(ta);
         });
     }

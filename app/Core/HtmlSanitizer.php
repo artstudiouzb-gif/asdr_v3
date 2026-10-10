@@ -98,6 +98,23 @@ final class HtmlSanitizer
     ];
 
     /**
+     * Профиль короткого объявления (сообщение режима обслуживания): текст,
+     * жирность, курсив, ссылки и три свойства оформления — цвет, размер и
+     * выравнивание. Стиль пропускается только у span/p и только этими
+     * свойствами с проверенными значениями (filterStyle).
+     */
+    private const NOTICE_TAGS = [
+        'p', 'br', 'span', 'strong', 'b', 'em', 'i', 'u', 's', 'a',
+    ];
+
+    private const NOTICE_ATTRS = [
+        '*' => [],
+        'p' => ['style'],
+        'span' => ['style'],
+        'a' => ['href', 'target', 'rel'],
+    ];
+
+    /**
      * Очистка контента кастомных полей (типы контента, этап 16.4): остаётся
      * только безопасная разметка текста; script/iframe, обработчики on*,
      * javascript:-ссылки и все атрибуты вне allowlist вырезаются.
@@ -111,6 +128,59 @@ final class HtmlSanitizer
     public static function sanitizeLead(string $html): string
     {
         return self::sanitize($html, self::LEAD_TAGS, self::LEAD_ATTRS);
+    }
+
+    /** Безопасная разметка короткого объявления с цветом и размером текста. */
+    public static function sanitizeNotice(string $html): string
+    {
+        return self::sanitize($html, self::NOTICE_TAGS, self::NOTICE_ATTRS);
+    }
+
+    /**
+     * Оставляет в атрибуте style только color, font-size и text-align с
+     * проверенными значениями. Всё прочее (url(), expression, position,
+     * background) выбрасывается: свойство вне списка — это уже вёрстка,
+     * а не оформление текста.
+     */
+    public static function filterStyle(string $style): string
+    {
+        $kept = [];
+        foreach (explode(';', $style) as $declaration) {
+            if (!str_contains($declaration, ':')) {
+                continue;
+            }
+            [$property, $value] = array_map('trim', explode(':', $declaration, 2));
+            $property = strtolower($property);
+            $value = strtolower($value);
+            $ok = match ($property) {
+                'color' => (bool) preg_match('/^(#[0-9a-f]{3}|#[0-9a-f]{6}|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+)\s*)?\))$/', $value),
+                'font-size' => self::fontSizeOk($value),
+                'text-align' => in_array($value, ['left', 'center', 'right', 'justify'], true),
+                default => false,
+            };
+            if ($ok) {
+                $kept[$property] = $property . ': ' . $value;
+            }
+        }
+
+        return implode('; ', $kept);
+    }
+
+    /** Размер шрифта в разумных пределах: от мелкой сноски до крупного заголовка. */
+    private static function fontSizeOk(string $value): bool
+    {
+        if (!preg_match('/^(\d{1,3}(?:\.\d{1,2})?)(px|pt|em|rem|%)$/', $value, $m)) {
+            return false;
+        }
+        [$min, $max] = match ($m[2]) {
+            'px' => [8, 96],
+            'pt' => [6, 72],
+            '%' => [50, 600],
+            default => [0.5, 6],
+        };
+        $size = (float) $m[1];
+
+        return $size >= $min && $size <= $max;
     }
 
     /**
@@ -249,6 +319,15 @@ final class HtmlSanitizer
             }
             if ($name === 'src' && !UrlGuard::isSafeMedia($value)) {
                 $el->removeAttribute($attr->nodeName);
+                continue;
+            }
+            if ($name === 'style') {
+                $style = self::filterStyle($value);
+                if ($style === '') {
+                    $el->removeAttribute($attr->nodeName);
+                } else {
+                    $el->setAttribute('style', $style);
+                }
                 continue;
             }
         }
