@@ -12,6 +12,8 @@ use App\Core\Database;
 use App\Core\DemoSeeder;
 use App\Core\Flash;
 use App\Core\ImageField;
+use App\Core\Input;
+use App\Core\MaintenanceMessage;
 use App\Core\SettingsValidator;
 use App\Core\View;
 use App\Models\Page;
@@ -162,7 +164,7 @@ final class SettingsController
 
         // Режим обслуживания.
         Setting::set('maintenance_mode', !empty($_POST['maintenance_mode']) ? '1' : '0');
-        Setting::set('maintenance_message', SettingsValidator::plainText((string) ($_POST['maintenance_message'] ?? ''), 500));
+        Setting::set('maintenance_message', MaintenanceMessage::normalize(Input::post()->str('maintenance_message')));
 
         // Глобальный произвольный CSS/JS вне блоков (группа 6). Доступ уже
         // ограничен супер-администратором (requireSuperAdmin выше) — хранится

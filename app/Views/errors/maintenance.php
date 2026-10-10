@@ -3,7 +3,11 @@
 use App\Models\Setting;
 
 $siteName = Setting::get('site_name', 'ASDR');
-$message = Setting::get('maintenance_message', t('Сайт временно закрыт на техническое обслуживание. Мы скоро вернёмся.'));
+// Сообщение — HTML из визуального редактора, очищается на выводе (MaintenanceMessage).
+$messageHtml = \App\Core\MaintenanceMessage::html(
+    Setting::get('maintenance_message'),
+    t('Сайт временно закрыт на техническое обслуживание. Мы скоро вернёмся.')
+);
 $errorLang = \App\Core\Locale::current();
 ?>
 <!DOCTYPE html>
@@ -18,6 +22,6 @@ $errorLang = \App\Core\Locale::current();
 <body class="system-error system-error--maintenance">
 <div class="icon"><?= \App\Core\Icon::render('tool', 64) ?></div>
 <h1><?= htmlspecialchars($siteName, ENT_QUOTES) ?></h1>
-<p><?= htmlspecialchars($message, ENT_QUOTES) ?></p>
+<div class="system-error__message"><?= $messageHtml ?></div>
 </body>
 </html>

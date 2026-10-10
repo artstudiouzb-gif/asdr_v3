@@ -305,7 +305,10 @@
                 textarea.id = 'wysiwyg-' + Math.random().toString(36).substr(2, 9);
             }
 
-            var isLead = textarea.hasAttribute('data-lead-editor');
+            // Короткое объявление (сообщение режима обслуживания): текст, цвет,
+            // размер и выравнивание. Набор совпадает с HtmlSanitizer::sanitizeNotice.
+            var isNotice = textarea.hasAttribute('data-notice-editor');
+            var isLead = isNotice || textarea.hasAttribute('data-lead-editor');
             window.tinymce.init({
                 selector: '#' + textarea.id,
                 base_url: '/assets/js/vendor/tinymce',
@@ -315,7 +318,7 @@
                 branding: false,
                 language: 'ru',
                 language_url: '/assets/js/vendor/tinymce/langs/ru.js',
-                height: isLead ? 280 : 520,
+                height: isNotice ? 240 : (isLead ? 280 : 520),
                 menubar: isLead ? false : 'file edit view insert format table tools help',
                 paste_webkit_styles: 'none',
                 paste_retain_style_properties: 'none',
@@ -339,7 +342,7 @@
                         args.node.removeAttribute('style');
                     }
                 },
-                plugins: isLead ? [
+                plugins: isNotice ? ['autolink', 'link'] : isLead ? [
                     'advlist', 'autolink', 'lists', 'link', 'wordcount', 'nonbreaking'
                 ] : [
                     'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
@@ -347,16 +350,22 @@
                     'insertdatetime', 'media', 'table', 'wordcount', 'codesample',
                     'emoticons', 'help', 'nonbreaking', 'quickbars'
                 ],
-                toolbar1: isLead
+                toolbar1: isNotice
+                    ? 'undo redo | bold italic underline | forecolor fontsize | alignleft aligncenter alignright | link | removeformat'
+                    : isLead
                     ? 'undo redo | bold italic underline strikethrough | link blockquote bullist numlist | removeformat'
                     : 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough subscript superscript | blockquote forecolor backcolor | alignleft aligncenter alignright alignjustify',
                 toolbar2: isLead ? false : 'bullist numlist outdent indent | articlemedia link image media table blockquote hr codesample emoticons | removeformat searchreplace visualblocks code fullscreen preview',
                 image_caption: !isLead,
                 image_title: !isLead,
+                font_size_formats: '12px 14px 16px 18px 20px 24px 28px 32px 40px',
                 quickbars_selection_toolbar: isLead ? 'bold italic underline | quicklink blockquote' : 'bold italic | quicklink h2 h3 blockquote',
-                valid_elements: isLead
+                valid_elements: isNotice
+                    ? 'p[style],br,span[style],strong/b,em/i,u,s,a[href|target|rel]'
+                    : isLead
                     ? 'p,br,strong/b,em/i,u,s,ul,ol,li,blockquote,a[href|target|rel]'
                     : undefined,
+                valid_styles: isNotice ? { '*': 'color,font-size,text-align' } : undefined,
                 content_style: 'body { max-width: none; margin: 1.2rem; font-family: system-ui, -apple-system, sans-serif; font-size: '
                     + (isLead ? '17px' : '15px') + '; line-height: 1.65; color: #0f172a; }'
                     + (isLead ? ' p { margin: 0 0 .75em; } blockquote { border-left: 3px solid #0d9488; margin-left: 0; padding-left: 1em; }' : ''),
