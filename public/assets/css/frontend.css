@@ -2743,8 +2743,11 @@ input[type="text"], input[type="email"], input[type="password"], input[type="sea
 .translation-notice__title {
     margin: 0 0 16px;
     color: var(--gov-navy);
-    font-size: clamp(28px, 5vw, 42px);
+    font-size: var(--step-8);
     line-height: 1.12;
+}
+@media (max-width: 720px) {
+    .translation-notice__title { font-size: clamp(28px, 5vw, 42px); }
 }
 
 .translation-notice__text {
