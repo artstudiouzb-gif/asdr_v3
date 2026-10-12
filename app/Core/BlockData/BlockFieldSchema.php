@@ -843,8 +843,9 @@ final class BlockFieldSchema
                     ->onlyWhen('order', ['date', 'random']),
                 'links' => Field::textarea(
                     'Ссылки на публикации',
-                    'По одной в строке, в нужном порядке. Показываются только публикации из сохранённой копии ленты — последние '
-                        . \App\Core\InstagramFeed::MAX_POSTS . '.',
+                    'По одной в строке, в нужном порядке. Показываются только публикации из сохранённой копии ленты: '
+                        . 'сколько последних хранить, задаётся в «Соцсети → Лента на сайте» (до '
+                        . \App\Core\InstagramFeed::MAX_POSTS . ').',
                     'https://www.instagram.com/p/…'
                 )->onlyWhen('order', ['pick']),
                 'layout' => Field::enum('Раскладка', [
