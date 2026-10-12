@@ -4988,3 +4988,51 @@ document.addEventListener('change', function (event) {
         else { list.insertBefore(dragged, target.cell.nextSibling); }
     });
 })();
+
+// Выбор типа нового блока: плитки работают и без скрипта (это радиокнопки),
+// скрипт добавляет поиск и называет выбранный тип на кнопке «Добавить блок» —
+// выбранная плитка могла остаться выше экрана.
+(function () {
+    'use strict';
+    document.querySelectorAll('[data-block-picker]').forEach(function (picker) {
+        var search = picker.querySelector('[data-block-picker-search]');
+        var empty = picker.querySelector('[data-block-picker-empty]');
+        var tiles = picker.querySelectorAll('[data-search]');
+        var groups = picker.querySelectorAll('[data-block-picker-group]');
+        var chosen = picker.form ? picker.form.querySelector('[data-block-picker-chosen]') : null;
+
+        function name() {
+            var input = picker.querySelector('input[name="type"]:checked');
+            var label = input ? input.closest('.block-picker__tile').querySelector('.block-picker__name') : null;
+            if (chosen) { chosen.textContent = label ? ': ' + label.textContent : ''; }
+        }
+
+        function filter() {
+            var query = search.value.trim().toLowerCase();
+            var found = false;
+            tiles.forEach(function (tile) {
+                tile.hidden = query !== '' && tile.getAttribute('data-search').indexOf(query) === -1;
+            });
+            groups.forEach(function (group) {
+                var visible = group.querySelector('[data-search]:not([hidden])') !== null;
+                group.hidden = !visible;
+                found = found || visible;
+            });
+            if (empty) { empty.hidden = found; }
+        }
+
+        picker.addEventListener('change', name);
+        name();
+        if (!search) { return; }
+        search.hidden = false;
+        search.addEventListener('input', filter);
+        // Enter в поиске выбирает первую найденную плитку, а не отправляет форму
+        // с тем типом, что был выбран до поиска.
+        search.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter') { return; }
+            e.preventDefault();
+            var first = picker.querySelector('[data-search]:not([hidden]) input');
+            if (first) { first.checked = true; first.focus(); name(); }
+        });
+    });
+})();
