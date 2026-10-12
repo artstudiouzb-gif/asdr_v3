@@ -46,7 +46,7 @@ test('Instagram: блок выводит кадры ссылками в Instagra
     $html = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
         'data' => [
-            'title' => 'Мы в Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4,
+            'title' => 'Мы в Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1',
             'captions' => true, 'all_text' => 'Подписаться', 'all_url' => '',
             'posts' => instagram_sample_posts(), 'profile_url' => 'https://www.instagram.com/asdr_uz/',
         ],
@@ -63,7 +63,7 @@ test('Instagram: блок выводит кадры ссылками в Instagra
 test('Instagram: пустая лента не выводит ни блока, ни виджета', function () {
     $block = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
-        'data' => ['title' => 'Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'captions' => false, 'all_text' => '', 'posts' => []],
+        'data' => ['title' => 'Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'captions' => false, 'all_text' => '', 'posts' => []],
     ]);
     assert_same('', trim($block));
 
@@ -103,7 +103,7 @@ test('Instagram: случайный порядок прячет лишнее д�
     $html = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
         'data' => [
-            'title' => '', 'order' => 'random', 'limit' => 1, 'layout' => 'grid', 'columns' => 1,
+            'title' => '', 'order' => 'random', 'limit' => 1, 'layout' => 'grid', 'columns' => 1, 'ratio' => '4-5',
             'captions' => false, 'dates' => true, 'all_text' => '', 'posts' => $posts,
         ],
     ]);
@@ -116,10 +116,37 @@ test('Instagram: случайный порядок прячет лишнее д�
 
     $plain = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
-        'data' => ['title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'captions' => false, 'all_text' => '', 'posts' => $posts],
+        'data' => ['title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'captions' => false, 'all_text' => '', 'posts' => $posts],
     ]);
     assert_not_contains('data-ig-shuffle', $plain);
     assert_not_contains('ig-feed__date', $plain, 'дата — только по галочке');
+});
+
+test('Instagram: один кадр в ряду — карусель со стрелками, кадр в пропорции поста', function () {
+    $render = static fn (array $over): string => render_view('templates/blocks/instagram_feed.php', [
+        'blockId' => 7,
+        'data' => $over + [
+            'title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 1, 'ratio' => '4-5',
+            'captions' => false, 'all_text' => '', 'posts' => instagram_sample_posts(),
+        ],
+    ]);
+
+    // Столбец из восьми кадров во всю ширину колонки читается лентой, которую
+    // прокручивают мимо, — один кадр в ряду листается.
+    $one = $render([]);
+    assert_contains('data-carousel', $one);
+    assert_contains('ig-feed--row', $one, 'одна колонка раскладывается полосой');
+    assert_contains('data-carousel-track', $one);
+    assert_same(2, substr_count($one, 'data-carousel-item'));
+    assert_contains('data-carousel-nav', $one, 'стрелки и точки');
+    assert_contains('ig-feed--ratio-4-5', $one, 'пост 4:5 не срезается квадратом');
+
+    $grid = $render(['columns' => 4, 'ratio' => '1-1']);
+    assert_not_contains('data-carousel', $grid, 'сетка остаётся сеткой');
+    assert_contains('ig-feed--ratio-1-1', $grid);
+
+    assert_contains('data-carousel-nav', $render(['layout' => 'row', 'columns' => 4]), '«Карусель» получает стрелки при любом числе колонок');
+    assert_not_contains('data-carousel', $render(['order' => 'random', 'limit' => 1]), 'один видимый кадр листать некуда');
 });
 
 test('Instagram: ошибка Meta переводится в действие', function () {
