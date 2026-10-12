@@ -56,6 +56,10 @@ test('Instagram: блок выводит кадры ссылками в Instagra
     assert_contains('rel="noopener noreferrer"', $html);
     assert_contains('aria-label="Fransiya taraqqiyot agentligi bilan uchrashuv', $html, 'имя ссылки — начало подписи поста');
     assert_contains('href="https://www.instagram.com/asdr_uz/"', $html, 'ссылка на профиль из настроек ленты');
+    assert_contains('ig-feed__follow', $html, 'подписка — кнопкой');
+    assert_contains('#tabler-brand-instagram', $html, 'со знаком Instagram');
+    assert_true(strpos($html, 'ig-feed__follow') > strpos($html, 'ig-feed__grid'), 'кнопка под кадрами, а не в шапке');
+    assert_not_contains('section-head__all', $html);
     assert_contains('ig-feed__kind', $html, 'ролик отмечен значком');
     assert_contains('ig-feed__caption', $html);
 });
