@@ -95,6 +95,14 @@ if ($showTabs) {
                         </span>
                         <?php if ($duration !== ''): ?><span class="mediacard__duration"><?= htmlspecialchars($duration, ENT_QUOTES) ?></span><?php endif; ?>
                     </span>
+                    <?php
+                    // Дата — тем же видом и на том же месте, что у карточки новости
+                    // (значок и число над заголовком): рядом стоящие ленты
+                    // читаются одним языком.
+                    $mediaDate = !empty($data['dates']) && empty($item['text']) ? (string) ($item['date'] ?? '') : '';
+                    $mediaDateShown = $mediaDate !== '' ? \App\Core\DateFormatter::short($mediaDate) : '';
+                    ?>
+                    <?php if ($mediaDateShown !== ''): ?><time class="mediacard__date mediacard__date--auto" datetime="<?= htmlspecialchars(\App\Core\DateFormatter::format($mediaDate, 'Y-m-d'), ENT_QUOTES) ?>"><?= \App\Core\Icon::render('calendar', 15, 'ui-icon', 1.7) ?><?= htmlspecialchars($mediaDateShown, ENT_QUOTES) ?></time><?php endif; ?>
                     <span class="mediacard__title"><?= htmlspecialchars((string) $item['title'], ENT_QUOTES) ?></span>
                     <?php if (!empty($item['text'])): ?><span class="mediacard__date"><?= htmlspecialchars((string) $item['text'], ENT_QUOTES) ?></span><?php endif; ?>
                 </<?= $tag ?>>
