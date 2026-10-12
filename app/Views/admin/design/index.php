@@ -504,7 +504,7 @@ foreach ($options as $key => $opt) {
                         <label class="design-card">
                             <input type="radio" name="font_size" value="<?= htmlspecialchars($val, ENT_QUOTES) ?>"
                                    <?= ($values['font_size'] ?? 'md') === $val ? 'checked' : '' ?> data-design-preview-field>
-                            <span class="design-card__label"><?= htmlspecialchars($label, ENT_QUOTES) ?> · <?= htmlspecialchars(['sm' => '15', 'md' => '16', 'lg' => '17', 'xl' => '18'][$val] ?? '', ENT_QUOTES) ?> px</span>
+                            <span class="design-card__label"><?= htmlspecialchars($label, ENT_QUOTES) ?> · <?= htmlspecialchars(['sm' => '15', 'md' => '16', 'lg' => '17', 'xl' => '18'][$val], ENT_QUOTES) ?> px</span>
                         </label>
                     <?php endforeach; ?>
                     <input class="u-inline-e73ebf4146" type="number" name="font_size_custom" min="12" max="24" step="0.5" inputmode="decimal" aria-label="Своё значение основного текста, px"
