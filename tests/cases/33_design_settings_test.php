@@ -95,6 +95,22 @@ test('DesignSettings: кнопка «Наверх» — тумблер даёт/
     assert_not_contains('design-scrolltop', DesignSettings::bodyClasses(['scroll_top' => 'off'] + $base));
 });
 
+test('DesignSettings: эмблему-водяной знак можно убрать, и замена доходит до шапки страницы', function () {
+    assert_same('on', DesignSettings::sanitize('emblem_decor', 'bogus'), 'по умолчанию знак есть');
+
+    $base = DesignSettings::PRESETS['classic']['values'];
+    assert_not_contains('design-emblem-off', DesignSettings::bodyClasses($base));
+    assert_contains('design-emblem-off', DesignSettings::bodyClasses(['emblem_decor' => 'off'] + $base));
+
+    // Класс обязан что-то гасить в собранном CSS, иначе настройка пустая.
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public.min.css');
+    assert_contains('.design-emblem-off', $css);
+    // Знак шапки страницы — маской: файлом из стилей он не менялся полем
+    // «Фирменная эмблема», а у остальных мест менялся.
+    $editorial = (string) file_get_contents(APP_ROOT . '/public/assets/css/public-editorial-pages.css');
+    assert_not_contains("url('../img/emblem.svg')", $editorial);
+});
+
 test('DesignSettings::cssVariables задаёт тень карточек по стилю', function () {
     $flat = DesignSettings::cssVariables(DesignSettings::PRESETS['minimal']['values']);
     assert_contains('--card-shadow:none', $flat);
