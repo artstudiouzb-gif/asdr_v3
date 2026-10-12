@@ -134,6 +134,19 @@
 .mediacard--video .mediacard__title:last-child { margin-bottom: 14px; }
 .mediacard--photo .mediacard__date,
 .mediacard--video .mediacard__date { margin: 4px 14px 14px; }
+/* Дата публикации из источника — как у карточки новости: над заголовком,
+   значок и число полужирным тихим тоном. */
+.mediacard--photo .mediacard__date--auto,
+.mediacard--video .mediacard__date--auto {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 12px 14px 0;
+    font-size: var(--step--3);
+    font-weight: 600;
+}
+.mediacard__date--auto .ui-icon { flex: none; opacity: .75; }
+.mediacard__date--auto + .mediacard__title { margin-top: 8px; }
 
 .mediacard {
     box-shadow: var(--card-shadow);
