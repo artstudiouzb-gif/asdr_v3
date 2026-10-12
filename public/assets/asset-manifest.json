@@ -297,11 +297,11 @@
         "/assets/js/admin-gallery-dropzone.js",
         "/assets/js/admin-media-loadmore.js"
       ],
-      "sourceSha256": "fe0e3536f2e2922ab8a33cfd50270344209bac87ee4c062b51b9ac3e0e2cecd4",
-      "sha256": "0f22eae8055f43a50f3a3f904b321ee0b51cf84bf87615abf4b65ee4d0c9276f",
-      "raw": 136076,
+      "sourceSha256": "a994a9d6e491f6ba3e20ba14bd295407fc53f9e129fd71e1f1b0fe31552041af",
+      "sha256": "e3d3068665beefeed2c2cdd8ecd34eceec06a7c412491d0a14c7db59972d0db4",
+      "raw": 136100,
       "gzip": 36366,
-      "brotli": 30600
+      "brotli": 30563
     }
   }
 }
