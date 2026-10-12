@@ -263,8 +263,8 @@ final class BlockTypeRegistry
         $catalog = [];
         foreach (self::EDITOR_GROUPS as $group => $types) {
             foreach ($types as $type) {
-                $name = self::TYPE_LABELS[$type] ?? $type;
-                $hint = self::EDITOR_HINTS[$type] ?? '';
+                $name = self::TYPE_LABELS[$type];
+                $hint = self::EDITOR_HINTS[$type];
                 $catalog[$group][$type] = [
                     'name' => $name,
                     'hint' => $hint,
