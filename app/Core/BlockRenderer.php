@@ -288,6 +288,7 @@ final class BlockRenderer
         if ($surface === 'card') {
             $extraClass .= ' cms-block--surface-card';
         }
+        $surfacePad = (string) ($data['_surface_pad'] ?? 'default');
         $minHeight = (string) ($data['_min_height'] ?? '');
         if (in_array($minHeight, ['small', 'medium', 'large', 'screen'], true)) {
             $extraClass .= ' cms-block--minh-' . $minHeight;
@@ -307,6 +308,10 @@ final class BlockRenderer
         if (isset($padMap[$padBottom])) {
             $extraClass .= ' cms-block--pad-bottom-custom';
             $styleVars .= '--block-pad-bottom:' . $padMap[$padBottom] . ';';
+        }
+        // Боковые поля карточки: сверху и снизу её поля — отступы секции выше.
+        if ($surface === 'card' && isset($padMap[$surfacePad])) {
+            $styleVars .= '--surface-pad:' . $padMap[$surfacePad] . ';';
         }
         // Фоновая надпись секции: крупное слово за содержимым. Прозрачность
         // своя у каждой секции, поэтому переменной в scoped CSS — инлайн-стили

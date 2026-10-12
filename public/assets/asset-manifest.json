@@ -14,11 +14,11 @@
       "/assets/css/public-editorial-pages.css",
       "/assets/css/public-home.css"
     ],
-    "sourceSha256": "ffd43903d1f1d354f9ee7abc9250138d72a1a71fdf2d6ebbe0bdc1e025484705",
-    "sha256": "c57070b53ecb4d303a5fbc00012a606bdb558e1063a1ed93b4acabcdce8a7538",
-    "raw": 393173,
-    "gzip": 66246,
-    "brotli": 51471
+    "sourceSha256": "b324d8f5c57caac56ec82869d715b93f7a22cf89f810573880e1b5443ececb5b",
+    "sha256": "2b0fc9381d58c1c3b377641414d1f4809d0c402e11e6ac3e3cc55c1c2c928075",
+    "raw": 393211,
+    "gzip": 66264,
+    "brotli": 51476
   },
   "js": {
     "path": "/assets/js/public.min.js",
@@ -116,11 +116,11 @@
     },
     "/assets/css/blocks/instagram-feed.css": {
       "path": "/assets/css/blocks/instagram-feed.min.css",
-      "sourceSha256": "238acfc45486dc6e548360a645572c32f46ee139507a05d6b947bbd07ce4e22b",
-      "sha256": "e30c8fc9225a031d5d235bee49023082756648b39361ede900181cdf0340d8e6",
-      "raw": 3217,
-      "gzip": 1121,
-      "brotli": 928
+      "sourceSha256": "ac1eb5b0333220d0e922e93abc44ab017822b527b65d7d4fe38ff9ca792f392d",
+      "sha256": "7c4e92530f861ac11305bf84d83bcb619af6b998e97e1aa60d43b7130f8d9e4f",
+      "raw": 4333,
+      "gzip": 1402,
+      "brotli": 1185
     },
     "/assets/css/blocks/leader-card.css": {
       "path": "/assets/css/blocks/leader-card.min.css",

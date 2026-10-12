@@ -22,7 +22,7 @@ $igShuffle = (int) ($igShuffle ?? 0);
 $igCarousel = !empty($igCarousel ?? false);
 $igLang = \App\Core\Locale::current();
 // Выдержка с запасом на заданное число строк: обрезает строки CSS, а текст
-// короче окна оставил бы пустые строки при пяти-шести.
+// короче окна оставил бы пустые строки при пяти-десяти.
 $igCaptionChars = 70 * max(2, (int) ($captionLines ?? 2));
 ?>
 <ul class="ig-feed__grid"<?= $igShuffle > 0 ? ' data-ig-shuffle="' . $igShuffle . '"' : '' ?><?= $igCarousel ? ' data-carousel-track tabindex="0" aria-label="' . htmlspecialchars(t('Публикации Instagram — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
@@ -41,19 +41,24 @@ $igCaptionChars = 70 * max(2, (int) ($captionLines ?? 2));
             default => '',
         };
         ?>
+        <?php $igCard = ($igCaptions && $caption !== '') || $date !== ''; ?>
         <li class="ig-feed__cell"<?= $igCarousel ? ' data-carousel-item' : '' ?><?= $igShuffle > 0 && $igIndex >= $igShuffle ? ' hidden' : '' ?>>
-            <a class="ig-feed__item" href="<?= htmlspecialchars((string) $post['permalink'], ENT_QUOTES) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= htmlspecialchars($label, ENT_QUOTES) ?>">
+            <a class="ig-feed__item<?= $igCard ? ' ig-feed__item--card' : '' ?>" href="<?= htmlspecialchars((string) $post['permalink'], ENT_QUOTES) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= htmlspecialchars($label, ENT_QUOTES) ?>">
                 <span class="ig-feed__frame">
                     <?= Media::picture((string) $post['image'], '', null, null, 'ig-feed__img', true, $igSizes) ?>
                     <?php if ($kind !== ''): ?>
                         <span class="ig-feed__kind" aria-hidden="true"><?= Icon::render($kind, 18) ?></span>
                     <?php endif; ?>
                 </span>
-                <?php if ($date !== ''): ?>
-                    <time class="ig-feed__date" datetime="<?= htmlspecialchars(\App\Core\DateFormatter::format((string) $post['timestamp'], 'Y-m-d'), ENT_QUOTES) ?>" aria-hidden="true"><?= htmlspecialchars($date, ENT_QUOTES) ?></time>
-                <?php endif; ?>
-                <?php if ($igCaptions && $caption !== ''): ?>
-                    <span class="ig-feed__caption" aria-hidden="true"><?= htmlspecialchars(excerpt($caption, $igCaptionChars), ENT_QUOTES) ?></span>
+                <?php if ($igCard): ?>
+                    <span class="ig-feed__body">
+                        <?php if ($date !== ''): ?>
+                            <time class="ig-feed__date" datetime="<?= htmlspecialchars(\App\Core\DateFormatter::format((string) $post['timestamp'], 'Y-m-d'), ENT_QUOTES) ?>" aria-hidden="true"><?= Icon::render('calendar', 15, 'ui-icon', 1.7) ?><?= htmlspecialchars($date, ENT_QUOTES) ?></time>
+                        <?php endif; ?>
+                        <?php if ($igCaptions && $caption !== ''): ?>
+                            <span class="ig-feed__caption" aria-hidden="true"><?= htmlspecialchars(excerpt($caption, $igCaptionChars), ENT_QUOTES) ?></span>
+                        <?php endif; ?>
+                    </span>
                 <?php endif; ?>
             </a>
         </li>
