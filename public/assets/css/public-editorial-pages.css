@@ -89,8 +89,12 @@
     right: 8px;
     width: 168px;
     aspect-ratio: 1;
-    background: url('../img/emblem.svg') center / contain no-repeat;
-    opacity: .048;
+    /* Маской по --gov-emblem, а не картинкой: файлом из стилей знак не
+       менялся полем «Фирменная эмблема» — у всех остальных мест менялся. */
+    background: var(--gov-title);
+    -webkit-mask: var(--gov-emblem) center / contain no-repeat;
+    mask: var(--gov-emblem) center / contain no-repeat;
+    opacity: .06;
     transform: translateY(-50%);
     pointer-events: none;
 }
@@ -1091,10 +1095,7 @@
 /* Footer on inner pages: compact like the approved concept. */
 
 /* Dark mode -------------------------------------------------------------- */
-html[data-theme="dark"] .content-pagehead__emblem {
-    opacity: .07;
-    filter: grayscale(1) brightness(1.5);
-}
+html[data-theme="dark"] .content-pagehead__emblem { opacity: .07; }
 
 /* Responsive ------------------------------------------------------------- */
 @media (max-width: 1000px) {
@@ -1135,7 +1136,7 @@ html[data-theme="dark"] .content-pagehead__emblem {
     .content-pagehead__emblem {
         right: -24px;
         width: 132px;
-        opacity: .035;
+        opacity: .045;
     }
 
     

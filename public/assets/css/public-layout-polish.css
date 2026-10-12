@@ -919,3 +919,19 @@ body.design-surface-interactive .block-contact-cards--panel-auto .feature-card.c
         transition: transform .38s cubic-bezier(.2, .7, .2, 1);
     }
 }
+
+/* «Дизайн» → «Эмблема-водяной знак: скрыть». Убирает только декоративный
+   знак; значок в шапке без логотипа, метка-эмблема заголовка, разделитель и
+   узор «эмблема» выбираются своими настройками и остаются. Режимный класс
+   добавляет вес намеренно: правила знака лежат и в частях, которые
+   подключаются после бандла. Заглушка карточки без фото остаётся заливкой. */
+.design-emblem-off :is(.content-pagehead__emblem, .act-card__emblem, .block-text__media-emblem) { display: none; }
+.design-emblem-off :is(
+    .block-text__quote--card,
+    span.imgcard__media,
+    .newsdocs-item__media--empty,
+    .newslist-lead__media--empty,
+    .relnews-card__media--empty,
+    .adjnews__media--empty,
+    .news-column__empty
+)::after { content: none; }

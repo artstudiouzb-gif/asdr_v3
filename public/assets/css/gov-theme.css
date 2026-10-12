@@ -3148,7 +3148,9 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     bottom: -46px;
     width: 190px;
     aspect-ratio: 1;
-    background: url('../img/emblem.svg') center / contain no-repeat;
+    background: currentColor;
+    -webkit-mask: var(--gov-emblem) center / contain no-repeat;
+    mask: var(--gov-emblem) center / contain no-repeat;
     opacity: .055;
 }
 

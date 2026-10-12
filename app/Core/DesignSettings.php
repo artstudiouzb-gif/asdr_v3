@@ -89,6 +89,17 @@ final class DesignSettings
             'choices' => ['on' => 'Показывать', 'off' => 'Скрыть'],
             'default' => 'on',
         ],
+        // Убрать знак можно только как декорацию: значок в шапке без логотипа,
+        // метка-эмблема заголовка, разделитель и узор «эмблема» выбираются
+        // своими настройками, и выключатель их не трогает — иначе выбор там
+        // молча переставал бы действовать.
+        'emblem_decor' => [
+            'label' => 'Эмблема-водяной знак',
+            'hint' => 'Бледный знак в шапке внутренних страниц, на карточках актов, в карточке цитаты и на заглушках карточек без фото. Сам знак меняется полем «Фирменная эмблема».',
+            'group' => 'Общие',
+            'choices' => ['on' => 'Показывать', 'off' => 'Скрыть'],
+            'default' => 'on',
+        ],
         'font_size' => [
             'label' => 'Размер шрифта',
             'hint' => 'Базовый размер основного текста сайта.',
@@ -247,22 +258,22 @@ final class DesignSettings
         'classic' => [
             'label' => 'Классический',
             'desc' => 'Строгий официальный стиль, умеренные отступы.',
-            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'sm', 'density' => 'standard', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'arrow', 'button_fill' => 'off', 'motion' => 'full', 'palette' => 'gov_blue', 'font_style' => 'system'],
+            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'sm', 'density' => 'standard', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'emblem_decor' => 'on', 'link_style' => 'arrow', 'button_fill' => 'off', 'motion' => 'full', 'palette' => 'gov_blue', 'font_style' => 'system'],
         ],
         'modern' => [
             'label' => 'Современный',
             'desc' => 'Крупные скругления, воздух, акцентная шапка.',
-            'values' => ['container' => 'wide', 'radius' => 'large', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'lg', 'line_height' => 'relaxed', 'heading_line_height' => 'tight', 'heading_font_weight' => '800', 'heading_letter_spacing' => 'tight', 'button' => 'pill', 'block_surface' => 'all', 'card_style' => 'elevated', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'fade', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'draw', 'button_fill' => 'accent', 'motion' => 'full', 'palette' => 'violet', 'font_style' => 'noto'],
+            'values' => ['container' => 'wide', 'radius' => 'large', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'lg', 'line_height' => 'relaxed', 'heading_line_height' => 'tight', 'heading_font_weight' => '800', 'heading_letter_spacing' => 'tight', 'button' => 'pill', 'block_surface' => 'all', 'card_style' => 'elevated', 'sidebar_position' => 'floating', 'catalog_layout' => 'cards_lg', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'fade', 'section_marker' => 'line', 'scroll_top' => 'on', 'emblem_decor' => 'on', 'link_style' => 'draw', 'button_fill' => 'accent', 'motion' => 'full', 'palette' => 'violet', 'font_style' => 'noto'],
         ],
         'minimal' => [
             'label' => 'Минимал',
             'desc' => 'Прямые углы, максимум воздуха, список в каталоге.',
-            'values' => ['container' => 'narrow', 'radius' => 'none', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'square', 'block_surface' => 'all', 'card_style' => 'flat', 'sidebar_position' => 'fixed', 'catalog_layout' => 'list', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'off', 'scroll_top' => 'on', 'link_style' => 'draw', 'button_fill' => 'primary', 'motion' => 'full', 'palette' => 'graphite', 'font_style' => 'serif'],
+            'values' => ['container' => 'narrow', 'radius' => 'none', 'card_gap' => 'md', 'density' => 'spacious', 'font_size' => 'md', 'line_height' => 'normal', 'heading_line_height' => 'normal', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'normal', 'button' => 'square', 'block_surface' => 'all', 'card_style' => 'flat', 'sidebar_position' => 'fixed', 'catalog_layout' => 'list', 'detail_layout' => 'plain', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'off', 'scroll_top' => 'on', 'emblem_decor' => 'on', 'link_style' => 'draw', 'button_fill' => 'primary', 'motion' => 'full', 'palette' => 'graphite', 'font_style' => 'serif'],
         ],
         'compact' => [
             'label' => 'Компактный',
             'desc' => 'Плотная сетка, маленькие карточки — много данных.',
-            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'xs', 'density' => 'compact', 'font_size' => 'sm', 'line_height' => 'tight', 'heading_line_height' => 'tight', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'tight', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'fixed', 'catalog_layout' => 'cards_sm', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'link_style' => 'arrow', 'button_fill' => 'off', 'motion' => 'full', 'palette' => 'classic_red', 'font_style' => 'system'],
+            'values' => ['container' => 'standard', 'radius' => 'small', 'card_gap' => 'xs', 'density' => 'compact', 'font_size' => 'sm', 'line_height' => 'tight', 'heading_line_height' => 'tight', 'heading_font_weight' => '700', 'heading_letter_spacing' => 'tight', 'button' => 'rounded', 'block_surface' => 'all', 'card_style' => 'soft', 'sidebar_position' => 'fixed', 'catalog_layout' => 'cards_sm', 'detail_layout' => 'sidebar', 'title_mark' => 'accent', 'title_reveal' => 'off', 'section_marker' => 'line', 'scroll_top' => 'on', 'emblem_decor' => 'on', 'link_style' => 'arrow', 'button_fill' => 'off', 'motion' => 'full', 'palette' => 'classic_red', 'font_style' => 'system'],
         ],
     ];
 
@@ -1012,6 +1023,7 @@ final class DesignSettings
               ? (string) $v['section_marker']
               : 'line')
           . (($v['scroll_top'] ?? 'on') === 'on' ? ' design-scrolltop' : '')
+          . (($v['emblem_decor'] ?? 'on') === 'off' ? ' design-emblem-off' : '')
           . (($v['link_style'] ?? 'arrow') === 'draw' ? ' design-links-draw' : '')
           . (in_array($v['button_fill'] ?? 'off', ['accent', 'primary'], true)
               ? ' design-btnfill design-btnfill-' . $v['button_fill']
