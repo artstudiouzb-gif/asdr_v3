@@ -1105,6 +1105,7 @@ final class BlockRenderer
                         'title' => (string) $v['title'],
                         'meta' => (string) ($v['duration'] ?? ''),
                         'url' => (string) ($v['video_url'] ?? ''),
+                        'date' => (string) (($v['published_at'] ?? '') ?: ($v['created_at'] ?? '')),
                     ];
                 }
             }
@@ -1125,6 +1126,7 @@ final class BlockRenderer
                         'title' => (string) $a['title'],
                         'meta' => '',
                         'url' => Locale::url('albums/' . $a['slug'], $lang),
+                        'date' => (string) ($a['created_at'] ?? ''),
                     ];
                 }
             }
