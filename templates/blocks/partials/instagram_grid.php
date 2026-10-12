@@ -12,6 +12,7 @@ use App\Core\Media;
  * @var string|null $igSizes атрибут sizes для кадров
  * @var bool|null $igDates дата публикации под кадром
  * @var int|null $igShuffle сколько кадров показать после перемешивания (0 — порядок по дате)
+ * @var int|null $captionLines строк подписи — от них и длина выдержки
  * @var bool|null $igCarousel полоса под движок карусели (`data-carousel` у обёртки)
  */
 $igCaptions = !empty($igCaptions ?? ($data['captions'] ?? false));
@@ -20,6 +21,9 @@ $igDates = !empty($igDates ?? false);
 $igShuffle = (int) ($igShuffle ?? 0);
 $igCarousel = !empty($igCarousel ?? false);
 $igLang = \App\Core\Locale::current();
+// Выдержка с запасом на заданное число строк: обрезает строки CSS, а текст
+// короче окна оставил бы пустые строки при пяти-шести.
+$igCaptionChars = 70 * max(2, (int) ($captionLines ?? 2));
 ?>
 <ul class="ig-feed__grid"<?= $igShuffle > 0 ? ' data-ig-shuffle="' . $igShuffle . '"' : '' ?><?= $igCarousel ? ' data-carousel-track tabindex="0" aria-label="' . htmlspecialchars(t('Публикации Instagram — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
     <?php foreach ($posts as $igIndex => $post): ?>
@@ -49,7 +53,7 @@ $igLang = \App\Core\Locale::current();
                     <time class="ig-feed__date" datetime="<?= htmlspecialchars(\App\Core\DateFormatter::format((string) $post['timestamp'], 'Y-m-d'), ENT_QUOTES) ?>" aria-hidden="true"><?= htmlspecialchars($date, ENT_QUOTES) ?></time>
                 <?php endif; ?>
                 <?php if ($igCaptions && $caption !== ''): ?>
-                    <span class="ig-feed__caption" aria-hidden="true"><?= htmlspecialchars(excerpt($caption, 140), ENT_QUOTES) ?></span>
+                    <span class="ig-feed__caption" aria-hidden="true"><?= htmlspecialchars(excerpt($caption, $igCaptionChars), ENT_QUOTES) ?></span>
                 <?php endif; ?>
             </a>
         </li>

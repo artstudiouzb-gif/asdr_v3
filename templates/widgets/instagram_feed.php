@@ -21,7 +21,11 @@ $profileUrl = (string) ($data['profile_url'] ?? '');
     <div class="ig-feed">
         <?php require dirname(__DIR__) . '/blocks/partials/instagram_grid.php'; ?>
     </div>
+    <?php
+    $igFollowText = t('Подписаться в Instagram');
+    $igFollowUrl = $profileUrl;
+    ?>
     <?php if ($profileUrl !== ''): ?>
-        <a class="widget-instagram__more" href="<?= htmlspecialchars($profileUrl, ENT_QUOTES) ?>" target="_blank" rel="noopener noreferrer"><?= htmlspecialchars(t('Подписаться в Instagram'), ENT_QUOTES) ?></a>
+        <div class="ig-feed__foot"><?php require dirname(__DIR__) . '/blocks/partials/instagram_follow.php'; ?></div>
     <?php endif; ?>
 </div>

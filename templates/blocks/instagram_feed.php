@@ -15,7 +15,8 @@
  */
 $posts = is_array($data['posts'] ?? null) ? $data['posts'] : [];
 $columns = (int) $data['columns'];
-$templateCss = '#block-' . (int) $blockId . ' .ig-feed{--ig-cols:' . $columns . ';}';
+$captionLines = (int) $data['caption_lines'];
+$templateCss = '#block-' . (int) $blockId . ' .ig-feed{--ig-cols:' . $columns . ';--ig-caption-lines:' . $captionLines . ';}';
 // Случайный выбор: сервер отдаёт всю сохранённую копию и прячет кадры сверх
 // лимита, перемешивает их скрипт. Без него видны последние — тоже честно.
 $igShuffle = $data['order'] === 'random' ? (int) $data['limit'] : 0;
@@ -34,13 +35,18 @@ $igSizes = $columns === 1 ? '(max-width: 720px) 92vw, 480px' : null;
     <div class="ig-feed ig-feed--<?= htmlspecialchars($layout, ENT_QUOTES) ?> ig-feed--cols-<?= $columns ?> ig-feed--ratio-<?= htmlspecialchars($ratio, ENT_QUOTES) ?>"<?= $igCarousel ? ' data-carousel' : '' ?>>
         <?= \App\Core\SectionHead::render([
             'title' => (string) ($data['title'] ?? ''),
-            'all_text' => (string) $data['all_text'],
-            'all_url' => (string) ($data['profile_url'] ?? ''),
             'class' => 'ig-feed__head',
         ]) ?>
         <?php require __DIR__ . '/partials/instagram_grid.php'; ?>
-        <?php if ($igCarousel): ?>
-            <div class="ig-feed__nav"><?php include __DIR__ . '/partials/carousel_nav.php'; ?></div>
+        <?php
+        $igFollowText = trim((string) $data['all_text']);
+        $igFollowUrl = trim((string) ($data['profile_url'] ?? ''));
+        ?>
+        <?php if ($igCarousel || ($igFollowText !== '' && $igFollowUrl !== '')): ?>
+            <div class="ig-feed__foot">
+                <?php if ($igCarousel): ?><?php include __DIR__ . '/partials/carousel_nav.php'; ?><?php endif; ?>
+                <?php require __DIR__ . '/partials/instagram_follow.php'; ?>
+            </div>
         <?php endif; ?>
     </div>
 <?php endif; ?>
