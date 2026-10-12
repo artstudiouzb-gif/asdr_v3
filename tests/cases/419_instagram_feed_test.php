@@ -46,7 +46,7 @@ test('Instagram: блок выводит кадры ссылками в Instagra
     $html = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
         'data' => [
-            'title' => 'Мы в Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'caption_lines' => 2,
+            'title' => 'Мы в Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'caption_lines' => 2, 'foot_align' => 'split',
             'captions' => true, 'all_text' => 'Подписаться', 'all_url' => '',
             'posts' => instagram_sample_posts(), 'profile_url' => 'https://www.instagram.com/asdr_uz/',
         ],
@@ -67,7 +67,7 @@ test('Instagram: блок выводит кадры ссылками в Instagra
 test('Instagram: пустая лента не выводит ни блока, ни виджета', function () {
     $block = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
-        'data' => ['title' => 'Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'caption_lines' => 2, 'captions' => false, 'all_text' => '', 'posts' => []],
+        'data' => ['title' => 'Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'caption_lines' => 2, 'foot_align' => 'split', 'captions' => false, 'all_text' => '', 'posts' => []],
     ]);
     assert_same('', trim($block));
 
@@ -107,7 +107,7 @@ test('Instagram: случайный порядок прячет лишнее д�
     $html = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
         'data' => [
-            'title' => '', 'order' => 'random', 'limit' => 1, 'layout' => 'grid', 'columns' => 1, 'ratio' => '4-5', 'caption_lines' => 2,
+            'title' => '', 'order' => 'random', 'limit' => 1, 'layout' => 'grid', 'columns' => 1, 'ratio' => '4-5', 'caption_lines' => 2, 'foot_align' => 'split',
             'captions' => false, 'dates' => true, 'all_text' => '', 'posts' => $posts,
         ],
     ]);
@@ -120,7 +120,7 @@ test('Instagram: случайный порядок прячет лишнее д�
 
     $plain = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
-        'data' => ['title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'caption_lines' => 2, 'captions' => false, 'all_text' => '', 'posts' => $posts],
+        'data' => ['title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'caption_lines' => 2, 'foot_align' => 'split', 'captions' => false, 'all_text' => '', 'posts' => $posts],
     ]);
     assert_not_contains('data-ig-shuffle', $plain);
     assert_not_contains('ig-feed__date', $plain, 'дата — только по галочке');
@@ -130,7 +130,7 @@ test('Instagram: один кадр в ряду — карусель со стр�
     $render = static fn (array $over): string => render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
         'data' => $over + [
-            'title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 1, 'ratio' => '4-5', 'caption_lines' => 2,
+            'title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 1, 'ratio' => '4-5', 'caption_lines' => 2, 'foot_align' => 'split',
             'captions' => false, 'all_text' => '', 'posts' => instagram_sample_posts(),
         ],
     ]);
@@ -160,7 +160,7 @@ test('Instagram: число строк подписи задаёт длину в
         'blockId' => 7,
         'data' => [
             'title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1',
-            'caption_lines' => $lines, 'captions' => true, 'all_text' => '', 'posts' => $posts,
+            'caption_lines' => $lines, 'foot_align' => 'split', 'captions' => true, 'all_text' => '', 'posts' => $posts,
         ],
     ]);
 
@@ -168,6 +168,30 @@ test('Instagram: число строк подписи задаёт длину в
     // шесть строк выдержка на две не даёт: окно осталось бы полупустым.
     assert_not_contains('OXIRGI</span>', $render(2), 'две строки — короткая выдержка');
     assert_contains('OXIRGI</span>', $render(6), 'шесть строк — подпись целиком');
+    assert_contains('ig-feed__item--card', $render(10), 'с подписью публикация — карточка, как у новости');
+});
+
+test('Instagram: голый кадр — плитка, дата с подписью — карточка; низ ленты выравнивается', function () {
+    $render = static fn (array $over): string => render_view('templates/blocks/instagram_feed.php', [
+        'blockId' => 7,
+        'data' => $over + [
+            'title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1',
+            'caption_lines' => 2, 'foot_align' => 'split', 'captions' => false, 'dates' => false,
+            'all_text' => 'Подписаться', 'all_url' => '', 'profile_url' => 'https://www.instagram.com/asdr_uz/',
+            'posts' => instagram_sample_posts(),
+        ],
+    ]);
+
+    assert_not_contains('ig-feed__item--card', $render([]), 'без даты и подписи рамка вокруг картинки ничего не отделяет');
+    $posts = instagram_sample_posts();
+    $posts[0]['timestamp'] = '2026-10-10T09:00:00+0000';
+    $dated = $render(['dates' => true, 'posts' => $posts]);
+    assert_contains('ig-feed__item--card', $dated);
+    assert_contains('ig-feed__body', $dated);
+    assert_contains('#tabler-calendar', $dated, 'дата со значком, как у карточки новости');
+
+    assert_contains('ig-feed--foot-split', $render([]));
+    assert_contains('ig-feed--foot-center', $render(['foot_align' => 'center']));
 });
 
 test('Instagram: ошибка Meta переводится в действие', function () {

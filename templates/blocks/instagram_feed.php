@@ -32,7 +32,7 @@ $layout = $igCarousel ? 'row' : (string) $data['layout'];
 $igSizes = $columns === 1 ? '(max-width: 720px) 92vw, 480px' : null;
 ?>
 <?php if ($posts !== []): ?>
-    <div class="ig-feed ig-feed--<?= htmlspecialchars($layout, ENT_QUOTES) ?> ig-feed--cols-<?= $columns ?> ig-feed--ratio-<?= htmlspecialchars($ratio, ENT_QUOTES) ?>"<?= $igCarousel ? ' data-carousel' : '' ?>>
+    <div class="ig-feed ig-feed--<?= htmlspecialchars($layout, ENT_QUOTES) ?> ig-feed--cols-<?= $columns ?> ig-feed--ratio-<?= htmlspecialchars($ratio, ENT_QUOTES) ?> ig-feed--foot-<?= htmlspecialchars((string) $data['foot_align'], ENT_QUOTES) ?>"<?= $igCarousel ? ' data-carousel' : '' ?>>
         <?= \App\Core\SectionHead::render([
             'title' => (string) ($data['title'] ?? ''),
             'class' => 'ig-feed__head',

@@ -281,6 +281,7 @@ final class BlockPresentationNormalizer
         $revealType = self::scalarString($input['reveal_type'] ?? null);
         $background = self::scalarString($input['bg'] ?? null, 'none');
         $surface = self::scalarString($input['surface'] ?? null, 'flat');
+        $surfacePad = self::scalarString($input['surface_pad'] ?? null, 'default');
         $padTop = self::padding(self::scalarString($input['pad_top'] ?? null, 'default'));
         $padBottom = self::padding(self::scalarString($input['pad_bottom'] ?? null, 'default'));
         $device = self::scalarString($input['visible_device'] ?? null);
@@ -293,6 +294,10 @@ final class BlockPresentationNormalizer
                 : ['enabled' => false, 'type' => 'fade'],
             '_bg' => in_array($background, self::BACKGROUNDS, true) ? $background : 'none',
             '_surface' => in_array($surface, self::SURFACES, true) ? $surface : 'flat',
+            // Боковой отступ карточки — та же шкала, что у отступов сверху и
+            // снизу: вертикальные поля карточки задают они, и два ряда с
+            // разными словами нельзя было бы сравнить глазами.
+            '_surface_pad' => in_array($surfacePad, self::SPACING, true) ? $surfacePad : 'default',
             '_fullwidth' => !empty($input['fullwidth']),
             '_pad_top' => $padTop,
             '_pad_bottom' => $padBottom,

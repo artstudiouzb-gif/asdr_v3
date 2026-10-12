@@ -185,7 +185,7 @@
    полосе страницы. Вертикальный ритм по-прежнему задаёт preset секции. */
 .cms-block--surface-card {
     box-sizing: border-box;
-    padding-inline: clamp(20px, 3.5vw, 48px);
+    padding-inline: var(--surface-pad, clamp(20px, 3.5vw, 48px));
     border: 1px solid color-mix(in srgb, var(--gov-border) 84%, transparent);
     border-radius: var(--page-card-radius);
     background: var(--gov-surface);
