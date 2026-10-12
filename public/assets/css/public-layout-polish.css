@@ -143,15 +143,18 @@
 
 .site-content:has(> .content-pagehead) .content-pagehead__title {
     margin: 0 0 12px;
-    font-size: var(--font-size-h1, clamp(var(--step-7), 4vw, var(--step-9)));
+    font-size: var(--font-size-h1, var(--step-9));
     line-height: 1.08;
     letter-spacing: -.035em;
 }
 
 .site-content:has(> .content-pagehead) .content-pagehead__lead {
     max-width: 760px;
-    font-size: var(--font-size-lead, clamp(var(--step-0), 1.35vw, var(--step-1)));
+    font-size: var(--font-size-lead, var(--step-1));
     line-height: 1.6;
+}
+@media (max-width: 720px) {
+    .site-content:has(> .content-pagehead) .content-pagehead__lead { font-size: var(--font-size-lead, clamp(var(--step-0), 1.35vw, var(--step-1))); }
 }
 
 .site-content:has(> .content-pagehead) > .cms-block,
@@ -199,9 +202,12 @@
 
 .site-content:has(> .content-pagehead) .block-text__title {
     margin: 0 0 18px;
-    font-size: var(--font-size-h2, clamp(var(--step-4), 2.5vw, var(--step-6)));
+    font-size: var(--font-size-h2, var(--step-6));
     line-height: 1.18;
     letter-spacing: -.025em;
+}
+@media (max-width: 720px) {
+    .site-content:has(> .content-pagehead) .block-text__title { font-size: var(--font-size-h2, clamp(var(--step-4), 2.5vw, var(--step-6))); }
 }
 
 .site-content:has(> .content-pagehead) .block-text__content,
@@ -263,7 +269,10 @@
 
 .bio__title {
     margin-bottom: 20px;
-    font-size: var(--font-size-h2, clamp(var(--step-5), 2.5vw, var(--step-6)));
+    font-size: var(--font-size-h2, var(--step-6));
+}
+@media (max-width: 720px) {
+    .bio__title { font-size: var(--font-size-h2, clamp(var(--step-5), 2.5vw, var(--step-6))); }
 }
 
 .bio__text {

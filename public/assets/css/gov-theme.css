@@ -3088,10 +3088,13 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     z-index: 1;
     margin: 0;
     color: inherit;
-    font-size: var(--font-size-h3, clamp(var(--step-2), 1.8vw, var(--step-4)));
+    font-size: var(--font-size-h3, var(--step-4));
     font-weight: 500;
     line-height: 1.3;
     letter-spacing: -.012em;
+}
+@media (max-width: 720px) {
+    .block-text__quote p { font-size: var(--font-size-h3, clamp(var(--step-2), 1.8vw, var(--step-4))); }
 }/* Знак кавычки — настоящий элемент, а не `content` у ::before. Псевдоэлемент
    умеет показать только строку: значок из спрайта в него не вставить, а
    выбранный редактором символ пришлось бы экранировать в CSS. Диктору знак не
@@ -6244,8 +6247,11 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
    сайдбара), это отдельная работа, а не правка одного правила. */
 
 .newsdetail:not(.newsdetail--premium) .newsdetail-article__content {
-    font-size: clamp(var(--step-0), 1.1vw, var(--step-1));
+    font-size: var(--step-1);
     line-height: 1.74;
+}
+@media (max-width: 720px) {
+    .newsdetail:not(.newsdetail--premium) .newsdetail-article__content { font-size: clamp(var(--step-0), 1.1vw, var(--step-1)); }
 }/* Фото в карточках начинается от внешнего контура, как у крупной новости.
    Отступ остаётся у текста, но больше не образует белую «фоторамку». */
 

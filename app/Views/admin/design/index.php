@@ -489,29 +489,26 @@ foreach ($options as $key => $opt) {
             </div>
 
             <?php $fontSizeOption = \App\Core\DesignSettings::OPTIONS['font_size']; ?>
+            <?php
+            // Одна строка на одну величину: пресет и своё число задают один и тот
+            // же размер, и в двух соседних строках редактор не видел, кто главнее.
+            $fontSizeEffective = $fontSizeCustom !== '' ? $fontSizeCustom : $fontSizePreset;
+            ?>
             <div class="design-opt">
                 <div class="design-opt__label">
-                    <span><?= htmlspecialchars($fontSizeOption['label'], ENT_QUOTES) ?></span>
-                    <small><?= htmlspecialchars($fontSizeOption['hint'], ENT_QUOTES) ?></small>
+                    <span>Основной текст — сейчас <?= htmlspecialchars((string) $fontSizeEffective, ENT_QUOTES) ?> px</span>
+                    <small>Главная настройка размера. Текст во всех блоках, описания секций и ответы FAQ берут ровно это число, а заголовки, карточки и подписи считаются от него — крупнее основной текст, крупнее всё. Размер одинаков на любом компьютере; на телефоне меньше только заголовки. Своё число в поле справа главнее пресета.</small>
                 </div>
                 <div class="design-opt__choices">
                     <?php foreach ($fontSizeOption['choices'] as $val => $label): ?>
                         <label class="design-card">
                             <input type="radio" name="font_size" value="<?= htmlspecialchars($val, ENT_QUOTES) ?>"
                                    <?= ($values['font_size'] ?? 'md') === $val ? 'checked' : '' ?> data-design-preview-field>
-                            <span class="design-card__label"><?= htmlspecialchars($label, ENT_QUOTES) ?></span>
+                            <span class="design-card__label"><?= htmlspecialchars($label, ENT_QUOTES) ?> · <?= htmlspecialchars(['sm' => '15', 'md' => '16', 'lg' => '17', 'xl' => '18'][$val] ?? '', ENT_QUOTES) ?> px</span>
                         </label>
                     <?php endforeach; ?>
-                </div>
-            </div>
-            <div class="design-opt">
-                <div class="design-opt__label">
-                    <span>Основной текст (p, span)</span>
-                    <small>Базовый размер текста в px. Пусто — (<?= htmlspecialchars($fontSizePreset, ENT_QUOTES) ?> px).</small>
-                </div>
-                <div class="design-opt__choices">
-                    <input class="u-inline-e73ebf4146" type="number" name="font_size_custom" min="12" max="24" step="0.5" inputmode="decimal"
-                           value="<?= htmlspecialchars((string) $fontSizeCustom, ENT_QUOTES) ?>" placeholder="напр. <?= htmlspecialchars($fontSizePreset, ENT_QUOTES) ?>" data-design-preview-field>
+                    <input class="u-inline-e73ebf4146" type="number" name="font_size_custom" min="12" max="24" step="0.5" inputmode="decimal" aria-label="Своё значение основного текста, px"
+                           value="<?= htmlspecialchars((string) $fontSizeCustom, ENT_QUOTES) ?>" placeholder="своё, px" data-design-preview-field>
                 </div>
             </div>
             <?php $lineHeightOption = \App\Core\DesignSettings::OPTIONS['line_height']; ?>
@@ -683,8 +680,8 @@ foreach ($options as $key => $opt) {
                 </div>
             </div>
 
-            <details class="design-manual u-inline-8a359a76eb" open>
-                <summary><strong>Точные размеры типографики (в пикселях)</strong> <span class="form-hint">— индивидуальная настройка каждого уровня в px (переопределяет общую шкалу)</span></summary>
+            <details class="design-manual u-inline-8a359a76eb"<?= $hasOverrides ? ' open' : '' ?>>
+                <summary><strong>Точные размеры отдельных элементов, px</strong> <span class="form-hint">— обычно не нужна. Пустое поле — размер из основного текста и шкалы. Заполненное держит своё число на всех экранах, включая телефон, и не меняется вместе с основным текстом.</span></summary>
                 <div class="design-manual__grid u-inline-9374e84210">
                     <?php foreach (\App\Core\DesignSettings::TYPO_SIZES as $fsKey => $fsMeta): ?>
                         <?php
