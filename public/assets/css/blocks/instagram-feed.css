@@ -44,6 +44,11 @@
     margin-top: 16px;
 }
 .ig-feed__foot:not(:has(.ig-feed__follow)) { justify-content: center; }
+/* Выравнивание — настройка блока. «Стрелки слева, кнопка справа» — прежний
+   вид; остальные ставят обе части рядом и двигают их вместе. */
+.ig-feed--foot-left .ig-feed__foot { justify-content: flex-start; }
+.ig-feed--foot-center .ig-feed__foot { justify-content: center; }
+.ig-feed--foot-right .ig-feed__foot { justify-content: flex-end; }
 
 /* Контур, а не заливка: акцент с белой подписью не дотягивает до 4.5:1, а
    цвет берётся у секции — на тёмной она светлая. Знак Instagram — тем же
@@ -67,8 +72,10 @@
 .ig-feed__follow:hover { border-color: var(--gov-teal); color: var(--gov-teal-text); }
 .ig-feed__follow:focus-visible { outline: 3px solid var(--gov-teal); outline-offset: 3px; }
 .ig-feed__follow svg { flex: 0 0 auto; }
-/* Рядом со стрелками кнопка не растягивается: занимает своё место справа. */
-.ig-feed__foot:has(.carousel-nav:not([hidden])) .ig-feed__follow { flex: 0 1 auto; }
+/* Рядом со стрелками и при заданном выравнивании кнопка не растягивается:
+   растянутую нечем было бы сдвинуть. */
+.ig-feed__foot:has(.carousel-nav:not([hidden])) .ig-feed__follow,
+:is(.ig-feed--foot-left, .ig-feed--foot-center, .ig-feed--foot-right) .ig-feed__follow { flex: 0 1 auto; }
 
 .ig-feed__item {
     display: flex;
@@ -104,6 +111,36 @@
    курсором дёргало бы всю сетку. */
 .ig-feed__item:hover .ig-feed__img { filter: brightness(.86); }
 
+/* С датой или подписью публикация — карточка, как у новости: рамка, поверхность,
+   тень из «Стиля карточек», кадр сверху во всю ширину, текст под ним. Голый
+   кадр (виджет сайдбара, сетка без подписей) остаётся плиткой — рамка вокруг
+   одной картинки ничего не отделяет. Поверхность своя, поэтому и цвета текста
+   свои, а не секции: на тёмной секции белая карточка с белым текстом пропала бы. */
+.ig-feed__item--card {
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius);
+    background: var(--gov-surface);
+    box-shadow: var(--card-shadow);
+    transition: transform .25s cubic-bezier(.16, 1, .3, 1), box-shadow .25s cubic-bezier(.16, 1, .3, 1), border-color .25s ease;
+}
+.ig-feed__item--card:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--gov-teal) 35%, var(--gov-border));
+    box-shadow: var(--shadow-hover);
+}
+.ig-feed__item--card .ig-feed__frame { border-radius: 0; }
+.ig-feed__item--card:focus-visible { border-radius: var(--radius); }
+
+.ig-feed__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px 16px;
+}
+
 /* Ролик и карусель отмечены значком, как в самом Instagram. Тень у глифа —
    кадр бывает и белым. */
 .ig-feed__kind {
@@ -122,16 +159,27 @@
     line-clamp: var(--ig-caption-lines, 2);
     overflow: hidden;
     font-size: var(--step--1);
-    line-height: 1.4;
-    color: var(--section-muted-fg, var(--gov-muted));
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--gov-title);
 }
 
-/* Дата под кадром: тот же тихий тон, что у подписи, но одной строкой. */
+/* Дата — как у карточки новости: значок и число одной строкой, полужирно, и
+   тонкая черта под ней отделяет её от текста поста. */
 .ig-feed__date {
-    font-size: var(--step--1);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--gov-border);
+    font-size: var(--step--3);
+    font-weight: 600;
     line-height: 1.4;
-    color: var(--section-muted-fg, var(--gov-muted));
+    color: var(--gov-muted);
 }
+.ig-feed__date .ui-icon { flex: none; opacity: .75; }
+/* Без подписи черте отделять нечего. */
+.ig-feed__date:only-child { padding-bottom: 0; border-bottom: 0; }
 
 /* Пропорция кадра — настройка блока; виджет сайдбара остаётся квадратным. */
 .ig-feed--ratio-4-5 { --ig-ratio: 4 / 5; }

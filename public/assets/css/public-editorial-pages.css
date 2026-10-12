@@ -120,7 +120,7 @@
 }
 
 .editorial-page__content > .cms-block--surface-card {
-    padding-inline: clamp(22px, 4vw, 52px);
+    padding-inline: var(--surface-pad, clamp(22px, 4vw, 52px));
     border: 1px solid var(--editorial-line);
     border-radius: var(--page-card-radius);
     background: var(--gov-surface);

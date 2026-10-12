@@ -2030,6 +2030,14 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             </select>
             <span class="form-hint">Карточка добавляет локальный фон, рамку и внутренние поля; фон всей секции настраивается отдельно выше.</span>
         </div>
+        <?php $surfacePad = \App\Core\BlockData\BlockPresentationNormalizer::padding((string) ($data['_surface_pad'] ?? 'default')); ?>
+        <div class="form-field">
+            <label for="surface_pad">Поля карточки по бокам</label>
+            <select id="surface_pad" name="surface_pad">
+                <?php foreach ($padOpts as $v => $l): ?><option value="<?= $v ?>" <?= $surfacePad === $v ? 'selected' : '' ?>><?= $l ?></option><?php endforeach; ?>
+            </select>
+            <span class="form-hint">Только для «Карточка с фоном». Поля сверху и снизу задают «Отступ сверху» и «Отступ снизу».</span>
+        </div>
         <div class="form-field form-field--checkbox">
             <input type="checkbox" id="fullwidth" name="fullwidth" value="1" <?= $fullwidth ? 'checked' : '' ?>>
             <label for="fullwidth">Фон во всю ширину экрана (контент остаётся по центру)</label>
