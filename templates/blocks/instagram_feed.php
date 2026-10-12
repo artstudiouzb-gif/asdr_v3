@@ -16,9 +16,13 @@
 $posts = is_array($data['posts'] ?? null) ? $data['posts'] : [];
 $columns = (int) $data['columns'];
 $templateCss = '#block-' . (int) $blockId . ' .ig-feed{--ig-cols:' . $columns . ';}';
+// Случайный выбор: сервер отдаёт всю сохранённую копию и прячет кадры сверх
+// лимита, перемешивает их скрипт. Без него видны последние — тоже честно.
+$igShuffle = $data['order'] === 'random' ? (int) $data['limit'] : 0;
+$igDates = !empty($data['dates']);
 ?>
 <?php if ($posts !== []): ?>
-    <div class="ig-feed ig-feed--<?= htmlspecialchars((string) $data['layout'], ENT_QUOTES) ?>">
+    <div class="ig-feed ig-feed--<?= htmlspecialchars((string) $data['layout'], ENT_QUOTES) ?> ig-feed--cols-<?= $columns ?>">
         <?= \App\Core\SectionHead::render([
             'title' => (string) ($data['title'] ?? ''),
             'all_text' => (string) $data['all_text'],
