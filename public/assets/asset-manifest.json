@@ -116,11 +116,11 @@
     },
     "/assets/css/blocks/instagram-feed.css": {
       "path": "/assets/css/blocks/instagram-feed.min.css",
-      "sourceSha256": "d9de3683be7aa428b2fdbbe61fb7d15493e7e4c73488ef4219a647716e422ae0",
-      "sha256": "24694db1a13b5a233474ec36cf79010da0d69d1c6e943f2fbe17a6d04729a93b",
-      "raw": 2505,
-      "gzip": 954,
-      "brotli": 795
+      "sourceSha256": "238acfc45486dc6e548360a645572c32f46ee139507a05d6b947bbd07ce4e22b",
+      "sha256": "e30c8fc9225a031d5d235bee49023082756648b39361ede900181cdf0340d8e6",
+      "raw": 3217,
+      "gzip": 1121,
+      "brotli": 928
     },
     "/assets/css/blocks/leader-card.css": {
       "path": "/assets/css/blocks/leader-card.min.css",
