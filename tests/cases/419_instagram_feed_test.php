@@ -46,7 +46,7 @@ test('Instagram: блок выводит кадры ссылками в Instagra
     $html = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
         'data' => [
-            'title' => 'Мы в Instagram', 'limit' => 8, 'layout' => 'grid', 'columns' => 4,
+            'title' => 'Мы в Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4,
             'captions' => true, 'all_text' => 'Подписаться', 'all_url' => '',
             'posts' => instagram_sample_posts(), 'profile_url' => 'https://www.instagram.com/asdr_uz/',
         ],
@@ -63,7 +63,7 @@ test('Instagram: блок выводит кадры ссылками в Instagra
 test('Instagram: пустая лента не выводит ни блока, ни виджета', function () {
     $block = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
-        'data' => ['title' => 'Instagram', 'layout' => 'grid', 'columns' => 4, 'captions' => false, 'all_text' => '', 'posts' => []],
+        'data' => ['title' => 'Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'captions' => false, 'all_text' => '', 'posts' => []],
     ]);
     assert_same('', trim($block));
 
@@ -76,4 +76,48 @@ test('Instagram: пустая лента не выводит ни блока, н
     ]);
     assert_contains('widget-instagram', $filled);
     assert_not_contains('ig-feed__caption', $filled, 'в сайдбаре подписей нет — только кадры');
+});
+
+test('Instagram: пост узнаётся по ссылке, с какого бы адреса она ни была скопирована', function () {
+    assert_same('AAA', InstagramFeed::shortcode('https://www.instagram.com/p/AAA/'));
+    assert_same('BBB', InstagramFeed::shortcode('https://instagram.com/reel/BBB/?igsh=xyz'));
+    assert_same('BBB', InstagramFeed::shortcode('https://www.instagram.com/asdr_uz/reel/BBB'));
+    assert_same('', InstagramFeed::shortcode('https://www.instagram.com/asdr_uz/'), 'ссылка на профиль — не пост');
+});
+
+test('Instagram: выбранные по ссылкам идут в порядке ссылок, чужие называются (БД)', function () {
+    ensure_test_db();
+    \App\Models\Setting::set('instagram_feed_posts', (string) json_encode(instagram_sample_posts()));
+    $picked = InstagramFeed::picked("https://www.instagram.com/reel/BBB/\n\nhttps://www.instagram.com/p/AAA/?img_index=1\nhttps://www.instagram.com/p/ZZZ/");
+
+    assert_same(['BBB', 'AAA'], array_map(fn ($post) => InstagramFeed::shortcode($post['permalink']), $picked['posts']));
+    assert_same(['https://www.instagram.com/p/ZZZ/'], $picked['missing']);
+    assert_contains('ZZZ', implode(' ', \App\Core\BlockHints::forBlock('instagram_feed', [
+        'order' => 'pick', 'links' => 'https://www.instagram.com/p/ZZZ/',
+    ])), 'редактор узнаёт, какой ссылки нет в ленте');
+});
+
+test('Instagram: случайный порядок прячет лишнее до перемешивания, дата и одна колонка выводятся', function () {
+    $posts = instagram_sample_posts();
+    $posts[0]['timestamp'] = '2026-10-10T09:00:00+0000';
+    $html = render_view('templates/blocks/instagram_feed.php', [
+        'blockId' => 7,
+        'data' => [
+            'title' => '', 'order' => 'random', 'limit' => 1, 'layout' => 'grid', 'columns' => 1,
+            'captions' => false, 'dates' => true, 'all_text' => '', 'posts' => $posts,
+        ],
+    ]);
+
+    assert_contains('data-ig-shuffle="1"', $html, 'перемешивает браузер: страница кэшируется общим ключом');
+    assert_same(1, substr_count($html, '<li class="ig-feed__cell" hidden>'), 'без скрипта виден лимит — последние по дате');
+    assert_contains('ig-feed--cols-1', $html);
+    assert_contains('<time class="ig-feed__date" datetime="2026-10-10"', $html);
+    assert_contains('10 октября 2026 г.', $html);
+
+    $plain = render_view('templates/blocks/instagram_feed.php', [
+        'blockId' => 7,
+        'data' => ['title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'captions' => false, 'all_text' => '', 'posts' => $posts],
+    ]);
+    assert_not_contains('data-ig-shuffle', $plain);
+    assert_not_contains('ig-feed__date', $plain, 'дата — только по галочке');
 });

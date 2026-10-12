@@ -29,6 +29,9 @@ final class AssetCollector
         'tabs' => '/assets/js/blocks/tabs.js',
         'org_structure' => '/assets/js/blocks/org_structure.js',
         'hero_slides' => '/assets/js/blocks/hero.js',
+        // Нужен только случайному порядку, но файл крошечный, а узнать
+        // настройку блока на попадании в кэш страницы было бы негде.
+        'instagram_feed' => '/assets/js/blocks/instagram_feed.js',
     ];
 
     /**

@@ -92,6 +92,21 @@ final class BlockHints
                 . ' Поддерживаются ролик YouTube, пост Telegram (t.me/канал/номер) и форма Google.';
         }
 
+        // Выбор по ссылкам берёт посты только из сохранённой копии ленты:
+        // отдельный пост по адресу API не отдаёт. Ссылка мимо копии молча
+        // пропала бы с сайта, поэтому её называем.
+        if ($type === 'instagram_feed' && ($data['order'] ?? 'date') === 'pick') {
+            $missing = \App\Core\InstagramFeed::picked((string) ($data['links'] ?? ''))['missing'];
+            if (!$filled('links')) {
+                $hints[] = 'Выбран показ по ссылкам, но ссылок нет — блок на сайте не появится.';
+            } elseif ($missing !== []) {
+                $hints[] = 'Этих публикаций нет в сохранённой копии ленты, на сайте их не будет: '
+                    . implode(', ', array_slice($missing, 0, 5)) . (count($missing) > 5 ? ' …' : '')
+                    . '. В копии хранятся последние ' . \App\Core\InstagramFeed::MAX_POSTS
+                    . ' публикаций; обновите ленту в разделе «Соцсети» или проверьте ссылку.';
+            }
+        }
+
         // Автоматический источник подменяет ручной список целиком.
         if (in_array($type, ['cards_grid', 'media_gallery'], true)) {
             $source = (string) ($data['source'] ?? 'manual');

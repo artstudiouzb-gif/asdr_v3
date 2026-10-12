@@ -128,6 +128,52 @@ final class InstagramFeed
     }
 
     /**
+     * Посты, выбранные редактором ссылками, — в порядке ссылок. Отдельный пост
+     * по адресу API не отдаёт, поэтому выбор идёт только из сохранённой
+     * копии; ссылки, которых в ней нет, возвращаются отдельно — о них говорит
+     * подсказка в форме блока.
+     *
+     * @return array{posts: list<array{id: string, type: string, caption: string, permalink: string, image: string, timestamp: string}>, missing: list<string>}
+     */
+    public static function picked(string $links): array
+    {
+        $byCode = [];
+        foreach (self::posts(self::MAX_POSTS) as $post) {
+            $code = self::shortcode($post['permalink']);
+            if ($code !== '') {
+                $byCode[$code] = $post;
+            }
+        }
+        $posts = [];
+        $missing = [];
+        foreach (preg_split('/\R/', $links) ?: [] as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+            $code = self::shortcode($line);
+            if ($code !== '' && isset($byCode[$code])) {
+                $posts[$code] = $byCode[$code];
+            } else {
+                $missing[] = $line;
+            }
+        }
+
+        return ['posts' => array_values($posts), 'missing' => $missing];
+    }
+
+    /**
+     * Короткий код поста из ссылки: один пост открывается и как /p/…, и как
+     * /reel/…, с именем профиля в адресе и без, с параметрами после «?».
+     */
+    public static function shortcode(string $url): string
+    {
+        return preg_match('#instagram\.com/(?:[A-Za-z0-9._]+/)?(?:p|reels?|tv)/([A-Za-z0-9_-]+)#', $url, $m) === 1
+            ? $m[1]
+            : '';
+    }
+
+    /**
      * Адрес профиля для ссылки «Подписаться». Имя приходит из настройки или
      * из ответа Instagram при первом проходе; из адреса поста профиль не
      * взять (instagram.com/p/…), поэтому без имени ссылки нет вовсе, а не

@@ -905,7 +905,14 @@ final class BlockRenderer
      */
     private static function enrichInstagramFeed(array $data): array
     {
-        $data['posts'] = InstagramFeed::posts((int) ($data['limit'] ?? 8));
+        $order = (string) ($data['order'] ?? 'date');
+        // Для случайного порядка шаблон получает всю сохранённую копию:
+        // выбирает браузер, а сервер лишь прячет кадры сверх лимита.
+        $data['posts'] = match ($order) {
+            'pick' => InstagramFeed::picked((string) ($data['links'] ?? ''))['posts'],
+            'random' => InstagramFeed::posts(InstagramFeed::MAX_POSTS),
+            default => InstagramFeed::posts((int) ($data['limit'] ?? 8)),
+        };
         $own = trim((string) ($data['all_url'] ?? ''));
         $data['profile_url'] = $own !== '' ? $own : InstagramFeed::profileUrl();
 
