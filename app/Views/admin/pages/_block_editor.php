@@ -373,7 +373,7 @@ $placeForm = static function (array $block, string $current) use ($placeTargets)
                             <?php foreach ($pickerTypes as $type => $pickerItem): ?>
                                 <?php // Блок сырого HTML доступен только супер-администратору. ?>
                                 <?php if ($type === 'html' && !\App\Core\Auth::isSuperAdmin()) { continue; } ?>
-                                <label class="block-picker__tile" data-search="<?= htmlspecialchars($pickerItem['search'], ENT_QUOTES) ?>">
+                                <label class="block-picker__tile" data-block-search="<?= htmlspecialchars($pickerItem['search'], ENT_QUOTES) ?>">
                                     <input type="radio" name="type" value="<?= htmlspecialchars($type, ENT_QUOTES) ?>" class="block-picker__input"<?= $pickerChecked ? '' : ' checked' ?>>
                                     <span class="block-picker__icon"><?= \App\Core\AdminUi::blockIcon($type, 20) ?></span>
                                     <span class="block-picker__text">
