@@ -83,7 +83,8 @@
 .ig-feed__caption {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: var(--ig-caption-lines, 2);
+    line-clamp: var(--ig-caption-lines, 2);
     overflow: hidden;
     font-size: var(--step--1);
     line-height: 1.4;

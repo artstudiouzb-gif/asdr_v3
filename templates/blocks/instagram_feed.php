@@ -15,7 +15,8 @@
  */
 $posts = is_array($data['posts'] ?? null) ? $data['posts'] : [];
 $columns = (int) $data['columns'];
-$templateCss = '#block-' . (int) $blockId . ' .ig-feed{--ig-cols:' . $columns . ';}';
+$captionLines = (int) $data['caption_lines'];
+$templateCss = '#block-' . (int) $blockId . ' .ig-feed{--ig-cols:' . $columns . ';--ig-caption-lines:' . $captionLines . ';}';
 // Случайный выбор: сервер отдаёт всю сохранённую копию и прячет кадры сверх
 // лимита, перемешивает их скрипт. Без него видны последние — тоже честно.
 $igShuffle = $data['order'] === 'random' ? (int) $data['limit'] : 0;

@@ -46,7 +46,7 @@ test('Instagram: блок выводит кадры ссылками в Instagra
     $html = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
         'data' => [
-            'title' => 'Мы в Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1',
+            'title' => 'Мы в Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'caption_lines' => 2,
             'captions' => true, 'all_text' => 'Подписаться', 'all_url' => '',
             'posts' => instagram_sample_posts(), 'profile_url' => 'https://www.instagram.com/asdr_uz/',
         ],
@@ -63,7 +63,7 @@ test('Instagram: блок выводит кадры ссылками в Instagra
 test('Instagram: пустая лента не выводит ни блока, ни виджета', function () {
     $block = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
-        'data' => ['title' => 'Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'captions' => false, 'all_text' => '', 'posts' => []],
+        'data' => ['title' => 'Instagram', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'caption_lines' => 2, 'captions' => false, 'all_text' => '', 'posts' => []],
     ]);
     assert_same('', trim($block));
 
@@ -103,7 +103,7 @@ test('Instagram: случайный порядок прячет лишнее д�
     $html = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
         'data' => [
-            'title' => '', 'order' => 'random', 'limit' => 1, 'layout' => 'grid', 'columns' => 1, 'ratio' => '4-5',
+            'title' => '', 'order' => 'random', 'limit' => 1, 'layout' => 'grid', 'columns' => 1, 'ratio' => '4-5', 'caption_lines' => 2,
             'captions' => false, 'dates' => true, 'all_text' => '', 'posts' => $posts,
         ],
     ]);
@@ -116,7 +116,7 @@ test('Instagram: случайный порядок прячет лишнее д�
 
     $plain = render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
-        'data' => ['title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'captions' => false, 'all_text' => '', 'posts' => $posts],
+        'data' => ['title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1', 'caption_lines' => 2, 'captions' => false, 'all_text' => '', 'posts' => $posts],
     ]);
     assert_not_contains('data-ig-shuffle', $plain);
     assert_not_contains('ig-feed__date', $plain, 'дата — только по галочке');
@@ -126,7 +126,7 @@ test('Instagram: один кадр в ряду — карусель со стр�
     $render = static fn (array $over): string => render_view('templates/blocks/instagram_feed.php', [
         'blockId' => 7,
         'data' => $over + [
-            'title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 1, 'ratio' => '4-5',
+            'title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 1, 'ratio' => '4-5', 'caption_lines' => 2,
             'captions' => false, 'all_text' => '', 'posts' => instagram_sample_posts(),
         ],
     ]);
@@ -147,6 +147,23 @@ test('Instagram: один кадр в ряду — карусель со стр�
 
     assert_contains('data-carousel-nav', $render(['layout' => 'row', 'columns' => 4]), '«Карусель» получает стрелки при любом числе колонок');
     assert_not_contains('data-carousel', $render(['order' => 'random', 'limit' => 1]), 'один видимый кадр листать некуда');
+});
+
+test('Instagram: число строк подписи задаёт длину выдержки', function () {
+    $posts = instagram_sample_posts();
+    $posts[0]['caption'] = str_repeat('Strategik rivojlanish agentligi yangiliklari ', 8) . 'OXIRGI';
+    $render = static fn (int $lines): string => render_view('templates/blocks/instagram_feed.php', [
+        'blockId' => 7,
+        'data' => [
+            'title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'grid', 'columns' => 4, 'ratio' => '1-1',
+            'caption_lines' => $lines, 'captions' => true, 'all_text' => '', 'posts' => $posts,
+        ],
+    ]);
+
+    // Строки обрезает CSS (--ig-caption-lines в scoped CSS), но текста под
+    // шесть строк выдержка на две не даёт: окно осталось бы полупустым.
+    assert_not_contains('OXIRGI</span>', $render(2), 'две строки — короткая выдержка');
+    assert_contains('OXIRGI</span>', $render(6), 'шесть строк — подпись целиком');
 });
 
 test('Instagram: ошибка Meta переводится в действие', function () {
