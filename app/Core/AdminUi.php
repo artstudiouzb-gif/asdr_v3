@@ -49,35 +49,24 @@ final class AdminUi
     /** Возвращает иконку из локального спрайта Tabler для типа блока. */
     public static function blockIcon(string $type, int $size = 18): string
     {
+        // Иконка различает тип в списке блоков и на плитке выбора, поэтому у
+        // каждого типа своя: прежде семь типов делили один «документ».
         $iconMap = [
-            'hero' => 'layout',
-            'text' => 'document',
-            'html' => 'code',
-            'cta' => 'send',
-            'slider' => 'media',
-            'form' => 'send',
-            'columns' => 'columns',
-            'testimonials' => 'info',
-            'counters' => 'stats',
-            'team_list' => 'users',
+            'text' => 'align-left', 'text_image' => 'layout-columns', 'image' => 'photo',
+            'slider' => 'slideshow', 'media_gallery' => 'photo-video', 'collage' => 'layout-collage',
+            'embed' => 'app-window', 'instagram_feed' => 'brand-instagram', 'html' => 'code',
+            'cards_grid' => 'layout-grid', 'icon_text' => 'phone', 'contact_cards' => 'address-book',
+            'faq' => 'help-circle', 'testimonials' => 'quote', 'stages' => 'timeline',
+            'partners' => 'heart-handshake', 'docs_list' => 'file-download',
+            'hero' => 'presentation', 'cta' => 'speakerphone', 'buttons' => 'hand-click',
+            'subscribe' => 'mail', 'form' => 'forms',
+            'counters' => 'number-123', 'chart' => 'chart-bar', 'table' => 'table', 'map_point' => 'map-pin',
+            'news_latest' => 'news', 'news_feature' => 'layout-list', 'news_docs' => 'file-text',
             'projects_list' => 'briefcase',
-            'news_latest' => 'document',
-            'instagram_feed' => 'instagram',
-            'partners' => 'shield',
-            'subscribe' => 'send',
-            'faq' => 'info',
-            'contact_cards' => 'user',
-            'cards_grid' => 'grid',
-            'media_gallery' => 'media',
-            'news_feature' => 'document',
-            'news_docs' => 'document',
-            'bio_education' => 'user',
-            'anchor_nav' => 'list',
-            'stages' => 'calendar',
-            'text_image' => 'document',
-            'docs_list' => 'document',
-            'map_point' => 'globe',
-            'org_structure' => 'users',
+            'team_list' => 'users', 'leader_card' => 'id-badge', 'bio_education' => 'school',
+            'org_structure' => 'hierarchy',
+            'columns' => 'columns', 'tabs' => 'folders', 'anchor_nav' => 'list-numbers',
+            'divider' => 'separator-horizontal',
         ];
 
         $iconName = $iconMap[$type] ?? 'block';

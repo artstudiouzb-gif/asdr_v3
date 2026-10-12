@@ -140,6 +140,70 @@ final class BlockTypeRegistry
         'testimonials' => 'Отзывы и цитаты (автор, должность, фото)',
     ];
 
+    /**
+     * Группы списка добавления блока. Длинный выпадающий список из сорока
+     * типов приходилось читать целиком, а подпись в скобках у половины пунктов
+     * не объясняла, чем тип отличается от соседа. Каждый тип входит ровно в
+     * одну группу, порядок внутри — порядок плиток (сверяет тест 131).
+     */
+    public const EDITOR_GROUPS = [
+        'Текст и медиа' => [
+            'text', 'text_image', 'image', 'slider', 'media_gallery', 'collage',
+            'embed', 'instagram_feed', 'html',
+        ],
+        'Карточки и списки' => [
+            'cards_grid', 'icon_text', 'contact_cards', 'faq', 'testimonials',
+            'stages', 'partners', 'docs_list',
+        ],
+        'Первый экран и действия' => ['hero', 'cta', 'buttons', 'subscribe', 'form'],
+        'Цифры и данные' => ['counters', 'chart', 'table', 'map_point'],
+        'Новости и проекты' => ['news_latest', 'news_feature', 'news_docs', 'projects_list'],
+        'Люди и структура' => ['team_list', 'leader_card', 'bio_education', 'org_structure'],
+        'Раскладка страницы' => ['columns', 'tabs', 'anchor_nav', 'divider'],
+    ];
+
+    /** Строка под названием плитки: что блок показывает, одной фразой. */
+    public const EDITOR_HINTS = [
+        'text' => 'Абзацы, списки и цитата из редактора',
+        'text_image' => 'Текст рядом с фотографией или поверх неё',
+        'image' => 'Одна фотография с подписью',
+        'slider' => 'Карусель фотографий',
+        'media_gallery' => 'Фотоальбомы и видео из разделов сайта',
+        'collage' => 'Фото, числа и цитата одной композицией',
+        'embed' => 'Ролик YouTube, пост Telegram, Google Форма',
+        'instagram_feed' => 'Последние публикации аккаунта',
+        'html' => 'Свой код — только супер-администратор',
+        'cards_grid' => 'Сетка карточек с иконкой или фото',
+        'icon_text' => 'Короткие пункты с иконкой: телефоны, адреса',
+        'contact_cards' => 'Отделы и люди: телефон, почта, адрес',
+        'faq' => 'Вопросы с ответами, раскрываются по щелчку',
+        'testimonials' => 'Отзывы или слово руководителя',
+        'stages' => 'Этапы и годы: лентой или списком',
+        'partners' => 'Логотипы организаций-партнёров',
+        'docs_list' => 'Файлы для скачивания и правовые акты',
+        'hero' => 'Заголовок страницы на фото или видео',
+        'cta' => 'Заголовок с кнопкой на заметной подложке',
+        'buttons' => 'До трёх кнопок в ряд, без подложки',
+        'subscribe' => 'Подписка на рассылку новостей',
+        'form' => 'Форма из раздела «Формы»: заявка, обращение',
+        'counters' => 'Ключевые числа с подписями',
+        'chart' => 'Столбцы, доли целого, путь к цели',
+        'table' => 'Строки и столбцы: тарифы, реквизиты, график',
+        'map_point' => 'Карта с отметкой адреса',
+        'news_latest' => 'Свежие новости, обновляются сами',
+        'news_feature' => 'Главная новость крупно и список рядом',
+        'news_docs' => 'Новости и документы в две колонки',
+        'projects_list' => 'Карточки из раздела «Проекты»',
+        'team_list' => 'Сотрудники из раздела «Команда»',
+        'leader_card' => 'Один руководитель: фото, должность, вкладки',
+        'bio_education' => 'Биография и образование человека',
+        'org_structure' => 'Схема подчинения подразделений',
+        'columns' => 'Ряд из колонок, в них — любые блоки',
+        'tabs' => 'Вкладки, в каждой — свои блоки',
+        'anchor_nav' => 'Оглавление со ссылками на разделы страницы',
+        'divider' => 'Линия, знак или пустое место между секциями',
+    ];
+
     /** @var array<string, array<string, mixed>>|null */
     private static ?array $defaults = null;
 
@@ -184,6 +248,32 @@ final class BlockTypeRegistry
     public static function editorLabels(): array
     {
         return array_replace(self::TYPE_LABELS, self::EDITOR_LABEL_OVERRIDES);
+    }
+
+    /**
+     * Плитки выбора типа по группам. Поиск идёт по короткому названию,
+     * подробной подписи (в ней «аккордеон» и «цитата» — слова, по которым
+     * редактор ищет FAQ и «Отзывы»), пояснению и системному коду.
+     *
+     * @return array<string, array<string, array{name: string, hint: string, search: string}>>
+     */
+    public static function editorCatalog(): array
+    {
+        $labels = self::editorLabels();
+        $catalog = [];
+        foreach (self::EDITOR_GROUPS as $group => $types) {
+            foreach ($types as $type) {
+                $name = self::TYPE_LABELS[$type];
+                $hint = self::EDITOR_HINTS[$type];
+                $catalog[$group][$type] = [
+                    'name' => $name,
+                    'hint' => $hint,
+                    'search' => mb_strtolower($name . ' ' . ($labels[$type] ?? '') . ' ' . $hint . ' ' . $type),
+                ];
+            }
+        }
+
+        return $catalog;
     }
 
     /**
