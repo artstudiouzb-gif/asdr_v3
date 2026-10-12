@@ -4997,7 +4997,7 @@ document.addEventListener('change', function (event) {
     document.querySelectorAll('[data-block-picker]').forEach(function (picker) {
         var search = picker.querySelector('[data-block-picker-search]');
         var empty = picker.querySelector('[data-block-picker-empty]');
-        var tiles = picker.querySelectorAll('[data-search]');
+        var tiles = picker.querySelectorAll('[data-block-search]');
         var groups = picker.querySelectorAll('[data-block-picker-group]');
         var chosen = picker.form ? picker.form.querySelector('[data-block-picker-chosen]') : null;
 
@@ -5011,10 +5011,10 @@ document.addEventListener('change', function (event) {
             var query = search.value.trim().toLowerCase();
             var found = false;
             tiles.forEach(function (tile) {
-                tile.hidden = query !== '' && tile.getAttribute('data-search').indexOf(query) === -1;
+                tile.hidden = query !== '' && tile.getAttribute('data-block-search').indexOf(query) === -1;
             });
             groups.forEach(function (group) {
-                var visible = group.querySelector('[data-search]:not([hidden])') !== null;
+                var visible = group.querySelector('[data-block-search]:not([hidden])') !== null;
                 group.hidden = !visible;
                 found = found || visible;
             });
@@ -5031,7 +5031,7 @@ document.addEventListener('change', function (event) {
         search.addEventListener('keydown', function (e) {
             if (e.key !== 'Enter') { return; }
             e.preventDefault();
-            var first = picker.querySelector('[data-search]:not([hidden]) input');
+            var first = picker.querySelector('[data-block-search]:not([hidden]) input');
             if (first) { first.checked = true; first.focus(); name(); }
         });
     });
