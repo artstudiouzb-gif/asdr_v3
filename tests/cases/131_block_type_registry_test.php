@@ -91,3 +91,20 @@ test('Редактор блока явно показывает его тип и
     assert_contains('Системный код:', $form);
     assert_contains('AdminUi::blockIcon($type)', $form);
 });
+
+test('Выбор типа блока: каждый тип в одной группе и с пояснением', function () {
+    $grouped = array_merge(...array_values(BlockTypeRegistry::EDITOR_GROUPS));
+    $types = BlockTypeRegistry::types();
+    sort($grouped);
+    sort($types);
+    assert_same($types, $grouped, 'тип вне групп не попадёт в список добавления, дубль встанет двумя плитками');
+
+    foreach (BlockTypeRegistry::types() as $type) {
+        assert_true(trim(BlockTypeRegistry::EDITOR_HINTS[$type] ?? '') !== '', "{$type}: у плитки нет пояснения");
+    }
+
+    // Поиск находит FAQ и «Отзывы» по словам, которыми их ищет редактор.
+    $catalog = array_merge(...array_values(BlockTypeRegistry::editorCatalog()));
+    assert_contains('аккордеон', $catalog['faq']['search']);
+    assert_contains('цитат', $catalog['testimonials']['search']);
+});

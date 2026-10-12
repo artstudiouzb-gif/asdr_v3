@@ -355,22 +355,45 @@ $placeForm = static function (array $block, string $current) use ($placeTargets)
         <form method="post" action="/admin/pages/<?= (int) $page['id'] ?>/blocks/add" class="form-grid">
             <?= Csrf::field() ?>
             <input type="hidden" name="block_lang" value="<?= htmlspecialchars($blockLang, ENT_QUOTES) ?>">
-            <div class="form-field">
-                <label for="type">Добавить блок (язык: <?= htmlspecialchars($blockLang, ENT_QUOTES) ?>)</label>
-                <select id="type" name="type">
-                    <?php foreach ($blockTypeLabels as $type => $label): ?>
-                        <?php // Блок сырого HTML доступен только супер-администратору. ?>
-                        <?php if ($type === 'html' && !\App\Core\Auth::isSuperAdmin()) { continue; } ?>
-                        <option value="<?= $type ?>"><?= htmlspecialchars($label, ENT_QUOTES) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+            <?php
+            // Тип выбирается плиткой, а не пунктом длинного списка: сорок типов
+            // в выпадающем меню читались целиком, и чем «Карточки» отличаются от
+            // «Иконки и текста», было не понять. Плитки — радиокнопки, поэтому
+            // без JavaScript выбор работает так же; скрипт добавляет только поиск.
+            $pickerChecked = false;
+            ?>
+            <fieldset class="block-picker" data-block-picker>
+                <legend class="block-picker__legend">Добавить блок (язык: <?= htmlspecialchars($blockLang, ENT_QUOTES) ?>)</legend>
+                <input type="search" class="block-picker__search" data-block-picker-search hidden
+                       placeholder="Найти: таблица, видео, новости, аккордеон…" aria-label="Найти тип блока">
+                <?php foreach (BlockTypeRegistry::editorCatalog() as $pickerGroup => $pickerTypes): ?>
+                    <div class="block-picker__group" data-block-picker-group>
+                        <h3 class="block-picker__title"><?= htmlspecialchars($pickerGroup, ENT_QUOTES) ?></h3>
+                        <div class="block-picker__grid">
+                            <?php foreach ($pickerTypes as $type => $pickerItem): ?>
+                                <?php // Блок сырого HTML доступен только супер-администратору. ?>
+                                <?php if ($type === 'html' && !\App\Core\Auth::isSuperAdmin()) { continue; } ?>
+                                <label class="block-picker__tile" data-search="<?= htmlspecialchars($pickerItem['search'], ENT_QUOTES) ?>">
+                                    <input type="radio" name="type" value="<?= htmlspecialchars($type, ENT_QUOTES) ?>" class="block-picker__input"<?= $pickerChecked ? '' : ' checked' ?>>
+                                    <span class="block-picker__icon"><?= \App\Core\AdminUi::blockIcon($type, 20) ?></span>
+                                    <span class="block-picker__text">
+                                        <span class="block-picker__name"><?= htmlspecialchars($pickerItem['name'], ENT_QUOTES) ?></span>
+                                        <span class="block-picker__hint"><?= htmlspecialchars($pickerItem['hint'], ENT_QUOTES) ?></span>
+                                    </span>
+                                </label>
+                                <?php $pickerChecked = true; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                <p class="form-hint" data-block-picker-empty hidden>Такого блока нет. Попробуйте другое слово — например, «фото», «список» или «кнопка».</p>
+            </fieldset>
             <div class="form-field">
                 <label for="block_title">Внутреннее название блока (необязательно)</label>
                 <input type="text" id="block_title" name="title" placeholder="например: Слайдер на главной">
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('plus') ?>Добавить блок</button>
+                <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('plus') ?>Добавить блок<span data-block-picker-chosen></span></button>
             </div>
         </form>
     </div>
