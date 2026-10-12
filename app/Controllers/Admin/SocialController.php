@@ -176,6 +176,30 @@ final class SocialController
         Redirect::to('/admin/social#social-instagram-feed');
     }
 
+    /**
+     * Проверка подключения Instagram — по шагам, как у Telegram: какой шаг
+     * не прошёл, тот и чинить.
+     */
+    public function instagramCheck(): void
+    {
+        Auth::requireSuperAdmin();
+        Csrf::verifyRequest();
+
+        $result = InstagramFeed::check();
+        foreach ($result['steps'] as $step) {
+            $line = $step['name'] . ': ' . $step['text'];
+            if ($step['ok']) {
+                Flash::success($line);
+            } else {
+                Flash::error($line);
+            }
+        }
+        if ($result['ok']) {
+            Flash::success('Подключение Instagram настроено верно.');
+        }
+        Redirect::to('/admin/social#social-instagram-feed');
+    }
+
     /** Повторить одну публикацию, завершившуюся ошибкой. */
     public function retry(): void
     {

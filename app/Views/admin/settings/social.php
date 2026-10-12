@@ -61,10 +61,12 @@ $tokenGuides = [
     'instagram' => [
         'title' => 'Инструкция: Как получить Access Token и IG User ID для Instagram',
         'steps' => [
-            'Аккаунт Instagram должен быть переведен в тип <b>Professional/Business</b> и привязан к вашей Странице Facebook.',
-            'В <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer Meta</a> выберите привязанную Страницу Facebook.',
-            'Выполните запрос GET: <code>me/accounts?fields=instagram_business_account</code>. В ответе скопируйте значение <code>instagram_business_account.id</code> — это ваш <b>IG User ID</b>.',
-            'Используйте <b>Long-Lived Page Access Token</b> вашей Страницы Facebook — он авторизует публикации и в привязанный Instagram Business аккаунт.',
+            'Аккаунт Instagram переведён в профессиональный (<b>Бизнес</b> или <b>Автор</b>) и привязан к Странице Facebook: настройки Страницы → «Связанные аккаунты» → Instagram.',
+            'В <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a> выберите своё приложение (Meta App) и <b>User Token</b> — не токен Страницы: список Страниц отдаёт только токен пользователя.',
+            'В Permissions отметьте <code>pages_show_list</code>, <code>pages_read_engagement</code>, <code>instagram_basic</code>, для автопубликации ещё <code>instagram_content_publish</code>. Нажмите <i>Generate Access Token</i> и разрешите доступ к Странице и Instagram.',
+            'Продлите токен: <a href="https://developers.facebook.com/tools/debug/accesstoken/" target="_blank" rel="noopener">Access Token Debugger</a> → <i>Debug</i> → <i>Extend Access Token</i>. Без этого токен живёт час.',
+            'Вставьте долгий токен в Explorer и выполните GET <code>me/accounts?fields=name,access_token,instagram_business_account</code>. У вашей Страницы <code>access_token</code> — это <b>Access Token</b> (бессрочный), <code>instagram_business_account.id</code> — это <b>IG User ID</b>. Нет поля instagram_business_account — аккаунт не профессиональный или не привязан к Странице.',
+            'Сохраните и нажмите <b>«Проверить подключение»</b>: проверка назовёт шаг, который не прошёл.',
         ],
     ],
 ];
@@ -129,6 +131,13 @@ $tokenGuides = [
                     </div>
                 <?php endforeach; ?>
 
+                <?php if ($net === 'instagram'): ?>
+                    <?php // Раздел — часть общей формы настроек, а вложенная форма в HTML запрещена: кнопка ссылается на форму проверки атрибутом form. ?>
+                    <div class="form-field">
+                        <button type="submit" form="instagram-check-form" class="btn btn--outline"><?= \App\Core\AdminUi::icon('check', 16) ?>Проверить подключение</button>
+                        <span class="form-hint">Проверяются сохранённые данные — сначала сохраните изменения.</span>
+                    </div>
+                <?php endif; ?>
                 <?php if (!empty($tokenGuides[$net])): ?>
                     <details class="u-inline-c2c51f8917">
                         <summary class="u-inline-8c07d779a6">
@@ -231,6 +240,12 @@ $igPosts = $instagramPosts ?? [];
         <div class="form-actions">
             <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить настройки ленты</button>
         </div>
+    </form>
+
+    <form method="post" action="/admin/social/instagram-check" id="instagram-check-form">
+        <?= Csrf::field() ?>
+        <button type="submit" class="btn btn--outline"><?= \App\Core\AdminUi::icon('check', 16) ?>Проверить подключение</button>
+        <span class="form-hint">Токен, аккаунт и чтение публикаций — по шагам, как у Telegram.</span>
     </form>
 
     <form method="post" action="/admin/social/instagram-feed/sync">

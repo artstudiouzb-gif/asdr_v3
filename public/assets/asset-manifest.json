@@ -116,11 +116,11 @@
     },
     "/assets/css/blocks/instagram-feed.css": {
       "path": "/assets/css/blocks/instagram-feed.min.css",
-      "sourceSha256": "d07dffc6bf07f8a959205906e215a14206dcea771343ca3b251d46477db2a127",
-      "sha256": "b72248e49b6c60974779f63a189f57b969deb9dfe0c4b29d8080eca37ac5fac9",
-      "raw": 1860,
-      "gzip": 797,
-      "brotli": 640
+      "sourceSha256": "122e4044e5c15285195a6be5d6423af64ddc30563348bcd3e84d9c70bf139f80",
+      "sha256": "b5f2fccda4e345e418297538329841296b0a98750d8a6180f1aaa24c34b42fd0",
+      "raw": 2204,
+      "gzip": 857,
+      "brotli": 698
     },
     "/assets/css/blocks/leader-card.css": {
       "path": "/assets/css/blocks/leader-card.min.css",
@@ -193,6 +193,14 @@
       "raw": 8789,
       "gzip": 2937,
       "brotli": 2591
+    },
+    "/assets/js/blocks/instagram_feed.js": {
+      "path": "/assets/js/blocks/instagram_feed.min.js",
+      "sourceSha256": "f4c1d7ef946ed2ad4bc58a39ba6c62ab1724e9cfaa3a2137812f6583da9e5159",
+      "sha256": "02a0f513e3c227db66adabd9a02f120b4a25a347bf11755032aea297bbba2f0c",
+      "raw": 404,
+      "gzip": 303,
+      "brotli": 219
     },
     "/assets/js/blocks/leader_card.js": {
       "path": "/assets/js/blocks/leader_card.min.js",

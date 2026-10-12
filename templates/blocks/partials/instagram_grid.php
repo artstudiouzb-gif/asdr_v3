@@ -10,17 +10,24 @@ use App\Core\Media;
  * @var list<array{type: string, caption: string, permalink: string, image: string}> $posts
  * @var bool|null $igCaptions подписи под кадрами
  * @var string|null $igSizes атрибут sizes для кадров
+ * @var bool|null $igDates дата публикации под кадром
+ * @var int|null $igShuffle сколько кадров показать после перемешивания (0 — порядок по дате)
  */
 $igCaptions = !empty($igCaptions ?? ($data['captions'] ?? false));
 $igSizes = (string) ($igSizes ?? '(max-width: 720px) 33vw, 240px');
+$igDates = !empty($igDates ?? false);
+$igShuffle = (int) ($igShuffle ?? 0);
+$igLang = \App\Core\Locale::current();
 ?>
-<ul class="ig-feed__grid">
-    <?php foreach ($posts as $post): ?>
+<ul class="ig-feed__grid"<?= $igShuffle > 0 ? ' data-ig-shuffle="' . $igShuffle . '"' : '' ?>>
+    <?php foreach ($posts as $igIndex => $post): ?>
         <?php
         $caption = trim((string) $post['caption']);
         // Имя ссылки — начало подписи: «пост в Instagram» восемь раз подряд
         // диктору не говорит ничего. Новую вкладку называем явно.
+        $date = $igDates ? \App\Core\DateFormatter::long((string) ($post['timestamp'] ?? ''), $igLang) : '';
         $label = ($caption !== '' ? excerpt($caption, 120) : t('Публикация в Instagram'))
+            . ($date !== '' ? ', ' . $date : '')
             . ' — ' . t('откроется в Instagram');
         $kind = match ((string) $post['type']) {
             'VIDEO' => 'player-play',
@@ -28,7 +35,7 @@ $igSizes = (string) ($igSizes ?? '(max-width: 720px) 33vw, 240px');
             default => '',
         };
         ?>
-        <li class="ig-feed__cell">
+        <li class="ig-feed__cell"<?= $igShuffle > 0 && $igIndex >= $igShuffle ? ' hidden' : '' ?>>
             <a class="ig-feed__item" href="<?= htmlspecialchars((string) $post['permalink'], ENT_QUOTES) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= htmlspecialchars($label, ENT_QUOTES) ?>">
                 <span class="ig-feed__frame">
                     <?= Media::picture((string) $post['image'], '', null, null, 'ig-feed__img', true, $igSizes) ?>
@@ -36,6 +43,9 @@ $igSizes = (string) ($igSizes ?? '(max-width: 720px) 33vw, 240px');
                         <span class="ig-feed__kind" aria-hidden="true"><?= Icon::render($kind, 18) ?></span>
                     <?php endif; ?>
                 </span>
+                <?php if ($date !== ''): ?>
+                    <time class="ig-feed__date" datetime="<?= htmlspecialchars(\App\Core\DateFormatter::format((string) $post['timestamp'], 'Y-m-d'), ENT_QUOTES) ?>" aria-hidden="true"><?= htmlspecialchars($date, ENT_QUOTES) ?></time>
+                <?php endif; ?>
                 <?php if ($igCaptions && $caption !== ''): ?>
                     <span class="ig-feed__caption" aria-hidden="true"><?= htmlspecialchars(excerpt($caption, 140), ENT_QUOTES) ?></span>
                 <?php endif; ?>
