@@ -12,14 +12,16 @@ use App\Core\Media;
  * @var string|null $igSizes атрибут sizes для кадров
  * @var bool|null $igDates дата публикации под кадром
  * @var int|null $igShuffle сколько кадров показать после перемешивания (0 — порядок по дате)
+ * @var bool|null $igCarousel полоса под движок карусели (`data-carousel` у обёртки)
  */
 $igCaptions = !empty($igCaptions ?? ($data['captions'] ?? false));
 $igSizes = (string) ($igSizes ?? '(max-width: 720px) 33vw, 240px');
 $igDates = !empty($igDates ?? false);
 $igShuffle = (int) ($igShuffle ?? 0);
+$igCarousel = !empty($igCarousel ?? false);
 $igLang = \App\Core\Locale::current();
 ?>
-<ul class="ig-feed__grid"<?= $igShuffle > 0 ? ' data-ig-shuffle="' . $igShuffle . '"' : '' ?>>
+<ul class="ig-feed__grid"<?= $igShuffle > 0 ? ' data-ig-shuffle="' . $igShuffle . '"' : '' ?><?= $igCarousel ? ' data-carousel-track tabindex="0" aria-label="' . htmlspecialchars(t('Публикации Instagram — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
     <?php foreach ($posts as $igIndex => $post): ?>
         <?php
         $caption = trim((string) $post['caption']);
@@ -35,7 +37,7 @@ $igLang = \App\Core\Locale::current();
             default => '',
         };
         ?>
-        <li class="ig-feed__cell"<?= $igShuffle > 0 && $igIndex >= $igShuffle ? ' hidden' : '' ?>>
+        <li class="ig-feed__cell"<?= $igCarousel ? ' data-carousel-item' : '' ?><?= $igShuffle > 0 && $igIndex >= $igShuffle ? ' hidden' : '' ?>>
             <a class="ig-feed__item" href="<?= htmlspecialchars((string) $post['permalink'], ENT_QUOTES) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= htmlspecialchars($label, ENT_QUOTES) ?>">
                 <span class="ig-feed__frame">
                     <?= Media::picture((string) $post['image'], '', null, null, 'ig-feed__img', true, $igSizes) ?>

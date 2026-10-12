@@ -15,8 +15,10 @@
     list-style: none;
 }
 
-/* «Одной строкой» — полоса с прокруткой: кадров больше, чем колонок, и
-   лишние уходят вбок, а не во второй ряд. */
+/* «Карусель» — полоса: кадров больше, чем колонок, и лишние уходят вбок, а
+   не во второй ряд. Стрелки и точки (partials/carousel_nav.php) раскрывает
+   движок `[data-carousel]` из frontend.js, только когда кадры не помещаются.
+   Один кадр в ряду — всегда карусель (шаблон сам переводит раскладку). */
 .ig-feed--row .ig-feed__grid {
     grid-template-columns: none;
     grid-auto-flow: column;
@@ -26,6 +28,12 @@
     padding-bottom: 6px;
 }
 .ig-feed--row .ig-feed__cell { scroll-snap-align: start; }
+/* Один кадр в окне: привязка обязательная, иначе свайп оставлял бы на экране
+   половинки двух соседних постов. */
+.ig-feed--row.ig-feed--cols-1 .ig-feed__grid { scroll-snap-type: x mandatory; padding-bottom: 0; }
+
+.ig-feed__nav { display: flex; justify-content: center; margin-top: 12px; }
+.ig-feed__nav:has(> .carousel-nav[hidden]) { display: none; }
 
 .ig-feed__item {
     display: flex;
@@ -44,7 +52,7 @@
 .ig-feed__frame {
     position: relative;
     display: block;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: var(--ig-ratio, 1 / 1);
     overflow: hidden;
     border-radius: var(--radius-sm);
     background: var(--gov-bg-alt);
@@ -88,6 +96,10 @@
     line-height: 1.4;
     color: var(--section-muted-fg, var(--gov-muted));
 }
+
+/* Пропорция кадра — настройка блока; виджет сайдбара остаётся квадратным. */
+.ig-feed--ratio-4-5 { --ig-ratio: 4 / 5; }
+.ig-feed--ratio-3-4 { --ig-ratio: 3 / 4; }
 
 /* Один кадр в ряду: во всю ширину секции квадрат вырос бы до полутора
    тысяч пикселей, поэтому он ограничен и стоит по центру. */

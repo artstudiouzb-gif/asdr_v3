@@ -244,6 +244,7 @@ return [
     'Этапы — прокрутка вбок' => 'Bosqichlar — yon tomonga aylantirish',
     'Партнёры' => 'Hamkorlar',
     'Партнёры — прокрутка вбок' => 'Hamkorlar — yon tomonga aylantirish',
+    'Публикации Instagram — прокрутка вбок' => 'Instagram postlari — yon tomonga aylantirish',
     'Перевод пока недоступен' => 'Tarjima hozircha mavjud emas',
     'Доступен на другом языке' => 'Boshqa tilda mavjud',
     'Этот материал ещё не переведён на выбранный язык.' => 'Ushbu material tanlangan tilga hali tarjima qilinmagan.',

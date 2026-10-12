@@ -244,6 +244,7 @@ return [
     'Этапы — прокрутка вбок' => 'Stages — scroll sideways',
     'Партнёры' => 'Partners',
     'Партнёры — прокрутка вбок' => 'Partners — scroll sideways',
+    'Публикации Instagram — прокрутка вбок' => 'Instagram posts — scroll sideways',
     'Перевод пока недоступен' => 'Translation is not available yet',
     'Доступен на другом языке' => 'Available in another language',
     'Этот материал ещё не переведён на выбранный язык.' => 'This content has not yet been translated into the selected language.',
