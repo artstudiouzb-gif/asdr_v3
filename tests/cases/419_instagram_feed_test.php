@@ -121,3 +121,51 @@ test('Instagram: случайный порядок прячет лишнее д�
     assert_not_contains('data-ig-shuffle', $plain);
     assert_not_contains('ig-feed__date', $plain, 'дата — только по галочке');
 });
+
+test('Instagram: ошибка Meta переводится в действие', function () {
+    assert_contains('Токен недействителен или истёк', InstagramFeed::graphHint(['code' => 190, 'message' => 'Error validating access token']));
+    assert_contains('проверьте IG User ID', InstagramFeed::graphHint(['code' => 100, 'message' => 'Unsupported get request']));
+    assert_contains('instagram_basic', InstagramFeed::graphHint(['code' => 10]));
+    assert_contains('instagram_basic', InstagramFeed::graphHint(['code' => 200]));
+    assert_contains('частоту запросов', InstagramFeed::graphHint(['code' => 4]));
+});
+
+test('Instagram: проверка подключения идёт по шагам и называет непрошедший (БД)', function () {
+    ensure_test_db();
+    \App\Models\Setting::set('instagram_feed_token', '');
+    \App\Models\Setting::set('social_instagram_token', 'EAApage');
+    \App\Models\Setting::set('social_instagram_user_id', '178414');
+
+    $ok = InstagramFeed::check(function (string $url): array {
+        assert_contains('access_token=EAApage', $url, 'токен уходит параметром запроса');
+        $body = match (true) {
+            str_contains($url, '/me?') => '{"id":"1","name":"ASDR"}',
+            str_contains($url, '/media?') => '{"data":[{"id":"9"}]}',
+            default => '{"username":"asdr_uz"}',
+        };
+
+        return ['status' => 200, 'body' => $body, 'error' => ''];
+    });
+    assert_true($ok['ok']);
+    assert_same(['Доступ', 'Токен', 'Аккаунт Instagram', 'Чтение публикаций'], array_column($ok['steps'], 'name'));
+    assert_contains('@asdr_uz', $ok['steps'][2]['text']);
+
+    $wrongId = InstagramFeed::check(fn (string $url): array => str_contains($url, '/me?')
+        ? ['status' => 200, 'body' => '{"id":"1","name":"ASDR"}', 'error' => '']
+        : ['status' => 400, 'body' => '{"error":{"code":100,"message":"Unsupported get request"}}', 'error' => '']);
+    assert_false($wrongId['ok']);
+    assert_same('Аккаунт Instagram', $wrongId['steps'][2]['name'], 'живой токен с чужим IG User ID — проблема аккаунта, а не токена');
+
+    $offline = InstagramFeed::check(fn (string $url): array => ['status' => 0, 'body' => '', 'error' => 'Could not resolve host']);
+    assert_contains('хостинг блокирует', $offline['steps'][1]['text'], 'нет сети — не «неверный токен»');
+
+    \App\Models\Setting::set('instagram_feed_token', 'IGAAown');
+    $own = InstagramFeed::check(fn (string $url): array => [
+        'status' => 200,
+        'body' => str_contains($url, '/media?') ? '{"data":[]}' : '{"user_id":"5","username":"asdr_uz"}',
+        'error' => '',
+    ]);
+    assert_true($own['ok']);
+    assert_same(['Доступ', 'Токен', 'Чтение публикаций'], array_column($own['steps'], 'name'), 'у Instagram Login IG User ID не нужен');
+    assert_contains('пока нет публикаций', $own['steps'][2]['text']);
+});

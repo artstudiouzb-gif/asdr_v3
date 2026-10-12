@@ -316,6 +316,131 @@ final class InstagramFeed
     }
 
     /**
+     * Пошаговая проверка подключения — тот же путь, по которому лента
+     * забирает посты: доступ → токен → аккаунт → чтение публикаций. Ошибка
+     * Meta («Invalid OAuth access token», «Unsupported get request») ничего не
+     * говорит о том, что чинить, поэтому каждый шаг называет действие.
+     * Транспорт отделён от ответа API: «хостинг не выпускает запросы» не
+     * должно выглядеть как «неверный токен».
+     *
+     * @param callable(string): array{status: int, body: string, error: string}|null $http
+     * @return array{ok: bool, steps: list<array{name: string, ok: bool, text: string}>}
+     */
+    public static function check(?callable $http = null): array
+    {
+        $http ??= static function (string $url): array {
+            try {
+                $res = Http::getSafeRemote($url, ['Accept: application/json'], 20, 262144);
+
+                return ['status' => (int) $res['status'], 'body' => (string) $res['body'], 'error' => (string) $res['error']];
+            } catch (\Throwable $e) {
+                return ['status' => 0, 'body' => '', 'error' => $e->getMessage()];
+            }
+        };
+        $cfg = self::settings();
+        $token = $cfg['token'];
+        $steps = [];
+
+        if ($token === '') {
+            $steps[] = ['name' => 'Доступ', 'ok' => false, 'text' => 'Токена нет. Заполните токен и IG User ID в разделе «Instagram» '
+                . '(автопубликация) или вставьте токен Instagram Login в поле «Свой токен ленты».'];
+
+            return ['ok' => false, 'steps' => $steps];
+        }
+        $igLogin = self::isInstagramLogin($token);
+        if (!$igLogin && $cfg['user_id'] === '') {
+            $steps[] = ['name' => 'Доступ', 'ok' => false, 'text' => 'Токен Страницы Facebook задан, а IG User ID — нет. '
+                . 'Это число из ответа me/accounts?fields=instagram_business_account (поле instagram_business_account.id).'];
+
+            return ['ok' => false, 'steps' => $steps];
+        }
+        $steps[] = ['name' => 'Доступ', 'ok' => true, 'text' => $igLogin
+            ? 'Свой токен ленты (Instagram Login), сервер graph.instagram.com.'
+            : ($cfg['own_token'] ? 'Свой токен ленты' : 'Токен Страницы Facebook из автопубликации')
+                . ' и IG User ID, сервер graph.facebook.com.'];
+
+        $call = static function (string $url) use ($http, $token): array {
+            $res = $http($url . (str_contains($url, '?') ? '&' : '?') . 'access_token=' . rawurlencode($token));
+            $data = json_decode($res['body'], true);
+            if ($res['status'] === 200 && is_array($data)) {
+                return ['ok' => true, 'data' => $data, 'hint' => ''];
+            }
+            if (!is_array($data)) {
+                return ['ok' => false, 'data' => [], 'hint' => 'Нет ответа от сервера Meta'
+                    . ($res['error'] !== '' ? ': ' . $res['error'] : ' (HTTP ' . $res['status'] . ')')
+                    . '. Возможно, хостинг блокирует исходящие запросы.'];
+            }
+
+            return ['ok' => false, 'data' => $data, 'hint' => self::graphHint(is_array($data['error'] ?? null) ? $data['error'] : [])];
+        };
+
+        // 1. Токен.
+        $base = $igLogin ? self::INSTAGRAM_GRAPH . '/me' : self::FACEBOOK_GRAPH . '/' . rawurlencode($cfg['user_id']);
+        $me = $igLogin
+            ? $call(self::INSTAGRAM_GRAPH . '/me?fields=user_id,username')
+            : $call(self::FACEBOOK_GRAPH . '/me?fields=id,name');
+        if (!$me['ok']) {
+            $steps[] = ['name' => 'Токен', 'ok' => false, 'text' => $me['hint']];
+
+            return ['ok' => false, 'steps' => $steps];
+        }
+        $steps[] = ['name' => 'Токен', 'ok' => true, 'text' => $igLogin
+            ? 'Действует, аккаунт @' . (string) ($me['data']['username'] ?? '?') . '.'
+            : 'Действует, выдан для «' . (string) ($me['data']['name'] ?? '?') . '».'];
+
+        // 2. Аккаунт Instagram — для токена Страницы это отдельный вопрос:
+        // токен может быть живым, а число IG User ID — чужим или опечаткой.
+        if (!$igLogin) {
+            $account = $call($base . '?fields=username');
+            if (!$account['ok']) {
+                $steps[] = ['name' => 'Аккаунт Instagram', 'ok' => false, 'text' => $account['hint']];
+
+                return ['ok' => false, 'steps' => $steps];
+            }
+            $steps[] = ['name' => 'Аккаунт Instagram', 'ok' => true,
+                'text' => 'Найден: @' . (string) ($account['data']['username'] ?? '?') . '.'];
+        }
+
+        // 3. Чтение публикаций — то, что делает обновление ленты.
+        $media = $call($base . '/media?fields=id&limit=1');
+        if (!$media['ok']) {
+            $steps[] = ['name' => 'Чтение публикаций', 'ok' => false, 'text' => $media['hint']];
+
+            return ['ok' => false, 'steps' => $steps];
+        }
+        $steps[] = ['name' => 'Чтение публикаций', 'ok' => true, 'text' => is_array($media['data']['data'] ?? null) && $media['data']['data'] !== []
+            ? 'Посты читаются — ленту можно обновлять.'
+            : 'Доступ есть, но в аккаунте пока нет публикаций.'];
+
+        return ['ok' => true, 'steps' => $steps];
+    }
+
+    /**
+     * Ошибка Graph API — в действие. Коды Meta: 190 — токен недействителен
+     * или истёк, 100 — нет такого объекта (обычно неверный IG User ID),
+     * 10/200–299 — у токена нет разрешения, 4/17/32/613 — лимит запросов.
+     *
+     * @param array<mixed> $error
+     */
+    public static function graphHint(array $error): string
+    {
+        $code = (int) ($error['code'] ?? 0);
+        $message = mb_substr((string) ($error['message'] ?? ''), 0, 200);
+        $tail = $message !== '' ? ' (Meta: «' . $message . '»)' : '';
+
+        return match (true) {
+            $code === 190 => 'Токен недействителен или истёк. Выпустите новый долгий токен '
+                . '(Access Token Debugger → Extend Access Token) и сохраните его' . $tail . '.',
+            $code === 100 => 'Объект не найден: проверьте IG User ID — это число instagram_business_account.id, '
+                . 'а аккаунт должен быть профессиональным и привязанным к Странице Facebook' . $tail . '.',
+            $code === 10 || ($code >= 200 && $code < 300) => 'У токена нет нужного разрешения: при выпуске отметьте '
+                . 'instagram_basic, pages_show_list и pages_read_engagement' . $tail . '.',
+            in_array($code, [4, 17, 32, 613], true) => 'Meta ограничила частоту запросов — повторите через несколько минут' . $tail . '.',
+            default => 'Meta отклонила запрос' . ($message !== '' ? ': «' . $message . '»' : '') . '.',
+        };
+    }
+
+    /**
      * Ответ Graph API. Текст ошибки берётся из ответа, а не из адреса: в
      * адресе лежит токен, и в журнал он попасть не должен.
      *
