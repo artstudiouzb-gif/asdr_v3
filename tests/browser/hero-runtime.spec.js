@@ -108,9 +108,15 @@ test('manual navigation pauses rotation but not the background video', async ({ 
     await expect(page.locator('#cover')).toHaveAttribute('data-hero-paused', 'false');
     await page.clock.fastForward(15000);
     await expect(current(page)).toHaveText('01');
-    await toggle(page).click();
+    // Видео идёт, значит кнопка предлагает паузу, и одно нажатие его гасит.
+    await expect(toggle(page)).toHaveAttribute('aria-label', 'Pause');
     await toggle(page).click();
     await expect(video).toHaveAttribute('hidden');
+    await expect(toggle(page)).toHaveAttribute('aria-label', 'Play');
+    await toggle(page).click();
+    await expect(video).not.toHaveAttribute('hidden');
+    await page.clock.fastForward(3100);
+    await expect(current(page)).toHaveText('02');
 });
 
 test('per-slide duration controls the next advance', async ({ page }) => {
