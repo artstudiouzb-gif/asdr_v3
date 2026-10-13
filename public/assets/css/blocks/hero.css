@@ -344,14 +344,14 @@
    отступ текста. */
 .hero__title {
     margin: var(--hero-gap-title) 0 0;
-    font-size: calc(var(--hero-title-size) * var(--hero-title-scale, 1));
+    font-size: var(--font-size-hero-title, calc(var(--hero-title-size) * var(--hero-title-scale, 1)));
     line-height: 1.1;
     letter-spacing: -.02em;
     color: var(--hero-fg);
 }
 
 @media (max-width: 560px) {
-    .hero__title { font-size: calc(var(--hero-title-size) * min(var(--hero-title-scale, 1), 1.25)); }
+    .hero__title { font-size: var(--font-size-hero-title, calc(var(--hero-title-size) * min(var(--hero-title-scale, 1), 1.25))); }
 }
 
 .hero__title-link { color: inherit; text-decoration: none; }

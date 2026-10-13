@@ -54,6 +54,7 @@ test('форма дизайна объединяет источники шриф
     // Поля размеров по элементам рендерятся циклом из TYPO_SIZES.
     assert_contains('DesignSettings::TYPO_SIZES as $fsKey', $view);
     assert_true(isset(
+        DesignSettings::TYPO_SIZES['fs_hero_title'],
         DesignSettings::TYPO_SIZES['fs_h1'],
         DesignSettings::TYPO_SIZES['fs_h6'],
         DesignSettings::TYPO_SIZES['fs_lead'],
@@ -65,6 +66,9 @@ test('форма дизайна объединяет источники шриф
         DesignSettings::TYPO_SIZES['fs_menu'],
         DesignSettings::TYPO_SIZES['fs_topbar'],
     ));
+    assert_contains('.hero__title', DesignSettings::TYPO_SIZES['fs_hero_title'][1]);
+    assert_contains('.block-hero__title', DesignSettings::TYPO_SIZES['fs_hero_title'][1]);
+    assert_not_contains('.block-hero__title', DesignSettings::TYPO_SIZES['fs_h1'][1]);
     assert_contains('design-manual__classes', $view);
     assert_contains('name="radius_custom"', $view);
     assert_contains('name="newsdetail_padding_top"', $view);
@@ -101,6 +105,7 @@ test('точные размеры сохраняются и переопреде
         'font_size_custom' => '17.5',
         'radius_custom' => '13',
         'line_height_custom' => '1.35',
+        'fs_hero_title' => '56',
         'fs_h1' => '34',
         'fs_card_text' => '14',
         'fs_menu' => '15',
@@ -112,8 +117,10 @@ test('точные размеры сохраняются и переопреде
     $css = DesignSettings::cssVariables(['button' => 'rounded'] + DesignSettings::current());
     assert_contains('--base-font-size:17.5px', $css);
     assert_contains('--base-line-height:1.35', $css);
+    assert_contains('--font-size-hero-title:56px', $css);
     assert_contains('--font-size-h1:34px', $css);
     assert_contains('--font-size-card-text:14px', $css);
+    assert_contains('.hero__title, .block-hero__title, .hero__title-link, .block-hero__title-link{font-size:var(--font-size-hero-title) !important;}', $css);
     // Голого «h1» в списке группы больше нет: уровень заголовка задаёт
     // отдельное правило ниже, с исключением компонентных классов.
     assert_contains(':root body h1[class]', $css);
@@ -126,7 +133,8 @@ test('точные размеры сохраняются и переопреде
     assert_contains('--meta-letter-spacing:0.06em', $themeCss);
 
     // Сброс, чтобы прогон был идемпотентным и не влиял на другие тесты.
-    DesignSettings::save(['fs_h1' => '', 'fs_card_text' => '', 'fs_menu' => '']);
+    DesignSettings::save(['fs_hero_title' => '', 'fs_h1' => '', 'fs_card_text' => '', 'fs_menu' => '']);
+    assert_not_contains('--font-size-hero-title:56px', DesignSettings::cssVariables(DesignSettings::current()));
     assert_not_contains('--font-size-h1:34px', DesignSettings::cssVariables(DesignSettings::current()));
     assert_contains('--radius:13px', $css);
     assert_contains('--btn-radius:13px', $css);
@@ -260,6 +268,15 @@ test('HTML-уровень заголовка главнее компонентн
 
     \App\Models\Setting::overrideInMemory('design_fs_h2', '');
     \App\Models\Setting::overrideInMemory('design_fs_h3', '');
+
+    \App\Models\Setting::overrideInMemory('design_fs_h1', '42px');
+    \App\Models\Setting::overrideInMemory('design_fs_hero_title', '56px');
+    $h1Css = DesignSettings::typographyCss();
+    assert_contains(':root body h1[class]:not(', $h1Css);
+    assert_contains('.hero__title', $h1Css);
+    assert_contains('.block-hero__title', $h1Css);
+    \App\Models\Setting::overrideInMemory('design_fs_h1', '');
+    \App\Models\Setting::overrideInMemory('design_fs_hero_title', '');
 });
 
 test('классы публичных заголовков не привязаны к чужому уровню', function (): void {
