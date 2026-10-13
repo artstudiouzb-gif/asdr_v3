@@ -96,6 +96,23 @@ test('manual navigation stays paused and announces only requested slides', async
     await expect(page.locator('[data-hero-status]')).toHaveText('');
 });
 
+test('manual navigation pauses rotation but not the background video', async ({ page }) => {
+    await setup(page, { video: true });
+    const video = page.locator('video');
+    await expect(video).not.toHaveAttribute('hidden');
+    await next(page).click();
+    await expect(video).toHaveAttribute('hidden');
+    await page.locator('#cover [data-hero-prev]').click();
+    await expect(current(page)).toHaveText('01');
+    await expect(video).not.toHaveAttribute('hidden');
+    await expect(page.locator('#cover')).toHaveAttribute('data-hero-paused', 'false');
+    await page.clock.fastForward(15000);
+    await expect(current(page)).toHaveText('01');
+    await toggle(page).click();
+    await toggle(page).click();
+    await expect(video).toHaveAttribute('hidden');
+});
+
 test('per-slide duration controls the next advance', async ({ page }) => {
     await setup(page);
     await page.locator('[data-hero-index="1"]').evaluate(el => el.setAttribute('data-hero-slide-duration', '7000'));

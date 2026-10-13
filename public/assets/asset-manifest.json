@@ -188,11 +188,11 @@
     },
     "/assets/js/blocks/hero.js": {
       "path": "/assets/js/blocks/hero.min.js",
-      "sourceSha256": "faa369e6b6eac2018d9dc3fbf21c2fc15052d573b161a5cc5f96ba39e659b15e",
-      "sha256": "8cf145aff49233ce94efa01cb641f336de636023fc8e69f1e7698a8b117e6675",
-      "raw": 8789,
-      "gzip": 2937,
-      "brotli": 2591
+      "sourceSha256": "6ab1e99d780962112108f94f1af50d62ab382be43b4e902946c4994aeae591be",
+      "sha256": "65b6bfe5d9e2151c759b86d0ce1e56e567ca98f39fd7126222244b60b2a892ef",
+      "raw": 8843,
+      "gzip": 2956,
+      "brotli": 2609
     },
     "/assets/js/blocks/instagram_feed.js": {
       "path": "/assets/js/blocks/instagram_feed.min.js",
