@@ -204,6 +204,11 @@
         var status = root.querySelector('[data-hero-status]');
         var state = {
             playing: !reduceMotion() && !(interval && isMobile()),
+            // Фон слайда (видео, Ken Burns) останавливает только явная пауза
+            // кнопкой. Ручная навигация, фокус и телефон приостанавливают
+            // смену слайдов, но не фон: иначе после «вперёд — назад» видео
+            // первого слайда оставалось стоять на кадре-замене.
+            mediaStopped: false,
             hovered: false,
             visible: !('IntersectionObserver' in window),
             pageHidden: document.hidden
@@ -254,7 +259,7 @@
         // Hover never clears a keyboard/user pause; visibility never clears hover.
         function refresh() {
             if (reduceMotion()) { state.playing = false; }
-            var mediaRunning = state.playing && state.visible && !state.pageHidden;
+            var mediaRunning = !state.mediaStopped && !reduceMotion() && state.visible && !state.pageHidden;
             if (mediaRunning) { activateMedia(slides[current]); }
             else { deactivateMedia(slides[current]); }
             root.setAttribute('data-hero-paused', mediaRunning ? 'false' : 'true');
@@ -313,6 +318,7 @@
                 // pointerdown precedes focusin: remember the action the visitor
                 // actually clicked before focus pauses the carousel.
                 state.playing = pointerIntent === null ? !state.playing : pointerIntent;
+                state.mediaStopped = !state.playing;
                 pointerIntent = null;
                 state.hovered = false;
                 refresh();
