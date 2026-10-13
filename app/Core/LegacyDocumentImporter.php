@@ -542,7 +542,7 @@ final class LegacyDocumentImporter
      *
      * @return array<string, mixed>
      */
-    private static function store(string $path, string $originalName, ?int $userId): array
+    public static function store(string $path, string $originalName, ?int $userId): array
     {
         $tmp = dirname($path) . '/.import-' . bin2hex(random_bytes(6)) . '.' . strtolower(pathinfo($path, PATHINFO_EXTENSION));
         if (!@copy($path, $tmp)) {
