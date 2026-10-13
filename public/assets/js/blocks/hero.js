@@ -257,14 +257,27 @@
 
         // All environmental changes pass through the same reconciliation.
         // Hover never clears a keyboard/user pause; visibility never clears hover.
+        // Кнопка паузы отвечает за всё движение обложки сразу: после ручного
+        // переключения смена слайдов стоит, а видео фона идёт — и кнопка
+        // обязана предлагать «пауза», а не «пуск», иначе её первое нажатие
+        // запускало бы смену слайдов вместо того, чтобы остановить видео.
+        function backgroundMoves() {
+            return !state.mediaStopped && !reduceMotion() && (root.classList.contains('hero--tr-kenburns')
+                || !!slides[current].querySelector('[data-hero-video],[data-hero-youtube]'));
+        }
+
+        function moving() { return state.playing || backgroundMoves(); }
+
         function refresh() {
-            if (reduceMotion()) { state.playing = false; }
+            // «Меньше движения» останавливает и фон: выключение настройки
+            // не должно молча запускать видео обратно.
+            if (reduceMotion()) { state.playing = false; state.mediaStopped = true; }
             var mediaRunning = !state.mediaStopped && !reduceMotion() && state.visible && !state.pageHidden;
             if (mediaRunning) { activateMedia(slides[current]); }
             else { deactivateMedia(slides[current]); }
             root.setAttribute('data-hero-paused', mediaRunning ? 'false' : 'true');
             if (toggle) {
-                var paused = !state.playing;
+                var paused = !moving();
                 toggle.setAttribute('data-paused', paused ? 'true' : 'false');
                 // Action label changes; this is a command button, not aria-pressed.
                 toggle.setAttribute('aria-label', toggle.getAttribute(paused ? 'data-label-play' : 'data-label-pause'));
@@ -317,8 +330,9 @@
             if (control === toggle) {
                 // pointerdown precedes focusin: remember the action the visitor
                 // actually clicked before focus pauses the carousel.
-                state.playing = pointerIntent === null ? !state.playing : pointerIntent;
-                state.mediaStopped = !state.playing;
+                var start = pointerIntent === null ? !moving() : pointerIntent;
+                state.playing = start;
+                state.mediaStopped = !start;
                 pointerIntent = null;
                 state.hovered = false;
                 refresh();
@@ -327,7 +341,7 @@
             else if (control.hasAttribute('data-hero-goto')) { manualGo(Number(control.getAttribute('data-hero-goto'))); }
         }, { signal: signal });
         if (toggle) {
-            toggle.addEventListener('pointerdown', function () { pointerIntent = !state.playing; }, { signal: signal });
+            toggle.addEventListener('pointerdown', function () { pointerIntent = !moving(); }, { signal: signal });
             toggle.addEventListener('pointercancel', function () { pointerIntent = null; }, { signal: signal });
             toggle.addEventListener('keydown', function () { pointerIntent = null; }, { signal: signal });
         }
