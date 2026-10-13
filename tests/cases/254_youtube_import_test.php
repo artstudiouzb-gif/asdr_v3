@@ -100,6 +100,27 @@ test('YoutubeChannel: разбор ленты канала даёт карточ
     assert_same([], YoutubeChannel::parseFeed('не xml'), 'мусор вместо ленты не роняет разбор');
 });
 
+test('YoutubeChannel: шортсы берутся из своего плейлиста и сливаются с роликами', function () {
+    // Системный плейлист шортсов — тот же id канала с приставкой UUSH.
+    assert_same('UUSH' . str_repeat('a', 22), YoutubeChannel::shortsPlaylistId('UC' . str_repeat('a', 22)));
+    assert_same(null, YoutubeChannel::shortsPlaylistId('PLabc'), 'у плейлиста шортсов нет');
+    assert_same(null, YoutubeChannel::shortsPlaylistId(''));
+
+    $videos = [
+        ['youtube_id' => 'video000001', 'published_at' => '2026-08-01 10:00:00'],
+        ['youtube_id' => 'video000002', 'published_at' => '2026-07-01 10:00:00'],
+    ];
+    $shorts = [
+        ['youtube_id' => 'short000001', 'published_at' => '2026-08-05 10:00:00'],
+        ['youtube_id' => 'video000001', 'published_at' => '2026-08-01 10:00:00'],
+    ];
+    assert_same(
+        ['short000001', 'video000001', 'video000002'],
+        array_column(YoutubeChannel::mergeItems($videos, $shorts), 'youtube_id'),
+        'свежие первыми, ролик из обоих списков — один раз'
+    );
+});
+
 test('YoutubeChannel: ответ Data API и длительность ролика', function () {
     $items = YoutubeChannel::parseApiItems([
         'items' => [
