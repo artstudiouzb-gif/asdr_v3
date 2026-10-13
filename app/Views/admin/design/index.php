@@ -686,10 +686,10 @@ foreach ($options as $key => $opt) {
                     <?php foreach (\App\Core\DesignSettings::TYPO_SIZES as $fsKey => $fsMeta): ?>
                         <?php
                         $fromScale = $scaleSizes[$fsKey] ?? '';
-                        // Пустое поле заголовков новостей означает «как у
+                        // Пустое поле заголовков и текста новостей означает «как у
                         // остальных карточек» — так было до того, как у них
                         // появился свой размер.
-                        $fsPlaceholder = $fsKey === 'fs_news_title'
+                        $fsPlaceholder = in_array($fsKey, ['fs_news_title', 'fs_news_text'], true)
                             ? 'как у карточек'
                             : ($fromScale !== '' ? 'шкала: ' . rtrim($fromScale, 'px') : 'напр. ' . $fsMeta[2]);
                         ?>
@@ -697,8 +697,11 @@ foreach ($options as $key => $opt) {
                             <label for="design_<?= htmlspecialchars($fsKey, ENT_QUOTES) ?>"><?= htmlspecialchars($fsMeta[0], ENT_QUOTES) ?>, px</label>
                             <input type="number" id="design_<?= htmlspecialchars($fsKey, ENT_QUOTES) ?>" name="<?= htmlspecialchars($fsKey, ENT_QUOTES) ?>"
                                    min="8" max="96" step="0.5" inputmode="decimal"
-                                   value="<?= htmlspecialchars(preg_replace('/px$/', '', $overrides[$fsKey]) ?? '', ENT_QUOTES) ?>"
+                                   value="<?= htmlspecialchars(preg_replace('/px$/', '', $overrides[$fsKey] ?? '') ?? '', ENT_QUOTES) ?>"
                                    placeholder="<?= htmlspecialchars($fsPlaceholder, ENT_QUOTES) ?>" data-design-preview-field>
+                            <?php if (!empty($fsMeta[1])): ?>
+                                <small class="design-manual__classes" title="<?= htmlspecialchars($fsMeta[1], ENT_QUOTES) ?>"><strong>CSS-классы:</strong> <?= htmlspecialchars($fsMeta[1], ENT_QUOTES) ?></small>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 </div>
