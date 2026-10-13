@@ -2945,7 +2945,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 }
 .textimage__title { position: relative; font-size: var(--font-size-h2, var(--step-5)); margin: 0 0 18px; padding-left: 16px; }
 .textimage__title::before { content: ''; position: absolute; left: 0; top: .18em; bottom: .18em; width: 4px; border-radius: var(--radius-pill); background: var(--gov-teal); }
-.textimage__text { color: var(--gov-muted); line-height: var(--base-line-height, 1.6); margin-bottom: 24px; }
+.textimage__text { color: var(--gov-muted); font-size: var(--font-size-body, var(--step-0)); line-height: var(--base-line-height, 1.6); margin-bottom: 24px; }
 .textimage__features { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 18px; }
 .textimage__feature { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .textimage__feature-icon { color: var(--gov-teal); }
@@ -4706,7 +4706,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
 .block-bio { display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; align-items: start; }
 @media (max-width: 900px) { .block-bio { grid-template-columns: 1fr; } }
 .bio__title { font-size: var(--step-4); margin: 0 0 18px; }
-.bio__text { color: var(--gov-muted); line-height: var(--base-line-height, 1.6); margin-bottom: 26px; }
+.bio__text { color: var(--gov-muted); font-size: var(--font-size-body, var(--step-0)); line-height: var(--base-line-height, 1.6); margin-bottom: 26px; }
 .bio-career { list-style: none; margin: 0; padding: 0; position: relative; }
 .bio-career::before { content: ''; position: absolute; left: 4px; top: 8px; bottom: 8px; width: 2px; background: color-mix(in srgb, var(--gov-navy) 15%, transparent); }/* Колонка годов не фиксированная: длинная подпись вроде «2026 — н.в.» или
    «from 16 July 2026» раньше не помещалась в 110px и, из-за nowrap, наезжала
@@ -6712,10 +6712,10 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
    а не рвётся посередине. */
 
 .block-icon-text--rows-inline .icon-text__row { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 4px var(--icon-text-row-gap, 8px); }
-.block-icon-text--rows-inline .icon-text__value { font-size: var(--step-0); }
+.block-icon-text--rows-inline .icon-text__value { font-size: var(--font-size-card-title, var(--step-0)); }
 .block-icon-text--rows-inline .icon-text__label { flex: none; }
 .block-icon-text--rows-inline.block-icon-text--align-center .icon-text__row { justify-content: center; }
-.icon-text__label { margin: 0; color: var(--section-muted-fg); font-size: var(--step--2); line-height: 1.4; }
+.icon-text__label { margin: 0; color: var(--section-muted-fg); font-size: var(--font-size-card-text, var(--step--1)); line-height: 1.4; }
 /* Подпись плашкой: рубрика или короткая метка, а не пояснение к значению —
    в варианте «Без рамок» мелкая серая строка над крупным значением читалась
    как случайный текст. Тон подложки следует за карточкой (тот же
@@ -6737,12 +6737,12 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
    выделенных куска: 18px/700 против плашки читались как спор. Замерено — при
    весе 400 значение совпадает с описанием секции (16px/400) и главного в
    карточке не остаётся вовсе, поэтому вес 600. */
-.block-icon-text--label-badge .icon-text__value { font-size: var(--step-0); font-weight: 600; }
+.block-icon-text--label-badge .icon-text__value { font-size: var(--font-size-card-title, var(--step-0)); font-weight: 600; }
 .block-icon-text--label-badge.block-icon-text--align-center .icon-text__label { align-self: center; }
 /* В строчном режиме подпись и значение стоят на одной базовой линии — там
    прижимать плашку к началу поперечной оси нечего. */
 .block-icon-text--label-badge.block-icon-text--rows-inline .icon-text__label { align-self: auto; }
-.icon-text__value { margin: 0 0 6px; color: var(--section-title-fg); font-size: var(--step-1); font-weight: 700; line-height: 1.25; }
+.icon-text__value { margin: 0 0 6px; color: var(--section-title-fg); font-size: var(--font-size-card-title, var(--step-1)); font-weight: 700; line-height: 1.25; }
 .icon-text__value:last-child { margin-bottom: 0; }
 .block-icon-text__empty { color: var(--gov-muted); margin: 0; }/* ==========================================================================
    ЦЕЛЬ ДЛЯ КАСАНИЯ

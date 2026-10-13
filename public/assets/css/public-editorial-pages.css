@@ -167,7 +167,7 @@
     margin-top: 0;
     max-width: 760px;
     color: var(--section-title-fg, var(--gov-title));
-    font-size: var(--font-size-lead, var(--step-1));
+    font-size: var(--font-size-body, var(--step-0));
     line-height: 1.62;
 }
 

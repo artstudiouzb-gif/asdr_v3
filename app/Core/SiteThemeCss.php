@@ -125,18 +125,10 @@ final class SiteThemeCss
             $variables['--meta-letter-spacing'] = $metaLetterSpacing;
         }
 
-        foreach (DesignSettings::TYPO_SIZES as $key => $meta) {
-            $manual = DesignSettings::normalizeFsSize((string) \App\Models\Setting::get('design_' . $key, ''));
-            if ($manual === '' && $key === 'fs_news_title') {
-                $cardManual = DesignSettings::normalizeFsSize((string) \App\Models\Setting::get('design_fs_card_title', ''));
-                $val = $cardManual !== '' ? $cardManual : ($meta[2] . 'px');
-            } elseif ($manual === '' && $key === 'fs_news_text') {
-                $cardManual = DesignSettings::normalizeFsSize((string) \App\Models\Setting::get('design_fs_card_text', ''));
-                $val = $cardManual !== '' ? $cardManual : ($meta[2] . 'px');
-            } else {
-                $val = $manual !== '' ? $manual : ($meta[2] . 'px');
+        foreach (DesignSettings::typographySizes() as $key => $val) {
+            if ($val !== '') {
+                $variables['--font-size-' . str_replace('_', '-', substr($key, 3))] = $val;
             }
-            $variables['--font-size-' . str_replace('_', '-', substr($key, 3))] = $val;
         }
 
         foreach ([
