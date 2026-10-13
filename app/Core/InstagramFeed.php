@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Core\Ai\AiInstagramTitles;
+
 use App\Models\FileEntry;
 use App\Models\Setting;
 
@@ -108,7 +110,7 @@ final class InstagramFeed
     /**
      * Сохранённые посты для вывода. Сеть не трогает.
      *
-     * @return list<array{id: string, type: string, caption: string, permalink: string, image: string, timestamp: string}>
+     * @return list<array{id: string, type: string, caption: string, title: string, permalink: string, image: string, timestamp: string}>
      */
     public static function posts(int $limit): array
     {
@@ -133,7 +135,7 @@ final class InstagramFeed
      * копии; ссылки, которых в ней нет, возвращаются отдельно — о них говорит
      * подсказка в форме блока.
      *
-     * @return array{posts: list<array{id: string, type: string, caption: string, permalink: string, image: string, timestamp: string}>, missing: list<string>}
+     * @return array{posts: list<array{id: string, type: string, caption: string, title: string, permalink: string, image: string, timestamp: string}>, missing: list<string>}
      */
     public static function picked(string $links): array
     {
@@ -210,6 +212,29 @@ final class InstagramFeed
             $known[$post['id']] = $post;
         }
 
+        // Заголовок сохраняется вместе с постом и формулируется заново, только
+        // когда пост новый или его подпись поменялась: модель не спрашивается
+        // о том, на что уже ответила.
+        $titles = [];
+        $ask = [];
+        foreach ($fetch['items'] as $item) {
+            $old = $known[$item['id']] ?? null;
+            // Заголовок, совпадающий с первой фразой подписи, — запасной, а не
+            // сформулированный: такой (и копию до появления заголовков)
+            // модель видит снова.
+            if ($old !== null && $old['caption'] === $item['caption']
+                && $old['title'] !== '' && $old['title'] !== InstagramPostTitle::fallback($old['caption'])) {
+                $titles[$item['id']] = $old['title'];
+            } else {
+                $ask[$item['id']] = $item['caption'];
+            }
+        }
+        try {
+            $titles += AiInstagramTitles::generate($ask);
+        } catch (\Throwable $e) {
+            Logger::swallowed('InstagramFeed: заголовки постов', $e);
+        }
+
         $posts = [];
         $added = 0;
         foreach ($fetch['items'] as $item) {
@@ -225,6 +250,7 @@ final class InstagramFeed
                 'id' => $item['id'],
                 'type' => $item['type'],
                 'caption' => $item['caption'],
+                'title' => $titles[$item['id']] ?? InstagramPostTitle::fallback($item['caption']),
                 'permalink' => $item['permalink'],
                 'image' => $image,
                 'timestamp' => $item['timestamp'],
@@ -522,7 +548,7 @@ final class InstagramFeed
 
     /**
      * @param array<mixed> $row
-     * @return array{id: string, type: string, caption: string, permalink: string, image: string, timestamp: string}|null
+     * @return array{id: string, type: string, caption: string, title: string, permalink: string, image: string, timestamp: string}|null
      */
     private static function clean(array $row): ?array
     {
@@ -536,6 +562,9 @@ final class InstagramFeed
             'id' => (string) ($row['id'] ?? ''),
             'type' => (string) ($row['type'] ?? 'IMAGE'),
             'caption' => (string) ($row['caption'] ?? ''),
+            // Копия, сохранённая до появления заголовков, его не несёт:
+            // карточка берёт первую фразу подписи до следующего обновления.
+            'title' => mb_substr(trim((string) ($row['title'] ?? '')), 0, InstagramPostTitle::MAX_LENGTH) ?: InstagramPostTitle::fallback((string) ($row['caption'] ?? '')),
             'permalink' => $permalink,
             'image' => $image,
             'timestamp' => (string) ($row['timestamp'] ?? ''),
