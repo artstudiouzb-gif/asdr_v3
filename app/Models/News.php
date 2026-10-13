@@ -50,6 +50,64 @@ final class News
     }
 
     /**
+     * Кадры новости в порядке показа: обложка, затем галерея без повтора
+     * обложки. Обложка обычно продублирована в галерее, и её подпись берётся
+     * оттуда — иначе она терялась вместе с пропущенным кадром. Правило одно на
+     * страницу новости и на фотоальбом, собранный из неё.
+     *
+     * @param array<array-key, mixed> $gallery строки news_images
+     * @return list<array{path:string,alt:string,caption:string,credit:string}>
+     */
+    public static function slides(string $cover, string $title, array $gallery): array
+    {
+        $cover = trim($cover);
+        $captionsByPath = [];
+        foreach ($gallery as $img) {
+            if (is_array($img)) {
+                $captionsByPath[trim((string) ($img['path'] ?? ''))] = [
+                    'caption' => trim((string) ($img['caption'] ?? '')),
+                    'credit' => trim((string) ($img['credit'] ?? '')),
+                ];
+            }
+        }
+        $slides = [];
+        if ($cover !== '') {
+            $slides[] = [
+                'path' => $cover,
+                'alt' => $title,
+                'caption' => $captionsByPath[$cover]['caption'] ?? '',
+                'credit' => $captionsByPath[$cover]['credit'] ?? '',
+            ];
+        }
+        foreach ($gallery as $img) {
+            if (!is_array($img)) {
+                continue;
+            }
+            $p = trim((string) ($img['path'] ?? ''));
+            if ($p !== '' && $p !== $cover) {
+                $slides[] = [
+                    'path' => $p,
+                    'alt' => (string) ($img['alt_text'] ?? ''),
+                    'caption' => trim((string) ($img['caption'] ?? '')),
+                    'credit' => trim((string) ($img['credit'] ?? '')),
+                ];
+            }
+        }
+
+        return $slides;
+    }
+
+    /**
+     * Показывается ли новость галереей. «Умный макет» (standard) и явная
+     * «Галерея» становятся слайдером, как только кадров больше одного;
+     * остальные виды галерею не показывают, сколько бы фото ни было.
+     */
+    public static function showsGallery(mixed $layout, int $slideCount): bool
+    {
+        return in_array(self::normalizeLayout($layout), ['standard', 'gallery'], true) && $slideCount > 1;
+    }
+
+    /**
      * Централизованный выбор обложки новости (задача 68). Приоритет:
      *   1) явно заданное изображение (news.image),
      *   2) обложка YouTube-видео (news.video_url),

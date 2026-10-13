@@ -1137,7 +1137,7 @@ function quality_budgets(): array
             'why' => 'приведение писалось по месту в каждой строке и расходилось: '
                 . 'где-то пробелы обрезали, где-то нет, массив вместо строки давал '
                 . '«Array» или TypeError. Правило одно — InputBag (Input::post/query)',
-            'ceiling' => static fn (): int => 659,
+            'ceiling' => static fn (): int => 658,
             'measure' => static function (): array {
                 return quality_regex_in_files(quality_controller_files(), '/\$_(POST|GET|REQUEST)\b/');
             },
@@ -1151,7 +1151,7 @@ function quality_budgets(): array
                 . 'Проверяется поведение: render_view() для вьюх и шаблонов, вызов '
                 . 'метода, запись в тестовой базе. Обход всех шаблонов на запрещённый '
                 . 'приём (glob) сюда не считается — это правило, а не подглядывание',
-            'ceiling' => static fn (): int => 639,
+            'ceiling' => static fn (): int => 638,
             'measure' => static function (): array {
                 return quality_regex_in_files(
                     glob(APP_ROOT . '/tests/cases/*.php') ?: [],

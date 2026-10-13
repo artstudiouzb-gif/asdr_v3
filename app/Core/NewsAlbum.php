@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Models\Language;
+use App\Models\News;
 use App\Models\PhotoAlbum;
 
 /**
- * Фотоальбом из новости-галереи (`layout_type = gallery`).
+ * Фотоальбом из новости, которая показывается галереей: «Умный макет» или
+ * явная «Галерея», у которых кадров (обложка + галерея) больше одного —
+ * то же правило, по которому страница новости включает слайдер
+ * (`News::showsGallery`). Иначе альбомы искали бы только явную «Галерею», а
+ * на сайте почти все галереи — «Умный макет».
  *
  * Снимки события живут в новости, а раздел «Фотоальбомы» собирался руками —
  * то есть те же фотографии загружали второй раз, и чаще всего не загружали
@@ -41,22 +46,22 @@ final class NewsAlbum
             return null;
         }
         $primary = self::pickPrimary($members);
-        if ((string) ($primary['layout_type'] ?? '') !== 'gallery') {
-            return null;
-        }
         $photos = self::photos($members);
-        if ($photos === []) {
+        $pdo = Database::pdo();
+        $existing = $pdo->prepare('SELECT id FROM photo_albums WHERE news_id = :n LIMIT 1');
+        $existing->execute([':n' => (int) $primary['id']]);
+        $albumId = (int) $existing->fetchColumn();
+        // Создаёт альбом только галерея. Уже созданный альбом следует за
+        // новостью и дальше — иначе снятые из неё фото оставались бы в нём и
+        // считались «используемыми» при чистке медиатеки.
+        if ($photos === [] || $albumId <= 0 && !News::showsGallery($primary['layout_type'] ?? '', count($photos))) {
             return null;
         }
 
-        $pdo = Database::pdo();
         $title = trim((string) $primary['title']);
         $published = self::isLive($primary);
         $date = (string) ($primary['published_at'] ?? '') !== '' ? (string) $primary['published_at'] : (string) $primary['created_at'];
 
-        $existing = $pdo->prepare('SELECT id FROM photo_albums WHERE news_id = :n LIMIT 1');
-        $existing->execute([':n' => (int) $primary['id']]);
-        $albumId = (int) $existing->fetchColumn();
         if ($albumId <= 0) {
             $albumId = (int) PhotoAlbum::create($title, '', '', $published);
             if ($albumId <= 0) {
@@ -114,19 +119,23 @@ final class NewsAlbum
     public static function backfill(int $limit = self::BACKFILL_DEFAULT): array
     {
         $limit = max(1, min(500, $limit));
-        // Одна строка на группу перевода: альбом у группы один.
+        // Одна строка на группу перевода: альбом у группы один. Галерея ли
+        // это, решают кадры, а их в запросе не посчитать дёшево, поэтому
+        // кандидаты перебираются от свежих, пока не наберётся $limit альбомов.
         $rows = Database::pdo()->query(
             "SELECT MIN(id) AS id, MAX(COALESCE(published_at, created_at)) AS sort_at
                FROM news
-              WHERE deleted_at IS NULL AND status = 'published' AND layout_type = 'gallery'
+              WHERE deleted_at IS NULL AND status = 'published' AND (layout_type IS NULL OR layout_type IN ('', 'standard', 'gallery'))
               GROUP BY COALESCE(NULLIF(translation_group_id, 0), id)
-              ORDER BY sort_at DESC
-              LIMIT " . $limit
+              ORDER BY sort_at DESC"
         )->fetchAll(\PDO::FETCH_COLUMN);
 
         $known = self::albumNewsIds();
         $result = ['created' => 0, 'updated' => 0, 'skipped' => 0];
         foreach ($rows as $id) {
+            if ($result['created'] + $result['updated'] >= $limit) {
+                break;
+            }
             $members = self::groupMembers((int) $id);
             $primaryId = $members === [] ? 0 : (int) self::pickPrimary($members)['id'];
             $had = isset($known[$primaryId]);
@@ -222,36 +231,29 @@ final class NewsAlbum
     }
 
     /**
-     * Галерея записи, у которой она есть; без галереи — обложка: у новости из
-     * одного снимка альбом тоже бывает.
+     * Кадры записи, у которой они есть, — тем же правилом, что страница
+     * новости: обложка, затем галерея без повтора обложки. Обычно галерею
+     * заполняют у одной языковой версии.
      *
      * @param list<array<string, mixed>> $members
      * @return list<array{url:string,caption:string,credit:string}>
      */
     private static function photos(array $members): array
     {
-        $stmt = Database::pdo()->prepare('SELECT path, caption, credit FROM news_images WHERE news_id = :n ORDER BY sort_order, id');
+        $stmt = Database::pdo()->prepare('SELECT path, caption, credit, alt_text FROM news_images WHERE news_id = :n ORDER BY sort_order, id');
+        $best = [];
         foreach ($members as $member) {
             $stmt->execute([':n' => (int) $member['id']]);
-            $photos = [];
-            foreach (Database::rows($stmt) as $row) {
-                $url = trim((string) $row['path']);
-                if ($url !== '') {
-                    $photos[] = ['url' => $url, 'caption' => trim((string) ($row['caption'] ?? '')), 'credit' => trim((string) ($row['credit'] ?? ''))];
-                }
-            }
-            if ($photos !== []) {
-                return $photos;
-            }
-        }
-        foreach ($members as $member) {
-            $cover = trim((string) ($member['image'] ?? ''));
-            if ($cover !== '') {
-                return [['url' => $cover, 'caption' => '', 'credit' => '']];
+            $slides = News::slides((string) ($member['image'] ?? ''), (string) $member['title'], Database::rows($stmt));
+            if (count($slides) > count($best)) {
+                $best = $slides;
             }
         }
 
-        return [];
+        return array_map(
+            static fn (array $slide): array => ['url' => $slide['path'], 'caption' => $slide['caption'], 'credit' => $slide['credit']],
+            $best
+        );
     }
 
     /**
