@@ -28,6 +28,7 @@ final class Typography
         'fs_h4' => ['Заголовок H4', '.block-team__unit-title, .newsdetail-timeline__heading', '20'],
         'fs_h5' => ['Заголовок H5', '', '18'],
         'fs_h6' => ['Заголовок H6', '', '16'],
+        'fs_body' => ['Основной текст страниц и новостей', '.newsdetail-article__content, .news-single__content, .editorial-page__content .block-text__content', '16'],
         'fs_lead' => ['Вводный и крупный текст', '.content-pagehead__lead, .content-list__lead, .listing__lead, .block-hero__lead, .block-hero__subtitle, .block-banner__text, .newsdetail__lead, .newsdetail-phero__lead, .newslist-lead__excerpt, .bio-quote__text, .rich-content--lead', '17'],
         'fs_card_title' => ['Заголовки карточек и этапов', '.card__title, .content-card__title, .feature-card__title, .contact-card__title, .stage__title, .stage-item__title, .doc-card__title, .repo-card__title, .project-card__title, .album-card__title, .imgcard__title, .catcard__title, .catdetail__card-title, .faq-item__q, .newsdetail-doc__title, .block-map__card-title, .gcal-list__title, .bio-edu__degree, .icon-text__value', '16'],
         // Карточка новости живёт своей жизнью: её заголовок стоит в ленте из
