@@ -175,11 +175,56 @@ final class YoutubeChannel
         }
 
         $items = self::parseFeed($res['body']);
+        // Шортсы в ленту канала попадают не всегда (так и было замечено: ролики
+        // загружались, шортсы — нет); YouTube держит их в отдельном системном
+        // плейлисте канала. Его отказ (у канала нет шортсов — 404)
+        // ошибкой не считается: основные ролики уже получены.
+        $shorts = $source['type'] === 'channel' ? self::shortsPlaylistId($source['value']) : null;
+        if ($shorts !== null) {
+            $extra = Http::getSafeRemote(self::FEED_URL . '?playlist_id=' . rawurlencode($shorts), ['Accept: application/atom+xml'], 20);
+            if ((int) $extra['status'] === 200 && trim($extra['body']) !== '') {
+                $items = self::mergeItems($items, self::parseFeed($extra['body']));
+            }
+        }
         if ($items === []) {
             return self::fail('В ленте канала нет роликов.');
         }
 
         return ['ok' => true, 'error' => '', 'items' => array_slice($items, 0, $limit), 'channel_id' => ''];
+    }
+
+    /**
+     * Системный плейлист шортсов канала: тот же id, но с приставкой UUSH
+     * вместо UC (рядом живут UU — все загрузки, UULF — длинные ролики).
+     */
+    public static function shortsPlaylistId(string $channelId): ?string
+    {
+        return preg_match('/^UC([A-Za-z0-9_-]{22})$/', $channelId, $m) === 1 ? 'UUSH' . $m[1] : null;
+    }
+
+    /**
+     * Два списка роликов в один: без повторов (один ролик может прийти из
+     * обоих), свежие первыми — иначе лимит отрезал бы шортсы целиком или,
+     * наоборот, основные ролики.
+     *
+     * @param array<int, array<string, mixed>> ...$lists
+     * @return list<array<string, mixed>>
+     */
+    public static function mergeItems(array ...$lists): array
+    {
+        $byId = [];
+        foreach ($lists as $list) {
+            foreach ($list as $item) {
+                $id = (string) ($item['youtube_id'] ?? '');
+                if ($id !== '' && !isset($byId[$id])) {
+                    $byId[$id] = $item;
+                }
+            }
+        }
+        $items = array_values($byId);
+        usort($items, static fn (array $a, array $b): int => strcmp((string) ($b['published_at'] ?? ''), (string) ($a['published_at'] ?? '')));
+
+        return $items;
     }
 
     /**
@@ -261,23 +306,19 @@ final class YoutubeChannel
             }
         }
 
-        $items = [];
-        $pageToken = '';
-        $pages = 0;
-        while (count($items) < $limit && $pages++ < 5) {
-            $page = self::api('playlistItems', array_filter([
-                'part' => 'snippet',
-                'playlistId' => $playlist,
-                'maxResults' => (string) min(50, $limit - count($items)),
-                'pageToken' => $pageToken,
-            ]), $apiKey);
-            if (!$page['ok']) {
-                return self::fail($page['error']);
-            }
-            $items = array_merge($items, self::parseApiItems($page['data']));
-            $pageToken = (string) ($page['data']['nextPageToken'] ?? '');
-            if ($pageToken === '') {
-                break;
+        $uploads = self::apiPlaylist($playlist, $limit, $apiKey);
+        if (!$uploads['ok']) {
+            return self::fail($uploads['error']);
+        }
+        $items = $uploads['items'];
+        // Шортсы — отдельным системным плейлистом, как и в ленте без ключа:
+        // список загрузок их не всегда содержит. У канала без шортсов этот
+        // плейлист не найден — это не ошибка.
+        $shorts = self::shortsPlaylistId($channelId !== '' ? $channelId : ($source['type'] === 'channel' ? $source['value'] : ''));
+        if ($shorts !== null) {
+            $extra = self::apiPlaylist($shorts, $limit, $apiKey);
+            if ($extra['ok']) {
+                $items = self::mergeItems($items, $extra['items']);
             }
         }
         if ($items === []) {
@@ -294,6 +335,36 @@ final class YoutubeChannel
         }
 
         return ['ok' => true, 'error' => '', 'items' => $items, 'channel_id' => $channelId];
+    }
+
+    /**
+     * Ролики плейлиста через playlistItems.list, до $limit штук.
+     *
+     * @return array{ok:bool, error:string, items:array<int,array<string,mixed>>}
+     */
+    private static function apiPlaylist(string $playlist, int $limit, string $apiKey): array
+    {
+        $items = [];
+        $pageToken = '';
+        $pages = 0;
+        while (count($items) < $limit && $pages++ < 5) {
+            $page = self::api('playlistItems', array_filter([
+                'part' => 'snippet',
+                'playlistId' => $playlist,
+                'maxResults' => (string) min(50, $limit - count($items)),
+                'pageToken' => $pageToken,
+            ]), $apiKey);
+            if (!$page['ok']) {
+                return ['ok' => false, 'error' => $page['error'], 'items' => []];
+            }
+            $items = array_merge($items, self::parseApiItems($page['data']));
+            $pageToken = (string) ($page['data']['nextPageToken'] ?? '');
+            if ($pageToken === '') {
+                break;
+            }
+        }
+
+        return ['ok' => true, 'error' => '', 'items' => $items];
     }
 
     /**
