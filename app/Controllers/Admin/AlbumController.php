@@ -54,9 +54,10 @@ final class AlbumController
 
         $limit = Input::post()->int('limit', NewsAlbum::BACKFILL_DEFAULT, 1, 200);
         $result = NewsAlbum::backfill($limit);
-        Flash::success('Из новостей-галерей: создано альбомов — ' . $result['created']
-            . ', обновлено — ' . $result['updated']
-            . ($result['skipped'] > 0 ? ', без фотографий пропущено — ' . $result['skipped'] : '') . '.');
+        $total = $result['created'] + $result['updated'];
+        $total === 0
+            ? Flash::warning('Новостей-галерей не нашлось: альбом собирается из новости, у которой больше одного фото (обложка и галерея) и вид «Умный макет» или «Галерея».')
+            : Flash::success('Из новостей-галерей: создано альбомов — ' . $result['created'] . ', обновлено — ' . $result['updated'] . '.');
         Redirect::to('/admin/albums');
     }
 

@@ -79,12 +79,16 @@ test('Подпись — один фирменный компонент, 12px, �
 });
 
 test('Обложка не теряет подпись, заданную в галерее', function () {
-    $view = (string) file_get_contents(APP_ROOT . '/app/Views/site/news_show.php');
-
     // Обложка обычно продублирована в галерее, и кадр с тем же путём
     // пропускается: подпись бралась бы из воздуха.
-    assert_contains('$captionsByPath', $view);
-    assert_contains("\$captionsByPath[\$cover]['caption']", $view);
+    $slides = \App\Models\News::slides('/uploads/public/a.jpg', 'Форум', [
+        ['path' => '/uploads/public/b.jpg', 'caption' => 'Зал', 'credit' => '', 'alt_text' => 'b'],
+        ['path' => '/uploads/public/a.jpg', 'caption' => 'Открытие', 'credit' => 'Пресс-служба', 'alt_text' => 'a'],
+    ]);
+    assert_same(['/uploads/public/a.jpg', '/uploads/public/b.jpg'], array_column($slides, 'path'), 'обложка первой и без повтора');
+    assert_same('Открытие', $slides[0]['caption'], 'подпись обложки — из её строки в галерее');
+    assert_same('Пресс-служба', $slides[0]['credit']);
+    assert_same('Форум', $slides[0]['alt']);
 });
 
 test('Формы админки: поля подписи и автора на месте', function () {

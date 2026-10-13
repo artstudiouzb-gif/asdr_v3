@@ -63,37 +63,9 @@ preg_match_all('/[\p{L}\p{N}]+/u', strip_tags((string) ($news['content'] ?? ''))
 $readMin = max(1, (int) ceil(count($m[0]) / 180));
 $views = (int) ($news['views'] ?? 0);
 
-// Слайды: обложка + галерея (уникальные пути).
-$slides = [];
+// Слайды: обложка + галерея (уникальные пути), подпись обложки — из галереи.
 $cover = trim((string) ($news['image'] ?? ''));
-// Подписи галереи по пути файла: обложка обычно продублирована в галерее, и
-// её подпись раньше терялась вместе с пропущенным кадром.
-$captionsByPath = [];
-foreach ($gallery as $img) {
-    $captionsByPath[trim((string) $img['path'])] = [
-        'caption' => trim((string) ($img['caption'] ?? '')),
-        'credit' => trim((string) ($img['credit'] ?? '')),
-    ];
-}
-if ($cover !== '') {
-    $slides[] = [
-        'path' => $cover,
-        'alt' => (string) $news['title'],
-        'caption' => (string) ($captionsByPath[$cover]['caption'] ?? ''),
-        'credit' => (string) ($captionsByPath[$cover]['credit'] ?? ''),
-    ];
-}
-foreach ($gallery as $img) {
-    $p = trim((string) $img['path']);
-    if ($p !== '' && $p !== $cover) {
-        $slides[] = [
-            'path' => $p,
-            'alt' => (string) ($img['alt_text'] ?? ''),
-            'caption' => trim((string) ($img['caption'] ?? '')),
-            'credit' => trim((string) ($img['credit'] ?? '')),
-        ];
-    }
-}
+$slides = News::slides($cover, (string) $news['title'], $gallery);
 // Подпись под снимком: текст и автор строкой «Фото: …».
 $photoCaption = static function (array $s): string {
     $caption = trim((string) ($s['caption'] ?? ''));
@@ -161,7 +133,7 @@ if ($layout === 'video' && $videoId === null) {
 
 // Умный макет: если загружено больше 1 фото, автоматически включается интерактивный слайдер галереи!
 if ($layout === 'standard' || $layout === 'gallery') {
-    if (count($slides) > 1) {
+    if (News::showsGallery($layout, count($slides))) {
         $layout = 'gallery';
         $heroSlides = $slides;
     } else {
