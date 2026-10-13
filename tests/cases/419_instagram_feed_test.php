@@ -61,7 +61,10 @@ test('Instagram: блок выводит кадры ссылками в Instagra
     assert_true(strpos($html, 'ig-feed__follow') > strpos($html, 'ig-feed__grid'), 'кнопка под кадрами, а не в шапке');
     assert_not_contains('section-head__all', $html);
     assert_contains('ig-feed__kind', $html, 'ролик отмечен значком');
-    assert_contains('ig-feed__caption', $html);
+    // Подпись из одной фразы целиком становится заголовком карточки; второй
+    // раз под ним она не печатается.
+    assert_contains('<span class="ig-feed__title" aria-hidden="true">Fransiya taraqqiyot agentligi bilan uchrashuv</span>', $html);
+    assert_not_contains('ig-feed__caption', $html);
 });
 
 test('Instagram: пустая лента не выводит ни блока, ни виджета', function () {
@@ -169,6 +172,30 @@ test('Instagram: число строк подписи задаёт длину в
     assert_not_contains('OXIRGI</span>', $render(2), 'две строки — короткая выдержка');
     assert_contains('OXIRGI</span>', $render(6), 'шесть строк — подпись целиком');
     assert_contains('ig-feed__item--card', $render(10), 'с подписью публикация — карточка, как у новости');
+});
+
+test('Instagram: заголовок поста полужирный, подпись под ним обычная и без повтора', function () {
+    $posts = instagram_sample_posts();
+    $posts[0]['caption'] = 'Agentlik forum oʻtkazdi. Unda 200 dan ortiq ishtirokchi qatnashdi.';
+    $posts[0]['title'] = 'Agentlik strategik forumi';
+    $posts[1]['caption'] = "🔥 Yangi loyiha taqdimoti boʻlib oʻtdi! Batafsil havolada #ASDR";
+    $posts[1]['title'] = '';
+    $html = render_view('templates/blocks/instagram_feed.php', [
+        'blockId' => 7,
+        'data' => [
+            'title' => '', 'order' => 'date', 'limit' => 8, 'layout' => 'carousel', 'columns' => 4, 'ratio' => '1-1',
+            'caption_lines' => 4, 'foot_align' => 'split', 'captions' => true, 'all_text' => '', 'posts' => $posts,
+        ],
+    ]);
+
+    assert_contains('<span class="ig-feed__title" aria-hidden="true">Agentlik strategik forumi</span>', $html, 'заголовок модели — отдельной строкой');
+    assert_contains('Agentlik forum oʻtkazdi.', $html, 'подпись выводится целиком под ним');
+    assert_contains('aria-label="Agentlik strategik forumi', $html, 'имя ссылки — заголовок');
+
+    // Без заголовка модели берётся первая фраза подписи, и под ним она не повторяется.
+    assert_same('Yangi loyiha taqdimoti boʻlib oʻtdi!', \App\Core\InstagramPostTitle::fallback($posts[1]['caption']));
+    assert_contains('<span class="ig-feed__caption" aria-hidden="true">Batafsil havolada #ASDR</span>', $html, 'первая фраза не повторяется в подписи');
+    assert_same('', \App\Core\InstagramPostTitle::fallback('🔥🔥 #tag'), 'из одних эмодзи и меток заголовка нет');
 });
 
 test('Instagram: голый кадр — плитка, дата с подписью — карточка; низ ленты выравнивается', function () {

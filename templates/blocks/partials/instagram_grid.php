@@ -7,7 +7,7 @@ use App\Core\Media;
  * Сетка кадров ленты Instagram — общая у блока страницы и виджета сайдбара:
  * вторая копия разметки разъехалась бы с первой при первой правке.
  *
- * @var list<array{type: string, caption: string, permalink: string, image: string}> $posts
+ * @var list<array{type: string, caption: string, title?: string, permalink: string, image: string}> $posts
  * @var bool|null $igCaptions подписи под кадрами
  * @var string|null $igSizes атрибут sizes для кадров
  * @var bool|null $igDates дата публикации под кадром
@@ -29,10 +29,14 @@ $igCaptionChars = 70 * max(2, (int) ($captionLines ?? 2));
     <?php foreach ($posts as $igIndex => $post): ?>
         <?php
         $caption = trim((string) $post['caption']);
+        // Заголовок формулирует модель при обновлении ленты; он полужирный,
+        // подпись под ним — обычным начертанием.
+        $title = trim((string) ($post['title'] ?? '')) ?: \App\Core\InstagramPostTitle::fallback($caption);
+        $body = $title !== '' ? \App\Core\InstagramPostTitle::rest($caption, $title) : $caption;
         // Имя ссылки — начало подписи: «пост в Instagram» восемь раз подряд
         // диктору не говорит ничего. Новую вкладку называем явно.
         $date = $igDates ? \App\Core\DateFormatter::long((string) ($post['timestamp'] ?? ''), $igLang) : '';
-        $label = ($caption !== '' ? excerpt($caption, 120) : t('Публикация в Instagram'))
+        $label = ($title !== '' ? $title : ($caption !== '' ? excerpt($caption, 120) : t('Публикация в Instagram')))
             . ($date !== '' ? ', ' . $date : '')
             . ' — ' . t('откроется в Instagram');
         $kind = match ((string) $post['type']) {
@@ -55,8 +59,11 @@ $igCaptionChars = 70 * max(2, (int) ($captionLines ?? 2));
                         <?php if ($date !== ''): ?>
                             <time class="ig-feed__date" datetime="<?= htmlspecialchars(\App\Core\DateFormatter::format((string) $post['timestamp'], 'Y-m-d'), ENT_QUOTES) ?>" aria-hidden="true"><?= Icon::render('calendar', 15, 'ui-icon', 1.7) ?><?= htmlspecialchars($date, ENT_QUOTES) ?></time>
                         <?php endif; ?>
-                        <?php if ($igCaptions && $caption !== ''): ?>
-                            <span class="ig-feed__caption" aria-hidden="true"><?= htmlspecialchars(excerpt($caption, $igCaptionChars), ENT_QUOTES) ?></span>
+                        <?php if ($igCaptions && $title !== ''): ?>
+                            <span class="ig-feed__title" aria-hidden="true"><?= htmlspecialchars($title, ENT_QUOTES) ?></span>
+                        <?php endif; ?>
+                        <?php if ($igCaptions && $body !== ''): ?>
+                            <span class="ig-feed__caption" aria-hidden="true"><?= htmlspecialchars(excerpt($body, $igCaptionChars), ENT_QUOTES) ?></span>
                         <?php endif; ?>
                     </span>
                 <?php endif; ?>
