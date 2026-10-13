@@ -22,7 +22,8 @@ final class Typography
      * компонентные clamp()-размеры тем (панель a11y всё равно сильнее).
      */
     public const TYPO_SIZES = [
-        'fs_h1' => ['Заголовок H1', '.block-hero__title, .content-pagehead__title, .listing__title, .projdetail__title, .catdetail__title, .translation-notice__title, .newsdetail__title, .newsdetail-phero__title, .reader-mode__headline', '42'],
+        'fs_hero_title' => ['Главный заголовок обложки (Hero)', '.hero__title, .block-hero__title, .hero__title-link, .block-hero__title-link', '56'],
+        'fs_h1' => ['Заголовок H1', '.content-pagehead__title, .listing__title, .projdetail__title, .catdetail__title, .translation-notice__title, .newsdetail__title, .newsdetail-phero__title, .reader-mode__headline', '42'],
         'fs_h2' => ['Заголовок H2', '.section-title, .block-title, .block-text__title, .bio__title, .content-list__head h1, .block-news__title, .block-categories__title, .block-contact-cards__title, .block-projects__title, .block-team__title, .block-testimonials__title, .block-banner__title, .block-featband__title, .block-map__title, .block-partners__title, .textimage__title, .subscribe-block__title, .section-head__title, .newslist-lead__title, .catdetail__subtitle, .block-timeline__title', '32'],
         'fs_h3' => ['Заголовок H3', '.orgstruct__head-name, .timeline-cta__title, .ctaband__title, .featband__name, .bio-career__title, .bio-quote__mark, .widget__title, .bio-extra__title, .block-team__group-title, .newsdetail-card__title, .newsdetail-timeline__title, .newsdetail-subscribe__title', '24'],
         'fs_h4' => ['Заголовок H4', '.block-team__unit-title, .newsdetail-timeline__heading', '20'],
@@ -167,7 +168,7 @@ final class Typography
     private static function componentTitleExclusion(): string
     {
         $classes = [];
-        foreach (['fs_lead', 'fs_card_title', 'fs_news_title', 'fs_card_text', 'fs_news_text', 'fs_meta', 'fs_menu', 'fs_topbar'] as $group) {
+        foreach (['fs_hero_title', 'fs_lead', 'fs_card_title', 'fs_news_title', 'fs_card_text', 'fs_news_text', 'fs_meta', 'fs_menu', 'fs_topbar'] as $group) {
             foreach (explode(',', self::TYPO_SIZES[$group][1]) as $selector) {
                 $selector = trim($selector);
                 if (preg_match('/^\.[A-Za-z0-9_-]+$/', $selector) === 1) {

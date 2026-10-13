@@ -2486,7 +2486,7 @@ source { display: none; }
 .block-hero__media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--bg-primary) 6%, color-mix(in srgb, var(--bg-primary) 55%, transparent) 42%, transparent 66%); }
 .block-hero__inner { position: relative; width: 100%; }
 .block-hero__text { max-width: var(--hero-text-width, 560px); }
-.block-hero__title { font-size: var(--font-size-h1, var(--step-10)); color: var(--gov-navy); margin: 0 0 16px; line-height: 1.15; }
+.block-hero__title { font-size: var(--font-size-hero-title, var(--font-size-h1, var(--step-10))); color: var(--gov-navy); margin: 0 0 16px; line-height: 1.15; }
 .block-hero__subtitle { font-size: var(--font-size-lead, var(--step-1)); color: var(--text-muted); max-width: 480px; margin: 0; line-height: var(--base-line-height, 1.6); }
 .block-hero__button {
     /* Без margin-top: кнопки всегда внутри .block-hero__actions (flex,

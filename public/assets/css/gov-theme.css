@@ -2359,7 +2359,7 @@ h3, .h3 { font-size: var(--font-size-h3, var(--step-4)); }
 h4, .h4 { font-size: var(--font-size-h4, var(--step-2)); }
 h5, .h5 { font-size: var(--font-size-h5, var(--step-1)); }
 h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
-.block-hero__title { font-size: var(--font-size-h1, var(--step-10)); }
+.block-hero__title { font-size: var(--font-size-hero-title, var(--font-size-h1, var(--step-10))); }
 .block-banner__title { font-size: var(--font-size-h2, var(--step-6)); }
 .textimage__title,
 .block-map__title { font-size: var(--font-size-h2, var(--step-5)); }
@@ -3664,7 +3664,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
    цветом остального текста hero. */
 
 .block-hero--media .block-hero__eyebrow { color: var(--hero-text, #fff); }
-.block-hero--media .block-hero__title { color: var(--hero-text, #fff); font-size: var(--font-size-h1, var(--step-10)); line-height: 1.1; margin: 0 0 20px; font-weight: 700; letter-spacing: -0.02em; }
+.block-hero--media .block-hero__title { color: var(--hero-text, #fff); font-size: var(--font-size-hero-title, var(--font-size-h1, var(--step-10))); line-height: 1.1; margin: 0 0 20px; font-weight: 700; letter-spacing: -0.02em; }
 .block-hero--media .block-hero__subtitle { color: var(--hero-text, rgba(255,255,255,.85)); font-size: var(--step-0); max-width: 520px; }
 .block-hero__actions { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 16px !important; margin-top: 30px; }
 .block-hero__button { 
