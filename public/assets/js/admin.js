@@ -1147,6 +1147,64 @@
         });
     })();
 
+    // --- Загрузка файла по частям: одна на медиатеку и окно выбора медиа ---
+    // Файл уходит кусками по 1 МБ в /admin/files/chunk: так большой файл не
+    // упирается в post_max_size хостинга, а несколько файлов грузятся по
+    // очереди, каждый своей серией запросов. Ответ последней части — запись
+    // медиатеки ({url, ...}).
+    window.asdrUploadFile = function (file, csrf, accessType, onProgress) {
+        return new Promise(function (resolve, reject) {
+            if (!file || !file.size || file.size > 200 * 1024 * 1024) {
+                reject(new Error((file && file.name ? file.name + ': ' : '') + 'неверный размер файла (макс 200 МБ).'));
+                return;
+            }
+            var chunkSize = 1024 * 1024;
+            var total = Math.ceil(file.size / chunkSize);
+            var uploadId = '';
+            for (var i = 0; i < 32; i++) { uploadId += Math.floor(Math.random() * 16).toString(16); }
+
+            function sendChunk(index) {
+                var fd = new FormData();
+                fd.append('csrf_token', csrf);
+                fd.append('upload_id', uploadId);
+                fd.append('index', String(index));
+                fd.append('total', String(total));
+                fd.append('name', file.name);
+                fd.append('access_type', accessType || 'public');
+                fd.append('chunk', file.slice(index * chunkSize, Math.min((index + 1) * chunkSize, file.size)));
+
+                fetch('/admin/files/chunk', { method: 'POST', body: fd, credentials: 'same-origin' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (res) {
+                        if (!res.ok) { throw new Error(res.error || 'Ошибка загрузки'); }
+                        if (res.done) { resolve(res); return; }
+                        if (onProgress) { onProgress((index + 1) / total); }
+                        sendChunk(index + 1);
+                    })
+                    .catch(function (err) {
+                        reject(new Error(file.name + ': ' + err.message));
+                    });
+            }
+            sendChunk(0);
+        });
+    };
+
+    // Несколько файлов — по очереди: параллельные серии частей упирались бы
+    // в ограничение частоты запросов. Отказ одного файла не останавливает
+    // остальные: результат — успешные ответы и тексты ошибок.
+    window.asdrUploadFiles = function (files, csrf, accessType, onStatus) {
+        var list = Array.prototype.slice.call(files || []);
+        var done = [];
+        var errors = [];
+        return list.reduce(function (chain, file, n) {
+            return chain.then(function () {
+                return window.asdrUploadFile(file, csrf, accessType, function (part) {
+                    if (onStatus) { onStatus(n, list.length, part, file); }
+                }).then(function (res) { done.push(res); }, function (err) { errors.push(err.message); });
+            });
+        }, Promise.resolve()).then(function () { return { done: done, errors: errors }; });
+    };
+
     // --- Медиабиблиотека: выбор или загрузка файла прямо из формы ---
     (function () {
         var modal = document.querySelector('[data-media-modal]');
@@ -1755,72 +1813,51 @@
             lastTrigger = null;
         }
 
-        function uploadFile(file) {
-            if (!uploadBox || !file) { return; }
-            if (!file.size || file.size > 200 * 1024 * 1024) {
-                setUploadStatus('Неверный размер файла (макс 200 МБ).', 'error');
-                return;
-            }
-
-            var chunkSize = 1024 * 1024;
-            var total = Math.ceil(file.size / chunkSize);
-            var uploadId = '';
-            for (var i = 0; i < 32; i++) { uploadId += Math.floor(Math.random() * 16).toString(16); }
-
+        function uploadFiles(files) {
+            if (!uploadBox || !files || !files.length) { return; }
+            var count = files.length;
             if (uploadInput) { uploadInput.disabled = true; }
             setUploadStatus('Загрузка… 0%');
 
-            function sendChunk(index) {
-                var fd = new FormData();
-                fd.append('csrf_token', uploadBox.getAttribute('data-csrf'));
-                fd.append('upload_id', uploadId);
-                fd.append('index', String(index));
-                fd.append('total', String(total));
-                fd.append('name', file.name);
-                fd.append('access_type', 'public');
-                fd.append('chunk', file.slice(index * chunkSize, Math.min((index + 1) * chunkSize, file.size)));
-
-                fetch('/admin/files/chunk', { method: 'POST', body: fd, credentials: 'same-origin' })
-                    .then(function (r) { return r.json(); })
-                    .then(function (res) {
-                        if (!res.ok) { throw new Error(res.error || 'Ошибка загрузки'); }
-                        if (res.done) {
-                            if (uploadInput) { uploadInput.disabled = false; uploadInput.value = ''; }
-                            setUploadStatus('Файл загружен.', 'success');
-                            loadLibrary(true).then(function () {
-                                if (!res.url) { return; }
-                                // Файл загружали, чтобы его поставить: в поле
-                                // он уходит сразу, в галерее — просто
-                                // отмечается в выборе.
-                                if (!currentMultiple) {
-                                    selectUrl(res.url);
-                                    return;
-                                }
-                                if (selectedUrls.indexOf(res.url) === -1) {
-                                    selectedUrls.push(res.url);
-                                    selectedNames[res.url] = file.name;
-                                }
-                                renderDetails(itemByUrl(res.url));
-                                updateSelectedUI();
-                            });
-                            return;
+            window.asdrUploadFiles(files, uploadBox.getAttribute('data-csrf'), 'public', function (n, total, part) {
+                var percent = Math.round(part * 100);
+                setUploadStatus(total > 1
+                    ? 'Загрузка ' + (n + 1) + ' из ' + total + '… ' + percent + '%'
+                    : 'Загрузка… ' + percent + '%');
+            }).then(function (result) {
+                if (uploadInput) { uploadInput.disabled = false; uploadInput.value = ''; }
+                var ok = result.done.length;
+                if (result.errors.length) {
+                    setUploadStatus('Загружено ' + ok + ' из ' + count + '. Не загружены: ' + result.errors.join('; '), 'error');
+                } else {
+                    setUploadStatus(ok > 1 ? 'Загружено файлов: ' + ok + '.' : 'Файл загружен.', 'success');
+                }
+                return loadLibrary(true).then(function () {
+                    var urls = result.done.map(function (res) { return res.url; }).filter(Boolean);
+                    if (!urls.length) { return; }
+                    // Файл загружали, чтобы его поставить: одиночный в поле
+                    // уходит сразу. Из нескольких в одиночное поле выбирает
+                    // редактор сам, в галерее все загруженные отмечаются.
+                    if (!currentMultiple) {
+                        if (urls.length === 1) { selectUrl(urls[0]); }
+                        return;
+                    }
+                    urls.forEach(function (url, i) {
+                        if (selectedUrls.indexOf(url) === -1) {
+                            selectedUrls.push(url);
+                            selectedNames[url] = result.done[i] && result.done[i].name ? result.done[i].name : url;
                         }
-                        setUploadStatus('Загрузка… ' + Math.round(((index + 1) / total) * 100) + '%');
-                        sendChunk(index + 1);
-                    })
-                    .catch(function (err) {
-                        if (uploadInput) { uploadInput.disabled = false; }
-                        setUploadStatus('Ошибка: ' + err.message, 'error');
                     });
-            }
-
-            sendChunk(0);
+                    renderDetails(itemByUrl(urls[urls.length - 1]));
+                    updateSelectedUI();
+                });
+            });
         }
 
         if (uploadInput) {
             uploadInput.addEventListener('change', function () {
                 if (!uploadInput.files || !uploadInput.files.length) { return; }
-                uploadFile(uploadInput.files[0]);
+                uploadFiles(uploadInput.files);
             });
         }
 
@@ -1848,7 +1885,7 @@
                 dropDepth = 0;
                 modal.classList.remove('is-dropping');
                 if (event.dataTransfer && event.dataTransfer.files.length) {
-                    uploadFile(event.dataTransfer.files[0]);
+                    uploadFiles(event.dataTransfer.files);
                 }
             });
         }
