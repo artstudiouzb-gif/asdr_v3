@@ -40,7 +40,7 @@ $langNames = ['ru' => 'Русский', 'uz' => 'Oʻzbekcha', 'en' => 'English']
         <p>
             <?php if ((string) $summary['channel'] !== ''): ?>Канал «<?= htmlspecialchars((string) $summary['channel'], ENT_QUOTES) ?>», <?php endif; ?>
             файл <code><?= htmlspecialchars((string) $summary['file'], ENT_QUOTES) ?></code>:
-            постов к переносу — <strong><?= (int) $summary['posts'] ?></strong>
+            постов к переносу<?php if ((array) $summary['selected'] !== []): ?> (только выбранные ссылками)<?php endif; ?> — <strong><?= (int) $summary['posts'] ?></strong>
             <?php if ((string) $summary['from'] !== ''): ?>
                 (с <?= htmlspecialchars((string) $summary['from'], ENT_QUOTES) ?> по <?= htmlspecialchars((string) $summary['to'], ENT_QUOTES) ?>)
             <?php endif; ?>,
@@ -70,7 +70,41 @@ $langNames = ['ru' => 'Русский', 'uz' => 'Oʻzbekcha', 'en' => 'English']
 
 <?php if ($summary !== null): ?>
 <div class="form-card admin-mt-24">
-    <?= AdminUi::cardHeader('3. Перенос', 'database-import') ?>
+    <?= AdminUi::cardHeader('3. Только выбранные посты (необязательно)', 'link') ?>
+    <p class="form-hint">
+        Чтобы перенести не весь канал, а отдельные посты, вставьте ссылки на них —
+        по одной в строке (в Telegram: правой кнопкой по посту → «Копировать ссылку»).
+        Пустое поле — переносится вся выгрузка.
+    </p>
+    <form method="post" action="/admin/news/telegram-import/select">
+        <?= Csrf::field() ?>
+        <div class="form-field">
+            <label for="tg-links">Ссылки на посты</label>
+            <textarea id="tg-links" name="links" rows="6" placeholder="https://t.me/asdruzbekistan/2933"><?php
+                foreach ((array) $summary['selected'] as $id) {
+                    echo htmlspecialchars('#' . (int) $id, ENT_QUOTES) . "\n";
+                }
+            ?></textarea>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn--small btn--primary"><?= AdminUi::icon('filter') ?>Применить выбор</button>
+            <?php if ((array) $summary['selected'] !== []): ?>
+                <button type="submit" name="links" value="" class="btn btn--small"><?= AdminUi::icon('x') ?>Снять выбор</button>
+            <?php endif; ?>
+        </div>
+    </form>
+    <?php if ((array) $summary['not_found'] !== []): ?>
+        <p class="form-hint admin-mt-12">Из выбранных новостью не станут:</p>
+        <ul class="form-hint">
+            <?php foreach ((array) $summary['not_found'] as $line): ?>
+                <li><?= htmlspecialchars((string) $line, ENT_QUOTES) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+</div>
+
+<div class="form-card admin-mt-24">
+    <?= AdminUi::cardHeader('4. Перенос', 'database-import') ?>
     <p class="form-hint">
         Каждый пост станет <strong>черновиком</strong> новости с датой поста:
         первая строка — заголовок, остальное — текст, первое фото — обложка,

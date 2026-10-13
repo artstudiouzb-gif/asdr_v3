@@ -82,6 +82,15 @@ test('Пост → новость: заголовок без значков, х�
     assert_same('<p>&lt;b&gt;x&lt;/b&gt;</p>', $evil['content'], 'HTML экранирован, javascript-ссылка снята');
 });
 
+test('Ссылки на посты превращаются в номера сообщений', function (): void {
+    $ids = TelegramChannelImporter::parseLinks(
+        "https://t.me/asdruzbekistan/2933\nhttps://t.me/asdruzbekistan/2914?single, t.me/s/asdruzbekistan/2885\n"
+        . "https://t.me/c/1234567/2877 2874 #2853 https://t.me/asdruzbekistan/2933 https://example.uz/12 мусор"
+    );
+    assert_same([2853, 2874, 2877, 2885, 2914, 2933], $ids, 'дубли схлопнуты, чужие ссылки и слова отброшены');
+    assert_same([], TelegramChannelImporter::parseLinks('  '));
+});
+
 test('Язык поста определяется по тексту', function (): void {
     assert_same('ru', TelegramChannelImporter::detectLang('Совещание в агентстве'));
     assert_same('uz', TelegramChannelImporter::detectLang('Агентликда йиғилиш бўлиб ўтди'), 'узбекская кириллица — узбекский');
@@ -114,6 +123,17 @@ test('Импорт создаёт черновики, переносит фот�
     $summary = TelegramChannelImporter::summary($inbox);
     assert_same(2, $summary['posts']);
     assert_same(4, $summary['skipped'], 'два сообщения репоста, опрос и фото без подписи');
+
+    // Выбор ссылками: альбом находится по любому своему фото, репост и
+    // номер вне выгрузки названы, а не потеряны молча.
+    TelegramChannelImporter::saveSelection($inbox, [3, 5, 9999]);
+    $picked = TelegramChannelImporter::summary($inbox);
+    assert_same(1, $picked['posts'], 'выбран один пост — альбом по ссылке на второе фото');
+    assert_same(['#5 — репост из «Gov.uz»', '#9999 — нет в выгрузке'], $picked['not_found']);
+    $pickedDry = TelegramChannelImporter::run($inbox, true, 0, 30.0, null);
+    assert_same(1, $pickedDry['total'], 'перенос видит тот же выбор, что сводка');
+    TelegramChannelImporter::saveSelection($inbox, []);
+    assert_same([], TelegramChannelImporter::loadSelection($inbox), 'пустой выбор снимает фильтр');
 
     $dry = TelegramChannelImporter::run($inbox, true, 0, 30.0, null);
     assert_same(1, $dry['planned'], 'проверка считает будущие новости');

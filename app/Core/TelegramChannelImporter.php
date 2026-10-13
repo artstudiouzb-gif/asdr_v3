@@ -29,7 +29,7 @@ use App\Models\NewsImage;
  * публикует новости в канал), пропускается — иначе импорт удвоил бы ленту.
  *
  * @phpstan-type Run array{text:string,type:string,href:string}
- * @phpstan-type Post array{id:int,date:string,runs:list<Run>,photos:list<string>,videos:int,missing:int}
+ * @phpstan-type Post array{id:int,ids:list<int>,date:string,runs:list<Run>,photos:list<string>,videos:int,missing:int}
  * @phpstan-type Mapped array{title:string,excerpt:string,content:string,hashtags:string,lang:string}
  * @phpstan-type State array{posts:array<array-key,int>}
  */
@@ -38,6 +38,11 @@ final class TelegramChannelImporter
     public const INBOX = 'storage/imports/telegram';
 
     private const STATE_FILE = '.import-state.json';
+
+    // Выбор «только эти посты» лежит файлом рядом с выгрузкой, а не в сессии:
+    // перенос идёт пакетами, и каждый пакет обязан видеть тот же выбор, что
+    // показала сводка, — даже если перенос продолжают на следующий день.
+    private const SELECTION_FILE = '.import-only.json';
 
     private const EXPORT_FILE = 'result.json';
 
@@ -82,6 +87,7 @@ final class TelegramChannelImporter
             $joins = $current !== null && $hasMedia && abs($time - $lastTime) <= self::ALBUM_GAP_SECONDS
                 && (!$hasText || $current['runs'] === []);
             if ($joins) {
+                $current['ids'][] = $id;
                 if ($hasText) {
                     $current['runs'] = $runs;
                 }
@@ -106,6 +112,7 @@ final class TelegramChannelImporter
                 }
                 $current = [
                     'id' => $id,
+                    'ids' => [$id],
                     'date' => self::dateOf($message, $time),
                     'runs' => $runs,
                     'photos' => [],
@@ -221,9 +228,9 @@ final class TelegramChannelImporter
         $started = microtime(true);
         $exportPath = self::findExport($inbox);
         $data = self::parse(self::readExport($exportPath));
-        $posts = $data['posts'];
+        $posts = self::select($data['posts'], self::loadSelection($inbox));
         if ($posts === []) {
-            throw new \RuntimeException('В выгрузке нет постов с текстом.');
+            throw new \RuntimeException('В выгрузке нет постов с текстом' . (self::loadSelection($inbox) !== [] ? ' среди выбранных ссылками' : '') . '.');
         }
         $base = dirname($exportPath);
         $state = self::loadState($inbox);
@@ -287,12 +294,30 @@ final class TelegramChannelImporter
     /**
      * Сводка до запуска: что нашлось в выгрузке. Разбор JSON без записи.
      *
-     * @return array{file:string,channel:string,posts:int,already:int,photos:int,videos:int,skipped:int,from:string,to:string,langs:array<string,int>}
+     * `selected` — номера из ссылок, `not_found` — те из них, что новостью не
+     * станут, с причиной: репост, пост без текста или номера нет в выгрузке
+     * (выгружен не тот период).
+     *
+     * @return array{file:string,channel:string,posts:int,already:int,photos:int,videos:int,skipped:int,from:string,to:string,langs:array<string,int>,selected:list<int>,not_found:list<string>}
      */
     public static function summary(string $inbox): array
     {
         $path = self::findExport($inbox);
         $data = self::parse(self::readExport($path));
+        $selected = self::loadSelection($inbox);
+        $notFound = [];
+        if ($selected !== []) {
+            $posts = self::select($data['posts'], $selected);
+            $reasons = array_column($data['skipped'], 'reason', 'id');
+            $covered = array_merge([], ...array_column($posts, 'ids'));
+            foreach ($selected as $id) {
+                if (!in_array($id, $covered, true)) {
+                    $notFound[] = '#' . $id . ' — ' . ($reasons[$id] ?? 'нет в выгрузке');
+                }
+            }
+            $data['posts'] = $posts;
+            $data['skipped'] = [];
+        }
         $state = self::loadState($inbox);
         $langs = [];
         $photos = $videos = 0;
@@ -315,7 +340,76 @@ final class TelegramChannelImporter
             'from' => $dates === [] ? '' : substr((string) min($dates), 0, 10),
             'to' => $dates === [] ? '' : substr((string) max($dates), 0, 10),
             'langs' => $langs,
+            'selected' => $selected,
+            'not_found' => $notFound,
         ];
+    }
+
+    /**
+     * Номера постов из ссылок вида `https://t.me/<канал>/2933` (а также
+     * `t.me/s/<канал>/…`, `t.me/c/<id>/…` и `?single`). Голое число тоже
+     * принимается. Номер в ссылке — это `id` сообщения в выгрузке.
+     *
+     * @return list<int>
+     */
+    public static function parseLinks(string $text): array
+    {
+        $ids = [];
+        foreach (preg_split('/[\s,;]+/u', $text, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $token) {
+            if (preg_match('#^(?:https?://)?(?:www\.)?(?:t|telegram)\.me/(?:s/|c/)?[\w-]+/(\d+)(?:[/?\#].*)?$#i', $token, $m) === 1
+                || preg_match('/^#?(\d+)$/', $token, $m) === 1) {
+                $ids[(int) $m[1]] = true;
+            }
+        }
+        $ids = array_keys(array_filter($ids, static fn (bool $v, int $id): bool => $id > 0, ARRAY_FILTER_USE_BOTH));
+        sort($ids);
+
+        return $ids;
+    }
+
+    /** @param list<int> $ids пустой список снимает выбор */
+    public static function saveSelection(string $inbox, array $ids): void
+    {
+        $path = rtrim($inbox, '/') . '/' . self::SELECTION_FILE;
+        if ($ids === []) {
+            if (is_file($path)) {
+                @unlink($path);
+            }
+
+            return;
+        }
+        if (!is_dir($inbox) || file_put_contents($path, json_encode(array_values($ids), JSON_THROW_ON_ERROR)) === false) {
+            throw new \RuntimeException('Не удалось сохранить выбор постов в ' . self::INBOX . '.');
+        }
+    }
+
+    /** @return list<int> */
+    public static function loadSelection(string $inbox): array
+    {
+        $path = rtrim($inbox, '/') . '/' . self::SELECTION_FILE;
+        if (!is_file($path)) {
+            return [];
+        }
+        $raw = json_decode((string) file_get_contents($path), true);
+
+        return is_array($raw) ? array_values(array_filter(array_map('intval', $raw), static fn (int $id): bool => $id > 0)) : [];
+    }
+
+    /**
+     * Ссылка на альбом указывает на одно из его фото, не обязательно на
+     * первое, поэтому пост выбирается по любому своему сообщению.
+     *
+     * @param list<Post> $posts
+     * @param list<int> $selected
+     * @return list<Post>
+     */
+    private static function select(array $posts, array $selected): array
+    {
+        if ($selected === []) {
+            return $posts;
+        }
+
+        return array_values(array_filter($posts, static fn (array $post): bool => array_intersect($post['ids'], $selected) !== []));
     }
 
     public static function inbox(): string

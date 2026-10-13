@@ -6,7 +6,9 @@ namespace App\Controllers\Admin;
 
 use App\Core\Auth;
 use App\Core\Csrf;
+use App\Core\Flash;
 use App\Core\Input;
+use App\Core\Redirect;
 use App\Core\TelegramChannelImporter;
 use App\Core\View;
 
@@ -38,6 +40,33 @@ final class TelegramImportController
             'summary' => $summary,
             'problem' => $problem,
         ]);
+    }
+
+    /**
+     * «Только эти посты»: ссылки превращаются в номера сообщений и
+     * сохраняются рядом с выгрузкой. Пустое поле снимает выбор.
+     */
+    public function select(): void
+    {
+        Auth::requireSuperAdmin();
+        Csrf::verifyRequest();
+
+        $raw = Input::post()->str('links', '', 20000);
+        $ids = TelegramChannelImporter::parseLinks($raw);
+        try {
+            TelegramChannelImporter::saveSelection(TelegramChannelImporter::inbox(), $ids);
+        } catch (\Throwable $e) {
+            Flash::error($e->getMessage());
+            Redirect::to('/admin/news/telegram-import');
+        }
+        if ($ids === []) {
+            trim($raw) === ''
+                ? Flash::success('Выбор снят: перенесутся все посты выгрузки.')
+                : Flash::error('В тексте не нашлось ссылок на посты вида https://t.me/канал/1234.');
+        } else {
+            Flash::success('Выбрано постов: ' . count($ids) . '. Перенесутся только они.');
+        }
+        Redirect::to('/admin/news/telegram-import');
     }
 
     public function run(): void
