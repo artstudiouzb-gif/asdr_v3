@@ -197,6 +197,9 @@ $router->post('/admin/news/import/inspect', [\App\Controllers\Admin\NewsImportCo
 $router->post('/admin/news/import/backup', [\App\Controllers\Admin\NewsImportController::class, 'backup']);
 $router->post('/admin/news/import/run', [\App\Controllers\Admin\NewsImportController::class, 'importBatch']);
 $router->post('/admin/news/import/discard', [\App\Controllers\Admin\NewsImportController::class, 'discard']);
+$router->get('/admin/news/telegram-import', [\App\Controllers\Admin\TelegramImportController::class, 'index']);
+$router->post('/admin/news/telegram-import/run', [\App\Controllers\Admin\TelegramImportController::class, 'run']);
+$router->post('/admin/news/telegram-import/select', [\App\Controllers\Admin\TelegramImportController::class, 'select']);
 $router->get('/admin/documents/import', [\App\Controllers\Admin\DocumentImportController::class, 'index']);
 $router->post('/admin/documents/import/run', [\App\Controllers\Admin\DocumentImportController::class, 'run']);
 $router->get('/admin/news/create', [AdminNewsController::class, 'create']);
