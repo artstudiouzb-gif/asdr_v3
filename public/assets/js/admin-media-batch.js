@@ -99,6 +99,13 @@
                     + (totals.missing ? ' · файла нет: ' + totals.missing : '')
                     + (totals.failed ? ' · не удалось: ' + totals.failed : '');
             }
+            if (scopeName === 'telegram') {
+                return seen + (dry ? ' · станут новостями: ' + totals.planned : ' · перенесено: ' + totals.imported)
+                    + (totals.skipped ? ' · уже были: ' + totals.skipped : '')
+                    + (totals.exists ? ' · уже есть на сайте: ' + totals.exists : '')
+                    + (totals.missing ? ' · фото нет в выгрузке: ' + totals.missing : '')
+                    + (totals.failed ? ' · не удалось: ' + totals.failed : '');
+            }
             if (scopeName === 'alt') {
                 return dry
                     ? seen + ' · без подписи: ' + totals.planned
@@ -124,7 +131,7 @@
             lock(true);
 
             var offset = 0;
-            var totals = { optimized: 0, planned: 0, skipped: 0, failed: 0, fixed: 0, empty: 0, imported: 0, missing: 0, pages: 0, blocks: 0, total: 0 };
+            var totals = { optimized: 0, planned: 0, skipped: 0, failed: 0, fixed: 0, empty: 0, imported: 0, missing: 0, exists: 0, pages: 0, blocks: 0, total: 0 };
             var details = [];
             showDetails([]);
             say(dry ? 'Считаю объём работы…' : 'Обрабатываю…');
@@ -132,7 +139,7 @@
             try {
                 for (;;) {
                     var result = await batch(offset, dry);
-                    ['optimized', 'planned', 'skipped', 'failed', 'fixed', 'empty', 'imported', 'missing', 'pages', 'blocks'].forEach(function (key) {
+                    ['optimized', 'planned', 'skipped', 'failed', 'fixed', 'empty', 'imported', 'missing', 'exists', 'pages', 'blocks'].forEach(function (key) {
                         totals[key] += result[key] || 0;
                     });
                     ['missing_files', 'errors', 'notes'].forEach(function (key) {
