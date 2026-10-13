@@ -260,6 +260,12 @@
     margin-top: 5px;
 }
 
+/* Keep body copy inside feature cards on the unified card typography scale. */
+.editorial-page__content .block-cards .feature-card__text {
+    font-size: var(--font-size-card-text, var(--step--1));
+    line-height: 1.6;
+}
+
 /* Supporting blocks sit close to their section heading. */
 .editorial-page__content > .cms-block--cards_grid,
 .editorial-page__content > .cms-block--stages,

@@ -3432,7 +3432,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .relnews-card--hero .relnews-card__excerpt,
 .relnews-card--wide .relnews-card__excerpt {
     color: color-mix(in srgb, var(--newshero-fg, #fff) 86%, transparent);
-    font-size: var(--step--1);
+    font-size: var(--font-size-news-text, var(--font-size-card-text, var(--step--1)));
     line-height: var(--base-line-height, 1.6);
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -4090,7 +4090,7 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
 .feature-card:hover .feature-card__arrow {
     transform: translateX(4px);
 }
-.feature-card__text { color: var(--gov-muted, #475569); font-size: var(--step--1); line-height: var(--base-line-height, 1.55); margin: 0; flex: 1; }/* Проекты — карточки с фото и тёмным градиентом. *//* Число колонок — настройка блока: жёсткая четвёрка игнорировала её и в
+.feature-card__text { color: var(--gov-muted, #475569); font-size: var(--font-size-card-text, var(--step--1)); line-height: var(--base-line-height, 1.55); margin: 0; flex: 1; }/* Проекты — карточки с фото и тёмным градиентом. *//* Число колонок — настройка блока: жёсткая четвёрка игнорировала её и в
    сетке, и в кадре слайдера. Переменную печатает сам блок (scoped CSS),
    запасное значение остаётся ради страниц из старого кэша. */
 
@@ -4153,7 +4153,7 @@ span.imgcard__media::after {
 .imgcard--below .imgcard__text,
 .imgcard--below .imgcard__desc {
     color: var(--gov-muted);
-    font-size: var(--step--1);
+    font-size: var(--font-size-card-text, var(--step--1));
     line-height: var(--base-line-height, 1.5);
 }
 @media (hover: hover) and (pointer: fine) {
