@@ -6,7 +6,8 @@ use App\Core\Csrf;
 
 $pageTitle = 'Импорт новостей';
 $activeNav = 'news';
-$pageActions = '<a href="/admin/news" class="btn">' . AdminUi::icon('arrow-left') . 'К списку новостей</a>';
+$pageActions = '<a href="/admin/news" class="btn">' . AdminUi::icon('arrow-left') . 'К списку новостей</a>'
+    . '<a href="/admin/news/telegram-import" class="btn">' . AdminUi::icon('telegram') . 'Из Telegram-канала</a>';
 require __DIR__ . '/../layout/header.php';
 
 /** @var int $maxUploadMb */
