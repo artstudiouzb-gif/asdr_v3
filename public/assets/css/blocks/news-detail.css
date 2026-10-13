@@ -469,7 +469,7 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero .cont
 .newsdetail-toc__list a { display: flex; gap: 10px; align-items: baseline; color: var(--gov-ink); text-decoration: none; font-size: var(--step--2); line-height: 1.35; }
 .newsdetail-toc__list a:hover { color: var(--gov-teal-text); }
 .newsdetail-toc__num { color: var(--gov-teal-on-tint, #00697d); font-weight: 700; font-size: var(--step--3); }
-.relnews-card__excerpt { color: var(--gov-muted); font-size: var(--step--2); line-height: 1.5; }
+.relnews-card__excerpt { color: var(--gov-muted); font-size: var(--font-size-news-text, var(--font-size-card-text, var(--step--2))); line-height: 1.5; }
 /* Премиум-hero новости — полноширинный тёмный экран; прижимаем к шапке,
    убирая верхний отступ контента (иначе светлая полоса-зазор). */
 .site-content:has(> .newsdetail--premium) { padding-top: 0; }

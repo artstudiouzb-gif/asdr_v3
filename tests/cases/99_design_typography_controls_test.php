@@ -58,11 +58,14 @@ test('форма дизайна объединяет источники шриф
         DesignSettings::TYPO_SIZES['fs_h6'],
         DesignSettings::TYPO_SIZES['fs_lead'],
         DesignSettings::TYPO_SIZES['fs_card_title'],
+        DesignSettings::TYPO_SIZES['fs_news_title'],
         DesignSettings::TYPO_SIZES['fs_card_text'],
+        DesignSettings::TYPO_SIZES['fs_news_text'],
         DesignSettings::TYPO_SIZES['fs_meta'],
         DesignSettings::TYPO_SIZES['fs_menu'],
         DesignSettings::TYPO_SIZES['fs_topbar'],
     ));
+    assert_contains('design-manual__classes', $view);
     assert_contains('name="radius_custom"', $view);
     assert_contains('name="newsdetail_padding_top"', $view);
     assert_contains('name="newsdetail_padding_bottom"', $view);
@@ -195,6 +198,29 @@ test('заголовки карточек новостей настраиваю�
     \App\Models\Setting::overrideInMemory('design_fs_h3', '');
     \App\Models\Setting::overrideInMemory('design_fs_card_title', '');
     \App\Models\Setting::overrideInMemory('design_fs_news_title', '');
+});
+
+test('текст карточек новостей настраивается отдельно от остальных карточек', function (): void {
+    $cards = DesignSettings::TYPO_SIZES['fs_card_text'][1];
+    $news = DesignSettings::TYPO_SIZES['fs_news_text'][1];
+    foreach (['.news-card__desc', '.news-card__excerpt', '.relnews-card__excerpt'] as $selector) {
+        assert_contains($selector, $news, "{$selector}: текст новости должен слушать свою настройку");
+        assert_not_contains($selector, $cards, "{$selector}: текст новости не должен оставаться в карточках страниц");
+    }
+
+    \App\Models\Setting::overrideInMemory('design_fs_card_text', '15px');
+    \App\Models\Setting::overrideInMemory('design_fs_news_text', '');
+    assert_same('15px', DesignSettings::typographySizes()['fs_news_text']);
+
+    \App\Models\Setting::overrideInMemory('design_fs_news_text', '18px');
+    assert_same('18px', DesignSettings::typographySizes()['fs_news_text']);
+    $css = DesignSettings::typographyCss();
+    assert_contains('--font-size-news-text:18px', $css);
+    assert_contains('--font-size-card-text:15px', $css);
+    assert_contains('.relnews-card__excerpt', $css);
+
+    \App\Models\Setting::overrideInMemory('design_fs_card_text', '');
+    \App\Models\Setting::overrideInMemory('design_fs_news_text', '');
 });
 
 test('HTML-уровень заголовка главнее компонентного класса', function (): void {

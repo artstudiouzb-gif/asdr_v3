@@ -3317,6 +3317,8 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 .design-manual__head span { color: var(--admin-muted); font-size: var(--admin-fs-base); }
 .design-manual__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .design-manual__grid .form-field { margin: 0; }
+.design-manual__classes { display: block; margin-top: 4px; font-size: 11px; line-height: 1.4; color: var(--admin-muted); word-break: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.design-manual__classes strong { font-weight: 600; color: var(--admin-title); font-family: var(--admin-font); }
 .design-manual__grid input[type="color"] { width: 72px; min-height: 42px; padding: 4px; cursor: pointer; }
 .design-manual__wide { grid-column: 1 / -1; }
 .design-manual__wide > select { width: min(100%, 520px); }

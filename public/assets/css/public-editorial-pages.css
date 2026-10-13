@@ -260,9 +260,9 @@
     margin-top: 5px;
 }
 
-/* Keep body copy inside feature cards on the same typography scale as news articles. */
+/* Keep body copy inside feature cards on the unified card typography scale. */
 .editorial-page__content .block-cards .feature-card__text {
-    font-size: var(--font-size-body, var(--step-0));
+    font-size: var(--font-size-card-text, var(--step--1));
     line-height: 1.6;
 }
 

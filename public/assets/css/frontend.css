@@ -1080,7 +1080,7 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .news-card__body { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; }
 .news-card__title { font-weight: 600; font-size: var(--step-1); color: var(--gov-navy); line-height: 1.35; }
 .news-card:hover .news-card__title { color: var(--gov-teal); }
-.news-card__excerpt { color: var(--text-muted); font-size: var(--step--1); line-height: var(--base-line-height, 1.5); }/* ============================================================================
+.news-card__excerpt { color: var(--text-muted); font-size: var(--font-size-news-text, var(--font-size-card-text, var(--step--1))); line-height: var(--base-line-height, 1.5); }/* ============================================================================
    Тема-билдер: применение переменных дизайна + современная отделка фронтенда.
    Переменные --container-max/--radius/--card-gap/--section-pad/--btn-radius
    задаются в <head> из настроек дизайна (DesignSettings). Значения ниже —
