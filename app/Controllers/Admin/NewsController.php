@@ -610,7 +610,6 @@ final class NewsController
         }
     }
 
-    /** @param array<string, string> $params */
     /**
      * Новость-галерея держит свой фотоальбом в актуальном виде. Отказ сборки
      * альбома не повод терять уже сохранённую новость — он уходит в журнал.
@@ -624,6 +623,7 @@ final class NewsController
         }
     }
 
+    /** @param array<string, string> $params */
     public function destroy(array $params): void
     {
         Auth::requireLogin();
