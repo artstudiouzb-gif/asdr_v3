@@ -205,6 +205,13 @@ final class Typography
                 . ',:root body ' . $tag . ':not([class]){font-size:var(' . $variable . ') !important;}';
         }
 
+        // Editorial feature cards follow the article text setting by default.
+        // An explicit card-text setting retains priority for backwards compatibility.
+        if (($sizes['fs_card_text'] ?? '') === '') {
+            $rules .= '.editorial-page__content .block-cards .feature-card__text'
+                . '{font-size:var(--font-size-body,var(--step-0)) !important;}';
+        }
+
         // Служебные подписи используют отдельный tracking-токен: интервал
         // заголовков для uppercase-номеров и дат семантически не подходит.
         if (self::metaLetterSpacingCustom() !== '') {
