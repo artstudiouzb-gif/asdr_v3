@@ -753,8 +753,10 @@ CREATE TABLE IF NOT EXISTS photo_albums (
     cover_url    VARCHAR(500) NOT NULL DEFAULT '',
     is_published TINYINT(1) NOT NULL DEFAULT 1,
     is_featured  TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'показывать на главной (блок Медиа)',
+    news_id      INT UNSIGNED NULL COMMENT 'новость-галерея, из которой собран альбом',
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uniq_albums_slug (slug),
+    UNIQUE KEY uniq_albums_news (news_id),
     KEY idx_albums_listing (is_published, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1298,7 +1300,8 @@ INSERT INTO migrations (filename) VALUES
     ('2026_09_08_content_type_root_url.sql'),
     ('2026_09_18_interface_translations.sql'),
     ('2026_09_28_block_revision_type.sql'),
-    ('2026_09_30_link_checks.sql')
+    ('2026_09_30_link_checks.sql'),
+    ('2026_10_13_photo_album_from_news.sql')
 ON DUPLICATE KEY UPDATE filename = filename;
 
 CREATE TABLE IF NOT EXISTS search_log (

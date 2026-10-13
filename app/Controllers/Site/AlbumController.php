@@ -6,6 +6,7 @@ namespace App\Controllers\Site;
 
 use App\Core\ContentLanguageNotice;
 use App\Core\Locale;
+use App\Core\NewsAlbum;
 use App\Core\View;
 use App\Models\PhotoAlbum;
 
@@ -42,6 +43,7 @@ final class AlbumController
         View::render('site/album', [
             'album' => $album,
             'images' => PhotoAlbum::images((int) $album['id']),
+            'newsUrl' => NewsAlbum::newsUrl($album, Locale::current()),
         ]);
     }
 }

@@ -18,6 +18,7 @@ return [
     'Перейти ко всем материалам' => 'Barcha materiallarga o‘tish',
     'Пресс-центр' => 'Matbuot markazi',
     'Подробнее' => 'Batafsil',
+    'Читать новость' => 'Yangilikni o‘qish',
     'Все новости' => 'Barcha yangiliklar',
     'Все материалы' => 'Barcha materiallar',
     'Смотреть видео' => 'Videoni ko‘rish',

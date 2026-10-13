@@ -4,6 +4,7 @@ use App\Core\Locale;
 
 /** @var array $album */
 /** @var array $images */
+/** @var string|null $newsUrl */
 
 $metaTitle = (string) $album['title'];
 $metaDescription = mb_substr(trim((string) ($album['description'] ?? '')), 0, 160);
@@ -22,6 +23,9 @@ $crumbs = [
         <h1><?= htmlspecialchars((string) $album['title'], ENT_QUOTES) ?></h1>
         <?php if (!empty($album['description'])): ?>
             <p class="content-list__lead"><?= nl2br(htmlspecialchars((string) $album['description'], ENT_QUOTES)) ?></p>
+        <?php endif; ?>
+        <?php if (!empty($newsUrl)): ?>
+            <p class="content-list__lead"><a href="<?= htmlspecialchars((string) $newsUrl, ENT_QUOTES) ?>"><?= htmlspecialchars(t('Читать новость'), ENT_QUOTES) ?></a></p>
         <?php endif; ?>
     </header>
 

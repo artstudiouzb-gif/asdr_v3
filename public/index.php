@@ -402,6 +402,7 @@ $router->post('/admin/subscribers/send-digest', [\App\Controllers\Admin\Subscrib
 $router->post('/admin/subscribers/{id}/delete', [\App\Controllers\Admin\SubscriberController::class, 'destroy']);
 $router->get('/admin/albums', [\App\Controllers\Admin\AlbumController::class, 'index']);
 $router->post('/admin/albums/create', [\App\Controllers\Admin\AlbumController::class, 'store']);
+$router->post('/admin/albums/from-news', [\App\Controllers\Admin\AlbumController::class, 'fromNews']);
 $router->get('/admin/albums/{id}/edit', [\App\Controllers\Admin\AlbumController::class, 'edit']);
 $router->post('/admin/albums/{id}/update', [\App\Controllers\Admin\AlbumController::class, 'update']);
 $router->post('/admin/albums/{id}/delete', [\App\Controllers\Admin\AlbumController::class, 'destroy']);
