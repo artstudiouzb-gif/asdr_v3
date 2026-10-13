@@ -121,11 +121,11 @@ final class Typography
         // незаданное поле обязано означать «как раньше»: до появления
         // настройки эти заголовки слушались «Заголовков карточек», и пустое
         // значение не должно менять размер на уже настроенном сайте.
-        if ($sizes['fs_news_title'] === '') {
-            $sizes['fs_news_title'] = $sizes['fs_card_title'];
+        if (($sizes['fs_news_title'] ?? '') === '') {
+            $sizes['fs_news_title'] = $sizes['fs_card_title'] ?? '';
         }
-        if ($sizes['fs_news_text'] === '') {
-            $sizes['fs_news_text'] = $sizes['fs_card_text'];
+        if (($sizes['fs_news_text'] ?? '') === '') {
+            $sizes['fs_news_text'] = $sizes['fs_card_text'] ?? '';
         }
 
         return $sizes;
