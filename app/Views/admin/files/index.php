@@ -29,7 +29,7 @@ $searchQuery = $filters['q'];
             <div class="media-dropzone__title">Перетащите файлы сюда</div>
             <div class="media-dropzone__sub">или нажмите кнопку ниже для выбора на диске</div>
             <div class="u-inline-bea13c7a75">
-                <input class="u-inline-c8be1ccba6" type="file" id="media_file_input" name="file" required>
+                <input class="u-inline-c8be1ccba6" type="file" id="media_file_input" name="files[]" multiple required>
                 <button type="button" class="btn btn--primary" data-file-pick="media_file_input">Выберите файлы</button>
                 <?php if ($canManageProtected): ?>
                     <select class="u-inline-732d6ab846" name="access_type">
@@ -42,7 +42,7 @@ $searchQuery = $filters['q'];
             </div>
             <div class="u-inline-783c7afd53" id="upload_filename_preview"></div>
             <div class="u-inline-ba853ea68c" id="upload_action_row">
-                <button type="submit" class="btn btn--success">Загрузить файл на сервер</button>
+                <button type="submit" class="btn btn--success" id="upload_submit">Загрузить на сервер</button>
             </div>
         </form>
     </div>
@@ -308,20 +308,54 @@ $searchQuery = $filters['q'];
         });
     }
 
+    function describeSelection() {
+        var files = fileInput && fileInput.files ? fileInput.files : [];
+        if (!files.length) {
+            filenamePreview.textContent = '';
+            uploadActionRow.style.display = 'none';
+            return;
+        }
+        var bytes = 0;
+        for (var i = 0; i < files.length; i++) { bytes += files[i].size; }
+        filenamePreview.textContent = files.length === 1
+            ? 'Выбран файл: ' + files[0].name + ' (' + (bytes / 1024 / 1024).toFixed(2) + ' МБ)'
+            : 'Выбрано файлов: ' + files.length + ' (' + (bytes / 1024 / 1024).toFixed(2) + ' МБ)';
+        uploadActionRow.style.display = 'block';
+    }
+
     if (fileInput) {
-        fileInput.addEventListener('change', function() {
-            if (fileInput.files && fileInput.files[0]) {
-                var f = fileInput.files[0];
-                filenamePreview.textContent = 'Выбран файл: ' + f.name + ' (' + (f.size / 1024 / 1024).toFixed(2) + ' МБ)';
-                uploadActionRow.style.display = 'block';
-            } else {
-                filenamePreview.textContent = '';
-                uploadActionRow.style.display = 'none';
-            }
+        fileInput.addEventListener('change', describeSelection);
+    }
+
+    // Файлы уходят по очереди и частями (window.asdrUploadFiles): одна форма
+    // с десятком фото упиралась бы в post_max_size хостинга, и сервер получал
+    // пустой запрос. Без скрипта форма отправляется как есть — сервер
+    // принимает несколько файлов и так.
+    var uploadForm = document.getElementById('upload_form');
+    if (uploadForm && fileInput && window.asdrUploadFiles) {
+        uploadForm.addEventListener('submit', function(e) {
+            if (!fileInput.files || !fileInput.files.length) { return; }
+            e.preventDefault();
+            var submit = document.getElementById('upload_submit');
+            var access = uploadForm.querySelector('[name="access_type"]');
+            var csrf = uploadForm.querySelector('[name="csrf_token"]');
+            if (submit) { submit.disabled = true; }
+            window.asdrUploadFiles(fileInput.files, csrf ? csrf.value : '', access ? access.value : 'public', function(n, total, part) {
+                filenamePreview.textContent = 'Загрузка ' + (n + 1) + ' из ' + total + '… ' + Math.round(part * 100) + '%';
+            }).then(function(result) {
+                if (!result.errors.length) {
+                    window.location.reload();
+                    return;
+                }
+                if (submit) { submit.disabled = false; }
+                filenamePreview.textContent = 'Загружено ' + result.done.length + ' из ' + fileInput.files.length
+                    + '. Не загружены: ' + result.errors.join('; ')
+                    + (result.done.length ? ' Обновите страницу, чтобы увидеть загруженные.' : '');
+            });
         });
     }
 
-    // Drag and Drop прямо на дравер
+    // Drag and Drop прямо на дравер: брошенные файлы встают в поле выбора.
     if (uploadDrawer) {
         ['dragenter', 'dragover'].forEach(function(ev) {
             document.body.addEventListener(ev, function(e) {
@@ -334,6 +368,16 @@ $searchQuery = $filters['q'];
                 e.preventDefault();
                 uploadDrawer.classList.remove('is-dragover');
             });
+        });
+        uploadDrawer.addEventListener('drop', function(e) {
+            if (!fileInput || !e.dataTransfer || !e.dataTransfer.files.length) { return; }
+            try {
+                fileInput.files = e.dataTransfer.files;
+            } catch (err) {
+                return;
+            }
+            uploadDrawer.classList.add('is-open');
+            describeSelection();
         });
     }
 

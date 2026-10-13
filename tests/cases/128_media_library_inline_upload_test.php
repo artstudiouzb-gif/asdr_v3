@@ -16,10 +16,12 @@ test('В медиабиблиотеке можно загрузить новый
     assert_not_contains('data-media-tab', $footer, 'вкладки «Библиотека/Загрузка» заменены одной кнопкой');
     assert_contains('data-media-dropveil', $footer, 'файл можно бросить в любое место окна');
     assert_contains("fetch('/admin/files/chunk'", $js);
-    assert_contains("fd.append('access_type', 'public')", $js);
+    assert_contains("fd.append('access_type', accessType || 'public')", $js);
+    assert_contains("window.asdrUploadFiles(files, uploadBox.getAttribute('data-csrf'), 'public'", $js, 'окно выбора грузит в открытый доступ');
+    assert_contains('type="file" multiple data-media-upload-input', $footer, 'в окно выбора можно добавить несколько файлов сразу');
     assert_contains('200 * 1024 * 1024', $js);
     assert_contains('loadLibrary(true)', $js);
-    assert_contains('selectUrl(res.url)', $js);
+    assert_contains('selectUrl(urls[0])', $js);
     assert_contains("audio: { accept: '.mp3,.aac,.ogg,.wav,.m4a,audio/*'", $js, 'медиабиблиотека знает аудиоформаты');
     assert_contains('pickMany: function (cb)', $js, 'галерея умеет выбирать несколько существующих файлов');
 });
@@ -57,4 +59,22 @@ test('Стили инспектора файлов не скрывают общ�
     assert_contains('#media_modal {', $css);
     assert_contains('#media_modal .media-modal__dialog', $css);
     assert_contains('#media_modal .media-modal__close', $css);
+});
+
+test('Медиатека принимает несколько файлов одной формой и прежнее одиночное поле', function () {
+    $tmp = static fn (string $n): array => ['name' => $n, 'type' => 'image/jpeg', 'tmp_name' => '/tmp/' . $n, 'error' => UPLOAD_ERR_OK, 'size' => 10];
+    $files = [
+        'files' => [
+            'name' => ['a.jpg', '', 'c.jpg'],
+            'type' => ['image/jpeg', '', 'image/jpeg'],
+            'tmp_name' => ['/tmp/a', '', '/tmp/c'],
+            'error' => [UPLOAD_ERR_OK, UPLOAD_ERR_NO_FILE, UPLOAD_ERR_OK],
+            'size' => [10, 0, 20],
+        ],
+        'file' => $tmp('legacy.jpg'),
+    ];
+    $list = \App\Controllers\Admin\FileController::uploadedFiles($files);
+    assert_same(['a.jpg', 'c.jpg', 'legacy.jpg'], array_column($list, 'name'), 'пустой слот отброшен, оба поля прочитаны');
+    assert_same('/tmp/c', $list[1]['tmp_name']);
+    assert_same([], \App\Controllers\Admin\FileController::uploadedFiles([]));
 });

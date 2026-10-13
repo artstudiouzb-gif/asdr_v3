@@ -54,7 +54,7 @@
                 </div>
                 <label class="btn btn--primary media-modal__upload-btn" data-media-upload-button>
                     <?= \App\Core\AdminUi::icon('upload', 15, 'btn__icon', 2) ?>Загрузить файлы
-                    <input class="u-inline-c8be1ccba6" type="file" data-media-upload-input>
+                    <input class="u-inline-c8be1ccba6" type="file" multiple data-media-upload-input>
                 </label>
                 <button type="button" class="media-modal__close" data-media-close aria-label="Закрыть"><?= \App\Core\Icon::render('x', 18) ?></button>
             </div>
