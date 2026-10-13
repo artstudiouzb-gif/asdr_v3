@@ -201,12 +201,30 @@ test('заголовки карточек новостей настраиваю�
 });
 
 test('текст карточек новостей настраивается отдельно от остальных карточек', function (): void {
+    $body = DesignSettings::TYPO_SIZES['fs_body'][1];
     $cards = DesignSettings::TYPO_SIZES['fs_card_text'][1];
     $news = DesignSettings::TYPO_SIZES['fs_news_text'][1];
+    foreach (['.block-text__content', '.rich-content', '.section-head__description'] as $selector) {
+        assert_contains($selector, $body, "{$selector}: должен слушать основной текст");
+    }
+    foreach (['.feature-card__text', '.icon-text__label'] as $selector) {
+        assert_contains($selector, $cards, "{$selector}: должен слушать текст карточек");
+    }
     foreach (['.news-card__desc', '.news-card__excerpt', '.relnews-card__excerpt'] as $selector) {
         assert_contains($selector, $news, "{$selector}: текст новости должен слушать свою настройку");
         assert_not_contains($selector, $cards, "{$selector}: текст новости не должен оставаться в карточках страниц");
     }
+
+    \App\Models\Setting::overrideInMemory('design_fs_body', '');
+    \App\Models\Setting::overrideInMemory('design_fs_card_text', '');
+    \App\Models\Setting::overrideInMemory('design_fs_news_text', '');
+    $defaultThemeCss = \App\Core\SiteThemeCss::build([], \App\Core\HeaderConfig::DEFAULTS, false);
+    assert_not_contains('--font-size-body:', $defaultThemeCss, 'пустое ручное поле не должно прибивать --font-size-body в px');
+    assert_not_contains('--font-size-card-text:', $defaultThemeCss, 'пустое ручное поле не должно прибивать --font-size-card-text в px');
+
+    \App\Models\Setting::overrideInMemory('design_fs_body', '19px');
+    assert_same('19px', DesignSettings::typographySizes()['fs_card_text']);
+    assert_same('19px', DesignSettings::typographySizes()['fs_news_text']);
 
     \App\Models\Setting::overrideInMemory('design_fs_card_text', '15px');
     \App\Models\Setting::overrideInMemory('design_fs_news_text', '');
@@ -219,6 +237,7 @@ test('текст карточек новостей настраивается о
     assert_contains('--font-size-card-text:15px', $css);
     assert_contains('.relnews-card__excerpt', $css);
 
+    \App\Models\Setting::overrideInMemory('design_fs_body', '');
     \App\Models\Setting::overrideInMemory('design_fs_card_text', '');
     \App\Models\Setting::overrideInMemory('design_fs_news_text', '');
 });
