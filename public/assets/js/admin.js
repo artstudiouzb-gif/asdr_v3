@@ -963,65 +963,6 @@
         });
     });
 
-    // Чанковая загрузка больших файлов через File API.
-    var chunkBtn = document.getElementById('chunk_upload_btn');
-    if (chunkBtn) {
-        chunkBtn.addEventListener('click', function () {
-            var input = document.getElementById('chunk_file');
-            var progress = document.getElementById('chunk_progress');
-            var access = document.getElementById('chunk_access');
-            if (!input.files || !input.files.length) {
-                progress.textContent = 'Выберите файл.';
-                return;
-            }
-            var file = input.files[0];
-            var chunkSize = 1024 * 1024; // 1 МБ
-            var total = Math.ceil(file.size / chunkSize);
-            var uploadId = '';
-            for (var i = 0; i < 32; i++) { uploadId += Math.floor(Math.random() * 16).toString(16); }
-            var csrf = chunkBtn.getAttribute('data-csrf');
-            chunkBtn.disabled = true;
-
-            function sendChunk(index) {
-                var start = index * chunkSize;
-                var blob = file.slice(start, Math.min(start + chunkSize, file.size));
-                var fd = new FormData();
-                fd.append('csrf_token', csrf);
-                fd.append('upload_id', uploadId);
-                fd.append('index', String(index));
-                fd.append('total', String(total));
-                fd.append('name', file.name);
-                fd.append('access_type', access.value);
-                fd.append('chunk', blob);
-
-                fetch('/admin/files/chunk', { method: 'POST', body: fd, credentials: 'same-origin' })
-                    .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'HTTP ' + r.status }; }); })
-                    .then(function (res) {
-                        if (!res.ok) {
-                            progress.textContent = 'Ошибка: ' + (res.error || 'неизвестная');
-                            chunkBtn.disabled = false;
-                            return;
-                        }
-                        if (res.done) {
-                            progress.textContent = 'Готово! Файл загружен. Обновите страницу.';
-                            chunkBtn.disabled = false;
-                            setTimeout(function () { window.location.reload(); }, 800);
-                            return;
-                        }
-                        progress.textContent = 'Загрузка… ' + Math.round(((index + 1) / total) * 100) + '%';
-                        sendChunk(index + 1);
-                    })
-                    .catch(function () {
-                        progress.textContent = 'Сетевая ошибка при загрузке.';
-                        chunkBtn.disabled = false;
-                    });
-            }
-
-            progress.textContent = 'Загрузка… 0%';
-            sendChunk(0);
-        });
-    }
-
     // --- Массовый выбор в списках (задача 91) ---
     document.querySelectorAll('[data-select-all]').forEach(function (master) {
         var table = master.closest('table');
@@ -1154,8 +1095,8 @@
     // медиатеки ({url, ...}).
     window.asdrUploadFile = function (file, csrf, accessType, onProgress) {
         return new Promise(function (resolve, reject) {
-            if (!file || !file.size || file.size > 200 * 1024 * 1024) {
-                reject(new Error((file && file.name ? file.name + ': ' : '') + 'неверный размер файла (макс 200 МБ).'));
+            if (!file.size || file.size > 200 * 1024 * 1024) {
+                reject(new Error(file.name + ': неверный размер файла (макс 200 МБ).'));
                 return;
             }
             var chunkSize = 1024 * 1024;
@@ -1178,7 +1119,7 @@
                     .then(function (res) {
                         if (!res.ok) { throw new Error(res.error || 'Ошибка загрузки'); }
                         if (res.done) { resolve(res); return; }
-                        if (onProgress) { onProgress((index + 1) / total); }
+                        onProgress((index + 1) / total);
                         sendChunk(index + 1);
                     })
                     .catch(function (err) {
@@ -1199,7 +1140,7 @@
         return list.reduce(function (chain, file, n) {
             return chain.then(function () {
                 return window.asdrUploadFile(file, csrf, accessType, function (part) {
-                    if (onStatus) { onStatus(n, list.length, part, file); }
+                    onStatus(n, list.length, part);
                 }).then(function (res) { done.push(res); }, function (err) { errors.push(err.message); });
             });
         }, Promise.resolve()).then(function () { return { done: done, errors: errors }; });
@@ -1817,21 +1758,15 @@
             if (!uploadBox || !files || !files.length) { return; }
             var count = files.length;
             if (uploadInput) { uploadInput.disabled = true; }
-            setUploadStatus('Загрузка… 0%');
+            setUploadStatus('Загрузка…');
 
             window.asdrUploadFiles(files, uploadBox.getAttribute('data-csrf'), 'public', function (n, total, part) {
-                var percent = Math.round(part * 100);
-                setUploadStatus(total > 1
-                    ? 'Загрузка ' + (n + 1) + ' из ' + total + '… ' + percent + '%'
-                    : 'Загрузка… ' + percent + '%');
+                setUploadStatus('Загрузка ' + (n + 1) + ' из ' + total + '… ' + Math.round(part * 100) + '%');
             }).then(function (result) {
                 if (uploadInput) { uploadInput.disabled = false; uploadInput.value = ''; }
-                var ok = result.done.length;
-                if (result.errors.length) {
-                    setUploadStatus('Загружено ' + ok + ' из ' + count + '. Не загружены: ' + result.errors.join('; '), 'error');
-                } else {
-                    setUploadStatus(ok > 1 ? 'Загружено файлов: ' + ok + '.' : 'Файл загружен.', 'success');
-                }
+                setUploadStatus('Загружено ' + result.done.length + ' из ' + count
+                    + (result.errors.length ? '. Ошибки: ' + result.errors.join('; ') : '.'),
+                    result.errors.length ? 'error' : 'success');
                 return loadLibrary(true).then(function () {
                     var urls = result.done.map(function (res) { return res.url; }).filter(Boolean);
                     if (!urls.length) { return; }
@@ -1842,10 +1777,10 @@
                         if (urls.length === 1) { selectUrl(urls[0]); }
                         return;
                     }
-                    urls.forEach(function (url, i) {
-                        if (selectedUrls.indexOf(url) === -1) {
-                            selectedUrls.push(url);
-                            selectedNames[url] = result.done[i] && result.done[i].name ? result.done[i].name : url;
+                    result.done.forEach(function (res) {
+                        if (res.url && selectedUrls.indexOf(res.url) === -1) {
+                            selectedUrls.push(res.url);
+                            selectedNames[res.url] = res.name;
                         }
                     });
                     renderDetails(itemByUrl(urls[urls.length - 1]));
