@@ -155,21 +155,61 @@ final class FileController
             RbacGuard::requirePermission('manage_protected_files');
         }
 
-        if (empty($_FILES['file']) || ($_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        $uploads = self::uploadedFiles($_FILES);
+        if ($uploads === []) {
             Flash::error('Выберите файл для загрузки.');
             Redirect::to('/admin/files');
         }
 
-        try {
-            // .css/.js — код страницы: разрешаем только супер-администратору,
-            // тому же, кто правит поля «произвольный CSS/JS» у страницы.
-            Uploader::store($_FILES['file'], $accessType, Auth::id(), null, Auth::isSuperAdmin());
-            Flash::success('Файл загружен.');
-        } catch (\RuntimeException $e) {
-            Flash::error($e->getMessage());
+        $stored = 0;
+        $errors = [];
+        foreach ($uploads as $upload) {
+            try {
+                // .css/.js — код страницы: разрешаем только супер-администратору,
+                // тому же, кто правит поля «произвольный CSS/JS» у страницы.
+                Uploader::store($upload, $accessType, Auth::id(), null, Auth::isSuperAdmin());
+                $stored++;
+            } catch (\RuntimeException $e) {
+                $errors[] = (string) ($upload['name'] ?? '') . ': ' . $e->getMessage();
+            }
+        }
+        if ($stored > 0) {
+            Flash::success($stored === 1 ? 'Файл загружен.' : 'Загружено файлов: ' . $stored . '.');
+        }
+        if ($errors !== []) {
+            Flash::error(implode(' ', $errors));
         }
 
         Redirect::to('/admin/files');
+    }
+
+    /**
+     * Присланные файлы списком: поле `files[]` с несколькими файлами и прежнее
+     * одиночное `file`. Пустые слоты (файл не выбран) отбрасываются.
+     *
+     * @param array<array-key, mixed> $files содержимое $_FILES
+     * @return list<array<string, mixed>>
+     */
+    public static function uploadedFiles(array $files): array
+    {
+        $list = [];
+        $multi = $files['files'] ?? null;
+        if (is_array($multi) && is_array($multi['name'] ?? null)) {
+            foreach (array_keys($multi['name']) as $i) {
+                $list[] = [
+                    'name' => $multi['name'][$i] ?? '',
+                    'type' => $multi['type'][$i] ?? '',
+                    'tmp_name' => $multi['tmp_name'][$i] ?? '',
+                    'error' => $multi['error'][$i] ?? UPLOAD_ERR_NO_FILE,
+                    'size' => $multi['size'][$i] ?? 0,
+                ];
+            }
+        }
+        if (is_array($files['file'] ?? null) && !is_array($files['file']['name'] ?? null)) {
+            $list[] = $files['file'];
+        }
+
+        return array_values(array_filter($list, static fn (array $f): bool => (int) ($f['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE));
     }
 
     /** @param array<string, string> $params */
