@@ -7,6 +7,9 @@ namespace App\Controllers\Admin;
 use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Flash;
+use App\Core\Input;
+use App\Core\NewsAlbum;
+use App\Core\Redirect;
 use App\Core\View;
 use App\Models\Language;
 use App\Models\PhotoAlbum;
@@ -38,6 +41,23 @@ final class AlbumController
         Flash::success('Альбом создан — добавьте фотографии.');
         header('Location: /admin/albums/' . $id . '/edit');
         exit;
+    }
+
+    /**
+     * Альбомы для последних новостей-галерей: те, что опубликованы до
+     * появления автосборки. Новые и обновлённые новости собирают альбом сами.
+     */
+    public function fromNews(): void
+    {
+        Auth::requireLogin();
+        Csrf::verifyRequest();
+
+        $limit = Input::post()->int('limit', NewsAlbum::BACKFILL_DEFAULT, 1, 200);
+        $result = NewsAlbum::backfill($limit);
+        Flash::success('Из новостей-галерей: создано альбомов — ' . $result['created']
+            . ', обновлено — ' . $result['updated']
+            . ($result['skipped'] > 0 ? ', без фотографий пропущено — ' . $result['skipped'] : '') . '.');
+        Redirect::to('/admin/albums');
     }
 
     /** @param array<string, string> $params */

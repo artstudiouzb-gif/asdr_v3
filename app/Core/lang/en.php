@@ -18,6 +18,7 @@ return [
     'Перейти ко всем материалам' => 'View all materials',
     'Пресс-центр' => 'Press centre',
     'Подробнее' => 'Learn more',
+    'Читать новость' => 'Read the news',
     'Все новости' => 'All News',
     'Все материалы' => 'All materials',
     'Смотреть видео' => 'Watch video',

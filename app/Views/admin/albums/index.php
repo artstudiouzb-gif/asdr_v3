@@ -28,6 +28,26 @@ $langMap = \App\Models\PhotoAlbum::availableLangsForIds(array_map(static fn ($i)
     </form>
 </div>
 
+<div class="form-card u-inline-7dde5e56b3">
+    <h2 class="u-inline-291b7bbb01">Альбомы из новостей-галерей</h2>
+    <p class="form-hint">
+        Новость с видом «Галерея» сама собирает альбом при сохранении: заголовок и
+        фотографии новости, а в альбоме — ссылка на неё. Фото правятся в новости —
+        альбом пересобирается. Для галерей, опубликованных раньше, нажмите кнопку
+        ниже; повтор не создаёт дублей.
+    </p>
+    <form method="post" action="/admin/albums/from-news" class="form-grid">
+        <?= Csrf::field() ?>
+        <div class="form-field">
+            <label for="from_news_limit">Сколько последних новостей-галерей</label>
+            <input type="number" id="from_news_limit" name="limit" min="1" max="200" value="<?= \App\Core\NewsAlbum::BACKFILL_DEFAULT ?>">
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary">Создать альбомы</button>
+        </div>
+    </form>
+</div>
+
 <?php if (empty($items)): ?>
     <p class="form-hint">Альбомов пока нет.</p>
 <?php else: ?>
@@ -51,7 +71,7 @@ $langMap = \App\Models\PhotoAlbum::availableLangsForIds(array_map(static fn ($i)
             <?php foreach ($items as $item): ?>
                 <tr>
                     <td><input type="checkbox" name="ids[]" value="<?= (int) $item['id'] ?>" form="bulkform" data-bulk-item aria-label="Выбрать альбом"></td>
-                    <td><?= htmlspecialchars((string) $item['title'], ENT_QUOTES) ?></td>
+                    <td><?= htmlspecialchars((string) $item['title'], ENT_QUOTES) ?><?php if (!empty($item['news_id'])): ?> <span class="badge" title="Собран из новости-галереи и пересобирается при её сохранении">из новости</span><?php endif; ?></td>
                     <td><code class="u-inline-e71ae94b55">/albums/<?= htmlspecialchars((string) $item['slug'], ENT_QUOTES) ?></code></td>
                     <td class="u-inline-a9efa5449f"><?= \App\Core\View::renderPartial('admin/layout/lang_badges', [
                         'siteLangs' => $siteLangs,

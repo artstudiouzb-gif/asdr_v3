@@ -110,6 +110,9 @@ final class NewsController
 
             return [$id, $purge];
         });
+        // Альбом пересобирается до чистки: снятые из галереи фото иначе
+        // остались бы «используемыми» старым составом альбома.
+        self::syncAlbum($id);
         if ($purgeAfterCommit !== []) {
             \App\Core\MediaCleaner::purgeUnreferenced($purgeAfterCommit);
         }
@@ -293,6 +296,9 @@ final class NewsController
             ]);
             return;
         }
+        // Альбом пересобирается до чистки: снятые из галереи фото иначе
+        // остались бы «используемыми» старым составом альбома.
+        self::syncAlbum($id);
         if ($purgeAfterCommit !== []) {
             \App\Core\MediaCleaner::purgeUnreferenced($purgeAfterCommit);
         }
@@ -601,6 +607,19 @@ final class NewsController
                 'meta_title' => trim((string) ($t['meta_title'] ?? '')),
                 'meta_description' => trim((string) ($t['meta_description'] ?? '')),
             ] + \App\Core\NewsCard::fromInput($t));
+        }
+    }
+
+    /**
+     * Новость-галерея держит свой фотоальбом в актуальном виде. Отказ сборки
+     * альбома не повод терять уже сохранённую новость — он уходит в журнал.
+     */
+    private static function syncAlbum(int $newsId): void
+    {
+        try {
+            \App\Core\NewsAlbum::sync($newsId);
+        } catch (\Throwable $e) {
+            \App\Core\Logger::swallowed('news.album_sync', $e);
         }
     }
 
