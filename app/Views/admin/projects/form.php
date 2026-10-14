@@ -97,6 +97,18 @@ $action = $isEdit ? '/admin/projects/' . (int) $project['id'] . '/edit' : '/admi
                         <label class="u-inline-d76ba0dbd2" for="transparent_header">Прозрачная шапка</label>
                     </div>
                     <p class="form-hint">Для прозрачной шапки нужна обложка первым блоком.</p>
+
+                    <div class="form-field form-field--checkbox">
+                        <input type="checkbox" id="hide_title" name="hide_title" value="1" <?= !empty($project['hide_title']) ? 'checked' : '' ?>>
+                        <label class="u-inline-d76ba0dbd2" for="hide_title">Скрыть заголовок проекта</label>
+                    </div>
+                    <p class="form-hint">Метка «Проект», название, обложка-картинка и анонс не показываются над содержимым. Для диктора и поисковиков заголовок остаётся.</p>
+
+                    <div class="form-field form-field--checkbox">
+                        <input type="checkbox" id="hide_crumbs" name="hide_crumbs" value="1" <?= !empty($project['hide_crumbs']) ? 'checked' : '' ?>>
+                        <label class="u-inline-d76ba0dbd2" for="hide_crumbs">Скрыть хлебные крошки</label>
+                    </div>
+                    <p class="form-hint">Полоса «Главная / Проекты / …» над содержимым. Крошки внутри обложки первым блоком остаются.</p>
                 </div>
             </div>
         </aside>

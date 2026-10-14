@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\AdminListQuery;
 use App\Core\ConcurrencyException;
 use App\Core\Csrf;
+use App\Core\Input;
 use App\Core\Database;
 use App\Core\Flash;
 use App\Core\ImageField;
@@ -227,6 +228,8 @@ final class ProjectController
             'status' => $status,
             'is_featured' => !empty($_POST['is_featured']),
             'transparent_header' => !empty($_POST['transparent_header']),
+            'hide_title' => Input::post()->bool('hide_title'),
+            'hide_crumbs' => Input::post()->bool('hide_crumbs'),
             'sort_order' => $sortOrder,
             'lang' => (string) ($_POST['lang'] ?? $_GET['lang'] ?? Language::defaultCode()),
         ];

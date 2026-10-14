@@ -40,6 +40,14 @@ unset($crumbsClass);
 if ($firstIsHero) {
     [$content, $crumbsHtml] = PageHero::withCrumbs($content, $crumbsHtml);
 }
+// Флажки те же, что у страницы: проект — строка той же таблицы. Крошки,
+// встроенные в обложку, принадлежат обложке и остаются.
+if (!empty($project['hide_crumbs']) && !$firstIsHero) {
+    $crumbsHtml = '';
+}
+// Скрытый паспорт оставляет h1 визуально скрытым: без него у страницы
+// проекта не было бы главного заголовка ни для диктора, ни для поиска.
+$hideProjectHead = !$firstOwnsHeading && !empty($project['hide_title']);
 echo $crumbsHtml;
 
 $cover = trim((string) ($project['cover_image'] ?? ''));
@@ -49,7 +57,9 @@ $others = array_values(array_filter(
 ));
 ?>
 <article class="projdetail<?= $firstIsHero ? ' projdetail--hero' : '' ?>">
-    <?php if (!$firstOwnsHeading): ?>
+    <?php if ($hideProjectHead): ?>
+        <h1 class="visually-hidden"><?= htmlspecialchars((string) $project['title'], ENT_QUOTES) ?></h1>
+    <?php elseif (!$firstOwnsHeading): ?>
         <div class="projdetail-head<?= $cover === '' ? ' projdetail-head--no-media' : '' ?>">
             <div class="projdetail-head__info">
                 <span class="newsdetail__badge"><?= htmlspecialchars(t('Проект'), ENT_QUOTES) ?></span>
