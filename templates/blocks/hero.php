@@ -243,13 +243,20 @@ if ($mobileHeightMode === 'custom') {
         . ' .block-hero{min-height:clamp(360px,70vw,460px)}}';
 }
 
+$heroTitleSize = max(0, min(160, (int) ($data['title_size'] ?? 0)));
 $templateCss = ($heroRootStyle !== '' ? '#block-' . $blockId . ' .block-hero{' . $heroRootStyle . '}' : '')
     . ($mobileHeightCss !== '' ? "\n" . $mobileHeightCss : '')
     . (($hasMedia || $isSlider) && $overlayEnabled ? "\n#block-" . $blockId . ' .block-hero__scrim{' . $scrimStyle . '}' : '')
     . ($textStyle !== '' ? "\n#block-" . $blockId . ' .block-hero__text{' . $textStyle . '}' : '')
     // При размере темы переменная не печатается вовсе: у «Героев», собранных
     // до появления настройки, своего CSS от неё не появляется.
-    . ($btnIconSize > 0 ? "\n#block-" . $blockId . '{--hero-btn-icon:' . $btnIconSize . 'px}' : '');
+    . ($btnIconSize > 0 ? "\n#block-" . $blockId . '{--hero-btn-icon:' . $btnIconSize . 'px}' : '')
+    // Свой кегль заголовка. Правило с id блока весит больше правил темы, в том
+    // числе узкого экрана, поэтому сжатие описано здесь же: на 1200px и шире —
+    // ровно заданный размер, ниже — пропорционально ширине, но не мельче
+    // ступени заголовка страницы (и не крупнее заданного).
+    . ($heroTitleSize > 0 ? "\n#block-" . $blockId . ' .block-hero__title{font-size:clamp(min(var(--step-6),'
+        . $heroTitleSize . 'px),' . round($heroTitleSize / 12, 3) . 'vw,' . $heroTitleSize . 'px)}' : '');
 
 $youtubeEmbed = static function (string $id): string {
     $youtubeParams = [
