@@ -9,6 +9,17 @@ $title = trim((string) ($data['title'] ?? ''));
 $allText = trim((string) ($data['all_text'] ?? ''));
 $allUrl = trim((string) ($data['all_url'] ?? ''));
 $items = is_array($data['items'] ?? null) ? $data['items'] : [];
+// Поля карточки — простой текст. HTML в них приезжал из файла шаблона и из
+// записей, сохранённых до очистки на входе, и печатался кодом («<p>&ldquo;…»).
+foreach ($items as $itemKey => $itemRow) {
+    if (is_array($itemRow)) {
+        foreach (['title', 'text'] as $plainKey) {
+            if (isset($itemRow[$plainKey]) && is_string($itemRow[$plainKey])) {
+                $items[$itemKey][$plainKey] = \App\Core\TextProcessor::plainText($itemRow[$plainKey]);
+            }
+        }
+    }
+}
 // Значения проверены схемой полей (BlockFieldSchema) — читаем как есть.
 $variant = (string) $data['variant'];
 // «Текст под фото» — та же карточка, только подпись выносится из-под градиента
