@@ -854,6 +854,14 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .tquote--round.tquote--photo-top .tquote__figure,
 .tquote--round.tquote--photo-bottom .tquote__figure { gap: 24px; }
 .tquote--photo-align-center .tquote__photo { justify-self: center; }
+/* Портрет по центру — и цитата по центру: левый край текста под
+   центрированным снимком читался как ошибка вёрстки. Знак кавычки уходит
+   с поля слева наверх, над текстом. */
+.tquote--photo-align-center .tquote__body { text-align: center; }
+.tquote--photo-align-center .tquote__text { padding-inline-start: 0; padding-top: calc(var(--tquote-mark) * .5); }
+.tquote--photo-align-center .tquote__text::before { left: 50%; translate: -50% 0; }
+.tquote--photo-align-center .tquote__text p { margin-inline: auto; }
+.tquote--photo-align-center .tquote__author { justify-content: center; padding-inline-start: 0; }
 .tquote--photo-align-right .tquote__photo { justify-self: end; }
 /* Портрет во всю высоту сверху или снизу — полоса во всю ширину блока. */
 .tquote--tall.tquote--photo-top .tquote__photo,

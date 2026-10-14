@@ -125,7 +125,7 @@ test('Положение фото и выравнивание сверху/сн�
     assert_false(str_contains(testimonial_feature_html(['portrait' => 'mini', 'portrait_side' => 'top']), 'tquote--photo-'));
 
     $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public.min.css');
-    foreach (['.tquote--photo-right .tquote__photo', '.tquote--photo-bottom .tquote__photo', '.tquote--photo-align-center .tquote__photo', '.tquote--photo-align-right .tquote__photo'] as $selector) {
+    foreach (['.tquote--photo-right .tquote__photo', '.tquote--photo-bottom .tquote__photo', '.tquote--photo-align-center .tquote__photo', '.tquote--photo-align-right .tquote__photo', '.tquote--photo-align-center .tquote__body{text-align:center}'] as $selector) {
         assert_contains($selector, $css);
     }
 });
