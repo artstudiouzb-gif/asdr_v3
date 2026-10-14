@@ -204,7 +204,7 @@ $renderFields = static function (?array $item, bool $isCreate = false) use (
                     <input type="number" id="<?= $prefix ?>_icon_size" name="icon_size"
                            min="<?= MenuItem::ICON_SIZE_MIN ?>" max="<?= MenuItem::ICON_SIZE_MAX ?>" step="1"
                            value="<?= $iconSize > 0 ? $iconSize : '' ?>" placeholder="18">
-                    <span class="form-hint">Пусто — как в теме (18 px). От <?= MenuItem::ICON_SIZE_MIN ?> до <?= MenuItem::ICON_SIZE_MAX ?>.</span>
+                    <span class="form-hint">Высота иконки; ширина своей картинки — по её пропорциям. Пусто — как в теме (18 px). От <?= MenuItem::ICON_SIZE_MIN ?> до <?= MenuItem::ICON_SIZE_MAX ?>.</span>
                 </div>
 
                 <div class="form-field form-field--checkbox">

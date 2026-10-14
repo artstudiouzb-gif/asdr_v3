@@ -2120,7 +2120,9 @@ p { line-height: var(--base-line-height, 1.6); }/* --- Шапка: глубин�
 .site-menu__icon { display: inline-flex; align-items: center; }
 .site-menu__icon svg { width: var(--menu-icon-size, 18px); height: var(--menu-icon-size, 18px); display: block; }
 /* Размер иконки пункта — настройка меню, приходит переменной у самого пункта. */
-.site-menu__img { width: var(--menu-icon-size, 18px); height: var(--menu-icon-size, 18px); display: block; object-fit: contain; }
+/* Своя картинка пункта: размер задаёт высоту, ширина идёт по пропорциям файла —
+   логотип программы не квадратный, и вписывать его в квадрат значит сжать. */
+.site-menu__img { width: auto; height: var(--menu-icon-size, 18px); max-width: 320px; display: block; object-fit: contain; }
 .site-menu__img--light { display: none; }
 .site-menu__text { display: inline-block; }/* Разделитель в горизонтальном меню — тонкая вертикальная черта. */
 
