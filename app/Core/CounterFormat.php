@@ -36,6 +36,15 @@ final class CounterFormat
      * чем нужно на пять строк. Список держит одну или две колонки: в третьей
      * строка «число — подпись» становится уже самой подписи.
      */
+    /**
+     * Раскладки, где число главное: табло, главная цифра, мозаика, линейка.
+     * Подложку они рисуют сами, полосу пути к цели показывают у каждого
+     * показателя с целью.
+     *
+     * @var list<string>
+     */
+    public const COMPOSED = ['board', 'feature', 'bento', 'ruler'];
+
     public static function columns(string $variant, int $requested, int $count): int
     {
         $count = max(1, $count);

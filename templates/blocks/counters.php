@@ -37,18 +37,30 @@ $deltaStyle = (string) $data['delta_style'];
 $description = (string) ($data['description'] ?? '');
 $source = trim((string) ($data['source'] ?? ''));
 $columns = CounterFormat::columns($variant, (int) $data['columns'], count($items));
+// Раскладки, где число главное (табло, главная цифра, мозаика, линейка):
+// подложку они рисуют сами, иконку ставят на своё место, а полосу пути к
+// цели показывают у каждого показателя, где цель задана.
+$composed = in_array($variant, CounterFormat::COMPOSED, true);
+if ($composed) {
+    $panel = 'none';
+}
 
 $scope = '#block-' . (int) $blockId;
 $cstyle = '--counter-icon-size:' . $iconSize . 'px;--counter-icon-box-size:' . $iconBoxSize . 'px;'
     . ($cardBg !== '' ? '--counters-bg:' . $cardBg . ';' : '')
     . ($textColor !== '' ? '--counters-text:' . $textColor . ';' : '');
 $templateCss = $scope . ' .block-counters{' . $cstyle . '}';
+if ($variant === 'board') {
+    // Эмблема табло — маской абсолютным адресом: var(--gov-emblem) объявлена
+    // относительным url и из файла блока разрешается не туда.
+    $templateCss .= $scope . ' .block-counters{--counters-emblem:url("' . \App\Core\BlockBackground::emblemUrl() . '")}';
+}
 
 // «Полоса к цели» и «Шкала по годам» показывают путь от базы к цели
 // (CounterGoal). Показатель без цели остаётся обычным числом: полоса без
 // смысла хуже, чем её отсутствие. Доля уходит переменной в scoped CSS —
 // инлайн-стили в блоках запрещены тестами.
-$goalVariant = in_array($variant, ['progress', 'scale'], true);
+$goalVariant = in_array($variant, ['progress', 'scale'], true) || $composed;
 // Колонка иконок у списка появляется, только если иконка есть хоть у одного
 // показателя: пустая дорожка всё равно занимала бы промежуток слева.
 $hasIcons = (bool) array_filter($items, static fn (array $item): bool => ($item['icon_svg'] ?? '') !== '' || ($item['icon_image'] ?? '') !== '');
@@ -61,7 +73,7 @@ if ($balance !== null) {
     $templateCss .= $scope . ' .block-counters{--counters-tracks:' . $balance['tracks']
         . ';--counters-span:' . $balance['span'] . ';--counters-tail-span:' . $balance['tail_span'] . '}';
 }
-if ($variant === 'lead' && count($items) > 1) {
+if (in_array($variant, ['lead', 'feature'], true) && count($items) > 1) {
     // Главный показатель стоит рядом со всеми остальными сразу: сколько строк
     // у списка справа, на столько он и тянется.
     $templateCss .= $scope . ' .block-counters{--counters-rest:' . (count($items) - 1) . '}';
@@ -79,7 +91,8 @@ $blockClasses = 'block-counters'
     . ($hasIcons ? ' block-counters--has-icons' : '')
     . ($textColor !== '' ? ' block-counters--custom-text' : '')
     . ($balance !== null ? ' block-counters--balanced' : '')
-    . ($variant === 'lead' && count($items) === 1 ? ' block-counters--lead-only' : '');
+    . ($composed ? ' block-counters--composed' : '')
+    . (in_array($variant, ['lead', 'feature'], true) && count($items) === 1 ? ' block-counters--lead-only' : '');
 ?>
 <div class="<?= htmlspecialchars($blockClasses, ENT_QUOTES) ?>">
     <?= SectionHead::render(['title' => $title, 'description' => $description]) ?>
@@ -120,7 +133,7 @@ $blockClasses = 'block-counters'
             $classes = 'counter'
                 . ($link !== '' ? ' counter--link' : '')
                 . ($goal !== null ? ' counter--goal' : '')
-                . ($variant === 'lead' && $n === 0 ? ' counter--lead' : '')
+                . (in_array($variant, ['lead', 'feature'], true) && $n === 0 ? ' counter--lead' : '')
                 . ($balance !== null && $n >= count($items) - $balance['tail'] ? ' counter--tail' : '')
                 // На планшете колонок две, и нечётный последний встаёт во всю
                 // ширину — та же причина, что у хвоста выше.
@@ -158,7 +171,7 @@ $blockClasses = 'block-counters'
                         . htmlspecialchars($number, ENT_QUOTES);
                 ?>
                     </div>
-                    <?php if ($variant === 'progress'): ?>
+                    <?php if ($variant !== 'scale'): ?>
                         <div class="counter__goal">
                             <span class="counter__track" role="img" aria-label="<?= htmlspecialchars($goalLabel, ENT_QUOTES) ?>"><span class="counter__fill"></span><span class="counter__tick"></span></span>
                             <span class="counter__goal-foot">
