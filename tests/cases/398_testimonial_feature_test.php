@@ -108,3 +108,24 @@ test('Размер текста цитаты доходит до вывода; �
         assert_contains('.tquote--size-' . $size . ' .tquote__text', $css, 'у размера «' . $size . '» нет правила');
     }
 });
+
+test('Положение фото и выравнивание сверху/снизу доходят до вывода; «слева» — прежний вид', function (): void {
+    $fields = BlockFieldSchema::all()['testimonials'];
+    assert_same(['left', 'right', 'top', 'bottom'], array_keys($fields['portrait_side']->options));
+    assert_same(['field' => 'portrait_side', 'values' => ['top', 'bottom']], $fields['portrait_align']->when, 'выравнивание видно только при фото сверху или снизу');
+
+    assert_false(str_contains(testimonial_feature_html(['portrait' => 'round']), 'tquote--photo-'));
+    assert_contains('tquote--photo-right', testimonial_feature_html(['portrait' => 'round', 'portrait_side' => 'right']));
+    $top = testimonial_feature_html(['portrait' => 'round', 'portrait_side' => 'top', 'portrait_align' => 'center']);
+    assert_contains('tquote--photo-top', $top);
+    assert_contains('tquote--photo-align-center', $top);
+    // Выравнивание без положения сверху/снизу смысла не имеет и не печатается.
+    assert_false(str_contains(testimonial_feature_html(['portrait' => 'round', 'portrait_side' => 'right', 'portrait_align' => 'center']), 'photo-align'));
+    // У маленького портрета место одно — у подписи.
+    assert_false(str_contains(testimonial_feature_html(['portrait' => 'mini', 'portrait_side' => 'top']), 'tquote--photo-'));
+
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public.min.css');
+    foreach (['.tquote--photo-right .tquote__photo', '.tquote--photo-bottom .tquote__photo', '.tquote--photo-align-center .tquote__photo', '.tquote--photo-align-right .tquote__photo'] as $selector) {
+        assert_contains($selector, $css);
+    }
+});
