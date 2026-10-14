@@ -410,6 +410,9 @@ final class BlockFieldSchema
                 )
                     ->onlyWhen('layout', ['track'])
                     ->group('Вид'),
+                'show_status' => Field::bool('Показывать метку состояния (завершён, в процессе, запланирован)', true)
+                    ->onlyWhen('layout', ['track'])
+                    ->group('Вид'),
                 'autoplay' => Field::int('Автопрокрутка, секунд (0 — выключена)', 0, 30, 0)
                     ->onlyWhen('layout', ['track'])
                     ->group('Вид'),
