@@ -38,3 +38,28 @@ test('Страница: «Скрыть заголовок» убирает ша�
     assert_contains('<h1 class="visually-hidden">Стратегия 2030</h1>', $hidden);
     assert_contains('Тело страницы', $hidden);
 });
+
+// Проект — строка той же таблицы, и флажки у него те же: паспорт скрывается,
+// h1 остаётся визуально скрытым, крошки уходят своим флажком.
+test('Проект: «Скрыть заголовок» и «Скрыть хлебные крошки» (БД)', function (): void {
+    ensure_test_db();
+    $_SESSION = $_SESSION ?? [];
+    $render = static fn (array $extra): string => View::renderPartial('site/project_show', [
+        'project' => ['id' => 0, 'title' => 'Davlat boshqaruvi', 'slug' => 'davlat', 'description' => 'Anons matni',
+            'cover_image' => '', 'lang' => 'uz'] + $extra,
+        'content' => '<section class="cms-block"><p>Loyiha matni</p></section>',
+        'blockCss' => '',
+    ]);
+
+    $shown = $render([]);
+    assert_contains('projdetail__title', $shown);
+    assert_contains('content-crumbs', $shown);
+
+    $hidden = $render(['hide_title' => 1]);
+    assert_not_contains('projdetail__title', $hidden);
+    assert_not_contains('projdetail__lead', $hidden);
+    assert_contains('<h1 class="visually-hidden">Davlat boshqaruvi</h1>', $hidden);
+    assert_contains('content-crumbs', $hidden);
+
+    assert_not_contains('content-crumbs', $render(['hide_title' => 1, 'hide_crumbs' => 1]));
+});
