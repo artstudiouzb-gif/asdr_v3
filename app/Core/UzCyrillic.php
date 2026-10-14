@@ -18,6 +18,19 @@ namespace App\Core;
  */
 final class UzCyrillic
 {
+    /**
+     * Настройка «Языки» → «Узбекская кириллица». Выключенная убирает пункт
+     * «Ўзбекча» из переключателя языков и перестаёт переводить страницу даже
+     * тем, у кого в cookie осталась кириллица: иначе посетитель застрял бы в
+     * режиме, из которого переключателю уже нечем его вывести.
+     */
+    public const SETTING = 'uz_cyrillic_enabled';
+
+    public static function enabled(): bool
+    {
+        return \App\Models\Setting::get(self::SETTING, '1') !== '0';
+    }
+
     /** Теги, внутри которых текст не трогаем. */
     private const SKIP_TAGS = ['script', 'style', 'code', 'pre', 'textarea', 'kbd', 'samp'];
 

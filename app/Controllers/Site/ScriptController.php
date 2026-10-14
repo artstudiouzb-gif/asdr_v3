@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Site;
 
 use App\Core\A11ySettings;
+use App\Core\UzCyrillic;
 
 /**
  * Переключение письменности узбекского текста: латиница ↔ кириллица.
@@ -17,7 +18,9 @@ final class ScriptController
     /** @param array<string, string> $params */
     public function switch(array $params): void
     {
-        A11ySettings::rememberScript((string) ($params['code'] ?? 'latn'));
+        // Выключенная кириллица не включается и старой ссылкой из закладок.
+        $code = UzCyrillic::enabled() ? (string) ($params['code'] ?? 'latn') : 'latn';
+        A11ySettings::rememberScript($code);
 
         header('Location: ' . self::safeRedirect((string) ($_GET['to'] ?? '/')), true, 302);
         exit;
