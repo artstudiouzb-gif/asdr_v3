@@ -70,6 +70,11 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                 <label for="title_field">Заголовок, показываемый на сайте</label>
                 <input type="text" id="title_field" name="title_field" value="<?= htmlspecialchars($data['title'] ?? '', ENT_QUOTES) ?>">
             </div>
+            <div class="form-field">
+                <label for="title_size">Размер заголовка, px</label>
+                <input type="number" id="title_size" name="title_size" min="0" max="160" step="1" value="<?= (int) ($data['title_size'] ?? 0) ?: '' ?>" placeholder="как в теме">
+                <span class="form-hint">Пусто — размер темы. На узком экране заголовок уменьшается пропорционально, но не мельче обычного заголовка страницы.</span>
+            </div>
         <?php endif; ?>
 
         <?php if ($type === 'text'): ?>
