@@ -69,3 +69,28 @@ test('Росчерк выводится только при выбранном �
     }
     assert_contains('class="tquote__sign" aria-hidden="true">Имя Фамилия', $html);
 });
+
+test('Размер и форма портрета слева доходят до вывода; умолчание вида не меняет', function (): void {
+    $fields = BlockFieldSchema::all()['testimonials'];
+    assert_same(['circle', 'rounded', 'square', 'arch', 'oval'], array_keys($fields['portrait_shape']->options));
+    assert_same(144, $fields['portrait_size']->default);
+
+    $default = BlockRenderer::render([
+        'id' => 398, 'type' => 'testimonials', 'custom_css' => '',
+        'data' => json_encode(['variant' => 'feature', 'portrait' => 'round', 'items' => [['quote' => 'Мысль', 'photo' => '/uploads/public/test.jpg']]]),
+    ]);
+    assert_false(str_contains((string) $default['html'], 'tquote--shape-'), 'круг — умолчание без класса');
+    assert_false(str_contains((string) ($default['css'] ?? ''), '--tquote-photo'), 'размер по умолчанию в scoped CSS не печатается');
+
+    $custom = BlockRenderer::render([
+        'id' => 398, 'type' => 'testimonials', 'custom_css' => '',
+        'data' => json_encode(['variant' => 'feature', 'portrait' => 'round', 'portrait_size' => 220, 'portrait_shape' => 'arch', 'items' => [['quote' => 'Мысль', 'photo' => '/uploads/public/test.jpg']]]),
+    ]);
+    assert_contains('tquote--shape-arch', (string) $custom['html']);
+    assert_contains('--tquote-photo:220px', json_encode($custom, JSON_UNESCAPED_SLASHES) ?: '');
+
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public.min.css');
+    foreach (['rounded', 'square', 'arch', 'oval'] as $shape) {
+        assert_contains('.tquote--shape-' . $shape . ' .tquote__photo', $css, 'у формы «' . $shape . '» нет правила');
+    }
+});

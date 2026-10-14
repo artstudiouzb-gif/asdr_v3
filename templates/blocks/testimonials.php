@@ -48,8 +48,16 @@ if ($variant === 'feature'):
     if ($quote === '') {
         return;
     }
-    $classes = 'block-testimonials block-testimonials--feature tquote tquote--' . $portrait . ($photo !== '' ? ' tquote--has-photo' : '');
-    $sizes = $portrait === 'tall' ? '(max-width: 720px) 100vw, 40vw' : ($portrait === 'mini' ? '56px' : '160px');
+    $shape = (string) $data['portrait_shape'];
+    $portraitSize = (int) $data['portrait_size'];
+    $classes = 'block-testimonials block-testimonials--feature tquote tquote--' . $portrait
+        . ($photo !== '' ? ' tquote--has-photo' : '')
+        . ($portrait === 'round' && $shape !== 'circle' ? ' tquote--shape-' . $shape : '');
+    // Размер по умолчанию в scoped CSS не печатается: у собранных блоков вид прежний.
+    if ($portrait === 'round' && $portraitSize !== 144) {
+        $templateCss .= '#block-' . $blockId . ' .tquote{--tquote-photo:' . $portraitSize . 'px}';
+    }
+    $sizes = $portrait === 'tall' ? '(max-width: 720px) 100vw, 40vw' : ($portrait === 'mini' ? '56px' : max(160, $portraitSize) . 'px');
     $pictureHtml = $photo !== '' ? \App\Core\Media::picture($photo, $name, null, null, 'tquote__img', true, $sizes) : '';
     ?>
 <div class="<?= $classes ?>">
