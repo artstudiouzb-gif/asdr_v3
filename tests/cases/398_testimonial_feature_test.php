@@ -94,3 +94,17 @@ test('Размер и форма портрета слева доходят до
         assert_contains('.tquote--shape-' . $shape . ' .tquote__photo', $css, 'у формы «' . $shape . '» нет правила');
     }
 });
+
+test('Размер текста цитаты доходит до вывода; «средний» — прежний вид без класса', function (): void {
+    $fields = BlockFieldSchema::all()['testimonials'];
+    assert_same(['s', 'm', 'l', 'xl'], array_keys($fields['quote_size']->options));
+    assert_same('m', $fields['quote_size']->default);
+
+    assert_false(str_contains(testimonial_feature_html(['portrait' => 'round']), 'tquote--size-'));
+    assert_contains('tquote--size-xl', testimonial_feature_html(['portrait' => 'round', 'quote_size' => 'xl']));
+
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public.min.css');
+    foreach (['s', 'l', 'xl'] as $size) {
+        assert_contains('.tquote--size-' . $size . ' .tquote__text', $css, 'у размера «' . $size . '» нет правила');
+    }
+});

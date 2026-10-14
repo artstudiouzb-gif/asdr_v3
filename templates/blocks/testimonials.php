@@ -52,7 +52,9 @@ if ($variant === 'feature'):
     $portraitSize = (int) $data['portrait_size'];
     $classes = 'block-testimonials block-testimonials--feature tquote tquote--' . $portrait
         . ($photo !== '' ? ' tquote--has-photo' : '')
-        . ($portrait === 'round' && $shape !== 'circle' ? ' tquote--shape-' . $shape : '');
+        . ($portrait === 'round' && $shape !== 'circle' ? ' tquote--shape-' . $shape : '')
+        // «Средний» — прежний кегль, класса у него нет.
+        . ((string) $data['quote_size'] !== 'm' ? ' tquote--size-' . (string) $data['quote_size'] : '');
     // Размер по умолчанию в scoped CSS не печатается: у собранных блоков вид прежний.
     if ($portrait === 'round' && $portraitSize !== 144) {
         $templateCss .= '#block-' . $blockId . ' .tquote{--tquote-photo:' . $portraitSize . 'px}';
