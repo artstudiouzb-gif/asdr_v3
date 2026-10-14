@@ -44,11 +44,11 @@
     },
     "/assets/css/blocks/cards-layouts.css": {
       "path": "/assets/css/blocks/cards-layouts.min.css",
-      "sourceSha256": "bab27f2cf124e8f19b560d066ed8c496abe3d879cc31f7f554882ec041a03929",
-      "sha256": "624f9fe0497c192aa19ca6ca2f5f76b730685de4e3b8878e3a62e3c6d2e82bff",
-      "raw": 7107,
-      "gzip": 1734,
-      "brotli": 1474
+      "sourceSha256": "05a286a962e1a92e73408f01857034090a60fdf6ad3cfeb33cef16f77ba48da9",
+      "sha256": "babd84e237886ddc62979345325e4a99af3347ab945397c97d68ed0cdb71d528",
+      "raw": 7308,
+      "gzip": 1770,
+      "brotli": 1515
     },
     "/assets/css/blocks/catalog.css": {
       "path": "/assets/css/blocks/catalog.min.css",
