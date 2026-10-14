@@ -103,18 +103,26 @@ $logoHtml .= '</a>';
 
 // --- Меню ---
 // Иконка пункта — имя иконки Tabler (home, file-text, news) или своя картинка.
-$renderMenuIcon = static function (mixed $iconName, mixed $iconImage = null): string {
-    // Своя картинка (SVG/PNG из медиатеки) главнее иконки каталога.
-    $image = MenuItem::cleanIconImage($iconImage);
+$renderMenuIcon = static function (array $item): string {
+    // Размер — класс из закрытого набора: инлайн-стилей шапка не печатает.
+    $size = MenuItem::cleanIconSize($item['icon_size'] ?? 0);
+    $class = 'site-menu__icon' . ($size > 0 ? ' site-menu__icon--s' . $size : '');
+    // Своя картинка (SVG/PNG из медиатеки) главнее иконки каталога. Светлый
+    // вариант лежит рядом и подменяет обычный на тёмном фоне — тем же
+    // правилом, что светлый логотип шапки.
+    $image = MenuItem::cleanIconImage($item['icon_image'] ?? null);
     if ($image !== null) {
-        return '<span class="site-menu__icon" aria-hidden="true"><img class="site-menu__img" src="'
-            . htmlspecialchars($image, ENT_QUOTES) . '" alt="" width="18" height="18" decoding="async"></span>';
+        $img = static fn (string $src, string $mod): string => '<img class="site-menu__img' . $mod . '" src="'
+            . htmlspecialchars($src, ENT_QUOTES) . '" alt="" width="18" height="18" decoding="async">';
+        $light = MenuItem::cleanIconImage($item['icon_image_light'] ?? null);
+        return '<span class="' . $class . '" aria-hidden="true">' . $img($image, ' site-menu__img--std')
+            . ($light !== null ? $img($light, ' site-menu__img--light') : '') . '</span>';
     }
-    $name = \App\Core\Icon::cleanName($iconName);
+    $name = \App\Core\Icon::cleanName($item['icon_svg'] ?? '');
     if ($name === '') {
         return '';
     }
-    return '<span class="site-menu__icon" aria-hidden="true">'
+    return '<span class="' . $class . '" aria-hidden="true">'
         . \App\Core\Icon::render($name, 18, 'site-menu__svg') . '</span>';
 };
 // --- Определение активного пункта меню по URL ---
@@ -166,7 +174,7 @@ if (!empty($menuItems)) {
         }
 
         $url = MenuItem::resolveUrl($mi, $currentLang);
-        $icon = $renderMenuIcon($mi['icon_svg'] ?? '', $mi['icon_image'] ?? null);
+        $icon = $renderMenuIcon($mi);
         $isIconOnly = !empty($mi['hide_title']) && $icon !== '';
         $textClass = $isIconOnly ? 'site-menu__text site-menu__text--hidden' : 'site-menu__text';
         $iconOnlyClass = $isIconOnly ? ' site-menu__link--icon-only' : '';
@@ -209,7 +217,7 @@ if (!empty($menuItems)) {
             if ($isChildActive) {
                 $hasActiveChild = true;
             }
-            $childIcon = $renderMenuIcon($child['icon_svg'] ?? '', $child['icon_image'] ?? null);
+            $childIcon = $renderMenuIcon($child);
             $isChildIconOnly = !empty($child['hide_title']) && $childIcon !== '';
             $cTextClass = $isChildIconOnly ? 'site-menu__text site-menu__text--hidden' : 'site-menu__text';
             $cIconOnlyClass = $isChildIconOnly ? ' site-submenu__link--icon-only' : '';

@@ -17,3 +17,17 @@ test('Menu icon image: only image paths are accepted', function (): void {
         assert_same(null, MenuItem::cleanIconImage($bad), 'принято: ' . var_export($bad, true));
     }
 });
+
+// Размер уходит в шапку классом, и у каждого значения набора обязано быть
+// правило — иначе настройка молча ничего не меняет.
+test('Menu icon size: closed set, every size has a rule', function (): void {
+    assert_same(24, MenuItem::cleanIconSize('24'));
+    assert_same(0, MenuItem::cleanIconSize('23'));
+    assert_same(0, MenuItem::cleanIconSize(['24']));
+    $css = (string) file_get_contents(dirname(__DIR__, 2) . '/public/assets/css/frontend.css');
+    foreach (MenuItem::ICON_SIZES as $size) {
+        if ($size !== 18) {
+            assert_contains('.site-menu__icon--s' . $size . ' .site-menu__img { width: ' . $size . 'px', $css);
+        }
+    }
+});

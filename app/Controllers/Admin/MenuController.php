@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Flash;
 use App\Core\ImageField;
+use App\Core\Input;
 use App\Core\View;
 use App\Models\Language;
 use App\Models\MenuItem;
@@ -206,6 +207,8 @@ final class MenuController
                 'lang' => $lang,
                 'icon_svg' => null,
                 'icon_image' => null,
+                'icon_image_light' => null,
+                'icon_size' => 0,
                 'is_divider' => true,
                 'url_type' => 'custom',
                 'url_value' => null,
@@ -241,11 +244,14 @@ final class MenuController
         // это знак, которого в Tabler нет (герб, логотип программы).
         try {
             $iconImage = ImageField::resolve('icon_image_file', 'icon_image', $existing['icon_image'] ?? null, Auth::id());
+            $iconImageLight = ImageField::resolve('icon_image_light_file', 'icon_image_light', $existing['icon_image_light'] ?? null, Auth::id());
         } catch (\Throwable $e) {
             return [[], 'Не удалось загрузить иконку: ' . $e->getMessage()];
         }
-        if ($iconImage !== null && $iconImage !== '' && MenuItem::cleanIconImage($iconImage) === null) {
-            return [[], 'Иконка должна быть картинкой SVG, PNG, WebP, JPG или GIF из медиатеки.'];
+        foreach ([$iconImage, $iconImageLight] as $candidate) {
+            if ($candidate !== null && $candidate !== '' && MenuItem::cleanIconImage($candidate) === null) {
+                return [[], 'Иконка должна быть картинкой SVG, PNG, WebP, JPG или GIF из медиатеки.'];
+            }
         }
 
         $parentRaw = trim((string) ($_POST['parent_id'] ?? ''));
@@ -259,6 +265,8 @@ final class MenuController
             'lang' => $lang,
             'icon_svg' => $iconSvg,
             'icon_image' => $iconImage,
+            'icon_image_light' => $iconImageLight,
+            'icon_size' => MenuItem::cleanIconSize(Input::post()->int('icon_size')),
             'hide_title' => !empty($_POST['hide_title']),
             'badge_text' => $badgeText !== '' ? $badgeText : null,
             'badge_color' => $badgeColor,

@@ -2120,6 +2120,15 @@ p { line-height: var(--base-line-height, 1.6); }/* --- Шапка: глубин�
 .site-menu__icon { display: inline-flex; align-items: center; }
 .site-menu__icon svg { width: 18px; height: 18px; display: block; }
 .site-menu__img { width: 18px; height: 18px; display: block; object-fit: contain; }
+/* Размер иконки пункта — настройка меню (MenuItem::ICON_SIZES). */
+.site-menu__icon--s16 svg, .site-menu__icon--s16 .site-menu__img { width: 16px; height: 16px; }
+.site-menu__icon--s20 svg, .site-menu__icon--s20 .site-menu__img { width: 20px; height: 20px; }
+.site-menu__icon--s24 svg, .site-menu__icon--s24 .site-menu__img { width: 24px; height: 24px; }
+.site-menu__icon--s28 svg, .site-menu__icon--s28 .site-menu__img { width: 28px; height: 28px; }
+.site-menu__icon--s32 svg, .site-menu__icon--s32 .site-menu__img { width: 32px; height: 32px; }
+.site-menu__icon--s40 svg, .site-menu__icon--s40 .site-menu__img { width: 40px; height: 40px; }
+.site-menu__icon--s48 svg, .site-menu__icon--s48 .site-menu__img { width: 48px; height: 48px; }
+.site-menu__img--light { display: none; }
 .site-menu__text { display: inline-block; }/* Разделитель в горизонтальном меню — тонкая вертикальная черта. */
 
 .site-menu__divider {

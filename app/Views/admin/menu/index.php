@@ -187,8 +187,28 @@ $renderFields = static function (?array $item, bool $isCreate = false) use (
                     'label' => 'Своя иконка (SVG или PNG)',
                     'file' => 'icon_image_file',
                     'accept' => 'image/svg+xml,image/png,image/webp',
-                    'hint' => 'Заменяет иконку из каталога. Выводится квадратом 18×18 — лучше SVG или PNG с прозрачным фоном.',
+                    'hint' => 'Заменяет иконку из каталога. Лучше SVG или PNG с прозрачным фоном.',
                 ]) ?>
+
+                <?= AdminUi::imageField('icon_image_light', (string) ($item['icon_image_light'] ?? ''), [
+                    'id' => $prefix . '_icon_image_light',
+                    'label' => 'Иконка для прозрачной шапки и тёмной темы',
+                    'file' => 'icon_image_light_file',
+                    'accept' => 'image/svg+xml,image/png,image/webp',
+                    'hint' => 'Светлый вариант своей иконки — для тёмного фона. Пусто — везде обычная.',
+                ]) ?>
+
+                <div class="form-field">
+                    <label for="<?= $prefix ?>_icon_size">Размер иконки</label>
+                    <select id="<?= $prefix ?>_icon_size" name="icon_size">
+                        <?php $iconSize = MenuItem::cleanIconSize($item['icon_size'] ?? 0); ?>
+                        <option value="0" <?= $iconSize === 0 ? 'selected' : '' ?>>Как в теме (18 px)</option>
+                        <?php foreach (MenuItem::ICON_SIZES as $sizeOption): ?>
+                            <?php if ($sizeOption === 18) { continue; } ?>
+                            <option value="<?= $sizeOption ?>" <?= $iconSize === $sizeOption ? 'selected' : '' ?>><?= $sizeOption ?> px</option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
                 <div class="form-field form-field--checkbox">
                     <input type="checkbox" id="<?= $prefix ?>_hide_title" name="hide_title" value="1"
