@@ -135,13 +135,14 @@ final class MenuItem
         $nextOrder = (int) $stmt->fetchColumn();
 
         $stmt = Database::pdo()->prepare(
-            'INSERT INTO menu_items (lang, title, icon_svg, hide_title, badge_text, badge_color, badge_pos, is_divider, url_type, url_value, parent_id, mega_columns, sort_order, is_active, created_at)
-             VALUES (:lang, :title, :icon_svg, :hide_title, :badge_text, :badge_color, :badge_pos, :is_divider, :url_type, :url_value, :parent_id, :mega_columns, :sort_order, :is_active, NOW())'
+            'INSERT INTO menu_items (lang, title, icon_svg, icon_image, hide_title, badge_text, badge_color, badge_pos, is_divider, url_type, url_value, parent_id, mega_columns, sort_order, is_active, created_at)
+             VALUES (:lang, :title, :icon_svg, :icon_image, :hide_title, :badge_text, :badge_color, :badge_pos, :is_divider, :url_type, :url_value, :parent_id, :mega_columns, :sort_order, :is_active, NOW())'
         );
         $stmt->execute([
             ':lang' => $lang,
             ':title' => $data['title'],
             ':icon_svg' => self::cleanIcon($data['icon_svg'] ?? null),
+            ':icon_image' => self::cleanIconImage($data['icon_image'] ?? null),
             ':hide_title' => !empty($data['hide_title']) ? 1 : 0,
             ':badge_text' => self::cleanBadgeText($data['badge_text'] ?? null),
             ':badge_color' => self::cleanBadgeColor($data['badge_color'] ?? null),
@@ -183,7 +184,7 @@ final class MenuItem
         }
 
         $stmt = Database::pdo()->prepare(
-            'UPDATE menu_items SET lang = :lang, title = :title, icon_svg = :icon_svg, hide_title = :hide_title,
+            'UPDATE menu_items SET lang = :lang, title = :title, icon_svg = :icon_svg, icon_image = :icon_image, hide_title = :hide_title,
              badge_text = :badge_text, badge_color = :badge_color, badge_pos = :badge_pos,
              is_divider = :is_divider, url_type = :url_type, url_value = :url_value,
              parent_id = :parent_id, mega_columns = :mega_columns,
@@ -193,6 +194,7 @@ final class MenuItem
             ':lang' => $lang,
             ':title' => $data['title'],
             ':icon_svg' => self::cleanIcon($data['icon_svg'] ?? null),
+            ':icon_image' => self::cleanIconImage($data['icon_image'] ?? null),
             ':hide_title' => !empty($data['hide_title']) ? 1 : 0,
             ':badge_text' => self::cleanBadgeText($data['badge_text'] ?? null),
             ':badge_color' => self::cleanBadgeColor($data['badge_color'] ?? null),
@@ -248,6 +250,23 @@ final class MenuItem
         $name = Icon::cleanName($svg);
 
         return $name !== '' ? $name : null;
+    }
+
+    /**
+     * Своя иконка пункта — адрес картинки (SVG/PNG и т.п.) из медиатеки.
+     * Значение уходит в src шапки на каждой странице, поэтому принимается
+     * только свой путь от корня или https-адрес картинки: подделанная форма
+     * не должна протащить в атрибут ни схему, ни кавычку.
+     */
+    public static function cleanIconImage(mixed $url): ?string
+    {
+        $url = is_string($url) ? trim($url) : '';
+        if ($url === '' || mb_strlen($url) > 500) {
+            return null;
+        }
+        $ok = preg_match('~^(?:/(?!/)|https://)[^\s"\'<>\\\\]+\.(?:svg|png|webp|jpe?g|gif|avif)(?:\?[^\s"\'<>]*)?$~i', $url) === 1;
+
+        return $ok ? $url : null;
     }
 
     /**
@@ -651,16 +670,17 @@ final class MenuItem
     ): int {
         $stmt = $pdo->prepare(
             'INSERT INTO menu_items
-             (lang, title, icon_svg, hide_title, badge_text, badge_color, badge_pos, is_divider,
+             (lang, title, icon_svg, icon_image, hide_title, badge_text, badge_color, badge_pos, is_divider,
               url_type, url_value, parent_id, mega_columns, sort_order, is_active, created_at)
              VALUES
-             (:lang, :title, :icon_svg, :hide_title, :badge_text, :badge_color, :badge_pos, :is_divider,
+             (:lang, :title, :icon_svg, :icon_image, :hide_title, :badge_text, :badge_color, :badge_pos, :is_divider,
               :url_type, :url_value, :parent_id, :mega_columns, :sort_order, :is_active, NOW())'
         );
         $stmt->execute([
             ':lang' => $item['lang'],
             ':title' => $item['title'],
             ':icon_svg' => $item['icon_svg'] ?? null,
+            ':icon_image' => self::cleanIconImage($item['icon_image'] ?? null),
             ':hide_title' => !empty($item['hide_title']) ? 1 : 0,
             ':badge_text' => $item['badge_text'] ?? null,
             ':badge_color' => $item['badge_color'] ?? 'red',

@@ -102,8 +102,14 @@ if ($logo !== '') {
 $logoHtml .= '</a>';
 
 // --- Меню ---
-// В меню хранится только имя иконки Tabler (напр. home, file-text, news).
-$renderMenuIcon = static function (mixed $iconName): string {
+// Иконка пункта — имя иконки Tabler (home, file-text, news) или своя картинка.
+$renderMenuIcon = static function (mixed $iconName, mixed $iconImage = null): string {
+    // Своя картинка (SVG/PNG из медиатеки) главнее иконки каталога.
+    $image = MenuItem::cleanIconImage($iconImage);
+    if ($image !== null) {
+        return '<span class="site-menu__icon" aria-hidden="true"><img class="site-menu__img" src="'
+            . htmlspecialchars($image, ENT_QUOTES) . '" alt="" width="18" height="18" decoding="async"></span>';
+    }
     $name = \App\Core\Icon::cleanName($iconName);
     if ($name === '') {
         return '';
@@ -160,7 +166,7 @@ if (!empty($menuItems)) {
         }
 
         $url = MenuItem::resolveUrl($mi, $currentLang);
-        $icon = $renderMenuIcon($mi['icon_svg'] ?? '');
+        $icon = $renderMenuIcon($mi['icon_svg'] ?? '', $mi['icon_image'] ?? null);
         $isIconOnly = !empty($mi['hide_title']) && $icon !== '';
         $textClass = $isIconOnly ? 'site-menu__text site-menu__text--hidden' : 'site-menu__text';
         $iconOnlyClass = $isIconOnly ? ' site-menu__link--icon-only' : '';
@@ -203,7 +209,7 @@ if (!empty($menuItems)) {
             if ($isChildActive) {
                 $hasActiveChild = true;
             }
-            $childIcon = $renderMenuIcon($child['icon_svg'] ?? '');
+            $childIcon = $renderMenuIcon($child['icon_svg'] ?? '', $child['icon_image'] ?? null);
             $isChildIconOnly = !empty($child['hide_title']) && $childIcon !== '';
             $cTextClass = $isChildIconOnly ? 'site-menu__text site-menu__text--hidden' : 'site-menu__text';
             $cIconOnlyClass = $isChildIconOnly ? ' site-submenu__link--icon-only' : '';
