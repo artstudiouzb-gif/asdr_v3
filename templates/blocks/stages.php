@@ -26,6 +26,10 @@ $items = is_array($data['items'] ?? null) ? array_values($data['items']) : [];
 $columns = (int) $data['columns'];
 $autoplay = (int) $data['autoplay'];
 $statusLabels = ['done' => t('Завершён'), 'active' => t('В процессе'), 'planned' => t('Запланирован')];
+// Метка состояния нужна плану работ; истории организации, где все события
+// давно прошли, она повторяет очевидное на каждой карточке.
+$showStatus = (bool) $data['show_status'];
+$statusIcons = ['done' => 'circle-check', 'active' => 'progress', 'planned' => 'clock'];
 
 /*
  * Статус события. У записей, заведённых до его появления, статуса нет вовсе:
@@ -195,13 +199,16 @@ if ($carousel) {
                 $stageTag = $stageUrl !== '' ? 'a' : 'span';
                 ?>
                 <li class="stage stage--<?= $status ?><?= $nextStatus !== '' ? ' stage--next-' . $nextStatus : '' ?>"<?= $carousel ? ' data-carousel-item' : '' ?>>
-                    <span class="stage__dot"></span>
+                    <?php // Галочка в точке — пройденный этап читается без метки и без цвета. ?>
+                    <span class="stage__dot"><?= $status === 'done' && $variant === 'default' ? Icon::render('check', 10, 'stage__dot-icon', 3.0) : '' ?></span>
                     <<?= $stageTag ?> class="stage__body<?= $stageUrl !== '' ? ' stage__body--link' : '' ?>"<?= $stageUrl !== '' ? ' href="' . htmlspecialchars($stageUrl, ENT_QUOTES) . '"' : '' ?>>
                         <span class="stage__year"><?= htmlspecialchars((string) ($item['year'] ?? ''), ENT_QUOTES) ?></span>
                         <?php if (!empty($item['stage'])): ?><span class="stage__label"><?= htmlspecialchars((string) $item['stage'], ENT_QUOTES) ?></span><?php endif; ?>
                         <?php if (!empty($item['title'])): ?><span class="stage__title"><?= htmlspecialchars((string) $item['title'], ENT_QUOTES) ?></span><?php endif; ?>
                         <?php if (!empty($item['text'])): ?><span class="stage__text"><?= htmlspecialchars((string) $item['text'], ENT_QUOTES) ?></span><?php endif; ?>
-                        <span class="stage__status"><?= htmlspecialchars((string) ($item['status_text'] ?? '') !== '' ? (string) $item['status_text'] : $statusLabels[$status], ENT_QUOTES) ?></span>
+                        <?php if ($showStatus): ?>
+                            <span class="stage__status"><?= Icon::render($statusIcons[$status], 14, 'stage__status-icon') ?><?= htmlspecialchars((string) ($item['status_text'] ?? '') !== '' ? (string) $item['status_text'] : $statusLabels[$status], ENT_QUOTES) ?></span>
+                        <?php endif; ?>
                     </<?= $stageTag ?>>
                 </li>
             <?php endforeach; ?>

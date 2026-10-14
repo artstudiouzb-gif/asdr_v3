@@ -2903,7 +2903,16 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     border: 1px solid var(--gov-border);
     background: color-mix(in srgb, var(--gov-muted) 6%, var(--gov-bg));
     color: var(--gov-muted);
-}/* Текст + фото («О проекте»). *//* Доля кадра настраивается в блоке — долями fr, а не процентами: проценты
+}
+/* Иконка состояния стоит в метке перед словом: состояние читается по форме,
+   а не только по цвету (WCAG 1.4.1). Ширина метки по-прежнему по тексту. */
+.stage__status { display: inline-flex; align-items: center; gap: 6px; padding-inline-start: 9px; }
+.stage__status-icon { flex: none; }
+/* Точка пройденного этапа несёт галочку: она крупнее на 6px, а центр
+   остаётся там же, где у прежних 12px — на линии шкалы. */
+.stage__dot { display: grid; place-items: center; }
+.stages--default .stage--done .stage__dot { top: -3px; left: -3px; width: 18px; height: 18px; color: var(--gov-surface); }
+.stage__dot-icon { display: block; }/* Текст + фото («О проекте»). *//* Доля кадра настраивается в блоке — долями fr, а не процентами: проценты
    вместе с gap дают переполнение по ширине. Без настройки соотношение прежнее. */
 
 .block-textimage { display: grid; grid-template-columns: minmax(0, var(--textimage-info, 1fr)) minmax(0, var(--textimage-visual, 1.05fr)); gap: clamp(28px, 4vw, 56px); align-items: center; }

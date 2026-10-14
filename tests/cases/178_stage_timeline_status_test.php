@@ -166,3 +166,27 @@ test('Миграция переводит блоки и сохранённые �
     // сохранённый шаблон положил бы на страницу блок несуществующего типа.
     assert_contains('block_snippets', $sql);
 });
+
+test('Метку состояния можно выключить; в метке и в точке пройденного этапа — иконка', function () {
+    $render = static fn (array $extra): string => (string) BlockRenderer::render([
+        'id' => 1783,
+        'type' => 'stages',
+        'custom_css' => null,
+        'data' => json_encode($extra + [
+            'items' => [
+                ['year' => '2021', 'title' => 'Создание', 'status' => 'done'],
+                ['year' => '2025', 'title' => 'Сейчас', 'status' => 'active'],
+            ],
+        ]),
+    ])['html'];
+
+    $shown = $render([]);
+    assert_same(2, substr_count($shown, 'class="stage__status"'), 'по умолчанию метка видна — вид собранных страниц прежний');
+    assert_contains('stage__status-icon', $shown);
+    assert_contains('stage__dot-icon', $shown, 'у пройденного этапа галочка в точке');
+    assert_same(1, substr_count($shown, 'stage__dot-icon'), 'галочка только у пройденного');
+
+    $hidden = $render(['show_status' => false]);
+    assert_false(str_contains($hidden, 'stage__status'), 'выключенная метка не печатается');
+    assert_contains('stage--done', $hidden, 'состояние этапа остаётся у точки и линии');
+});
