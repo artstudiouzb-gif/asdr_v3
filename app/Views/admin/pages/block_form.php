@@ -1978,6 +1978,34 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                 когда карточки задуманы под цвет секции.
             </span>
         </div>
+        <?php if (in_array($type, \App\Core\SectionHead::DECORATED_TYPES, true)): ?>
+        <?php $headKickerStyle = (string) ($data['_head_kicker_style'] ?? 'line'); ?>
+        <div class="form-field">
+            <label for="head_kicker">Подзаголовок над заголовком</label>
+            <input type="text" id="head_kicker" name="head_kicker" maxlength="80"
+                   value="<?= htmlspecialchars((string) ($data['_head_kicker'] ?? ''), ENT_QUOTES) ?>"
+                   placeholder="Например: Что мы делаем">
+            <span class="form-hint">
+                Короткая строка над заголовком секции — раздел или тема. Когда она задана, черта
+                перед заголовком убирается: меткой становится подзаголовок. Пусто — как раньше.
+            </span>
+        </div>
+        <div class="form-field">
+            <label for="head_kicker_style">Вид подзаголовка</label>
+            <select id="head_kicker_style" name="head_kicker_style">
+                <option value="line" <?= $headKickerStyle !== 'plain' ? 'selected' : '' ?>>С чертой, цветом акцента</option>
+                <option value="plain" <?= $headKickerStyle === 'plain' ? 'selected' : '' ?>>Простой, приглушённым цветом</option>
+            </select>
+        </div>
+        <div class="form-field">
+            <label for="head_align">Выравнивание заголовка</label>
+            <select id="head_align" name="head_align">
+                <option value="" <?= ($data['_head_align'] ?? '') !== 'center' ? 'selected' : '' ?>>Слева</option>
+                <option value="center" <?= ($data['_head_align'] ?? '') === 'center' ? 'selected' : '' ?>>По центру</option>
+            </select>
+            <span class="form-hint">По центру встают заголовок, подзаголовок, описание и ссылка «Все …».</span>
+        </div>
+        <?php endif; ?>
         <div class="form-field">
             <label for="watermark">Фоновая надпись секции</label>
             <input type="text" id="watermark" name="watermark" maxlength="120"

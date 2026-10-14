@@ -32,13 +32,18 @@ a.cards-lead__item:hover { border-color: var(--gov-teal); transform: translateY(
 .cards-lead__item:first-child .cards-lead__text { color: rgba(255, 255, 255, .82); font-size: var(--step-0); max-width: 34ch; }
 .cards-lead__item:first-child::after { content: ""; position: absolute; z-index: -1; right: -60px; bottom: -60px; width: 260px; height: 260px; background: var(--gov-teal); opacity: .16; -webkit-mask: var(--cards-emblem) center / contain no-repeat; mask: var(--cards-emblem) center / contain no-repeat; pointer-events: none; }
 a.cards-lead__item:first-child:hover { border-color: transparent; }
-/* Хвост, на который не хватило ряда, ложится широкой строкой: пустая ячейка
-   читается как незагрузившаяся карточка. */
+/* Хвост без дыр. Ведущая занимает две ячейки, остальные — по одной, поэтому
+   ячеек n + 1: при n = 5, 8, 11 ряды полные. Одна лишняя карточка (n = 6, 9)
+   ложится строкой во всю ширину, две (n = 4, 7) — последняя на две колонки.
+   При трёх и меньше ведущей не на что опереться во втором ряду — она
+   остаётся в одном ряду с соседями. */
 @media (min-width: 901px) {
-    .cards-lead__item:last-child:nth-child(3n) { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 20px; }
-    .cards-lead__item:last-child:nth-child(3n) .cards-lead__body { margin-top: 0; flex-direction: row; align-items: baseline; gap: 20px; }
-    .cards-lead__item:last-child:nth-child(3n) .cards-lead__title { flex: 0 0 auto; }
-    .cards-lead__item:last-child:nth-child(3n + 2):not(:first-child) { grid-column: span 2; }
+    .cards-lead__item:first-child:nth-last-child(-n+3) { grid-row: auto; }
+    .cards-lead:has(> .cards-lead__item:first-child:nth-last-child(-n+3)) { grid-template-rows: none; }
+    .cards-lead__item:last-child:nth-child(3n):nth-child(n+6) { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 20px; }
+    .cards-lead__item:last-child:nth-child(3n):nth-child(n+6) .cards-lead__body { margin-top: 0; flex-direction: row; align-items: baseline; gap: 20px; }
+    .cards-lead__item:last-child:nth-child(3n):nth-child(n+6) .cards-lead__title { flex: 0 0 auto; }
+    .cards-lead__item:last-child:nth-child(3n+1):nth-child(n+4) { grid-column: span 2; }
 }
 @media (max-width: 900px) {
     .cards-lead { grid-template-columns: 1fr 1fr; grid-template-rows: none; }

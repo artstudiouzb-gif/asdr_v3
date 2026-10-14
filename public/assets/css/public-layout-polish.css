@@ -52,16 +52,19 @@
     mask: var(--gov-emblem) center / contain no-repeat;
 }
 
-/* «Без метки» и заголовок не у левого края: метка указывает на начало строки,
+/* С подзаголовком метка у заголовка снимается: меткой становится он.
+   «Без метки» и заголовок не у левого края: метка указывает на начало строки,
    а у центрированного и правого заголовка начала нет — черта повисала бы
    слева от текста сама по себе. */
 :where(body.design-secmark-off) [data-visual-system] .section-head__title::before,
+[data-visual-system] .section-head:has(.section-head__kicker) .section-head__title::before,
 [data-visual-system] .section-head--align-center .section-head__title::before,
 [data-visual-system] .section-head--align-right .section-head__title::before {
     content: none;
 }
 
 :where(body.design-secmark-off) [data-visual-system] .section-head__title,
+[data-visual-system] .section-head:has(.section-head__kicker) .section-head__title,
 [data-visual-system] .section-head--align-center .section-head__title,
 [data-visual-system] .section-head--align-right .section-head__title {
     padding-inline-start: 0;
