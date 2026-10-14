@@ -74,8 +74,8 @@ test('CSS различает завершённые, текущие и буду�
 test('Хронология сохраняет читаемые колонки и не наследует размер H3', function () {
     $css = theme_css();
 
-    assert_contains('grid-template-columns: clamp(140px, 12vw, 176px) minmax(0, 1fr);', $css);
-    assert_contains('.timeline-item__year { font-family:', $css);
+    assert_contains('grid-template-columns: var(--tl-when) minmax(0, 1fr);', $css);
+    assert_contains('.timeline-item__year { display: flex;', $css);
     assert_contains('white-space: nowrap;', $css);
     assert_contains('@media (max-width: 640px)', $css);
     assert_not_contains('.timeline-item__year', \App\Core\DesignSettings::TYPO_SIZES['fs_h3'][1]);

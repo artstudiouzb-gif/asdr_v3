@@ -260,6 +260,8 @@ html[data-a11y-images="off"] .repo-main * {
     @keyframes title-reveal-wipe { to { --motion-still: 1; } }
     @keyframes pushBellPulse { to { --motion-still: 1; } }
     @keyframes gov-pulse-ring { to { --motion-still: 1; } }
+    @keyframes timeline-grow { to { --motion-still: 1; } }
+    @keyframes timeline-year-lit { to { --motion-still: 1; } }
     @keyframes hero-play-pulse { to { --motion-still: 1; } }
     @keyframes map-pin-float { to { --motion-still: 1; } }
     @keyframes map-pin-shadow { to { --motion-still: 1; } }
