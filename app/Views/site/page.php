@@ -87,6 +87,10 @@ if (!$isHome && !$hideChrome) {
 // свой h1, но всё равно живёт внутри той же открытой сетки контента.
 $editorialPage = !$isHome && !$hideChrome && !$firstIsHero;
 $showPageHead = $editorialPage && !$firstOwnsHeading;
+// «Скрыть заголовок страницы» убирает шапку с экрана, но не из документа:
+// без h1 у страницы не осталось бы главного заголовка ни для диктора, ни
+// для поиска. Поэтому h1 остаётся, только визуально скрытый.
+$hidePageHead = $showPageHead && !empty($page['hide_title']);
 
 
 $hasSidebar = $sidebar !== null && trim($sidebar['html']) !== '';
@@ -98,7 +102,9 @@ $hasSidebar = $sidebar !== null && trim($sidebar['html']) !== '';
         <div class="editorial-page__crumbs"><?= $crumbsHtml ?></div>
     <?php endif; ?>
 
-    <?php if ($showPageHead): ?>
+    <?php if ($hidePageHead): ?>
+        <h1 class="visually-hidden"><?= htmlspecialchars((string) ($page['title'] ?? ''), ENT_QUOTES) ?></h1>
+    <?php elseif ($showPageHead): ?>
         <header class="content-pagehead content-pagehead--editorial">
             <div class="content-pagehead__inner">
                 <div class="content-pagehead__copy">
