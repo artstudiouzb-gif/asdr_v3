@@ -11,8 +11,11 @@ require __DIR__ . '/../layout/header.php';
 $widgets = FooterConfig::WIDGETS;
 
 /** Рендер select виджета с выбранным значением. */
-$widgetSelect = function (string $name, string $current) use ($widgets): string {
+$widgetSelect = function (string $name, string $current, bool $optional = false) use ($widgets): string {
     $out = '<select name="' . $name . '">';
+    if ($optional) {
+        $out .= '<option value=""' . ($current === '' ? ' selected' : '') . '>— нет —</option>';
+    }
     foreach ($widgets as $val => $label) {
         $sel = $current === $val ? ' selected' : '';
         $out .= '<option value="' . htmlspecialchars($val, ENT_QUOTES) . '"' . $sel . '>' . htmlspecialchars($label, ENT_QUOTES) . '</option>';
@@ -40,7 +43,7 @@ $widgetSelect = function (string $name, string $current) use ($widgets): string 
         <div class="header-builder__group">
             <h3>Колонки подвала</h3>
             <p class="form-hint u-inline-291b7bbb01">
-                До <?= FooterConfig::MAX_COLUMNS ?> колонок. Каждая колонка — заголовок и виджет.
+                До <?= FooterConfig::MAX_COLUMNS ?> колонок. Каждая колонка — заголовок и один или два виджета (второй встаёт под первым).
                 Поле «Текст» работает у двух виджетов: «Логотип и описание» печатает его
                 подписью под знаком, «Текст / HTML» — содержимым всей колонки
                 (скрипты и небезопасные теги вырезаются). Адрес, телефон и почту виджет
@@ -68,6 +71,14 @@ $widgetSelect = function (string $name, string $current) use ($widgets): string 
                             <label>Текст / HTML (для виджетов «Логотип и описание» и «Текст»)</label>
                             <textarea name="columns[<?= $i ?>][text]" rows="3" placeholder="<p>Произвольный текст…</p>"><?= htmlspecialchars($col['text'], ENT_QUOTES) ?></textarea>
                         </div>
+                        <div class="form-field">
+                            <label>Второй виджет (под первым)</label>
+                            <?= $widgetSelect('columns[' . $i . '][widget2]', (string) ($col['widget2'] ?? ''), true) ?>
+                        </div>
+                        <div class="form-field">
+                            <label>Текст второго виджета</label>
+                            <textarea name="columns[<?= $i ?>][text2]" rows="2" placeholder="<p>Произвольный текст…</p>"><?= htmlspecialchars((string) ($col['text2'] ?? ''), ENT_QUOTES) ?></textarea>
+                        </div>
                         <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить колонку</button>
                     </div>
                 <?php endforeach; ?>
@@ -91,6 +102,14 @@ $widgetSelect = function (string $name, string $current) use ($widgets): string 
                 <div class="form-field">
                     <label>Текст / HTML (для виджетов «Логотип и описание» и «Текст»)</label>
                     <textarea name="columns[__INDEX__][text]" rows="3" placeholder="<p>Произвольный текст…</p>"></textarea>
+                </div>
+                <div class="form-field">
+                    <label>Второй виджет (под первым)</label>
+                    <?= $widgetSelect('columns[__INDEX__][widget2]', '', true) ?>
+                </div>
+                <div class="form-field">
+                    <label>Текст второго виджета</label>
+                    <textarea name="columns[__INDEX__][text2]" rows="2" placeholder="<p>Произвольный текст…</p>"></textarea>
                 </div>
                 <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить колонку</button>
             </template>

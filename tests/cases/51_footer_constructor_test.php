@@ -189,3 +189,22 @@ test('Подвал: форма конструктора даёт редакто�
     assert_contains('bottom_links[__INDEX__][label]', $view);
     assert_contains('bottom_links[__INDEX__][url]', $view);
 });
+
+// Второй виджет колонки встаёт под первым. Чужое имя отбрасывается, текст
+// хранится только у виджетов, которым он принадлежит, и проходит санитайзер.
+test('FooterConfig: второй виджет колонки валидируется и санируется', function () {
+    $cfg = FooterConfig::normalize([
+        'style' => 'columns',
+        'columns' => [
+            ['heading' => 'Разделы', 'widget' => 'menu', 'widget2' => 'social', 'text2' => 'чужой текст'],
+            ['heading' => 'О нас', 'widget' => 'about', 'widget2' => 'text', 'text2' => '<p>Привет</p><script>x()</script>'],
+            ['heading' => 'Связь', 'widget' => 'contacts', 'widget2' => 'evil'],
+        ],
+    ]);
+    assert_same('social', $cfg['columns'][0]['widget2']);
+    assert_same('', $cfg['columns'][0]['text2']);
+    assert_same('text', $cfg['columns'][1]['widget2']);
+    assert_contains('Привет', $cfg['columns'][1]['text2']);
+    assert_not_contains('<script', $cfg['columns'][1]['text2']);
+    assert_same('', $cfg['columns'][2]['widget2']);
+});

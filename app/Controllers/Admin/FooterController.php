@@ -29,6 +29,8 @@ final class FooterController
                 'heading' => (string) ($col['heading'] ?? ''),
                 'widget' => (string) ($col['widget'] ?? ''),
                 'text' => (string) ($col['text'] ?? ''),
+                'widget2' => (string) ($col['widget2'] ?? ''),
+                'text2' => (string) ($col['text2'] ?? ''),
             ];
         }
 

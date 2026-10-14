@@ -56,9 +56,9 @@ final class FooterConfig
         'v' => self::VERSION,
         'style' => 'columns',                 // columns | minimal
         'columns' => [
-            ['heading' => '', 'widget' => 'about', 'text' => ''],
-            ['heading' => 'Разделы', 'widget' => 'menu', 'text' => ''],
-            ['heading' => 'Связь', 'widget' => 'contacts', 'text' => ''],
+            ['heading' => '', 'widget' => 'about', 'text' => '', 'widget2' => '', 'text2' => ''],
+            ['heading' => 'Разделы', 'widget' => 'menu', 'text' => '', 'widget2' => '', 'text2' => ''],
+            ['heading' => 'Связь', 'widget' => 'contacts', 'text' => '', 'widget2' => '', 'text2' => ''],
         ],
         // Плейсхолдеры: {year} — текущий год, {site} — название сайта.
         'bottom' => '© {year} {site}',
@@ -162,10 +162,22 @@ final class FooterConfig
                 $text = (in_array($widget, self::TEXT_WIDGETS, true) && trim($text) !== '')
                     ? HtmlSanitizer::sanitize($text)
                     : '';
+                // Второй виджет колонки — под первым: «Меню» и «Соцсети», «Логотип»
+                // и «Подписка». Пусто — колонка из одного виджета, как раньше.
+                $widget2 = (string) ($col['widget2'] ?? '');
+                if (!isset(self::WIDGETS[$widget2])) {
+                    $widget2 = '';
+                }
+                $text2 = (string) ($col['text2'] ?? '');
+                $text2 = (in_array($widget2, self::TEXT_WIDGETS, true) && trim($text2) !== '')
+                    ? HtmlSanitizer::sanitize($text2)
+                    : '';
                 $columns[] = [
                     'heading' => mb_substr(trim((string) ($col['heading'] ?? '')), 0, 100),
                     'widget' => $widget,
                     'text' => $text,
+                    'widget2' => $widget2,
+                    'text2' => $text2,
                 ];
                 if (count($columns) >= self::MAX_COLUMNS) {
                     break;
@@ -226,8 +238,8 @@ final class FooterConfig
      * сайта молча. Делается ровно один раз: результат помечен номером версии,
      * и удалённую потом колонку сохранение обратно не вернёт.
      *
-     * @param list<array{heading: string, widget: string, text: string}> $columns
-     * @return list<array{heading: string, widget: string, text: string}>
+     * @param list<array{heading: string, widget: string, text: string, widget2: string, text2: string}> $columns
+     * @return list<array{heading: string, widget: string, text: string, widget2: string, text2: string}>
      */
     private static function upgradeColumns(array $columns, int $version): array
     {
@@ -240,7 +252,7 @@ final class FooterConfig
             return $columns;
         }
 
-        $columns[] = ['heading' => 'Контакты', 'widget' => 'contacts', 'text' => ''];
+        $columns[] = ['heading' => 'Контакты', 'widget' => 'contacts', 'text' => '', 'widget2' => '', 'text2' => ''];
 
         return $columns;
     }
