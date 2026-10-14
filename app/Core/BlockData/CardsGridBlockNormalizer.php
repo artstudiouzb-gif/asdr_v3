@@ -50,8 +50,8 @@ final class CardsGridBlockNormalizer
             $items[] = [
                 'icon_svg' => Icon::cleanName($item['icon_svg'] ?? ''),
                 'image' => $image,
-                'title' => TextProcessor::typographPlain($title, $locale),
-                'text' => TextProcessor::typographPlain(trim((string) ($item['text'] ?? '')), $locale),
+                'title' => TextProcessor::typographPlain(TextProcessor::plainText($title), $locale),
+                'text' => TextProcessor::typographPlain(TextProcessor::plainText((string) ($item['text'] ?? '')), $locale),
                 'meta' => TextProcessor::typographPlain(trim((string) ($item['meta'] ?? '')), $locale),
                 'kind' => ($item['kind'] ?? '') === 'photo' ? 'photo' : 'video',
                 'url' => $url !== '' && UrlGuard::isSafeLink($url) ? $url : '',
