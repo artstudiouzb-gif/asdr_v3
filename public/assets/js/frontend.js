@@ -527,6 +527,13 @@
         if (document.fonts && document.fonts.ready) {
             document.fonts.ready.then(schedule).catch(function () {});
         }
+        // Ширина своей иконки пункта известна только после загрузки файла
+        // (она идёт по пропорциям картинки), поэтому меню перемеряется.
+        menus.forEach(function (menu) {
+            menu.querySelectorAll('img').forEach(function (img) {
+                if (!img.complete) { img.addEventListener('load', schedule, { once: true }); }
+            });
+        });
 
         document.addEventListener('click', function (e) {
             var toggle = e.target.closest('[data-priority-overflow-toggle]');

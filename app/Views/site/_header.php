@@ -120,7 +120,7 @@ $renderMenuIcon = static function (array $item) use (&$menuIconSizes): string {
     $image = MenuItem::cleanIconImage($item['icon_image'] ?? null);
     if ($image !== null) {
         $img = static fn (string $src, string $mod): string => '<img class="site-menu__img' . $mod . '" src="'
-            . htmlspecialchars($src, ENT_QUOTES) . '" alt="" width="18" height="18" decoding="async">';
+            . htmlspecialchars($src, ENT_QUOTES) . '" alt="" height="18" decoding="async">';
         $light = MenuItem::cleanIconImage($item['icon_image_light'] ?? null);
         return $open . $img($image, ' site-menu__img--std')
             . ($light !== null ? $img($light, ' site-menu__img--light') : '') . '</span>';
