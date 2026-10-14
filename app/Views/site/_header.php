@@ -286,7 +286,8 @@ if (!empty($hcfg['language_switcher']['enabled']) && (count($activeLangs) >= 1 |
     // Узбекская кириллица — не отдельный язык, а письменность: контент один,
     // текст переводится транслитерацией. В списке она стоит рядом с узбекским,
     // а ссылка ведёт на переключатель письменности.
-    $uzCyrillicOn = $currentLang === 'uz' && $a11ySettings['script'] === 'cyrl';
+    $uzCyrillicAvailable = \App\Core\UzCyrillic::enabled();
+    $uzCyrillicOn = $uzCyrillicAvailable && $currentLang === 'uz' && $a11ySettings['script'] === 'cyrl';
     $langOptions = [];
     foreach ($activeLangs as $l) {
         $code = (string) $l['code'];
@@ -313,7 +314,7 @@ if (!empty($hcfg['language_switcher']['enabled']) && (count($activeLangs) >= 1 |
             'active' => $code === $currentLang && !($code === 'uz' && $uzCyrillicOn),
         ];
 
-        if ($code !== 'uz') {
+        if ($code !== 'uz' || !$uzCyrillicAvailable) {
             continue;
         }
         $uzHref = Locale::url($langPath, 'uz') . '?' . \App\Core\LocalePreference::QUERY . '=uz';

@@ -50,6 +50,19 @@ require __DIR__ . '/../layout/header.php';
 </div>
 
 <div class="form-card">
+    <h2 class="u-inline-291b7bbb01">Узбекская кириллица</h2>
+    <form method="post" action="/admin/languages/script">
+        <?= Csrf::field() ?>
+        <div class="form-field form-field--checkbox">
+            <input type="checkbox" id="uz_cyrillic" name="uz_cyrillic" value="1" <?= \App\Core\UzCyrillic::enabled() ? 'checked' : '' ?>>
+            <label for="uz_cyrillic">Показывать «Ўзбекча» в переключателе языков</label>
+        </div>
+        <p class="form-hint">Кириллица получается транслитерацией узбекского текста. Выключенная — пункт исчезает из переключателя, а посетители, выбравшие её раньше, видят латиницу.</p>
+        <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить</button>
+    </form>
+</div>
+
+<div class="form-card">
     <h2 class="u-inline-291b7bbb01">Добавить язык</h2>
     <form method="post" action="/admin/languages/create" class="form-grid">
         <?= Csrf::field() ?>

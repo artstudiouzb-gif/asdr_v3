@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Auth;
+use App\Core\Cache;
 use App\Core\Csrf;
 use App\Core\Flash;
+use App\Core\Input;
 use App\Core\Lang;
+use App\Core\Redirect;
+use App\Core\UzCyrillic;
 use App\Core\View;
 use App\Models\InterfaceTranslation;
 use App\Models\Language;
+use App\Models\Setting;
 
 final class LanguageController
 {
@@ -141,6 +146,21 @@ final class LanguageController
 
         header('Location: /admin/languages/translations' . ($params !== '' ? '?' . $params : ''));
         exit;
+    }
+
+    /** Узбекская кириллица в переключателе языков: показывать или нет. */
+    public function script(): void
+    {
+        Auth::requireSuperAdmin();
+        Csrf::verifyRequest();
+
+        $enabled = Input::post()->bool('uz_cyrillic');
+        Setting::set(UzCyrillic::SETTING, $enabled ? '1' : '0');
+        // Пункт «Ўзбекча» печатает шапка, а она лежит в кэше страниц.
+        Cache::forgetPrefix('page:');
+        Flash::success($enabled ? 'Кириллица включена.' : 'Кириллица выключена: пункт «Ўзбекча» убран из переключателя языков.');
+
+        Redirect::to('/admin/languages');
     }
 
     public function store(): void
