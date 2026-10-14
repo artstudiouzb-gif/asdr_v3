@@ -117,7 +117,8 @@ $currentType = $widget['type'] ?? 'latest_news';
         <?php if ($showType('contacts')): ?>
             <div class="form-field form-field--checkbox<?= (!$isEdit) ? ' is-hidden' : '' ?>" data-wtype="contacts">
                 <input type="checkbox" id="show_socials" name="show_socials" value="1" <?= !empty($data['show_socials']) ? 'checked' : '' ?>>
-                <label for="show_socials">Показывать иконки соцсетей (из настроек шапки)</label>
+                <label for="show_socials">Показывать иконки соцсетей</label>
+                <span class="form-hint">Ссылки задаются в <a href="/admin/header#header-social">Шапка сайта → Элементы → Поиск и социальные сети</a>.</span>
             </div>
         <?php endif; ?>
 
