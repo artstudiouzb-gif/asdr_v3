@@ -103,10 +103,17 @@ $logoHtml .= '</a>';
 
 // --- Меню ---
 // Иконка пункта — имя иконки Tabler (home, file-text, news) или своя картинка.
-$renderMenuIcon = static function (array $item): string {
-    // Размер — класс из закрытого набора: инлайн-стилей шапка не печатает.
+// Размер иконки — любое число: инлайн-стилей шапка не печатает, поэтому
+// пункт получает класс размера, а правила для встретившихся размеров уходят
+// в сгенерированный файл стилей вместе с остальными настройками.
+$menuIconSizes = [];
+$renderMenuIcon = static function (array $item) use (&$menuIconSizes): string {
     $size = MenuItem::cleanIconSize($item['icon_size'] ?? 0);
-    $class = 'site-menu__icon' . ($size > 0 ? ' site-menu__icon--s' . $size : '');
+    if ($size > 0) {
+        $menuIconSizes[$size] = true;
+    }
+    $open = '<span class="site-menu__icon' . ($size > 0 ? ' site-menu__icon--s' . $size : '')
+        . '" aria-hidden="true">';
     // Своя картинка (SVG/PNG из медиатеки) главнее иконки каталога. Светлый
     // вариант лежит рядом и подменяет обычный на тёмном фоне — тем же
     // правилом, что светлый логотип шапки.
@@ -115,14 +122,14 @@ $renderMenuIcon = static function (array $item): string {
         $img = static fn (string $src, string $mod): string => '<img class="site-menu__img' . $mod . '" src="'
             . htmlspecialchars($src, ENT_QUOTES) . '" alt="" width="18" height="18" decoding="async">';
         $light = MenuItem::cleanIconImage($item['icon_image_light'] ?? null);
-        return '<span class="' . $class . '" aria-hidden="true">' . $img($image, ' site-menu__img--std')
+        return $open . $img($image, ' site-menu__img--std')
             . ($light !== null ? $img($light, ' site-menu__img--light') : '') . '</span>';
     }
     $name = \App\Core\Icon::cleanName($item['icon_svg'] ?? '');
     if ($name === '') {
         return '';
     }
-    return '<span class="' . $class . '" aria-hidden="true">'
+    return $open
         . \App\Core\Icon::render($name, 18, 'site-menu__svg') . '</span>';
 };
 // --- Определение активного пункта меню по URL ---
@@ -606,6 +613,17 @@ $themeCssUrl = \App\Core\GeneratedCss::publish(
 );
 if ($themeCssUrl !== null) {
     $generatedCssUrls['theme'] = $themeCssUrl;
+}
+if ($menuIconSizes !== []) {
+    ksort($menuIconSizes);
+    $menuIconCss = '';
+    foreach (array_keys($menuIconSizes) as $iconSizePx) {
+        $menuIconCss .= '.site-menu__icon--s' . (int) $iconSizePx . '{--menu-icon-size:' . (int) $iconSizePx . "px}\n";
+    }
+    $menuCssUrl = \App\Core\GeneratedCss::publish($menuIconCss, 'menu-icons');
+    if ($menuCssUrl !== null) {
+        $generatedCssUrls['menu'] = $menuCssUrl;
+    }
 }
 if ($extraHeadCss !== '') {
     $pageCssUrl = \App\Core\GeneratedCss::publish($extraHeadCss, 'page');

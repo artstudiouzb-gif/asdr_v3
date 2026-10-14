@@ -257,17 +257,21 @@ final class MenuItem
     }
 
     /**
-     * Размеры иконки пункта, px. Набор закрытый: размер едет в шапку классом
-     * (`site-menu__icon--s24`), а инлайн-стиля шапка не печатает. 0 — как в
-     * теме (18px). Значение вне набора — подделанная форма, отсюда умолчание.
+     * Размер иконки пункта, px — любое число в границах. 0 — как в теме
+     * (18px). Значение уходит в шапку переменной `--menu-icon-size`, поэтому
+     * приводится к целому: строка в атрибут style не попадает.
      */
-    public const ICON_SIZES = [16, 18, 20, 24, 28, 32, 40, 48];
+    public const ICON_SIZE_MIN = 10;
+    public const ICON_SIZE_MAX = 120;
 
     public static function cleanIconSize(mixed $size): int
     {
         $size = is_numeric($size) ? (int) $size : 0;
+        if ($size <= 0) {
+            return 0;
+        }
 
-        return in_array($size, self::ICON_SIZES, true) ? $size : 0;
+        return max(self::ICON_SIZE_MIN, min(self::ICON_SIZE_MAX, $size));
     }
 
     /**

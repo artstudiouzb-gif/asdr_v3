@@ -18,16 +18,13 @@ test('Menu icon image: only image paths are accepted', function (): void {
     }
 });
 
-// Размер уходит в шапку классом, и у каждого значения набора обязано быть
-// правило — иначе настройка молча ничего не меняет.
-test('Menu icon size: closed set, every size has a rule', function (): void {
-    assert_same(24, MenuItem::cleanIconSize('24'));
-    assert_same(0, MenuItem::cleanIconSize('23'));
+// Размер — любое целое в границах: в шапку он уходит атрибутом style, и
+// строка туда попадать не должна.
+test('Menu icon size: integer clamped to bounds, empty means theme size', function (): void {
+    assert_same(80, MenuItem::cleanIconSize('80'));
+    assert_same(0, MenuItem::cleanIconSize(''));
+    assert_same(0, MenuItem::cleanIconSize('80px;color:red'));
     assert_same(0, MenuItem::cleanIconSize(['24']));
-    $css = (string) file_get_contents(dirname(__DIR__, 2) . '/public/assets/css/frontend.css');
-    foreach (MenuItem::ICON_SIZES as $size) {
-        if ($size !== 18) {
-            assert_contains('.site-menu__icon--s' . $size . ' .site-menu__img { width: ' . $size . 'px', $css);
-        }
-    }
+    assert_same(MenuItem::ICON_SIZE_MIN, MenuItem::cleanIconSize(3));
+    assert_same(MenuItem::ICON_SIZE_MAX, MenuItem::cleanIconSize(9999));
 });

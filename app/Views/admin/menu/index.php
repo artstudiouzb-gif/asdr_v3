@@ -198,16 +198,13 @@ $renderFields = static function (?array $item, bool $isCreate = false) use (
                     'hint' => 'Светлый вариант своей иконки — для тёмного фона. Пусто — везде обычная.',
                 ]) ?>
 
+                <?php $iconSize = MenuItem::cleanIconSize($item['icon_size'] ?? 0); ?>
                 <div class="form-field">
-                    <label for="<?= $prefix ?>_icon_size">Размер иконки</label>
-                    <select id="<?= $prefix ?>_icon_size" name="icon_size">
-                        <?php $iconSize = MenuItem::cleanIconSize($item['icon_size'] ?? 0); ?>
-                        <option value="0" <?= $iconSize === 0 ? 'selected' : '' ?>>Как в теме (18 px)</option>
-                        <?php foreach (MenuItem::ICON_SIZES as $sizeOption): ?>
-                            <?php if ($sizeOption === 18) { continue; } ?>
-                            <option value="<?= $sizeOption ?>" <?= $iconSize === $sizeOption ? 'selected' : '' ?>><?= $sizeOption ?> px</option>
-                        <?php endforeach; ?>
-                    </select>
+                    <label for="<?= $prefix ?>_icon_size">Размер иконки, px</label>
+                    <input type="number" id="<?= $prefix ?>_icon_size" name="icon_size"
+                           min="<?= MenuItem::ICON_SIZE_MIN ?>" max="<?= MenuItem::ICON_SIZE_MAX ?>" step="1"
+                           value="<?= $iconSize > 0 ? $iconSize : '' ?>" placeholder="18">
+                    <span class="form-hint">Пусто — как в теме (18 px). От <?= MenuItem::ICON_SIZE_MIN ?> до <?= MenuItem::ICON_SIZE_MAX ?>.</span>
                 </div>
 
                 <div class="form-field form-field--checkbox">
