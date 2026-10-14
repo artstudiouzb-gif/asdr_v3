@@ -496,6 +496,8 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                             . '<span class="form-hint">Эмблема берётся из «Дизайна». Для значка выберите его ниже, для логотипа загрузите картинку — лучше квадратную, с прозрачным фоном.</span></div>'
                         . \App\Core\AdminUi::iconField($p('icon_svg'), (string) ($item['icon_svg'] ?? ''), ['label' => 'Значок в центре'])
                         . \App\Core\AdminUi::imageField($p('center_image'), (string) ($item['center_image'] ?? ''), ['label' => 'Картинка или логотип в центре'])
+                        . '<div class="form-field"><label>Размер центра, % печати</label><input type="number" name="' . $p('center_size') . '" min="30" max="90" step="1" value="' . ((int) ($item['center_size'] ?? 0) ?: '') . '" placeholder="46">'
+                            . '<span class="form-hint">Для эмблемы и картинки. Пусто — как в теме (46 %). Крупнее 60 % центр заходит на надпись по кругу.</span></div>'
                     . '</div>'
                     . '<div data-collage-fields="pattern">'
                         . '<div class="form-field"><label>Узор</label><select name="' . $p('pattern') . '">'

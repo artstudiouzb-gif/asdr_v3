@@ -369,6 +369,10 @@ final class CollageBlockNormalizer
             'center' => $center,
             'icon_svg' => $icon,
             'center_image' => $image,
+            // Размер центра в процентах диаметра печати; 0 — как в теме (46 %).
+            // Логотип с мелкими деталями (герб) в теме выходил мелким, а нужный
+            // размер зависит от рисунка — пресетом его не угадать.
+            'center_size' => ($centerSize = BlockDataInput::int($item, 'center_size', 0, 90, 0)) > 0 ? max(30, $centerSize) : 0,
             'bg' => BlockDataInput::optionalColor($item, 'bg'),
             'fg' => BlockDataInput::optionalColor($item, 'fg'),
             'link' => BlockDataInput::safeLink($item['link'] ?? ''),
