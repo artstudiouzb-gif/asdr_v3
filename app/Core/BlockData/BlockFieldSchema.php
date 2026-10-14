@@ -93,7 +93,6 @@ final class BlockFieldSchema
     /** @var array<string, array<string, Field>>|null */
     private static ?array $cache = null;
 
-    /** @return array<string, array<string, Field>> */
     /** Выравнивание по высоте одной колонки контейнера «Колонки». */
     private static function columnValign(string $label): Field
     {
@@ -105,6 +104,7 @@ final class BlockFieldSchema
         ], 'inherit')->group('Выравнивание отдельных колонок по высоте');
     }
 
+    /** @return array<string, array<string, Field>> */
     public static function all(): array
     {
         return self::$cache ??= [
@@ -1606,7 +1606,7 @@ final class BlockFieldSchema
     /**
      * Ряд полей цвета: своя строка внутри сетки формы.
      *
-     * @return array{group:string, when:array{field:string, values:list<string>}|null, html:string}
+     * @return array{group:string, when:array{field:string, values:list<string|int>}|null, html:string}
      */
     private static function colorRow(string $html, string $group): array
     {
@@ -1622,7 +1622,7 @@ final class BlockFieldSchema
      * поломка (та же причина, по которой виджет «Меню раздела» не печатает
      * `<aside>` без содержимого).
      *
-     * @param list<array{group:string, when:array{field:string, values:list<string>}|null, html:string}> $rows
+     * @param list<array{group:string, when:array{field:string, values:list<string|int>}|null, html:string}> $rows
      */
     private static function groupedHtml(array $rows): string
     {
