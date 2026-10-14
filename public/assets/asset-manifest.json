@@ -256,11 +256,11 @@
       "sources": [
         "/assets/css/admin.css"
       ],
-      "sourceSha256": "843bbac2310c342964e23ef602cdaf50bfeb280bb5953e37861be0390ec8d9a4",
-      "sha256": "49a9451e5708bda11a8c1405ab4d58e1fdaf2d37bd9dc93642b421c754043739",
-      "raw": 280153,
-      "gzip": 47601,
-      "brotli": 38587
+      "sourceSha256": "5ce162bd355bb6ebe8427b23412852c7518c6602999392feac600d2e2becc9cd",
+      "sha256": "de4cf051bb06c0fb12ac2bbef99ec2833d95406e67668eb4613ff02eadb4be17",
+      "raw": 280508,
+      "gzip": 47637,
+      "brotli": 38615
     },
     "/assets/admin/admin-shell.min.css": {
       "sources": [
