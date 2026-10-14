@@ -468,9 +468,14 @@
             if (items.length < 2) {
                 return outsideBoundary || itemOutsideMenu;
             }
-            var firstTop = items[0].offsetTop;
+            // Перенос — это пункт ниже первой строки, а не любой сдвиг по
+            // вертикали: строка центрирована, и пункт с крупной иконкой выше
+            // соседей, то есть начинается выше них, оставаясь в той же строке.
+            // Сравнение offsetTop уводило такой пункт в «Ещё» при свободном месте.
+            var firstRect = items[0].getBoundingClientRect();
             var wrapped = items.some(function (item) {
-                return Math.abs(item.offsetTop - firstTop) > 2;
+                var rect = item.getBoundingClientRect();
+                return rect.top >= firstRect.bottom - 1 || rect.bottom <= firstRect.top + 1;
             });
             return outsideBoundary || itemOutsideMenu || wrapped;
         };
