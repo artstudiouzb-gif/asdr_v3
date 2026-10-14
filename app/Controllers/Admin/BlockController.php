@@ -861,7 +861,9 @@ final class BlockController
                         'year' => $year,
                         'stage' => trim((string) ($item['stage'] ?? '')),
                         'title' => TextProcessor::typographPlain($itemTitle, $locale),
-                        'text' => TextProcessor::typographPlain($itemText, $locale),
+                        // Текст события — короткая разметка мини-редактора: абзацы,
+                        // выделение, ссылка и списки (тот же набор, что у лида).
+                        'text' => TextProcessor::process(\App\Core\HtmlSanitizer::sanitizeLead($itemText), $locale),
                         'status' => in_array($item['status'] ?? '', ['done', 'active', 'planned'], true) ? $item['status'] : 'planned',
                         'status_text' => trim((string) ($item['status_text'] ?? '')),
                         'url' => \App\Core\BlockData\BlockDataInput::safeLink($item['url'] ?? ''),
