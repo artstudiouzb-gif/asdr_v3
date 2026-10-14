@@ -87,6 +87,7 @@ test('Hero normalizer: формирует стабильный JSON-контра
         'button_icon' => '',
         'button_icon_image' => '',
         'button_icon_size' => 0,
+        'title_size' => 0,
         'button2_text' => 'Вторая',
         'button2_url' => '/about',
         'button2_icon' => '',

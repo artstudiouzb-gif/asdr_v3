@@ -143,6 +143,10 @@ final class HeroBlockNormalizer
             // редактор развёл бы их по разным размерам в одном ряду.
             // 0 — размер темы (46px), поэтому вид собранных страниц не меняется.
             'button_icon_size' => BlockDataInput::int($input, 'button_icon_size', 0, 72, 0),
+            // Кегль заголовка числом: длину заголовка пресетом не угадать —
+            // «Агентство» и полное ведомственное название просят разного.
+            // 0 — размер темы.
+            'title_size' => BlockDataInput::int($input, 'title_size', 0, 160, 0),
             'button2_text' => trim((string) ($input['button2_text'] ?? '')),
             'button2_url' => BlockDataInput::safeLink($input['button2_url'] ?? ''),
             'button2_icon' => \App\Core\Icon::cleanName($input['button2_icon'] ?? ''),
