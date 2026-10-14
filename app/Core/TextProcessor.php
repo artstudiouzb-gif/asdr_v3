@@ -61,6 +61,26 @@ final class TextProcessor
     }
 
     /**
+     * HTML, попавший в поле простого текста, — в сам текст. Такое поле на
+     * выводе экранируется, и разметка, пришедшая из импорта, ИИ-каркаса или
+     * вставки из редактора, вставала на страницу кодом: «<p>&ldquo;…».
+     * Теги снимаются, только если это действительно теги — «меньше 5 %»
+     * записанное как «< 5 %» остаётся; сущности раскрываются в символы.
+     */
+    public static function plainText(string $text): string
+    {
+        if (preg_match('~</?[a-z][a-z0-9]*(?:\s[^<>]*)?/?>~i', $text) === 1) {
+            $text = (string) preg_replace('~<br\s*/?>|</(?:p|div|li|h[1-6])>~i', "\n", $text);
+            $text = strip_tags($text);
+        }
+        if (str_contains($text, '&')) {
+            $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+
+        return trim((string) preg_replace("~[ \t]*\n[ \t\n]*~u", "\n", $text));
+    }
+
+    /**
      * Типографика для простого текста (без HTML): заголовки, короткие поля.
      */
     public static function typographPlain(string $text, string $locale = 'ru'): string
