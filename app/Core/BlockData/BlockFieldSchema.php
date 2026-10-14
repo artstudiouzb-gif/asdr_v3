@@ -93,6 +93,17 @@ final class BlockFieldSchema
     /** @var array<string, array<string, Field>>|null */
     private static ?array $cache = null;
 
+    /** Выравнивание по высоте одной колонки контейнера «Колонки». */
+    private static function columnValign(string $label): Field
+    {
+        return Field::enum($label, [
+            'inherit' => 'Как у всех колонок',
+            'top' => 'Сверху',
+            'center' => 'По центру',
+            'bottom' => 'Снизу',
+        ], 'inherit')->group('Выравнивание отдельных колонок по высоте');
+    }
+
     /** @return array<string, array<string, Field>> */
     public static function all(): array
     {
@@ -125,6 +136,13 @@ final class BlockFieldSchema
                     'center' => 'По центру',
                     'bottom' => 'По низу',
                 ], 'stretch', 'Заметно, когда в колонках разное количество содержимого: «по центру» ставит короткую колонку вровень с серединой длинной.'),
+                // Своё выравнивание у отдельной колонки: короткую колонку можно
+                // поставить по центру длинной, а соседнюю оставить у верха.
+                // «Как у всех» — общая настройка выше.
+                'valign_1' => self::columnValign('Колонка 1'),
+                'valign_2' => self::columnValign('Колонка 2'),
+                'valign_3' => self::columnValign('Колонка 3')->onlyWhen('columns', [3, 4]),
+                'valign_4' => self::columnValign('Колонка 4')->onlyWhen('columns', [4]),
                 'mobile_order' => Field::enum('Порядок колонок на телефоне', [
                     'normal' => 'Как в редакторе',
                     'reverse' => 'В обратном порядке',
@@ -1588,7 +1606,7 @@ final class BlockFieldSchema
     /**
      * Ряд полей цвета: своя строка внутри сетки формы.
      *
-     * @return array{group:string, when:array{field:string, values:list<string>}|null, html:string}
+     * @return array{group:string, when:array{field:string, values:list<string|int>}|null, html:string}
      */
     private static function colorRow(string $html, string $group): array
     {
@@ -1604,7 +1622,7 @@ final class BlockFieldSchema
      * поломка (та же причина, по которой виджет «Меню раздела» не печатает
      * `<aside>` без содержимого).
      *
-     * @param list<array{group:string, when:array{field:string, values:list<string>}|null, html:string}> $rows
+     * @param list<array{group:string, when:array{field:string, values:list<string|int>}|null, html:string}> $rows
      */
     private static function groupedHtml(array $rows): string
     {

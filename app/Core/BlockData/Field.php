@@ -29,7 +29,7 @@ final class Field
      *     Ключ — не обязательно строка: у `intChoice` значения числовые, а PHP
      *     числовые ключи массива хранит как int, что бы ни объявили.
      * @param string $input имя поля в форме, если отличается от ключа данных
-     * @param array{field:string, values:list<string>}|null $when
+     * @param array{field:string, values:list<string|int>}|null $when
      *        условие применимости: поле показывается только при этом варианте
      * @param string $group подпись группы полей в форме; соседние поля с
      *        одной подписью редактор видит одним блоком настроек
@@ -192,7 +192,7 @@ final class Field
      * рукописных полей: скрытие — подсказка редактору, а не условие
      * сохранения (без JS поле остаётся видимым).
      *
-     * @param list<string> $values
+     * @param list<string|int> $values  Значения поля-условия; у числового поля (intChoice) — числа, как в его вариантах
      */
     public function onlyWhen(string $field, array $values): self
     {
@@ -243,7 +243,7 @@ final class Field
     }
 
     /**
-     * @param array{field:string, values:list<string>}|null $when
+     * @param array{field:string, values:list<string|int>}|null $when
      * @param array<string, array{0: string, 1: string}>|null $variants
      */
     private function with(
