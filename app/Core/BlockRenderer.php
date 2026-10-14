@@ -514,7 +514,13 @@ final class BlockRenderer
         for ($i = 0; $i < $count; $i++) {
             [$inner, $innerCss] = self::renderContainerCell($byColumn[$i]);
             $cssParts = array_merge($cssParts, $innerCss);
-            $colsHtml .= "    <div class=\"cms-columns__col\">\n"
+            // Своё выравнивание колонки — класс, как и общее (инлайн-стили
+            // в блоках запрещены тестами).
+            // Ключи названы целиком, а не склеиваются из номера: тест 261 ищет
+            // потребителя каждой настройки по её имени.
+            $colValign = (string) ($data[['valign_1', 'valign_2', 'valign_3', 'valign_4'][$i]] ?? 'inherit');
+            $colClass = $colValign !== 'inherit' ? ' cms-columns__col--valign-' . $colValign : '';
+            $colsHtml .= "    <div class=\"cms-columns__col" . $colClass . "\">\n"
                 . trim($inner)
                 . "\n    </div>\n";
         }

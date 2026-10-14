@@ -726,6 +726,18 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .cms-columns--valign-bottom { align-items: end; }/* Вложенные блоки не добавляют собственный вертикальный «воздух». */
 
 .cms-columns__col > .cms-block { padding-top: 0; padding-bottom: 0; }
+/* Своё выравнивание отдельной колонки сильнее общего: колонка встаёт
+   у верха, по центру или у низа ряда, соседние остаются как были. */
+.cms-columns__col--valign-top { align-self: start; }
+.cms-columns__col--valign-center { align-self: center; }
+.cms-columns__col--valign-bottom { align-self: end; }
+/* Верх колонки — это верх её содержимого. Отступ над первым заголовком
+   рассчитан на соседа сверху, а в колонке соседа нет: margin выходил за
+   блок, и текст стоял ниже соседней колонки (25.6px у «Текста» с
+   заголовком рядом с цитатой — замерено). */
+.cms-columns__col > .cms-block > :first-child,
+.cms-columns__col > .cms-block > :first-child > :first-child,
+.cms-columns__col > .cms-block > :first-child > :first-child > :first-child { margin-top: 0; }
 @media (max-width: 720px) { .cms-columns--2, .cms-columns--3, .cms-columns--4 { grid-template-columns: 1fr; } }
 /* Обратный порядок на телефоне: пара «фото слева, текст справа» на узком
    экране обязана начинаться с текста. Меняется только показ — порядок чтения

@@ -94,6 +94,17 @@ final class BlockFieldSchema
     private static ?array $cache = null;
 
     /** @return array<string, array<string, Field>> */
+    /** Выравнивание по высоте одной колонки контейнера «Колонки». */
+    private static function columnValign(string $label): Field
+    {
+        return Field::enum($label, [
+            'inherit' => 'Как у всех колонок',
+            'top' => 'Сверху',
+            'center' => 'По центру',
+            'bottom' => 'Снизу',
+        ], 'inherit')->group('Выравнивание отдельных колонок по высоте');
+    }
+
     public static function all(): array
     {
         return self::$cache ??= [
@@ -125,6 +136,13 @@ final class BlockFieldSchema
                     'center' => 'По центру',
                     'bottom' => 'По низу',
                 ], 'stretch', 'Заметно, когда в колонках разное количество содержимого: «по центру» ставит короткую колонку вровень с серединой длинной.'),
+                // Своё выравнивание у отдельной колонки: короткую колонку можно
+                // поставить по центру длинной, а соседнюю оставить у верха.
+                // «Как у всех» — общая настройка выше.
+                'valign_1' => self::columnValign('Колонка 1'),
+                'valign_2' => self::columnValign('Колонка 2'),
+                'valign_3' => self::columnValign('Колонка 3')->onlyWhen('columns', [3, 4]),
+                'valign_4' => self::columnValign('Колонка 4')->onlyWhen('columns', [4]),
                 'mobile_order' => Field::enum('Порядок колонок на телефоне', [
                     'normal' => 'Как в редакторе',
                     'reverse' => 'В обратном порядке',
