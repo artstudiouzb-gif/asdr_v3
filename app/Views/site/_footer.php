@@ -162,9 +162,28 @@ $renderFooterWidget = function (array $col) use ($footerLogo, $siteName, $addres
 <footer class="site-footer site-footer--columns">
     <div class="site-footer__inner">
         <?php foreach ($footerCfg['columns'] as $col): ?>
-            <?php $inner = $renderFooterWidget($col); ?>
+            <?php
+            $inner = $renderFooterWidget($col);
+            $colClass = 'site-footer__col--' . $col['widget'];
+            $widget2 = (string) ($col['widget2'] ?? '');
+            if ($widget2 !== '') {
+                // Два виджета в колонке. Оформление подвала держится на классе
+                // колонки (`.site-footer__col--menu ul`), поэтому каждый виджет
+                // получает свою обёртку с этим классом — иначе правило первого
+                // виджета задело бы список второго.
+                $inner2 = $renderFooterWidget(['widget' => $widget2, 'text' => (string) ($col['text2'] ?? '')]);
+                $parts = [];
+                foreach ([[$col['widget'], $inner], [$widget2, $inner2]] as [$partWidget, $partHtml]) {
+                    if ($partHtml !== '' || $partWidget === 'text') {
+                        $parts[] = '<div class="site-footer__widget site-footer__col--' . htmlspecialchars($partWidget, ENT_QUOTES) . '">' . $partHtml . '</div>';
+                    }
+                }
+                $inner = implode('', $parts);
+                $colClass = 'site-footer__col--stack';
+            }
+            ?>
             <?php if ($inner === '' && $col['widget'] !== 'text') { continue; } // пустые колонки скрываем ?>
-            <div class="site-footer__col site-footer__col--<?= htmlspecialchars($col['widget'], ENT_QUOTES) ?>">
+            <div class="site-footer__col <?= htmlspecialchars($colClass, ENT_QUOTES) ?>">
                 <?php // Заголовок приходит из конструктора подвала — переводим так же, как
                       // подпись поиска и текст кнопки шапки: умолчания есть в словаре,
                       // свой текст редактора t() оставит как есть. ?>
