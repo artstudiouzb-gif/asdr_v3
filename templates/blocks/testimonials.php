@@ -53,6 +53,11 @@ if ($variant === 'feature'):
     $classes = 'block-testimonials block-testimonials--feature tquote tquote--' . $portrait
         . ($photo !== '' ? ' tquote--has-photo' : '')
         . ($portrait === 'round' && $shape !== 'circle' ? ' tquote--shape-' . $shape : '')
+        // Положение фото: «слева» — прежний вид, класса нет. У маленького
+        // портрета место одно — у подписи, настройка его не касается.
+        . ($photo !== '' && $portrait !== 'mini' && (string) $data['portrait_side'] !== 'left' ? ' tquote--photo-' . (string) $data['portrait_side'] : '')
+        . ($photo !== '' && $portrait === 'round' && in_array((string) $data['portrait_side'], ['top', 'bottom'], true) && (string) $data['portrait_align'] !== 'left'
+            ? ' tquote--photo-align-' . (string) $data['portrait_align'] : '')
         // «Средний» — прежний кегль, класса у него нет.
         . ((string) $data['quote_size'] !== 'm' ? ' tquote--size-' . (string) $data['quote_size'] : '');
     // Размер по умолчанию в scoped CSS не печатается: у собранных блоков вид прежний.

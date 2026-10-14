@@ -212,3 +212,8 @@ test('Текст события принимает разметку мини-р�
 
     assert_same(2, substr_count(block_editor_markup(), '][text]" data-mini-editor'), 'мини-редактор и у существующих событий, и у новых');
 });
+
+test('Пунктир после последнего незавершённого этапа доходит до конца колонки', function () {
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public.min.css');
+    assert_same(1, preg_match('~\.stage:last-child:not\(\.stage--done\)::before\{[^}]*width:100%~', $css), 'пунктир обрывался на 96px, не дойдя до края ряда');
+});
