@@ -103,18 +103,33 @@ $logoHtml .= '</a>';
 
 // --- Меню ---
 // Иконка пункта — имя иконки Tabler (home, file-text, news) или своя картинка.
-$renderMenuIcon = static function (mixed $iconName, mixed $iconImage = null): string {
-    // Своя картинка (SVG/PNG из медиатеки) главнее иконки каталога.
-    $image = MenuItem::cleanIconImage($iconImage);
-    if ($image !== null) {
-        return '<span class="site-menu__icon" aria-hidden="true"><img class="site-menu__img" src="'
-            . htmlspecialchars($image, ENT_QUOTES) . '" alt="" width="18" height="18" decoding="async"></span>';
+// Размер иконки — любое число: инлайн-стилей шапка не печатает, поэтому
+// пункт получает класс размера, а правила для встретившихся размеров уходят
+// в сгенерированный файл стилей вместе с остальными настройками.
+$menuIconSizes = [];
+$renderMenuIcon = static function (array $item) use (&$menuIconSizes): string {
+    $size = MenuItem::cleanIconSize($item['icon_size'] ?? 0);
+    if ($size > 0) {
+        $menuIconSizes[$size] = true;
     }
-    $name = \App\Core\Icon::cleanName($iconName);
+    $open = '<span class="site-menu__icon' . ($size > 0 ? ' site-menu__icon--s' . $size : '')
+        . '" aria-hidden="true">';
+    // Своя картинка (SVG/PNG из медиатеки) главнее иконки каталога. Светлый
+    // вариант лежит рядом и подменяет обычный на тёмном фоне — тем же
+    // правилом, что светлый логотип шапки.
+    $image = MenuItem::cleanIconImage($item['icon_image'] ?? null);
+    if ($image !== null) {
+        $img = static fn (string $src, string $mod): string => '<img class="site-menu__img' . $mod . '" src="'
+            . htmlspecialchars($src, ENT_QUOTES) . '" alt="" width="18" height="18" decoding="async">';
+        $light = MenuItem::cleanIconImage($item['icon_image_light'] ?? null);
+        return $open . $img($image, ' site-menu__img--std')
+            . ($light !== null ? $img($light, ' site-menu__img--light') : '') . '</span>';
+    }
+    $name = \App\Core\Icon::cleanName($item['icon_svg'] ?? '');
     if ($name === '') {
         return '';
     }
-    return '<span class="site-menu__icon" aria-hidden="true">'
+    return $open
         . \App\Core\Icon::render($name, 18, 'site-menu__svg') . '</span>';
 };
 // --- Определение активного пункта меню по URL ---
@@ -166,7 +181,7 @@ if (!empty($menuItems)) {
         }
 
         $url = MenuItem::resolveUrl($mi, $currentLang);
-        $icon = $renderMenuIcon($mi['icon_svg'] ?? '', $mi['icon_image'] ?? null);
+        $icon = $renderMenuIcon($mi);
         $isIconOnly = !empty($mi['hide_title']) && $icon !== '';
         $textClass = $isIconOnly ? 'site-menu__text site-menu__text--hidden' : 'site-menu__text';
         $iconOnlyClass = $isIconOnly ? ' site-menu__link--icon-only' : '';
@@ -209,7 +224,7 @@ if (!empty($menuItems)) {
             if ($isChildActive) {
                 $hasActiveChild = true;
             }
-            $childIcon = $renderMenuIcon($child['icon_svg'] ?? '', $child['icon_image'] ?? null);
+            $childIcon = $renderMenuIcon($child);
             $isChildIconOnly = !empty($child['hide_title']) && $childIcon !== '';
             $cTextClass = $isChildIconOnly ? 'site-menu__text site-menu__text--hidden' : 'site-menu__text';
             $cIconOnlyClass = $isChildIconOnly ? ' site-submenu__link--icon-only' : '';
@@ -598,6 +613,17 @@ $themeCssUrl = \App\Core\GeneratedCss::publish(
 );
 if ($themeCssUrl !== null) {
     $generatedCssUrls['theme'] = $themeCssUrl;
+}
+if ($menuIconSizes !== []) {
+    ksort($menuIconSizes);
+    $menuIconCss = '';
+    foreach (array_keys($menuIconSizes) as $iconSizePx) {
+        $menuIconCss .= '.site-menu__icon--s' . (int) $iconSizePx . '{--menu-icon-size:' . (int) $iconSizePx . "px}\n";
+    }
+    $menuCssUrl = \App\Core\GeneratedCss::publish($menuIconCss, 'menu-icons');
+    if ($menuCssUrl !== null) {
+        $generatedCssUrls['menu'] = $menuCssUrl;
+    }
 }
 if ($extraHeadCss !== '') {
     $pageCssUrl = \App\Core\GeneratedCss::publish($extraHeadCss, 'page');

@@ -965,6 +965,19 @@ body .site-header--transparent:not(.is-scrolled) .site-burger {
 
 body.is-hero-light .site-header--transparent:not(.is-scrolled) .site-header__logo-light { display: none; }
 body.is-hero-light .site-header--transparent:not(.is-scrolled) .site-header__logo:has(.site-header__logo-light) img.site-header__logo-std { display: block; }
+/* Светлый вариант своей иконки пункта меню — по тем же условиям, что светлый
+   логотип. В прозрачной шапке подменяется только верхний уровень: выпадающее
+   подменю лежит на своей светлой подложке. */
+body .site-header--transparent:not(.is-scrolled) .site-menu__link .site-menu__img--light { display: block; }
+body .site-header--transparent:not(.is-scrolled) .site-menu__link .site-menu__icon:has(.site-menu__img--light) .site-menu__img--std { display: none; }
+body.is-hero-light .site-header--transparent:not(.is-scrolled) .site-menu__link .site-menu__img--light { display: none; }
+body.is-hero-light .site-header--transparent:not(.is-scrolled) .site-menu__link .site-menu__icon:has(.site-menu__img--light) .site-menu__img--std { display: block; }
+:root[data-theme="dark"] .site-menu__img--light { display: block; }
+:root[data-theme="dark"] .site-menu__icon:has(.site-menu__img--light) .site-menu__img--std { display: none; }
+@media (prefers-color-scheme: dark) {
+    :root[data-theme="auto"] .site-menu__img--light { display: block; }
+    :root[data-theme="auto"] .site-menu__icon:has(.site-menu__img--light) .site-menu__img--std { display: none; }
+}
 .site-header--transparent:not(.is-scrolled) .site-header__logo:not(:has(img))::before { background: var(--hdr-fg, #fff); }
 .site-header--transparent:not(.is-scrolled) .site-menu__link:hover,
 .site-header--transparent:not(.is-scrolled) .site-menu__link:focus-visible,

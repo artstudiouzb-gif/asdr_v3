@@ -187,8 +187,25 @@ $renderFields = static function (?array $item, bool $isCreate = false) use (
                     'label' => 'Своя иконка (SVG или PNG)',
                     'file' => 'icon_image_file',
                     'accept' => 'image/svg+xml,image/png,image/webp',
-                    'hint' => 'Заменяет иконку из каталога. Выводится квадратом 18×18 — лучше SVG или PNG с прозрачным фоном.',
+                    'hint' => 'Заменяет иконку из каталога. Лучше SVG или PNG с прозрачным фоном.',
                 ]) ?>
+
+                <?= AdminUi::imageField('icon_image_light', (string) ($item['icon_image_light'] ?? ''), [
+                    'id' => $prefix . '_icon_image_light',
+                    'label' => 'Иконка для прозрачной шапки и тёмной темы',
+                    'file' => 'icon_image_light_file',
+                    'accept' => 'image/svg+xml,image/png,image/webp',
+                    'hint' => 'Светлый вариант своей иконки — для тёмного фона. Пусто — везде обычная.',
+                ]) ?>
+
+                <?php $iconSize = MenuItem::cleanIconSize($item['icon_size'] ?? 0); ?>
+                <div class="form-field">
+                    <label for="<?= $prefix ?>_icon_size">Размер иконки, px</label>
+                    <input type="number" id="<?= $prefix ?>_icon_size" name="icon_size"
+                           min="<?= MenuItem::ICON_SIZE_MIN ?>" max="<?= MenuItem::ICON_SIZE_MAX ?>" step="1"
+                           value="<?= $iconSize > 0 ? $iconSize : '' ?>" placeholder="18">
+                    <span class="form-hint">Пусто — как в теме (18 px). От <?= MenuItem::ICON_SIZE_MIN ?> до <?= MenuItem::ICON_SIZE_MAX ?>.</span>
+                </div>
 
                 <div class="form-field form-field--checkbox">
                     <input type="checkbox" id="<?= $prefix ?>_hide_title" name="hide_title" value="1"
