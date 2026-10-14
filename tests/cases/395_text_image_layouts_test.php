@@ -32,7 +32,7 @@ function text_image_render(array $data): array
 test('Раскладки «Текста с фото» предложены плитками с рисунком', function (): void {
     $fields = BlockFieldSchema::all()['text_image'];
     $layout = $fields['layout'];
-    assert_same(['side', 'bleed', 'overlap', 'wide'], array_keys($layout->options));
+    assert_same(['side', 'bleed', 'overlap', 'wide', 'spread'], array_keys($layout->options));
     assert_same('side', $layout->default, 'умолчание обязано быть прежним видом');
     foreach (['split', 'bleed', 'photo-card', 'wide'] as $shape) {
         assert_true(VariantPreview::isKnown($shape), "рисунок {$shape} не описан");

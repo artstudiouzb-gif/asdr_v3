@@ -68,6 +68,7 @@ final class VariantPreview
         'bleed' => 'текст и фото, уходящее за край',
         'photo-card' => 'фото и карточка текста поверх него',
         'wide' => 'фото во всю ширину, текст под ним со сдвигом',
+        'spread' => 'тёмная панель с текстом и фото встык',
         'rule' => 'горизонтальная линия',
         'emblem' => 'знак по центру',
         'space' => 'пустое место',
@@ -132,6 +133,7 @@ final class VariantPreview
             'counter-list' => self::counterList(),
             'counter-lead' => self::counterLead(),
             'bleed' => self::bleed(),
+            'spread' => self::spread(),
             'photo-card' => self::photoCard(),
             'wide' => self::wide(),
             'rule' => self::rule($mods),
@@ -708,6 +710,24 @@ final class VariantPreview
         $out .= self::line(self::PAD, self::PAD + 15, $mid - self::PAD - 4, 0.3);
         $out .= self::line(self::PAD, self::PAD + 19, $mid - self::PAD - 4, 0.3);
         $out .= self::line(self::PAD, self::PAD + 23, ($mid - self::PAD) * 0.6, 0.3);
+
+        return $out;
+    }
+
+    /**
+     * Разворот: тёмная половина с текстом и фото встык. Строки на тёмной
+     * панели рисуются цветом холста (Canvas) — currentColor на заливке того
+     * же цвета не виден.
+     */
+    private static function spread(): string
+    {
+        $mid = self::W / 2;
+        $out = self::box(self::PAD, self::PAD, $mid - self::PAD, self::H - self::PAD * 2, 0.75, 2);
+        $out .= self::box($mid, self::PAD, self::W - $mid - self::PAD, self::H - self::PAD * 2, 0.3, 2);
+        foreach ([[10, 0.8, 0.9], [17, 1, 0.6], [21, 1, 0.6], [25, 0.6, 0.6]] as [$y, $k, $o]) {
+            $out .= '<rect x="' . self::n(self::PAD + 4) . '" y="' . self::n(self::PAD + $y) . '" width="'
+                . self::n(($mid - self::PAD - 8) * $k) . '" height="2" rx="1" fill="Canvas" opacity="' . self::n($o) . '"/>';
+        }
 
         return $out;
     }

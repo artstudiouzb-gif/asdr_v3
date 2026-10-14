@@ -530,6 +530,153 @@
     .block-textimage--layout-wide .textimage__info { grid-column: 4 / 12; }
 }
 
+/* --- «Текст с фото»: подложка за кадром «Рядом», раскладка «Разворот» и факт
+   на фото. Здесь, а не файлом блока: полиш идёт после темы, и вынос поднял
+   бы эти правила над соседними семействами (тест 262). */
+
+/* Заголовок по ширине блока: в колонке конструктора 48px не помещаются. */
+@container text-image (max-width: 1000px) {
+    .block-textimage .textimage__title { font-size: var(--step-7); }
+}
+@container text-image (max-width: 720px) {
+    body[class] .block-textimage .textimage__title { font-size: var(--step-5); }
+    .block-textimage .textimage__text > p:first-child:not(:only-child) { font-size: var(--step-1); }
+}
+
+.textimage__visual { position: relative; }
+
+/* «Рядом»: за кадром — тонированная подложка со сдвигом наружу блока
+   (у фото слева — влево), факт заходит на угол кадра со стороны текста. */
+@container text-image (min-width: 901px) {
+    .block-textimage.block-textimage--layout-side { gap: clamp(32px, 5vw, 80px); }
+}
+.block-textimage--layout-side .textimage__visual { isolation: isolate; margin-bottom: 28px; }
+.block-textimage--layout-side .textimage__visual::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 28px -28px -28px 28px;
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--gov-teal) 16%, transparent);
+}
+.block-textimage--layout-side.block-textimage--image-left .textimage__visual::before { inset: 28px 28px -28px -28px; }
+@container text-image (max-width: 1100px) {
+    .block-textimage--layout-side .textimage__visual { margin-bottom: 20px; }
+    .block-textimage--layout-side .textimage__visual::before { inset: 20px -14px -20px 20px; }
+    .block-textimage--layout-side.block-textimage--image-left .textimage__visual::before { inset: 20px 20px -20px -14px; }
+}
+.block-textimage--layout-side :is(.textimage__media img, img.textimage__media) { border-radius: var(--radius); }
+
+/* «Разворот»: две половины встык — тёмная панель с текстом и фото во всю
+   высоту. Панель — своя поверхность: переменные цвета секции объявлены
+   заново, иначе текст взял бы цвет секции и пропал на тёмной заливке. */
+.block-textimage--layout-spread { gap: 0; align-items: stretch; border-radius: var(--radius); overflow: hidden; }
+@container text-image (min-width: 901px) {
+    .block-textimage.block-textimage--layout-spread { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 520px; }
+}
+.block-textimage--layout-spread .textimage__info {
+    --section-fg: #fff;
+    --section-title-fg: #fff;
+    --section-muted-fg: rgba(255, 255, 255, .8);
+    --section-link-fg: #fff;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(28px, 5vw, 72px);
+    background: var(--gov-navy);
+    color: #fff;
+}
+.block-textimage--layout-spread .textimage__info::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: -90px;
+    bottom: -110px;
+    width: 340px;
+    height: 340px;
+    background: var(--gov-teal);
+    opacity: .12;
+    -webkit-mask: var(--textimage-emblem) center / contain no-repeat;
+    mask: var(--textimage-emblem) center / contain no-repeat;
+    pointer-events: none;
+}
+.block-textimage--layout-spread .textimage__title { color: #fff; }
+.block-textimage--layout-spread .textimage__text { color: rgba(255, 255, 255, .8); }
+.block-textimage--layout-spread .textimage__text > p:first-child:not(:only-child) { color: #fff; }
+.block-textimage--layout-spread .textimage__feature-label { color: #fff; }
+.block-textimage--layout-spread .textimage__link { color: #fff; }
+/* Белая кнопка на тёмной панели: акцент с белой подписью даёт 3.46:1. */
+.block-textimage--layout-spread .textimage__button { border-color: #fff; background: #fff; color: var(--gov-navy); }
+.block-textimage--layout-spread .textimage__button:is(:hover, :focus-visible) {
+    border-color: #fff;
+    background: color-mix(in srgb, #fff 86%, var(--gov-teal));
+    color: var(--gov-navy);
+}
+.block-textimage--layout-spread .textimage__visual { min-height: clamp(260px, 40vw, 520px); }
+.block-textimage--layout-spread .textimage__media,
+.block-textimage--layout-spread :is(.textimage__media img, img.textimage__media) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    border-radius: 0;
+    object-fit: cover;
+}
+.block-textimage--layout-spread .textimage__media img { position: static; }
+@container text-image (max-width: 900px) {
+    .block-textimage--layout-spread .textimage__visual { order: -1; }
+}
+
+/* Факт на фото: одно число с подписью карточкой на углу кадра. Карточка —
+   поверхность со своими цветами, как и карточки из SectionColors::SURFACES. */
+.textimage__fact {
+    --section-fg: var(--gov-ink);
+    --section-title-fg: var(--gov-title);
+    --section-muted-fg: var(--gov-muted);
+    position: absolute;
+    z-index: 1;
+    bottom: -28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 240px;
+    margin: 0;
+    padding: 22px 24px;
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius);
+    background: var(--gov-surface);
+    box-shadow: var(--shadow-hover);
+}
+.block-textimage--image-right .textimage__fact { left: -24px; }
+.block-textimage--image-left .textimage__fact { right: -24px; }
+.textimage__fact-value {
+    font-family: var(--font-heading, inherit);
+    font-size: var(--step-10);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.03em;
+    color: var(--gov-title);
+    overflow-wrap: anywhere;
+}
+.textimage__fact-caption { font-size: var(--step--1); line-height: 1.4; color: var(--gov-muted); }
+/* У «До края» и «Разворота» кадр упирается в край экрана: факт лежит внутри. */
+.block-textimage:is(.block-textimage--layout-bleed, .block-textimage--layout-spread) .textimage__fact { bottom: 24px; }
+.block-textimage--image-right:is(.block-textimage--layout-bleed, .block-textimage--layout-spread) .textimage__fact { left: 24px; }
+.block-textimage--image-left:is(.block-textimage--layout-bleed, .block-textimage--layout-spread) .textimage__fact { right: 24px; }
+@container text-image (max-width: 1100px) {
+    .block-textimage--layout-side.block-textimage--image-right .textimage__fact { left: 12px; }
+    .block-textimage--layout-side.block-textimage--image-left .textimage__fact { right: 12px; }
+}
+@container text-image (max-width: 900px) {
+    .block-textimage--has-fact.block-textimage--layout-side .textimage__visual { margin-bottom: 32px; }
+    .block-textimage .textimage__fact { max-width: min(240px, calc(100% - 24px)); padding: 16px 18px; }
+    .block-textimage .textimage__fact-value { font-size: var(--step-8); }
+}
+
 /* Колонка конструктора — свой контейнер измерения. Сетки блоков считают
    раскладку по ширине экрана, а в колонке 1:3 узкая доля остаётся узкой на
    любом экране: пять карточек в ряд там не помещаются никогда, и настройка
