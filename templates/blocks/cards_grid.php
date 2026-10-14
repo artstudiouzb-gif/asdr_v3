@@ -201,6 +201,8 @@ if ($variant === 'icon' && $visualStyle === 'new') {
             </div>
         <?php endif; ?>
     </div>
+<?php elseif (in_array($variant, ['lead', 'index', 'mark', 'panel'], true)): ?>
+<?php include __DIR__ . '/partials/cards_layouts.php'; ?>
 <?php elseif ($variant === 'band'): ?>
     <?php // Компактная полоса: сплошная тёмная лента вместо карточек. Пришла
           // из «Преимуществ» вместе с их разметкой — правила темы висят на

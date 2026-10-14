@@ -42,6 +42,14 @@
       "gzip": 656,
       "brotli": 521
     },
+    "/assets/css/blocks/cards-layouts.css": {
+      "path": "/assets/css/blocks/cards-layouts.min.css",
+      "sourceSha256": "bab27f2cf124e8f19b560d066ed8c496abe3d879cc31f7f554882ec041a03929",
+      "sha256": "624f9fe0497c192aa19ca6ca2f5f76b730685de4e3b8878e3a62e3c6d2e82bff",
+      "raw": 7107,
+      "gzip": 1734,
+      "brotli": 1474
+    },
     "/assets/css/blocks/catalog.css": {
       "path": "/assets/css/blocks/catalog.min.css",
       "sourceSha256": "d7595b1b2654cb6b062ac10e85f42e1e4347d64cd65bc26c3533b69540de3c7a",
