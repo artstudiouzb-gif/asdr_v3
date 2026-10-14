@@ -286,6 +286,20 @@ final class BlockFieldSchema
                     'tall' => 'Во всю высоту, цитата на основном цвете',
                     'mini' => 'Маленький у подписи и росчерк',
                 ], 'round', 'Росчерк набирается рукописным шрифтом из «Дизайна».')->onlyWhen('variant', ['feature']),
+                'portrait_size' => Field::int(
+                    'Размер портрета, px',
+                    72,
+                    320,
+                    144,
+                    'Для портрета слева. На телефоне портрет уменьшается на треть.'
+                )->onlyWhen('variant', ['feature']),
+                'portrait_shape' => Field::enum('Форма портрета', [
+                    'circle' => 'Круг',
+                    'rounded' => 'Скруглённый квадрат',
+                    'square' => 'Квадрат',
+                    'arch' => 'Арка',
+                    'oval' => 'Овал',
+                ], 'circle', 'Для портрета слева. Арка и овал — вертикальные, 4:5: под них подходит снимок по пояс.')->onlyWhen('variant', ['feature']),
                 'title' => Field::text('Заголовок, показываемый на сайте')->named('title_field'),
                 'description' => Field::textarea('Описание раздела'),
                 'columns' => Field::intChoice(

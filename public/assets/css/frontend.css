@@ -795,7 +795,13 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .tquote__figure { margin: 0; display: grid; gap: 32px; align-items: start; }
 .tquote--has-photo.tquote--round .tquote__figure { grid-template-columns: auto minmax(0, 1fr); }
 .tquote__photo { overflow: hidden; }
-.tquote--round .tquote__photo { width: 144px; aspect-ratio: 1; border-radius: 50%; }
+.tquote--round .tquote__photo { width: var(--tquote-photo, 144px); aspect-ratio: 1; border-radius: 50%; }
+/* Форма портрета слева: круг — умолчание, остальные приходят классом.
+   Арка и овал вертикальные — снимок по пояс в квадрате теряет плечи. */
+.tquote--shape-rounded .tquote__photo { border-radius: var(--radius); }
+.tquote--shape-square .tquote__photo { border-radius: 0; }
+.tquote--shape-arch .tquote__photo { aspect-ratio: 4 / 5; border-radius: var(--radius-pill) var(--radius-pill) 0 0; }
+.tquote--shape-oval .tquote__photo { aspect-ratio: 4 / 5; border-radius: 50%; }
 .tquote__photo picture, .tquote__img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .tquote__text {
     --tquote-mark: var(--step-12);
@@ -832,7 +838,7 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .tquote--tall .tquote__role { color: color-mix(in srgb, #fff 80%, var(--gov-navy)); }
 @media (max-width: 720px) {
     .tquote--has-photo.tquote--round .tquote__figure { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-    .tquote--round .tquote__photo { width: 96px; }
+    .tquote--round .tquote__photo { width: calc(var(--tquote-photo, 144px) * 2 / 3); }
     .tquote__text { --tquote-mark: var(--step-10); }
     .tquote__text p { font-size: var(--step-3); }
     .tquote__author, .tquote__sign { padding-inline-start: calc(var(--step-10) * .62); }
