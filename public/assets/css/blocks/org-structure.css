@@ -12,8 +12,12 @@
    здесь, в начале: минификатор сливает блоки «уменьшить движение» с первым
    таким же, и замена, записанная после определения, в собранном файле
    оказалась бы перед ним. */
-@keyframes orgstruct-line-down { from { scale: 1 0; } }
-@keyframes orgstruct-line-across { from { scale: 0 1; } }
+/* Линия рисуется «чернилами» акцента и остывает до цвета связи: так видно,
+   куда идёт подчинение, пока взгляд следит за прорисовкой. */
+@keyframes orgstruct-line-down { from { scale: 1 0; background-color: var(--gov-teal); } 70% { background-color: var(--gov-teal); } }
+@keyframes orgstruct-line-across { from { scale: 0 1; background-color: var(--gov-teal); } 70% { background-color: var(--gov-teal); } }
+/* Блик по карточке руководителя — один проход при появлении схемы. */
+@keyframes orgstruct-sheen { from { translate: -120% 0; } }
 @keyframes orgstruct-rise { from { opacity: 0; translate: 0 14px; } }
 
 /* из public/assets/css/frontend.css */
@@ -388,6 +392,11 @@ a.orgstruct__head:hover .orgstruct__head-name { color: color-mix(in srgb, var(--
     pointer-events: none;
 }
 .design-emblem-off .orgstruct__head::after { display: none; }
+/* Имя руководителя — белым, как и должность. Общее правило заголовков темы
+   (gov-theme.css, список с .orgstruct__head-name) красит его в --gov-title,
+   то есть тёмно-синим по тёмно-синей карточке: без наведения имя было почти
+   не видно. Часть темы грузится после бандла, вес тот же — побеждает она. */
+.orgstruct__head-name { color: inherit; }
 /* Короткая черта акцента под должностью: отделяет «кто» от «как зовут». */
 .orgstruct__head-role::after {
     content: ''; display: block; width: 28px; height: 2px; margin: 8px auto 0;
@@ -445,6 +454,53 @@ a.orgstruct__head:hover .orgstruct__head-name { color: color-mix(in srgb, var(--
     @keyframes orgstruct-line-down { to { --motion-still: 1; } }
     @keyframes orgstruct-line-across { to { --motion-still: 1; } }
     @keyframes orgstruct-rise { from { opacity: 0; } }
+    @keyframes orgstruct-sheen { to { --motion-still: 1; } }
+}
+
+/* «Чертёж» под схемой: точечная сетка, гаснущая к краям. Цвет — от текста
+   секции, поэтому сетка видна и на светлой, и на тёмной теме, и на тёмной
+   секции. Наружу по горизонтали не выходит: иначе страница получила бы
+   прокрутку вбок. */
+.orgstruct { position: relative; isolation: isolate; }
+.orgstruct::before {
+    content: ''; position: absolute; z-index: -1; inset: -20px 0;
+    background-image: radial-gradient(circle, color-mix(in srgb, currentColor 16%, transparent) 1px, transparent 1.6px);
+    background-size: 22px 22px; background-position: center top;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 25%, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 25%, transparent 75%);
+    pointer-events: none;
+}
+/* Совет — та же подсветка из угла, что у руководителя: это верх иерархии. */
+.orgstruct__council-card {
+    background-image: radial-gradient(120% 160% at 0% 0%, color-mix(in srgb, var(--gov-teal) 34%, transparent), transparent 60%);
+}
+/* Блик. В покое стоит за правым краем карточки (overflow: hidden), так что
+   без шкалы прокрутки и при «меньше движения» его просто не видно. */
+.orgstruct__head::before {
+    content: ''; position: absolute; z-index: -1; inset: 0 auto 0 0; width: 60%;
+    translate: 220% 0;
+    background: linear-gradient(100deg, transparent 15%, color-mix(in srgb, #fff 22%, transparent) 50%, transparent 85%);
+    pointer-events: none;
+}
+@supports (animation-timeline: view()) {
+    .orgstruct__head::before {
+        animation: orgstruct-sheen ease-in-out both;
+        animation-timeline: view();
+        animation-range: entry 40% cover 50%;
+    }
+}
+/* Наведение на ветку: кольцо акцента вокруг карточки — подъём и рамка уже
+   есть, кольцо делает выбранную ветку заметной в ряду из четырёх. */
+.orgstruct__deputy:hover {
+    outline: 2px solid color-mix(in srgb, var(--gov-teal) 28%, transparent);
+    outline-offset: 3px;
+}
+/* Подразделение под курсором подсвечивается от своей грани акцента. */
+.orgstruct__unit:hover {
+    background-image: linear-gradient(90deg, color-mix(in srgb, var(--gov-teal) 10%, transparent), transparent 55%);
+}
+.orgstruct__unit--accent:hover {
+    background-image: linear-gradient(90deg, color-mix(in srgb, var(--org-flag) 14%, transparent), transparent 55%);
 }
 
 /* Печать схемы. Браузер по умолчанию не печатает фоновую графику, поэтому
@@ -484,6 +540,8 @@ a.orgstruct__head:hover .orgstruct__head-name { color: color-mix(in srgb, var(--
     /* Свёрнутые на телефоне ветки при печати раскрываем: лист должен
        содержать всю схему, а не то, что осталось открытым на экране. */
     .orgstruct__toggle,
+    .orgstruct::before,
+    .orgstruct__head::before,
     .orgstruct__head::after,
     .orgstruct__deputy::before { display: none !important; }
     .orgstruct__units[hidden] { display: flex !important; }
