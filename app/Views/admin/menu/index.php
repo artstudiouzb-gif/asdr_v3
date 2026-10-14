@@ -3,6 +3,7 @@
 use App\Core\AdminUi;
 use App\Core\Csrf;
 use App\Models\Language;
+use App\Models\MenuItem;
 
 $pageTitle = 'Конструктор меню';
 $activeNav = 'menu';
@@ -181,6 +182,14 @@ $renderFields = static function (?array $item, bool $isCreate = false) use (
                     'hint' => 'Полный локальный каталог Tabler Icons. В базе сохраняется только имя.',
                 ]) ?>
 
+                <?= AdminUi::imageField('icon_image', (string) ($item['icon_image'] ?? ''), [
+                    'id' => $prefix . '_icon_image',
+                    'label' => 'Своя иконка (SVG или PNG)',
+                    'file' => 'icon_image_file',
+                    'accept' => 'image/svg+xml,image/png,image/webp',
+                    'hint' => 'Заменяет иконку из каталога. Выводится квадратом 18×18 — лучше SVG или PNG с прозрачным фоном.',
+                ]) ?>
+
                 <div class="form-field form-field--checkbox">
                     <input type="checkbox" id="<?= $prefix ?>_hide_title" name="hide_title" value="1"
                         <?= !empty($item['hide_title']) ? ' checked' : '' ?>>
@@ -229,6 +238,7 @@ $renderNode = static function (array $item) use ($urlTypeLabels): string {
         : ($urlTypeLabels[(string) $item['url_type']] ?? 'Ссылка')
             . ((string) ($item['url_value'] ?? '') !== '' ? ' · ' . (string) $item['url_value'] : '');
     $rawIcon = trim((string) ($item['icon_svg'] ?? ''));
+    $rawImage = (string) (MenuItem::cleanIconImage($item['icon_image'] ?? null) ?? '');
     ob_start();
     ?>
     <div class="menu-node__row">
@@ -241,6 +251,8 @@ $renderNode = static function (array $item) use ($urlTypeLabels): string {
             <span class="menu-node__type-icon" aria-hidden="true">
                 <?php if ($isDivider): ?>
                     <?= AdminUi::icon('divider', 18) ?>
+                <?php elseif ($rawImage !== ''): ?>
+                    <img src="<?= htmlspecialchars($rawImage, ENT_QUOTES) ?>" alt="" width="18" height="18" class="menu-node__img">
                 <?php elseif ($rawIcon !== ''): ?>
                     <?= AdminUi::icon($rawIcon, 18) ?>
                 <?php else: ?>
@@ -352,7 +364,7 @@ foreach ($groups as $group) {
                 <h2 id="menu-add-title">Добавить в меню</h2>
                 <p>Выберите страницу или создайте собственную ссылку.</p>
             </div>
-            <form method="post" action="/admin/menu/create" class="menu-panel__body">
+            <form method="post" action="/admin/menu/create" class="menu-panel__body" enctype="multipart/form-data">
                 <?= Csrf::field() ?>
                 <?= $renderFields(null, true) ?>
                 <button type="submit" class="btn btn--primary menu-submit-wide" data-menu-create-submit>
@@ -461,7 +473,7 @@ foreach ($groups as $group) {
                         <h2><?= htmlspecialchars($itemTitle, ENT_QUOTES) ?></h2>
                         <p><?= htmlspecialchars(strtoupper((string) $item['lang']), ENT_QUOTES) ?> · настройки элемента</p>
                     </div>
-                    <form method="post" action="/admin/menu/<?= $id ?>/edit" class="menu-panel__body">
+                    <form method="post" action="/admin/menu/<?= $id ?>/edit" class="menu-panel__body" enctype="multipart/form-data">
                         <?= Csrf::field() ?>
                         <?= $renderFields($item) ?>
                         <div class="menu-inspector__actions">

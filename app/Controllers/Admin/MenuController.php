@@ -7,6 +7,7 @@ namespace App\Controllers\Admin;
 use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Flash;
+use App\Core\ImageField;
 use App\Core\View;
 use App\Models\Language;
 use App\Models\MenuItem;
@@ -63,7 +64,7 @@ final class MenuController
             return;
         }
 
-        [$data, $error] = $this->collectInput();
+        [$data, $error] = $this->collectInput($item);
         if ($error !== null) {
             Flash::error($error);
             $this->redirectToMenu((string) $item['lang'], (int) $item['id']);
@@ -177,9 +178,10 @@ final class MenuController
     }
 
     /**
+     * @param array<string, mixed>|null $existing
      * @return array{0: array, 1: string|null}
      */
-    private function collectInput(): array
+    private function collectInput(?array $existing = null): array
     {
         $title = trim((string) ($_POST['title'] ?? ''));
         // Меню теперь всегда привязано к конкретному языку (без «Все языки»):
@@ -203,6 +205,7 @@ final class MenuController
                 'title' => $title !== '' ? $title : '—',
                 'lang' => $lang,
                 'icon_svg' => null,
+                'icon_image' => null,
                 'is_divider' => true,
                 'url_type' => 'custom',
                 'url_value' => null,
@@ -234,6 +237,17 @@ final class MenuController
             $urlValue = '';
         }
 
+        // Своя картинка главнее иконки из каталога: загруженный SVG/PNG —
+        // это знак, которого в Tabler нет (герб, логотип программы).
+        try {
+            $iconImage = ImageField::resolve('icon_image_file', 'icon_image', $existing['icon_image'] ?? null, Auth::id());
+        } catch (\Throwable $e) {
+            return [[], 'Не удалось загрузить иконку: ' . $e->getMessage()];
+        }
+        if ($iconImage !== null && $iconImage !== '' && MenuItem::cleanIconImage($iconImage) === null) {
+            return [[], 'Иконка должна быть картинкой SVG, PNG, WebP, JPG или GIF из медиатеки.'];
+        }
+
         $parentRaw = trim((string) ($_POST['parent_id'] ?? ''));
         $parentId = ($parentRaw === '' || $parentRaw === '0') ? null : (int) $parentRaw;
         $badgeText = trim((string) ($_POST['badge_text'] ?? ''));
@@ -244,6 +258,7 @@ final class MenuController
             'title' => $title,
             'lang' => $lang,
             'icon_svg' => $iconSvg,
+            'icon_image' => $iconImage,
             'hide_title' => !empty($_POST['hide_title']),
             'badge_text' => $badgeText !== '' ? $badgeText : null,
             'badge_color' => $badgeColor,

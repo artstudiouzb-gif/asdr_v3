@@ -2827,6 +2827,7 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
     color: #2563eb;
 }
 .menu-node__type-icon svg { width: 17px; height: 17px; }
+.menu-node__img { width: 17px; height: 17px; object-fit: contain; display: block; }
 .menu-node__content { display: flex; min-width: 90px; flex: 1; flex-direction: column; gap: 2px; }
 .menu-node__title { overflow: hidden; color: #1e293b; font-size: var(--admin-fs-base); font-weight: var(--admin-fw-semibold); text-overflow: ellipsis; white-space: nowrap; }
 .menu-node__meta { overflow: hidden; color: var(--admin-muted); font-size: var(--admin-fs-xs); text-overflow: ellipsis; white-space: nowrap; }
