@@ -698,6 +698,200 @@ html[data-a11y-motion="off"] .counter--goal .counter__fill { animation: none; }
     .cms-columns .cms-columns__col .block-counters .counter--lead :is(.counter__value, .counter__suffix) { font-size: var(--step-8); }
 }
 
+/* --- Раскладки, где число главное: «Табло», «Главная цифра», «Мозаика»,
+   «Линейка» (CounterFormat::COMPOSED) ---
+   Разметка показателя та же, что у остальных видов; различается раскладка.
+   Подложку они рисуют сами (шаблон ставит им panel-none), а полоса пути к
+   цели выводится у каждого показателя, где цель задана.
+   Размер числа считается от ширины своей колонки (`cqi`), а не берётся
+   ступенью: «2 400+» в четверти ряда иначе вылезало за колонку. Вес
+   селекторов — три класса: он обязан перебить размеры из «Размера чисел»,
+   медиазапросов ширины и `body[class]` в конце файла. */
+.block-counters--composed .counter {
+    --cnum: var(--step-10);
+    container-type: inline-size;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+}
+.block-counters--composed .counter__head { display: contents; }
+.block-counters--composed .counter .counter__body { gap: 6px; align-items: stretch; text-align: start; }
+.block-counters--composed .counter .counter__value {
+    font-size: min(var(--cnum), 27cqi);
+    line-height: .92;
+    letter-spacing: -.035em;
+    font-variant-numeric: tabular-nums lining-nums;
+    white-space: nowrap;
+}
+.block-counters--composed .counter .counter__suffix {
+    align-self: flex-start;
+    margin-left: .06em;
+    font-size: calc(min(var(--cnum), 27cqi) * .56);
+    line-height: 1;
+    color: var(--counters-accent, var(--gov-teal-text));
+}
+.block-counters--composed .counter .counter__num { flex-wrap: nowrap; gap: 6px; }
+.block-counters--composed .counter .counter__label { margin: 6px 0 0; max-inline-size: none; color: var(--counters-fg); font-size: var(--step-0); font-weight: 600; }
+.block-counters--composed .counter .counter__note { font-size: var(--step--1); margin: 0; }
+.block-counters--composed .counter__goal { margin-top: 6px; }
+.block-counters--composed .counter__track { height: 6px; }
+
+/* Табло: тёмная панель с эмблемой. Свои цвета панели главнее темы: вес
+   `:root[data-theme]` перекрывает и `--panel-none`, и тёмную схему. */
+:root .block-counters.block-counters--board,
+:root[data-theme] .block-counters.block-counters--board {
+    --counters-fg: var(--counters-text, #fff);
+    --counters-muted: var(--counters-text, rgba(255, 255, 255, .74));
+    --counters-rule: rgba(255, 255, 255, .16);
+    --counters-accent: var(--gov-teal);
+    --counters-bad: #ffb4a8;
+    --section-fg: var(--counters-fg);
+    --section-title-fg: var(--counters-fg);
+    --section-muted-fg: var(--counters-muted);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: clamp(32px, 4.5vw, 64px);
+    border-radius: var(--radius);
+    background: var(--counters-bg, var(--gov-navy));
+}
+.block-counters--board::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -90px;
+    right: -90px;
+    width: 380px;
+    height: 380px;
+    background: var(--gov-teal);
+    opacity: .12;
+    -webkit-mask: var(--counters-emblem) center / contain no-repeat;
+    mask: var(--counters-emblem) center / contain no-repeat;
+    pointer-events: none;
+}
+.block-counters--board .counter__delta--good { color: var(--gov-teal); }
+.block-counters--board .counter__track { background: rgba(255, 255, 255, .14); }
+/* Разделитель рисует каждый показатель у своего левого края, сетка обрезает
+   те, что у начала ряда, — линии верны при любом числе колонок. */
+.block-counters--board .block-counters__grid { --board-gap: clamp(32px, 4.4vw, 64px); column-gap: var(--board-gap); row-gap: 40px; overflow: hidden; }
+.block-counters--board .counter::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inset-inline-start: calc(var(--board-gap) / -2);
+    width: 1px;
+    background: var(--counters-rule);
+}
+.block-counters--board .counter { --cnum: var(--step-12); }
+.block-counters--board .block-counters__source { border-top: 1px solid var(--counters-rule); padding-top: 16px; }
+
+/* Главная цифра: первый показатель крупно на тонированной подложке, остальные
+   строками рядом — числа столбцом по правому краю. */
+.block-counters--feature .block-counters__grid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    column-gap: clamp(32px, 5vw, 80px);
+    align-items: stretch;
+}
+.block-counters--feature .counter.counter--lead {
+    --cnum: clamp(var(--step-12), 10vw, 9rem);
+    grid-column: 1;
+    grid-row: 1 / span var(--counters-rest, 1);
+    gap: 14px;
+    padding: clamp(28px, 3.5vw, 44px);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--gov-teal) 9%, var(--gov-surface));
+}
+.block-counters--feature .counter.counter--lead .counter__label { font-family: var(--font-heading, var(--font-family)); font-size: var(--step-3); max-inline-size: 26ch; }
+.block-counters--feature .counter.counter--lead .counter__note { font-size: var(--step-0); max-inline-size: 44ch; }
+.block-counters--feature .counter:not(.counter--lead) {
+    --cnum: var(--step-8);
+    --feature-num: calc(var(--step-8) * 3.4);
+    grid-column: 2;
+    container-type: normal;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--counters-rule);
+}
+.block-counters--feature .counter:nth-child(2) { border-top: 2px solid var(--counters-fg); }
+.block-counters--feature .counter:not(.counter--lead) .counter__body {
+    display: grid;
+    grid-template-columns: var(--feature-num) minmax(0, 1fr);
+    column-gap: 22px;
+    row-gap: 4px;
+    align-items: baseline;
+}
+.block-counters--feature .counter:not(.counter--lead) .counter__num { grid-row: 1 / span 3; justify-content: flex-end; }
+.block-counters--feature .counter:not(.counter--lead) .counter__value { font-size: var(--cnum); }
+.block-counters--feature .counter:not(.counter--lead) .counter__suffix { font-size: calc(var(--cnum) * .56); }
+.block-counters--feature .counter:not(.counter--lead) :is(.counter__label, .counter__note, .counter__delta) { grid-column: 2; margin: 0; }
+.block-counters--feature .counter:not(.counter--lead) .counter__goal { margin-inline-start: calc(var(--feature-num) + 22px); }
+/* Иконка у строки стояла бы над числом отдельной строкой — в списке ей места нет. */
+.block-counters--feature .counter:not(.counter--lead) .counter__icon { display: none; }
+
+/* Мозаика: плитки разного веса. Первая — акцент, затемнённый на треть:
+   белая подпись на самом акценте даёт 3.46:1, а `--gov-teal-text` в тёмной
+   теме светлеет и белый текст на нём пропадает. Вторая — основной цвет. */
+.block-counters--bento .block-counters__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-flow: dense;
+    gap: var(--card-gap, 16px);
+}
+.block-counters--bento .counter {
+    --cnum: var(--step-10);
+    padding: 26px;
+    border: 1px solid var(--gov-border);
+    border-radius: var(--radius);
+    background: var(--gov-surface);
+    isolation: isolate;
+}
+.block-counters--bento .counter .counter__icon { position: absolute; top: 18px; right: 18px; margin: 0; }
+.block-counters--bento .counter:has(.counter__icon) .counter__body { padding-inline-end: 52px; }
+.block-counters--bento .counter:is(:nth-child(1), :nth-child(2)) {
+    --counters-fg: #fff;
+    --counters-muted: rgba(255, 255, 255, .86);
+    --counters-rule: rgba(255, 255, 255, .24);
+    --counters-bad: #ffd1c9;
+    border-color: transparent;
+}
+.block-counters--bento .counter:nth-child(1) {
+    --cnum: clamp(var(--step-12), 9vw, 8.5rem);
+    --counters-accent: #fff;
+    grid-column: span 2;
+    grid-row: span 2;
+    justify-content: flex-end;
+    background: color-mix(in srgb, var(--gov-teal) 68%, #000);
+}
+.block-counters--bento .counter:nth-child(1) .counter__label { font-size: var(--step-2); }
+.block-counters--bento .counter:nth-child(2) { --counters-accent: var(--gov-teal); grid-column: span 2; background: var(--gov-navy); }
+.block-counters--bento .counter:is(:nth-child(1), :nth-child(2)) :is(.counter__delta, .counter__goal-foot) { color: #fff; }
+.block-counters--bento .counter:is(:nth-child(1), :nth-child(2)) .counter__track { background: rgba(255, 255, 255, .24); }
+.block-counters--bento .counter:nth-child(1) .counter__fill { background: #fff; }
+.block-counters--bento .counter:is(:nth-child(1), :nth-child(2)) .counter__icon { background: rgba(255, 255, 255, .16); color: #fff; }
+.block-counters--bento .counter--link:hover { border-color: var(--gov-teal); }
+
+/* Линейка: без подложки, черта сверху — для текстовых страниц и отчётов. */
+.block-counters--ruler .block-counters__grid { gap: 36px clamp(20px, 3vw, 44px); }
+.block-counters--ruler .counter { --cnum: var(--step-11); padding-top: 20px; border-top: 4px solid var(--counters-fg); }
+
+@media (max-width: 900px) {
+    .block-counters--feature .block-counters__grid { grid-template-columns: minmax(0, 1fr); row-gap: 0; }
+    .block-counters--feature .counter.counter--lead { grid-column: 1; grid-row: auto; margin-bottom: 24px; }
+    .block-counters--feature .counter:not(.counter--lead) { grid-column: 1; }
+    .block-counters--bento .block-counters__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+    .block-counters--board,
+    .block-counters--ruler { --counters-cols: 1; }
+    .block-counters--bento .block-counters__grid { grid-template-columns: minmax(0, 1fr); }
+    .block-counters--bento .counter:nth-child(n) { grid-column: auto; grid-row: auto; }
+    /* В ширине телефона колонка чисел отнимала у подписи половину строки, а
+       «2 400+» в неё не помещалось — строка складывается в столбец. */
+    .block-counters--feature .counter:not(.counter--lead) .counter__body { grid-template-columns: minmax(0, 1fr); }
+    .block-counters--feature .counter:not(.counter--lead) .counter__num { grid-row: auto; justify-content: flex-start; }
+    .block-counters--feature .counter:not(.counter--lead) :is(.counter__label, .counter__note, .counter__delta) { grid-column: 1; }
+    .block-counters--feature .counter:not(.counter--lead) .counter__goal { margin-inline-start: 0; }
+}
+
 /* Узкие экраны: крупные числа берут нижнюю границу прежнего clamp, чтобы не
    переполнять строку.
 
