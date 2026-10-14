@@ -190,3 +190,25 @@ test('Метку состояния можно выключить; в метке
     assert_false(str_contains($hidden, 'stage__status'), 'выключенная метка не печатается');
     assert_contains('stage--done', $hidden, 'состояние этапа остаётся у точки и линии');
 });
+
+test('Текст события принимает разметку мини-редактора, старый простой текст сохраняет переносы', function () {
+    $render = static fn (array $items, string $layout = 'track'): string => (string) BlockRenderer::render([
+        'id' => 1784,
+        'type' => 'stages',
+        'custom_css' => null,
+        'data' => json_encode(['layout' => $layout, 'items' => $items]),
+    ])['html'];
+
+    $html = $render([['year' => '2021', 'text' => '<p>Указ <strong>ПФ-6264</strong></p><script>x()</script>', 'status' => 'done']]);
+    assert_contains('<div class="stage__text"><p>Указ <strong>ПФ-6264</strong></p>', $html);
+    assert_false(str_contains($html, '<script>x()'), 'скрипт из текста события не проходит');
+
+    $list = $render([['year' => '2021', 'text' => '<p>Абзац</p>', 'status' => 'done']], 'list');
+    assert_contains('<div class="timeline-item__text"><p>Абзац</p></div>', $list);
+
+    $legacy = $render([['year' => '2021', 'text' => "Первая строка\nвторая & третья", 'status' => 'done']]);
+    assert_contains('Первая строка<br>', $legacy);
+    assert_contains('вторая &amp; третья', $legacy);
+
+    assert_same(2, substr_count(block_editor_markup(), '][text]" data-mini-editor'), 'мини-редактор и у существующих событий, и у новых');
+});

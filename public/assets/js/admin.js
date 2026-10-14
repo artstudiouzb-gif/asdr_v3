@@ -804,6 +804,9 @@
             arrangeBlockRepeaterRow(wrapper);
             if (window.__enhanceIconFields) { window.__enhanceIconFields(wrapper); }
             if (window.__enhanceColorFields) { window.__enhanceColorFields(wrapper); }
+            if (window.ArtEditor) {
+                wrapper.querySelectorAll('textarea[data-mini-editor], textarea[data-wysiwyg]').forEach(function (ta) { window.ArtEditor.attach(ta); });
+            }
             return;
         }
 
@@ -2370,7 +2373,7 @@
 
     // --- Автономный WYSIWYG (задача 75): инициализация на textarea[data-wysiwyg] ---
     if (window.ArtEditor) {
-        document.querySelectorAll('textarea[data-wysiwyg], textarea[data-lead-editor], textarea[data-notice-editor]').forEach(function (ta) {
+        document.querySelectorAll('textarea[data-wysiwyg], textarea[data-lead-editor], textarea[data-notice-editor], textarea[data-mini-editor]').forEach(function (ta) {
             window.ArtEditor.attach(ta);
         });
     }
@@ -3465,13 +3468,28 @@
         var row = btn.closest('.repeater-row');
         if (!row) { return; }
         var direction = btn.getAttribute('data-repeater-move') || btn.getAttribute('data-fb-move');
-        if (direction === 'up') {
-            var prev = row.previousElementSibling;
-            if (prev) { row.parentNode.insertBefore(row, prev); }
-        } else {
-            var next = row.nextElementSibling;
-            if (next) { row.parentNode.insertBefore(next, row); }
+        var sibling = direction === 'up' ? row.previousElementSibling : row.nextElementSibling;
+        if (!sibling) { return; }
+        // Перенос узла перезагружает iframe редактора, и текст в нём пропадал
+        // бы из вида: редакторы обеих строк сохраняются, снимаются и
+        // ставятся заново уже на новом месте.
+        var editors = [];
+        if (window.tinymce && window.ArtEditor) {
+            [row, sibling].forEach(function (r) {
+                r.querySelectorAll('textarea[data-wysiwyg-ready="1"]').forEach(function (ta) {
+                    var ed = ta.id ? window.tinymce.get(ta.id) : null;
+                    if (ed) { ed.save(); ed.remove(); }
+                    ta.dataset.wysiwygReady = '';
+                    editors.push(ta);
+                });
+            });
         }
+        if (direction === 'up') {
+            row.parentNode.insertBefore(row, sibling);
+        } else {
+            row.parentNode.insertBefore(sibling, row);
+        }
+        editors.forEach(function (ta) { window.ArtEditor.attach(ta); });
     });
 })();
 

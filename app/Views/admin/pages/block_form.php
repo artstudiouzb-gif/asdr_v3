@@ -1261,7 +1261,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                             <?php endif; ?>
                             <div class="form-field"><label>Заголовок</label><input type="text" name="items[<?= $i ?>][title]" value="<?= htmlspecialchars($item['title'] ?? '', ENT_QUOTES) ?>"></div>
                             <?php if ($type === 'cards_grid'): ?>
-                                <div class="form-field"><label>Текст</label><textarea name="items[<?= $i ?>][text]"><?= htmlspecialchars($item['text'] ?? '', ENT_QUOTES) ?></textarea></div>
+                                <div class="form-field"><label>Текст</label><textarea name="items[<?= $i ?>][text]" data-mini-editor><?= htmlspecialchars($item['text'] ?? '', ENT_QUOTES) ?></textarea></div>
                             <?php elseif ($type === 'media_gallery'): ?>
                                 <div class="form-field"><label>Тип</label><select name="items[<?= $i ?>][kind]"><option value="video" <?= ($item['kind'] ?? 'video')==='video'?'selected':'' ?>>Видео</option><option value="photo" <?= ($item['kind'] ?? '')==='photo'?'selected':'' ?>>Фото</option></select></div>
                                 <div class="form-field"><label>Длительность (напр. 02:35)</label><input type="text" name="items[<?= $i ?>][meta]" value="<?= htmlspecialchars($item['meta'] ?? '', ENT_QUOTES) ?>"></div>
@@ -1636,7 +1636,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     <div class="form-field"><label>Год или период</label><input type="text" name="items[__INDEX__][year]" placeholder="2026–2027"></div>
                     <div class="form-field"><label>Подпись этапа</label><input type="text" name="items[__INDEX__][stage]"></div>
                     <div class="form-field"><label>Заголовок</label><input type="text" name="items[__INDEX__][title]"></div>
-                    <div class="form-field"><label>Текст</label><textarea name="items[__INDEX__][text]"></textarea></div>
+                    <div class="form-field"><label>Текст</label><textarea name="items[__INDEX__][text]" data-mini-editor></textarea></div>
                     <div class="form-field"><label>Статус</label><select name="items[__INDEX__][status]"><option value="done">Завершён</option><option value="active">В процессе</option><option value="planned" selected>Запланирован</option></select></div>
                     <div class="form-field"><label>Свой текст статуса</label><input type="text" name="items[__INDEX__][status_text]"></div>
                     <div class="form-field"><label>Ссылка с этапа (необязательно)</label><input type="text" name="items[__INDEX__][url]"></div>

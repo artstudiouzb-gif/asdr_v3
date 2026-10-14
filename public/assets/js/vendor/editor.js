@@ -308,7 +308,10 @@
             // Короткое объявление (сообщение режима обслуживания): текст, цвет,
             // размер и выравнивание. Набор совпадает с HtmlSanitizer::sanitizeNotice.
             var isNotice = textarea.hasAttribute('data-notice-editor');
-            var isLead = isNotice || textarea.hasAttribute('data-lead-editor');
+            // Мини-редактор — тот же набор, что у лида, только ниже: он стоит
+            // в повторяющихся элементах блоков (текст события «Хронологии»).
+            var isMini = textarea.hasAttribute('data-mini-editor');
+            var isLead = isNotice || isMini || textarea.hasAttribute('data-lead-editor');
             window.tinymce.init({
                 selector: '#' + textarea.id,
                 base_url: '/assets/js/vendor/tinymce',
@@ -318,7 +321,7 @@
                 branding: false,
                 language: 'ru',
                 language_url: '/assets/js/vendor/tinymce/langs/ru.js',
-                height: isNotice ? 240 : (isLead ? 280 : 520),
+                height: isMini ? 200 : (isNotice ? 240 : (isLead ? 280 : 520)),
                 menubar: isLead ? false : 'file edit view insert format table tools help',
                 paste_webkit_styles: 'none',
                 paste_retain_style_properties: 'none',

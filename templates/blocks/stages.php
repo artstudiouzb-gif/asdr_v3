@@ -64,6 +64,23 @@ $itemUrl = static function (array $item): string {
     return $url !== '' && \App\Core\UrlGuard::isSafeLink($url) ? $url : '';
 };
 
+/**
+ * Текст события. Новые пишутся мини-редактором и хранятся разметкой лида;
+ * старые — простым текстом, и переводы строк в нём обязаны остаться
+ * переводами строк, а не склеиться в один абзац.
+ */
+$itemTextHtml = static function (array $item): string {
+    $text = trim((string) ($item['text'] ?? ''));
+    if ($text === '') {
+        return '';
+    }
+    if (!preg_match('/<[a-z][^>]*>/i', $text)) {
+        return nl2br(htmlspecialchars($text, ENT_QUOTES), false);
+    }
+
+    return \App\Core\HtmlSanitizer::sanitizeLead($text);
+};
+
 $templateCss = '';
 
 if ($layout === 'list') {
@@ -106,7 +123,7 @@ if ($layout === 'list') {
                             $url = $itemUrl($item);
                             // Ссылку несёт внутренняя обёртка, а не <li>: точка и
                             // соединительная линия рисуются на самом пункте.
-                            $tag = $url !== '' ? 'a' : 'span';
+                            $tag = $url !== '' ? 'a' : 'div';
                             ?>
                             <li class="timeline-item timeline-item--<?= $status ?><?= $nextStatus !== '' ? ' timeline-item--next-' . $nextStatus : '' ?>">
                                 <span class="timeline-item__year"><?= htmlspecialchars((string) ($item['year'] ?? ''), ENT_QUOTES) ?></span>
@@ -117,8 +134,8 @@ if ($layout === 'list') {
                                     <?php if (trim((string) ($item['title'] ?? '')) !== ''): ?>
                                         <span class="timeline-item__title"><?= htmlspecialchars((string) $item['title'], ENT_QUOTES) ?></span>
                                     <?php endif; ?>
-                                    <?php if (trim((string) ($item['text'] ?? '')) !== ''): ?>
-                                        <span class="timeline-item__text"><?= htmlspecialchars((string) $item['text'], ENT_QUOTES) ?></span>
+                                    <?php if (($textHtml = $itemTextHtml($item)) !== ''): ?>
+                                        <div class="timeline-item__text"><?= $textHtml ?></div>
                                     <?php endif; ?>
                                 </<?= $tag ?>>
                             </li>
@@ -196,7 +213,7 @@ if ($carousel) {
                 $stageUrl = $itemUrl($item);
                 // Ссылку вешаем на внутреннюю обёртку, а не на <li>: точка и
                 // соединительная линия хронологии рисуются на самом пункте.
-                $stageTag = $stageUrl !== '' ? 'a' : 'span';
+                $stageTag = $stageUrl !== '' ? 'a' : 'div';
                 ?>
                 <li class="stage stage--<?= $status ?><?= $nextStatus !== '' ? ' stage--next-' . $nextStatus : '' ?>"<?= $carousel ? ' data-carousel-item' : '' ?>>
                     <?php // Галочка в точке — пройденный этап читается без метки и без цвета. ?>
@@ -205,7 +222,7 @@ if ($carousel) {
                         <span class="stage__year"><?= htmlspecialchars((string) ($item['year'] ?? ''), ENT_QUOTES) ?></span>
                         <?php if (!empty($item['stage'])): ?><span class="stage__label"><?= htmlspecialchars((string) $item['stage'], ENT_QUOTES) ?></span><?php endif; ?>
                         <?php if (!empty($item['title'])): ?><span class="stage__title"><?= htmlspecialchars((string) $item['title'], ENT_QUOTES) ?></span><?php endif; ?>
-                        <?php if (!empty($item['text'])): ?><span class="stage__text"><?= htmlspecialchars((string) $item['text'], ENT_QUOTES) ?></span><?php endif; ?>
+                        <?php if (($textHtml = $itemTextHtml($item)) !== ''): ?><div class="stage__text"><?= $textHtml ?></div><?php endif; ?>
                         <?php if ($showStatus): ?>
                             <span class="stage__status"><?= Icon::render($statusIcons[$status], 14, 'stage__status-icon') ?><?= htmlspecialchars((string) ($item['status_text'] ?? '') !== '' ? (string) $item['status_text'] : $statusLabels[$status], ENT_QUOTES) ?></span>
                         <?php endif; ?>

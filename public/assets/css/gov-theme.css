@@ -2912,7 +2912,13 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
    остаётся там же, где у прежних 12px — на линии шкалы. */
 .stage__dot { display: grid; place-items: center; }
 .stages--default .stage--done .stage__dot { top: -3px; left: -3px; width: 18px; height: 18px; color: var(--gov-surface); }
-.stage__dot-icon { display: block; }/* Текст + фото («О проекте»). *//* Доля кадра настраивается в блоке — долями fr, а не процентами: проценты
+.stage__dot-icon { display: block; }
+/* Текст события пишется мини-редактором: абзацы и списки идут кеглем самого
+   текста, с небольшим промежутком, а ссылка видна подчёркиванием. */
+:is(.stage__text, .timeline-item__text) :is(p, ul, ol, blockquote) { margin: 0 0 .5em; }
+:is(.stage__text, .timeline-item__text) > :last-child { margin-bottom: 0; }
+:is(.stage__text, .timeline-item__text) :is(ul, ol) { padding-inline-start: 1.2em; }
+:is(.stage__text, .timeline-item__text) a { color: var(--gov-teal-text); text-decoration: underline; }/* Текст + фото («О проекте»). *//* Доля кадра настраивается в блоке — долями fr, а не процентами: проценты
    вместе с gap дают переполнение по ширине. Без настройки соотношение прежнее. */
 
 .block-textimage { display: grid; grid-template-columns: minmax(0, var(--textimage-info, 1fr)) minmax(0, var(--textimage-visual, 1.05fr)); gap: clamp(28px, 4vw, 56px); align-items: center; }
