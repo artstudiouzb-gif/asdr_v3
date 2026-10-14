@@ -227,3 +227,29 @@ test('Контейнер «Колонки»: фоновая надпись бе�
     assert_contains('cms-block__watermark', $html);
     assert_contains('MAQSADLAR', $html);
 });
+
+// «Только иконки»: ряд ссылок без текста. Имя ссылки — заголовок карточки,
+// иначе диктор слышит «ссылка» и ничего больше; строки контактов не печатаются.
+test('Контакты: вариант «Только иконки» — ряд ссылок с именем для диктора', function (): void {
+    $block = BlockRenderer::render([
+        'id' => 840,
+        'type' => 'contact_cards',
+        'data' => json_encode([
+            'variant' => 'icons',
+            'icons_align' => 'center',
+            'icon_size' => 26,
+            'items' => [
+                ['title' => 'Telegram', 'icon_svg' => 'brand-telegram', 'link_url' => 'https://t.me/asdr_uz', 'lines' => 'не выводится'],
+                ['title' => 'Опасная', 'icon_svg' => 'link', 'link_url' => 'javascript:alert(1)'],
+            ],
+        ], JSON_UNESCAPED_UNICODE),
+        'custom_css' => '',
+    ]);
+    $html = (string) $block['html'];
+
+    assert_contains('block-contact-cards--icons-center', $html);
+    assert_contains('<a class="contact-icons__link" href="https://t.me/asdr_uz" aria-label="Telegram"', $html);
+    assert_not_contains('не выводится', $html);
+    assert_not_contains('javascript:', $html);
+    assert_contains('--contact-icon-size:26px', (string) $block['css']);
+});
