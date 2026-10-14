@@ -199,6 +199,10 @@ $renderItem = static function (int $index, array $item, string $extraClass = '')
             // носить нельзя.
             $badgeText = (string) ($item['text'] ?? '');
             $center = (string) ($item['center'] ?? 'none');
+            $centerSize = (int) ($item['center_size'] ?? 0);
+            if ($centerSize > 0 && in_array($center, ['emblem', 'image'], true)) {
+                $templateCss .= $scope . ' .collage__item--' . $index . ' .collage__badge-core{inline-size:' . $centerSize . '%}';
+            }
             if ($center === 'emblem') {
                 // Маска знака — абсолютным адресом из scoped CSS: переменная
                 // --gov-emblem объявлена относительным url, и из файла блока
