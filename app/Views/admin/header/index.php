@@ -855,7 +855,7 @@ $heightSelect = function (string $name, string $current): string {
             </div>
 
             <!-- 3. Search & Social Controls -->
-            <div class="header-builder__group form-card u-inline-d40eaf045d">
+            <div class="header-builder__group form-card u-inline-d40eaf045d" id="header-social">
                 <h3 class="u-inline-0e0c39e056">
                     3. Поиск и социальные сети
                 </h3>
@@ -887,7 +887,7 @@ $heightSelect = function (string $name, string $current): string {
 
                 <div class="u-inline-c90ff0dd8c">
                     <h4 class="u-inline-2e67dd3b15">Ссылки на социальные сети</h4>
-                    <p class="form-hint">Ссылки отображаются, если элемент «Соцсети» размещён в одной из зон.</p>
+                    <p class="form-hint">Один список на весь сайт: его берут элемент шапки «Соцсети» (если он размещён в одной из зон), виджет подвала «Соцсети» и виджет «Контакты» сайдбара.</p>
                     <div data-repeater="header-social" data-repeater-next-index="<?= count($config['social_buttons'] ?? []) ?>" class="hb-social-list">
                         <?php foreach (($config['social_buttons'] ?? []) as $socialIndex => $socialButton): ?>
                             <div class="repeater-row hb-social-row">
@@ -1143,7 +1143,17 @@ $heightSelect = function (string $name, string $current): string {
     var savedTabButton = savedTab
         ? document.querySelector('[data-hdr-tab-target="' + savedTab + '"]')
         : null;
-    activateTab(savedTabButton || document.querySelector('[data-hdr-tab-target].is-active'), false);
+    // Якорь в адресе главнее сохранённой вкладки: подвал и виджеты ведут сюда
+    // ссылкой «/admin/header#header-social», а цель лежит на скрытой вкладке.
+    var hashTarget = window.location.hash ? document.getElementById(window.location.hash.slice(1)) : null;
+    var hashPanel = hashTarget ? hashTarget.closest('.admin-tab-content') : null;
+    var hashTabButton = hashPanel
+        ? document.querySelector('[data-hdr-tab-target="' + hashPanel.id + '"]')
+        : null;
+    activateTab(hashTabButton || savedTabButton || document.querySelector('[data-hdr-tab-target].is-active'), false);
+    if (hashTabButton && hashTarget) {
+        hashTarget.scrollIntoView({ block: 'start' });
+    }
 
     // Состояние карточек выбора контейнера.
     document.querySelectorAll('input[name="container_mode"]').forEach(function (radio) {
