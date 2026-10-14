@@ -17,3 +17,14 @@ test('Menu icon image: only image paths are accepted', function (): void {
         assert_same(null, MenuItem::cleanIconImage($bad), 'принято: ' . var_export($bad, true));
     }
 });
+
+// Размер — любое целое в границах: в шапку он уходит атрибутом style, и
+// строка туда попадать не должна.
+test('Menu icon size: integer clamped to bounds, empty means theme size', function (): void {
+    assert_same(80, MenuItem::cleanIconSize('80'));
+    assert_same(0, MenuItem::cleanIconSize(''));
+    assert_same(0, MenuItem::cleanIconSize('80px;color:red'));
+    assert_same(0, MenuItem::cleanIconSize(['24']));
+    assert_same(MenuItem::ICON_SIZE_MIN, MenuItem::cleanIconSize(3));
+    assert_same(MenuItem::ICON_SIZE_MAX, MenuItem::cleanIconSize(9999));
+});

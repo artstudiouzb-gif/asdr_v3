@@ -505,6 +505,8 @@ CREATE TABLE IF NOT EXISTS menu_items (
     title           VARCHAR(190) NOT NULL,
     icon_svg        TEXT NULL COMMENT 'ключ локальной иконки Tabler',
     icon_image      VARCHAR(500) NULL COMMENT 'своя иконка: адрес SVG/PNG из медиатеки, главнее icon_svg',
+    icon_image_light VARCHAR(500) NULL COMMENT 'светлый вариант своей иконки: прозрачная шапка и тёмная тема',
+    icon_size       SMALLINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'размер иконки, px; 0 — как в теме',
     badge_text      VARCHAR(100) NULL COMMENT 'текст бейджа/плашки (напр. АКТУАЛЬНО!, NEW)',
     badge_color     VARCHAR(30) NULL DEFAULT 'red' COMMENT 'цвет бейджа (red, green, blue, orange, purple)',
     badge_pos       VARCHAR(20) NOT NULL DEFAULT 'right' COMMENT 'позиция бейджа (right, left, center)',
@@ -1303,7 +1305,8 @@ INSERT INTO migrations (filename) VALUES
     ('2026_09_28_block_revision_type.sql'),
     ('2026_09_30_link_checks.sql'),
     ('2026_10_13_photo_album_from_news.sql'),
-    ('2026_10_14_menu_icon_image.sql')
+    ('2026_10_14_menu_icon_image.sql'),
+    ('2026_10_14_menu_icon_variants.sql')
 ON DUPLICATE KEY UPDATE filename = filename;
 
 CREATE TABLE IF NOT EXISTS search_log (
