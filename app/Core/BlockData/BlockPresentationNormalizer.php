@@ -29,6 +29,9 @@ final class BlockPresentationNormalizer
      *
      * @var list<string>
      */
+    /** Вид подзаголовка шапки секции: с чертой цветом акцента или простой. */
+    public const HEAD_KICKER_STYLES = ['line', 'plain'];
+
     public const SPACING = ['none', 'xs', 'small', 'mid', 'premium', 'max'];
 
     /**
@@ -321,6 +324,19 @@ final class BlockPresentationNormalizer
             $normalized['_watermark_x'] = in_array($x, self::WATERMARK_X, true) ? $x : 'center';
             $normalized['_watermark_y'] = in_array($y, self::WATERMARK_Y, true) ? $y : 'middle';
             $normalized['_watermark_opacity'] = self::ranged($input['watermark_opacity'] ?? null, 0, 100, 12);
+        }
+
+        // Подзаголовок и выравнивание шапки секции (SectionHead::decorate).
+        // Пустой подзаголовок и левое выравнивание — прежний вид, поэтому
+        // ключи пишутся только при выборе: у собранных блоков их нет.
+        $kicker = trim(self::scalarString($input['head_kicker'] ?? null));
+        if ($kicker !== '') {
+            $kickerStyle = self::scalarString($input['head_kicker_style'] ?? null, 'line');
+            $normalized['_head_kicker'] = mb_substr($kicker, 0, 80);
+            $normalized['_head_kicker_style'] = in_array($kickerStyle, self::HEAD_KICKER_STYLES, true) ? $kickerStyle : 'line';
+        }
+        if (self::scalarString($input['head_align'] ?? null) === 'center') {
+            $normalized['_head_align'] = 'center';
         }
 
         // Короткая секция обрезает фотографию-фон до полоски, поэтому высоту

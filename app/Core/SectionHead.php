@@ -17,6 +17,62 @@ namespace App\Core;
 final class SectionHead
 {
     /**
+     * Типы блоков, у которых есть шапка секции: им форма предлагает
+     * подзаголовок и выравнивание заголовка (`_head_*`). Остальные либо без
+     * заголовка (кнопки, разделитель), либо держат свой (обложка, призыв к
+     * действию, текст) — настройка там ничего бы не меняла. Список сверяет
+     * с шаблонами тест 433.
+     *
+     * @var list<string>
+     */
+    public const DECORATED_TYPES = [
+        'cards_grid', 'chart', 'collage', 'contact_cards', 'counters', 'docs_list', 'embed', 'faq',
+        'icon_text', 'image', 'instagram_feed', 'map_point', 'media_gallery', 'news_docs',
+        'news_feature', 'news_latest', 'org_structure', 'partners', 'projects_list', 'slider',
+        'stages', 'table', 'team_list', 'testimonials',
+    ];
+
+    /**
+     * Подзаголовок и выравнивание из оформления секции.
+     *
+     * Применяется к готовой разметке блока, а не через параметры render():
+     * шапку печатают два десятка шаблонов, часть — своей разметкой, и
+     * протаскивать настройку через каждый значило бы получить два десятка мест,
+     * где её можно забыть. Трогается только первая шапка блока — у вложенных
+     * карточек своих шапок нет, а у ленты новостей вторая шапка принадлежит
+     * колонке, а не секции.
+     *
+     * @param array<string, mixed> $data
+     */
+    public static function decorate(string $html, array $data): string
+    {
+        $kicker = trim((string) ($data['_head_kicker'] ?? ''));
+        $center = ($data['_head_align'] ?? '') === 'center';
+        if ($kicker === '' && !$center) {
+            return $html;
+        }
+        if (preg_match('~<div class="section-head(?=[ "])~', $html, $m, PREG_OFFSET_CAPTURE) !== 1) {
+            return $html;
+        }
+        $headAt = (int) $m[0][1];
+        if ($kicker !== '') {
+            // Подзаголовок стоит прямо перед заголовком: шапки собраны
+            // по-разному (с обёрткой __copy и без), а заголовок есть у всех.
+            if (preg_match('~<h[2-4] class="section-head__title~', $html, $t, PREG_OFFSET_CAPTURE, $headAt) === 1) {
+                $style = in_array($data['_head_kicker_style'] ?? '', ['line', 'plain'], true) ? (string) $data['_head_kicker_style'] : 'line';
+                $kickerHtml = '<p class="section-head__kicker section-head__kicker--' . $style . '">'
+                    . htmlspecialchars($kicker, ENT_QUOTES) . '</p>';
+                $html = substr_replace($html, $kickerHtml, (int) $t[0][1], 0);
+            }
+        }
+        if ($center) {
+            $html = substr_replace($html, '<div class="section-head section-head--align-center', $headAt, strlen('<div class="section-head'));
+        }
+
+        return $html;
+    }
+
+    /**
      * @param array{
      *     title?: string,
      *     description?: string,
