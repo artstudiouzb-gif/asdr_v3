@@ -2374,8 +2374,6 @@ h5, .h5 { font-size: var(--font-size-h5, var(--step-1)); }
 h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .block-hero__title { font-size: var(--font-size-hero-title, var(--font-size-h1, var(--step-10))); }
 .block-banner__title { font-size: var(--font-size-h2, var(--step-6)); }
-.textimage__title,
-.block-map__title { font-size: var(--font-size-h2, var(--step-5)); }
 .listing__title,
 .content-pagehead__title { font-size: var(--font-size-h1, var(--step-8)); }
 .block-cta h2 { font-size: var(--font-size-h2, var(--step-6)); }
@@ -2416,7 +2414,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     body[class] .block-featband__title { font-size: var(--step-4); }
     body[class] .block-banner--light .block-banner__title { font-size: var(--step-5); }
     body[class] .block-banner__title { font-size: var(--step-4); }
-    body[class] .textimage__title,
+    body[class] .textimage__title { font-size: var(--step-5); }
     body[class] .block-map__title { font-size: var(--step-3); }
     body[class] .listing__title,
     body[class] .content-pagehead__title { font-size: var(--step-5); }
@@ -2950,7 +2948,6 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 
 .textimage__button {
     display: inline-block;
-    margin-top: 22px;
     padding: 13px 26px;
     border: 1px solid var(--gov-navy);
     border-radius: var(--btn-radius);
@@ -2973,9 +2970,14 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     .textimage__button { transition: none; }
     .textimage__button:hover, .textimage__button:focus-visible { transform: none; }
 }
-.textimage__title { position: relative; font-size: var(--font-size-h2, var(--step-5)); margin: 0 0 18px; padding-left: 16px; }
-.textimage__title::before { content: ''; position: absolute; left: 0; top: .18em; bottom: .18em; width: 4px; border-radius: var(--radius-pill); background: var(--gov-teal); }
-.textimage__text { color: var(--gov-muted); font-size: var(--font-size-body, var(--step-0)); line-height: var(--base-line-height, 1.6); margin-bottom: 24px; }
+/* Заголовок крупный, без метки-черты: вес ему даёт кегль, а не украшение.
+   Первый абзац при нескольких — вводный, крупнее остального текста: прежде
+   весь текст шёл одним серым кеглем и терялся рядом с крупным кадром. */
+.textimage__title { font-size: var(--step-9); line-height: 1.08; letter-spacing: -.02em; margin: 0 0 20px; }
+.textimage__text { max-width: 60ch; color: var(--gov-muted); font-size: var(--font-size-body, var(--step-0)); line-height: var(--base-line-height, 1.6); margin-bottom: 24px; }
+.textimage__text > p:first-child:not(:only-child) { font-size: var(--step-2); line-height: 1.5; color: var(--section-fg, var(--gov-ink)); }
+.textimage__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; margin-top: 28px; }
+.textimage__link { font-weight: 600; color: var(--section-link-fg, var(--gov-teal-text)); }
 .textimage__features { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 18px; }
 .textimage__feature { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .textimage__feature-icon { color: var(--gov-teal); }
