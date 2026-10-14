@@ -84,7 +84,7 @@ $isHomePage = \App\Models\Page::isHomePage($page ?? []);
                 <input type="checkbox" id="hide_title" name="hide_title" value="1" <?= !empty($page['hide_title']) ? 'checked' : '' ?>>
                 <label class="u-inline-d76ba0dbd2" for="hide_title">Скрыть заголовок страницы</label>
             </div>
-            <p class="form-hint">Название и вводный текст не показываются над содержимым. Для диктора и поисковиков заголовок остаётся.</p>
+            <p class="form-hint">Название, вводный текст и хлебные крошки не показываются над содержимым. Для диктора и поисковиков заголовок остаётся.</p>
         </div>
     </div>
 </div>

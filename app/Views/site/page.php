@@ -91,6 +91,12 @@ $showPageHead = $editorialPage && !$firstOwnsHeading;
 // без h1 у страницы не осталось бы главного заголовка ни для диктора, ни
 // для поиска. Поэтому h1 остаётся, только визуально скрытый.
 $hidePageHead = $showPageHead && !empty($page['hide_title']);
+// Вместе с заголовком уходит и полоса хлебных крошек над содержимым: без
+// заголовка она оставалась одиночной строкой над первым блоком. Крошки,
+// встроенные в обложку, принадлежат обложке и остаются.
+if (!empty($page['hide_title']) && !$firstIsHero) {
+    $crumbsHtml = '';
+}
 
 
 $hasSidebar = $sidebar !== null && trim($sidebar['html']) !== '';
