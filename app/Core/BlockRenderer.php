@@ -217,6 +217,9 @@ final class BlockRenderer
             $templateFile = BlockTypeRegistry::templateFile($type);
             if ($templateFile !== null && is_file($templateFile)) {
                 [$html, $templateCss] = self::renderTemplate($templateFile, $data, $blockId);
+                if (in_array($type, SectionHead::DECORATED_TYPES, true)) {
+                    $html = SectionHead::decorate($html, $data);
+                }
             } else {
                 $html = '<!-- Неизвестный тип блока: ' . htmlspecialchars($type, ENT_QUOTES) . ' -->';
             }

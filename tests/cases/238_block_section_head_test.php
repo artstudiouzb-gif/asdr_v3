@@ -208,7 +208,7 @@ test('Контейнер «Колонки»: заголовок и описан�
 
     // Настройка обязана что-то менять на выводе — оформление есть в теме.
     $theme = theme_css();
-    assert_contains('.section-head--align-center { justify-content: center; text-align: center; }', $theme);
+    assert_contains('.section-head--align-center { flex-direction: column; align-items: center; justify-content: center; text-align: center; }', $theme);
     assert_contains('.section-head--align-right', $theme);
     assert_contains('h4.section-head__title', $theme, 'мелкий уровень отличается и размером');
 });
