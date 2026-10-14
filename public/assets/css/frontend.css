@@ -2119,6 +2119,7 @@ p { line-height: var(--base-line-height, 1.6); }/* --- Шапка: глубин�
 .site-menu__link, .site-submenu__link { display: inline-flex; align-items: center; gap: 8px; }
 .site-menu__icon { display: inline-flex; align-items: center; }
 .site-menu__icon svg { width: 18px; height: 18px; display: block; }
+.site-menu__img { width: 18px; height: 18px; display: block; object-fit: contain; }
 .site-menu__text { display: inline-block; }/* Разделитель в горизонтальном меню — тонкая вертикальная черта. */
 
 .site-menu__divider {
