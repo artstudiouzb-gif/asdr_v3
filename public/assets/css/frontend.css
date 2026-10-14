@@ -842,6 +842,30 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .tquote--tall .tquote__body { padding: clamp(24px, 4.5vw, 56px); align-self: center; }
 .tquote--tall .tquote__text, .tquote--tall .tquote__name { color: #fff; }
 .tquote--tall .tquote__role { color: color-mix(in srgb, #fff 80%, var(--gov-navy)); }
+/* Положение фото. «Слева» — умолчание выше; справа и снизу фото уходит в
+   конец сетки порядком, а не переставляется в разметке: диктор по-прежнему
+   встречает портрет до цитаты. */
+.tquote--has-photo.tquote--round.tquote--photo-right .tquote__figure { grid-template-columns: minmax(0, 1fr) auto; }
+.tquote--has-photo.tquote--tall.tquote--photo-right .tquote__figure { grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr); }
+.tquote--has-photo.tquote--photo-top .tquote__figure,
+.tquote--has-photo.tquote--photo-bottom .tquote__figure { grid-template-columns: minmax(0, 1fr); }
+.tquote--photo-right .tquote__photo,
+.tquote--photo-bottom .tquote__photo { order: 2; }
+.tquote--round.tquote--photo-top .tquote__figure,
+.tquote--round.tquote--photo-bottom .tquote__figure { gap: 24px; }
+.tquote--photo-align-center .tquote__photo { justify-self: center; }
+/* Портрет по центру — и цитата по центру: левый край текста под
+   центрированным снимком читался как ошибка вёрстки. Знак кавычки уходит
+   с поля слева наверх, над текстом. */
+.tquote--photo-align-center .tquote__body { text-align: center; }
+.tquote--photo-align-center .tquote__text { padding-inline-start: 0; padding-top: calc(var(--tquote-mark) * .5); }
+.tquote--photo-align-center .tquote__text::before { left: 50%; translate: -50% 0; }
+.tquote--photo-align-center .tquote__text p { margin-inline: auto; }
+.tquote--photo-align-center .tquote__author { justify-content: center; padding-inline-start: 0; }
+.tquote--photo-align-right .tquote__photo { justify-self: end; }
+/* Портрет во всю высоту сверху или снизу — полоса во всю ширину блока. */
+.tquote--tall.tquote--photo-top .tquote__photo,
+.tquote--tall.tquote--photo-bottom .tquote__photo { min-height: 0; aspect-ratio: 21 / 9; }
 @media (max-width: 720px) {
     .tquote--has-photo.tquote--round .tquote__figure { grid-template-columns: minmax(0, 1fr); gap: 18px; }
     .tquote--round .tquote__photo { width: calc(var(--tquote-photo, 144px) * 2 / 3); }
@@ -853,6 +877,9 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
     .tquote__author, .tquote__sign { padding-inline-start: calc(var(--step-10) * .62); }
     .tquote--tall.tquote--has-photo .tquote__figure { grid-template-columns: minmax(0, 1fr); }
     .tquote--tall .tquote__photo { min-height: 0; aspect-ratio: 4 / 3; }
+    /* В один столбец «справа» значит «над цитатой», как и «слева». */
+    .tquote--photo-right .tquote__photo { order: 0; }
+    .tquote--has-photo.tquote--tall.tquote--photo-right .tquote__figure { grid-template-columns: minmax(0, 1fr); }
 }/* Вариант «сетка»: отзывы стоят рядами, а не едут полосой. Карточка теряет
    flex-basis полосы, иначе в сетке она осталась бы фиксированной ширины. */
 
