@@ -85,7 +85,7 @@ final class View
      */
     public static function wantsCyrillic(): bool
     {
-        if (Locale::current() !== 'uz') {
+        if (Locale::current() !== 'uz' || !UzCyrillic::enabled()) {
             return false;
         }
 

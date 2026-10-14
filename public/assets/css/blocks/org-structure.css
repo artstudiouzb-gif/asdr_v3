@@ -8,6 +8,14 @@
    частей темы, поэтому настройки админки продолжают перебивать — так и
    задумано. */
 
+/* Кадры прорисовки схемы (правила — в «Фирменном слое» ниже). Определены
+   здесь, в начале: минификатор сливает блоки «уменьшить движение» с первым
+   таким же, и замена, записанная после определения, в собранном файле
+   оказалась бы перед ним. */
+@keyframes orgstruct-line-down { from { scale: 1 0; } }
+@keyframes orgstruct-line-across { from { scale: 0 1; } }
+@keyframes orgstruct-rise { from { opacity: 0; translate: 0 14px; } }
+
 /* из public/assets/css/frontend.css */
 
 
@@ -313,7 +321,8 @@ a.orgstruct__head:hover .orgstruct__head-name { color: color-mix(in srgb, var(--
     .orgstruct__branches::before,
     .orgstruct__council::after,
     .orgstruct__aside::before,
-    .orgstruct__branch .orgstruct__units::before { display: none; }
+    .orgstruct__branch .orgstruct__units::before,
+    .orgstruct__deputy::before { display: none; }
     .orgstruct--spine .orgstruct__branch { padding-left: 16px; }
     .orgstruct--spine .orgstruct__branch::before { display: block; }
     .orgstruct__notes { grid-template-columns: 1fr; }
@@ -341,7 +350,8 @@ a.orgstruct__head:hover .orgstruct__head-name { color: color-mix(in srgb, var(--
     .orgstruct__branches::before,
     .orgstruct__council::after,
     .orgstruct__aside::before,
-    .orgstruct__branch .orgstruct__units::before { display: none; }
+    .orgstruct__branch .orgstruct__units::before,
+    .orgstruct__deputy::before { display: none; }
     .orgstruct--spine .orgstruct__branch { padding-left: 16px; }
     .orgstruct--spine .orgstruct__branch::before { display: block; }
     .orgstruct__notes { grid-template-columns: 1fr; }
@@ -353,6 +363,89 @@ a.orgstruct__head:hover .orgstruct__head-name { color: color-mix(in srgb, var(--
     .orgstruct__deputy { padding-right: 46px; }
 }
 
+
+/* --- Фирменный слой схемы -------------------------------------------------
+   Схема — один из немногих блоков, где иерархию видно, а не читают, поэтому
+   акцент здесь работает на структуру, а не на украшение: карточка
+   руководителя несёт знак и свет из угла, стыки линий отмечены узлами, а
+   связи прорисовываются по мере прокрутки — сверху вниз, как читается
+   подчинение. Цвета — только акцент и его смеси (--gov-teal настраивается
+   в «Дизайне»), новых ролей тени нет. */
+.orgstruct__head {
+    position: relative; isolation: isolate; overflow: hidden;
+    background-image:
+        radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--gov-teal) 38%, transparent), transparent 55%),
+        linear-gradient(160deg, transparent 40%, color-mix(in srgb, var(--gov-navy) 60%, #000) 140%);
+}
+/* Знак ведомства водяным знаком справа: маской, а не файлом, чтобы замена
+   эмблемы в «Дизайне» доходила и сюда. Текст лежит выше (isolation). */
+.orgstruct__head::after {
+    content: ''; position: absolute; z-index: -1; right: -18px; top: 50%;
+    width: 132px; aspect-ratio: 1; translate: 0 -50%;
+    background: currentColor; opacity: .09;
+    -webkit-mask: var(--gov-emblem) center / contain no-repeat;
+    mask: var(--gov-emblem) center / contain no-repeat;
+    pointer-events: none;
+}
+.design-emblem-off .orgstruct__head::after { display: none; }
+/* Короткая черта акцента под должностью: отделяет «кто» от «как зовут». */
+.orgstruct__head-role::after {
+    content: ''; display: block; width: 28px; height: 2px; margin: 8px auto 0;
+    background: var(--gov-teal); border-radius: var(--radius-pill);
+}
+/* Узел на стыке ветки с перекладиной: без него линия упиралась в рамку
+   карточки, и место подчинения угадывалось. */
+.orgstruct__deputy::before {
+    content: ''; position: absolute; left: 50%; top: -6px; width: 9px; height: 9px;
+    translate: -50% 0; border-radius: var(--radius-pill);
+    background: var(--gov-teal);
+    outline: 3px solid color-mix(in srgb, var(--gov-teal) 22%, transparent);
+}
+.orgstruct--nohead .orgstruct__deputy::before,
+.orgstruct--spine .orgstruct__deputy::before { display: none; }
+/* Подложка карточки заместителя чуть подсвечена сверху тоном акцента —
+   продолжение его верхней грани, а не вторая заливка. */
+.orgstruct__deputy {
+    background-image: linear-gradient(180deg, color-mix(in srgb, var(--gov-teal) 7%, transparent), transparent 70%);
+}
+.orgstruct__deputy:hover .orgstruct__deputy-role { color: var(--gov-teal-text); }
+
+/* Прорисовка связей и подъём карточек по прокрутке. Шкала нативная
+   (animation-timeline: view()), прокрутку она не перехватывает. Двигаются
+   отдельные свойства scale/translate, а не transform: у линий transform
+   уже держит центровку, у карточек — подъём при наведении. Без поддержки
+   шкалы схема стоит целиком сразу. */
+@supports (animation-timeline: view()) {
+    .orgstruct__branches::before,
+    .orgstruct__row + .orgstruct__row::after,
+    .orgstruct__branch::before,
+    .orgstruct__branch .orgstruct__units::before,
+    .orgstruct__council::after {
+        transform-origin: 50% 0;
+        animation: orgstruct-line-down linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 30%;
+    }
+    .orgstruct__row::before {
+        animation: orgstruct-line-across linear both;
+        animation-timeline: view();
+        animation-range: entry 10% cover 35%;
+    }
+    .orgstruct__deputy,
+    .orgstruct__unit,
+    .orgstruct__aside-item {
+        animation: orgstruct-rise ease-out both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 25%;
+    }
+}
+/* «Уменьшить движение»: линии стоят сразу, карточки проявляются на месте.
+   Файл блока грузится после бандла, поэтому кадры заменяются здесь. */
+@media (prefers-reduced-motion: reduce) {
+    @keyframes orgstruct-line-down { to { --motion-still: 1; } }
+    @keyframes orgstruct-line-across { to { --motion-still: 1; } }
+    @keyframes orgstruct-rise { from { opacity: 0; } }
+}
 
 /* Печать схемы. Браузер по умолчанию не печатает фоновую графику, поэтому
    тёмные карточки («Координационный совет», «Директор») уходили белым по
@@ -390,7 +483,9 @@ a.orgstruct__head:hover .orgstruct__head-name { color: color-mix(in srgb, var(--
     }
     /* Свёрнутые на телефоне ветки при печати раскрываем: лист должен
        содержать всю схему, а не то, что осталось открытым на экране. */
-    .orgstruct__toggle { display: none !important; }
+    .orgstruct__toggle,
+    .orgstruct__head::after,
+    .orgstruct__deputy::before { display: none !important; }
     .orgstruct__units[hidden] { display: flex !important; }
 }
 
