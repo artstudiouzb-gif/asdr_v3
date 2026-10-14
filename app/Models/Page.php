@@ -1145,8 +1145,8 @@ final class Page
             }
 
             $stmt = $pdo->prepare(
-                'INSERT INTO pages (title, slug, section, meta_title, meta_description, `lead`, status, is_home, layout_type, hide_chrome, transparent_header, custom_css, custom_js, lang, translation_group_id, parent_id, created_at)
-                 VALUES (:title, :slug, :section, :meta_title, :meta_description, :lead, :status, :is_home, :layout_type, :hide_chrome, :transparent_header, :custom_css, :custom_js, :lang, NULL, :parent_id, NOW())'
+                'INSERT INTO pages (title, slug, section, meta_title, meta_description, `lead`, status, is_home, layout_type, hide_chrome, transparent_header, hide_title, custom_css, custom_js, lang, translation_group_id, parent_id, created_at)
+                 VALUES (:title, :slug, :section, :meta_title, :meta_description, :lead, :status, :is_home, :layout_type, :hide_chrome, :transparent_header, :hide_title, :custom_css, :custom_js, :lang, NULL, :parent_id, NOW())'
             );
             $stmt->execute([
                 ':title' => $data['title'],
@@ -1160,6 +1160,7 @@ final class Page
                 ':layout_type' => $data['layout_type'] ?? 'no_sidebar',
                 ':hide_chrome' => !empty($data['hide_chrome']) ? 1 : 0,
                 ':transparent_header' => !empty($data['transparent_header']) ? 1 : 0,
+                ':hide_title' => !empty($data['hide_title']) ? 1 : 0,
                 ':custom_css' => $data['custom_css'] ?? null,
                 ':custom_js' => $data['custom_js'] ?? null,
                 ':lang' => $lang,
@@ -1223,7 +1224,7 @@ final class Page
                 'UPDATE pages SET title = :title, slug = :slug, section = :section, meta_title = :meta_title,
                  meta_description = :meta_description, `lead` = :lead, status = :status, is_home = :is_home,
                  layout_type = :layout_type, hide_chrome = :hide_chrome,
-                 transparent_header = :transparent_header, custom_css = :custom_css, custom_js = :custom_js, parent_id = :parent_id' . (isset($data['lang']) ? ', lang = :lang' : '') . ', lock_version = lock_version + 1
+                 transparent_header = :transparent_header, hide_title = :hide_title, custom_css = :custom_css, custom_js = :custom_js, parent_id = :parent_id' . (isset($data['lang']) ? ', lang = :lang' : '') . ', lock_version = lock_version + 1
                  WHERE id = :id' . ($expectedLockVersion !== null ? ' AND lock_version = :expected_lock_version' : '')
             );
             $params = [
@@ -1238,6 +1239,7 @@ final class Page
                 ':layout_type' => $data['layout_type'] ?? 'no_sidebar',
                 ':hide_chrome' => !empty($data['hide_chrome']) ? 1 : 0,
                 ':transparent_header' => !empty($data['transparent_header']) ? 1 : 0,
+                ':hide_title' => !empty($data['hide_title']) ? 1 : 0,
                 ':custom_css' => $data['custom_css'] ?? null,
                 ':custom_js' => $data['custom_js'] ?? null,
                 ':parent_id' => !empty($data['parent_id']) ? (int) $data['parent_id'] : null,

@@ -287,6 +287,7 @@ CREATE TABLE IF NOT EXISTS pages (
     layout_type     ENUM('no_sidebar', 'left_sidebar', 'right_sidebar') NOT NULL DEFAULT 'no_sidebar',
     hide_chrome     TINYINT(1) NOT NULL DEFAULT 0,
     transparent_header TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'прозрачная шапка на этой странице',
+    hide_title      TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'скрыть заголовок страницы с экрана (h1 остаётся для диктора)',
     custom_css      TEXT NULL COMMENT 'постраничный CSS / внешние стили',
     custom_js       TEXT NULL COMMENT 'постраничный JS / внешние скрипты',
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1306,7 +1307,8 @@ INSERT INTO migrations (filename) VALUES
     ('2026_09_30_link_checks.sql'),
     ('2026_10_13_photo_album_from_news.sql'),
     ('2026_10_14_menu_icon_image.sql'),
-    ('2026_10_14_menu_icon_variants.sql')
+    ('2026_10_14_menu_icon_variants.sql'),
+    ('2026_10_14_pages_hide_title.sql')
 ON DUPLICATE KEY UPDATE filename = filename;
 
 CREATE TABLE IF NOT EXISTS search_log (

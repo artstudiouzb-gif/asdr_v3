@@ -79,6 +79,12 @@ $isHomePage = \App\Models\Page::isHomePage($page ?? []);
                 <label class="u-inline-d76ba0dbd2" for="transparent_header">Прозрачная шапка</label>
             </div>
             <p class="form-hint u-inline-1da9facb4d">Для прозрачной шапки нужен hero первым блоком.</p>
+
+            <div class="form-field form-field--checkbox">
+                <input type="checkbox" id="hide_title" name="hide_title" value="1" <?= !empty($page['hide_title']) ? 'checked' : '' ?>>
+                <label class="u-inline-d76ba0dbd2" for="hide_title">Скрыть заголовок страницы</label>
+            </div>
+            <p class="form-hint">Название и вводный текст не показываются над содержимым. Для диктора и поисковиков заголовок остаётся.</p>
         </div>
     </div>
 </div>

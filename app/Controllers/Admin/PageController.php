@@ -12,6 +12,7 @@ use App\Core\Csrf;
 use App\Core\Database;
 use App\Core\BlockOwner;
 use App\Core\Flash;
+use App\Core\Input;
 use App\Core\Slug;
 use App\Core\View;
 use App\Models\Block;
@@ -516,6 +517,7 @@ final class PageController
             'layout_type' => $layoutType,
             'hide_chrome' => !empty($_POST['hide_chrome']), // лендинг (группа 6)
             'transparent_header' => !empty($_POST['transparent_header']),
+            'hide_title' => Input::post()->bool('hide_title'),
             'custom_css' => $customCss !== '' ? $customCss : null,
             'custom_js' => $customJs !== '' ? $customJs : null,
             'lang' => $lang,
