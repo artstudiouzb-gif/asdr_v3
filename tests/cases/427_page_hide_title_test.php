@@ -21,11 +21,13 @@ test('Страница: «Скрыть заголовок» убирает ша�
 
     $shown = $render([]);
     assert_contains('content-pagehead__title', $shown);
-    assert_contains('Вводный текст страницы', $shown);
+    assert_contains('<p class="content-pagehead__lead">Вводный текст страницы', $shown);
 
+    // Вводный текст остаётся в <meta name="description"> — скрыта только
+    // шапка страницы над содержимым.
     $hidden = $render(['hide_title' => 1]);
-    assert_not_contains('content-pagehead', $hidden);
-    assert_not_contains('Вводный текст страницы', $hidden);
+    assert_not_contains('content-pagehead__title', $hidden);
+    assert_not_contains('content-pagehead__lead', $hidden);
     assert_contains('<h1 class="visually-hidden">Стратегия 2030</h1>', $hidden);
     assert_contains('Тело страницы', $hidden);
 });
