@@ -518,6 +518,7 @@ final class PageController
             'hide_chrome' => !empty($_POST['hide_chrome']), // лендинг (группа 6)
             'transparent_header' => !empty($_POST['transparent_header']),
             'hide_title' => Input::post()->bool('hide_title'),
+            'hide_crumbs' => Input::post()->bool('hide_crumbs'),
             'custom_css' => $customCss !== '' ? $customCss : null,
             'custom_js' => $customJs !== '' ? $customJs : null,
             'lang' => $lang,

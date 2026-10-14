@@ -29,7 +29,12 @@ test('Страница: «Скрыть заголовок» убирает ша�
     $hidden = $render(['hide_title' => 1]);
     assert_not_contains('content-pagehead__title', $hidden);
     assert_not_contains('content-pagehead__lead', $hidden);
-    assert_not_contains('editorial-page__crumbs', $hidden);
+    // Крошки — свой флажок: скрытый заголовок их не трогает.
+    assert_contains('editorial-page__crumbs', $hidden);
+
+    $noCrumbs = $render(['hide_title' => 1, 'hide_crumbs' => 1]);
+    assert_not_contains('editorial-page__crumbs', $noCrumbs);
+    assert_contains('<h1 class="visually-hidden">Стратегия 2030</h1>', $noCrumbs);
     assert_contains('<h1 class="visually-hidden">Стратегия 2030</h1>', $hidden);
     assert_contains('Тело страницы', $hidden);
 });
