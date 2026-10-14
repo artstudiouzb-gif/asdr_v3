@@ -437,8 +437,8 @@ final class Project
         $lang = (string) ($data['lang'] ?? Language::defaultCode());
         $pdo = Database::pdo();
         $stmt = $pdo->prepare(
-            "INSERT INTO pages (title, slug, entity_type, `lead`, cover_image, status, is_featured, transparent_header, sort_order, layout_type, lang, translation_group_id, created_at)
-             VALUES (:title, :slug, 'project', :description, :cover_image, :status, :is_featured, :transparent_header, :sort_order, 'no_sidebar', :lang, NULL, NOW())"
+            "INSERT INTO pages (title, slug, entity_type, `lead`, cover_image, status, is_featured, transparent_header, hide_title, hide_crumbs, sort_order, layout_type, lang, translation_group_id, created_at)
+             VALUES (:title, :slug, 'project', :description, :cover_image, :status, :is_featured, :transparent_header, :hide_title, :hide_crumbs, :sort_order, 'no_sidebar', :lang, NULL, NOW())"
         );
         $stmt->execute([
             ':title' => $data['title'],
@@ -448,6 +448,8 @@ final class Project
             ':status' => $data['status'],
             ':is_featured' => !empty($data['is_featured']) ? 1 : 0,
             ':transparent_header' => !empty($data['transparent_header']) ? 1 : 0,
+            ':hide_title' => !empty($data['hide_title']) ? 1 : 0,
+            ':hide_crumbs' => !empty($data['hide_crumbs']) ? 1 : 0,
             ':sort_order' => $data['sort_order'] ?? 0,
             ':lang' => $lang,
         ]);
@@ -469,7 +471,7 @@ final class Project
         $stmt = Database::pdo()->prepare(
             "UPDATE pages SET title = :title, slug = :slug, `lead` = :description,
              cover_image = :cover_image, status = :status, is_featured = :is_featured,
-             transparent_header = :transparent_header,
+             transparent_header = :transparent_header, hide_title = :hide_title, hide_crumbs = :hide_crumbs,
              sort_order = :sort_order, lock_version = lock_version + 1
              WHERE id = :id AND entity_type = 'project'"
             . ($expectedLockVersion !== null ? ' AND lock_version = :expected_lock_version' : '')
@@ -482,6 +484,8 @@ final class Project
             ':status' => $data['status'],
             ':is_featured' => !empty($data['is_featured']) ? 1 : 0,
             ':transparent_header' => !empty($data['transparent_header']) ? 1 : 0,
+            ':hide_title' => !empty($data['hide_title']) ? 1 : 0,
+            ':hide_crumbs' => !empty($data['hide_crumbs']) ? 1 : 0,
             ':sort_order' => $data['sort_order'] ?? 0,
             ':id' => $id,
         ];
