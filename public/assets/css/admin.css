@@ -2986,6 +2986,9 @@ body.has-sticky-actions .admin-main { padding-bottom: 120px; }
 .columns-editor__child { cursor: grab; }
 .columns-editor__child.is-dragging { opacity: .5; outline: 2px dashed var(--admin-accent); }
 .columns-editor__child-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.columns-editor__child-icon { display: inline-grid; place-items: center; flex: 0 0 auto; width: 28px; height: 28px; border-radius: var(--admin-radius-sm); background: var(--admin-surface); color: var(--admin-accent); }
+.columns-editor__child-icon svg { width: 16px; height: 16px; }
+.columns-editor__child-type { display: block; font-size: var(--admin-fs-xs); color: var(--admin-text-muted); }
 .columns-editor__col.is-drop-target,
 .block-list.is-drop-target { outline: 2px dashed var(--admin-accent); outline-offset: 2px; }
 .block-drop-marker { height: 3px; margin: 4px 0; border-radius: 2px; background: var(--admin-accent); }
