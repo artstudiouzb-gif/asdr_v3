@@ -321,6 +321,7 @@ $router->post('/admin/forms/submissions/{id}/delete', [AdminFormController::clas
 $router->get('/admin/languages', [AdminLanguageController::class, 'index']);
 $router->get('/admin/languages/translations', [AdminLanguageController::class, 'translations']);
 $router->post('/admin/languages/translations', [AdminLanguageController::class, 'saveTranslations']);
+$router->post('/admin/languages/script', [AdminLanguageController::class, 'script']);
 $router->post('/admin/languages/create', [AdminLanguageController::class, 'store']);
 $router->post('/admin/languages/{id}/edit', [AdminLanguageController::class, 'update']);
 $router->post('/admin/languages/{id}/delete', [AdminLanguageController::class, 'destroy']);

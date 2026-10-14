@@ -10,7 +10,7 @@ use App\Core\AssetCollector;
  */
 const THEME_PART_FAMILIES = [
     'news-detail.css' => '/newsdetail|relnews/',
-    'org-structure.css' => '/orgstruct/',
+    'org-structure.css' => '/orgstruct|^(from|to|[\d.]+%)$/',
     // Обложка. `.hero` не пересекается с `.block-hero` старого блока: там
     // точка стоит перед «block», а не перед «hero». Шаги @keyframes своего
     // семейства не имеют — разрешены явно и только они.

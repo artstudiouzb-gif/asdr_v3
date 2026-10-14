@@ -156,11 +156,11 @@
     },
     "/assets/css/blocks/org-structure.css": {
       "path": "/assets/css/blocks/org-structure.min.css",
-      "sourceSha256": "14eb65de802af470f3ea18766f5700397c1ca11d052f89d98ac98be463e3d47e",
-      "sha256": "3b3a937b3cb48c6388915ee48ac7c6a9aabc36fc4ee0372ed34f68722baa34ca",
-      "raw": 13563,
-      "gzip": 2616,
-      "brotli": 2242
+      "sourceSha256": "43e8ace2c839d0708c02fd6156509d021f2e9f76ae7e26fe71adfcfe6aa7ff4c",
+      "sha256": "b4fa26b725689c1f9ca8363a27272ef2cd9946f3dc550fce110df6f1d4b5c6ce",
+      "raw": 15913,
+      "gzip": 3124,
+      "brotli": 2688
     },
     "/assets/css/blocks/table.css": {
       "path": "/assets/css/blocks/table.min.css",
