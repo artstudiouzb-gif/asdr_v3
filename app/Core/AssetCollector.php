@@ -74,6 +74,9 @@ final class AssetCollector
         'chart' => '/assets/css/blocks/chart.css',
         'divider' => '/assets/css/blocks/divider.css',
         'buttons' => '/assets/css/blocks/buttons.css',
+        // Раскладки «Ведущая карточка», «Указатель», «Знак на фоне» и
+        // «Панель»: остальным вариантам карточек хватает бандла.
+        'cards_grid' => '/assets/css/blocks/cards-layouts.css',
         // Тот же файл берёт и виджет сайдбара «Лента Instagram».
         'instagram_feed' => '/assets/css/blocks/instagram-feed.css',
         'news_feature' => '/assets/css/blocks/news-feature.css',

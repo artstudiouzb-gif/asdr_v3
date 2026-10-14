@@ -126,7 +126,17 @@ if ($layout === 'list') {
                             $tag = $url !== '' ? 'a' : 'div';
                             ?>
                             <li class="timeline-item timeline-item--<?= $status ?><?= $nextStatus !== '' ? ' timeline-item--next-' . $nextStatus : '' ?>">
-                                <span class="timeline-item__year"><?= htmlspecialchars((string) ($item['year'] ?? ''), ENT_QUOTES) ?></span>
+                                <?php
+                                // Год — крупно, дата — строкой под ним: левая колонка
+                                // читается как оглавление истории. «2021-yil 19-iyul»,
+                                // «2021 г. 19 июля», «2021»; без четырёх цифр в начале
+                                // строка выводится как есть.
+                                $yearRaw = trim((string) ($item['year'] ?? ''));
+                                $yearParts = preg_match('/^(\d{4})(?:\s*-?\s*(?:yil|йил|год|г\.?|y\.))?(?:[\s,.\-]+(\p{L}.*|\d{1,2}(?!\d).*))?$/u', $yearRaw, $ym) === 1
+                                    ? [$ym[1], trim($ym[2] ?? '')]
+                                    : null;
+                                ?>
+                                <span class="timeline-item__year"><?php if ($yearParts !== null): ?><span class="timeline-item__year-num"><?= htmlspecialchars($yearParts[0], ENT_QUOTES) ?></span><?php if ($yearParts[1] !== ''): ?><span class="timeline-item__year-date"><?= htmlspecialchars($yearParts[1], ENT_QUOTES) ?></span><?php endif; ?><?php else: ?><?= htmlspecialchars($yearRaw, ENT_QUOTES) ?><?php endif; ?></span>
                                 <<?= $tag ?> class="timeline-item__body<?= $url !== '' ? ' timeline-item__body--link' : '' ?>"<?= $url !== '' ? ' href="' . htmlspecialchars($url, ENT_QUOTES) . '"' : '' ?>>
                                     <?php if (trim((string) ($item['stage'] ?? '')) !== ''): ?>
                                         <span class="timeline-item__label"><?= htmlspecialchars((string) $item['stage'], ENT_QUOTES) ?></span>
