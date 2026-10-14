@@ -195,7 +195,17 @@ $placeForm = static function (array $block, string $current) use ($placeTargets)
                         <?php foreach ($kids as $kid): if ((int) $kid['column_index'] !== $ci) { continue; } ?>
                             <div class="columns-editor__child" draggable="true" data-block-id="<?= (int) $kid['id'] ?>">
                                 <span class="block-list-item__handle" title="Зажмите и перетащите в другую колонку или на страницу" aria-hidden="true">⠿</span>
-                                <span class="columns-editor__child-name"><?= htmlspecialchars($kid['title'] ?: ($blockTypeLabels[$kid['type']] ?? $kid['type']), ENT_QUOTES) ?></span>
+                                <?php
+                                // Тип вложенного блока виден сразу, как у блоков страницы:
+                                // по одному названию «Dastur haqida — matn» не понять,
+                                // текст это или коллаж, не открыв блок.
+                                $kidTypeLabel = (string) ($blockTypeLabels[$kid['type']] ?? $kid['type']);
+                                ?>
+                                <span class="columns-editor__child-icon" title="Тип: <?= htmlspecialchars($kidTypeLabel, ENT_QUOTES) ?>" aria-hidden="true"><?= \App\Core\AdminUi::blockIcon((string) $kid['type']) ?></span>
+                                <span class="columns-editor__child-name">
+                                    <?= htmlspecialchars($kid['title'] ?: $kidTypeLabel, ENT_QUOTES) ?>
+                                    <?php if ((string) $kid['title'] !== ''): ?><span class="columns-editor__child-type"><?= htmlspecialchars($kidTypeLabel, ENT_QUOTES) ?></span><?php endif; ?>
+                                </span>
                                 <span class="columns-editor__child-actions">
                                     <?= $placeForm($kid, $cellKey) ?>
                                     <a class="btn btn--small" href="/admin/blocks/<?= (int) $kid['id'] ?>/edit" title="Редактировать" aria-label="Редактировать"><?= \App\Core\AdminUi::icon('edit') ?></a>
