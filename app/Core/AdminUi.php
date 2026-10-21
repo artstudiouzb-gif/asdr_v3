@@ -180,6 +180,7 @@ final class AdminUi
             'pages' => 'file-text',
             'snippets' => 'template',
             'links' => 'unlink',
+            'replace' => 'replace',
             'heroes' => 'slideshow',
             'projects' => 'briefcase',
             'albums' => 'photo',
