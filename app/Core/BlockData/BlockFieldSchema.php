@@ -1382,7 +1382,20 @@ final class BlockFieldSchema
                 'group_by_department' => Field::bool('Группировать по секторам, а внутри — по отделам и группам', false),
             ],
             'leader_card' => [
-                'photo' => Field::media('Фото руководителя'),
+                'layout' => Field::enum('Раскладка карточки', [
+                    'side' => 'Горизонтальная, с вкладками',
+                    'stack' => 'Вертикальная, с раскрывающимися разделами',
+                ], 'side')
+                ->variants([
+                    'side' => ['profile', 'Фото и контакты слева, разделы вкладками справа — один руководитель на всю ширину'],
+                    'stack' => ['profile-stack', 'Фото сверху, под ним текст и раскрывающиеся разделы — карточки ставят в «Колонки»'],
+                ]),
+                'photo' => Field::media('Фото'),
+                'department' => Field::text(
+                    'Подразделение (департамент, отдел)',
+                    '',
+                    'Печатается над именем. Пусто — строки нет.'
+                ),
                 'name' => Field::text('Имя'),
                 'name_tag' => Field::enum('Уровень заголовка имени', [
                     'p' => 'Обычный текст (по умолчанию)',
@@ -1398,7 +1411,13 @@ final class BlockFieldSchema
                 'linkedin' => Field::url('LinkedIn', '', 'https://...'),
                 'instagram' => Field::url('Instagram', '', 'https://...'),
                 'telegram' => Field::url('Telegram', '', 'https://...'),
-                'mobile_icons_only' => Field::bool('На телефоне показывать только значки соцсетей', false),
+                'mobile_icons_only' => Field::bool('На телефоне показывать только значки соцсетей', false)
+                    ->onlyWhen('layout', ['side']),
+                'show_facts' => Field::bool(
+                    'Показывать вкладку «Основная информация»',
+                    true,
+                    'Снятая галочка прячет вкладку на сайте, а набранные строки остаются в блоке.'
+                ),
                 'facts_title' => Field::text('Вкладка «Основная информация» — заголовок', 'Основная информация'),
                 'facts_icon' => Field::icon('Вкладка «Основная информация» — значок'),
                 'bio_title' => Field::text('Вкладка «Биография» — заголовок', 'Биография'),

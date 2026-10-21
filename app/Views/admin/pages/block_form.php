@@ -1412,7 +1412,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
         <?php endif; ?>
 
         <?php if ($type === 'leader_card'): ?>
-            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('leader_card', $data, ['photo', 'name', 'name_tag', 'position', 'phone', 'email', 'hours', 'facebook', 'x', 'linkedin', 'instagram', 'telegram', 'facts_title', 'facts_icon']) ?>
+            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('leader_card', $data, ['layout', 'photo', 'department', 'name', 'name_tag', 'position', 'phone', 'email', 'hours', 'facebook', 'x', 'linkedin', 'instagram', 'telegram', 'show_facts', 'facts_title', 'facts_icon']) ?>
             <div>
                 <label>Строки первой вкладки</label>
                 <div data-repeater="items">
@@ -1441,7 +1441,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             <hr>
             <?= \App\Core\BlockData\BlockFieldSchema::formHtml('leader_card', $data, ['bio_title', 'bio_icon', 'bio', 'duties_title', 'duties_icon', 'duties', 'mobile_icons_only']) ?>
             <p class="form-hint">Экономит место, когда заголовки длинные. Работает, только если иконка задана у каждой показанной вкладки — иначе получилась бы пустая вкладка, и настройка молча не применится. Подписи остаются доступны скринридеру.</p>
-            <p class="form-hint">Вкладка без заголовка и без содержимого не показывается. Цвет активной вкладки берётся из акцента сайта («Дизайн сайта»), отдельной настройки у блока нет.</p>
+            <p class="form-hint">Вкладка без заголовка и без содержимого не показывается; в вертикальной раскладке вкладки становятся раскрывающимися разделами под должностью. Цвет активной вкладки берётся из акцента сайта («Дизайн сайта»), отдельной настройки у блока нет.</p>
         <?php endif; ?>
 
 
