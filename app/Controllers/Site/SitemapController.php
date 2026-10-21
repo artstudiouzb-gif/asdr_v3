@@ -96,7 +96,7 @@ final class SitemapController
     public function robots(): void
     {
         header('Content-Type: text/plain; charset=utf-8');
-        echo self::robotsTxt(AppUrl::base(), Language::activeCodes(), Language::defaultCode());
+        echo self::robotsTxt(AppUrl::base(), Language::publicCodes(), Language::defaultCode());
     }
 
     /**
@@ -206,7 +206,7 @@ final class SitemapController
             $newest['projects'] = max($newest['projects'], self::lastModified('projects', $pr));
         }
 
-        $langs = Language::activeCodes();
+        $langs = Language::publicCodes();
         $sections = [];
         if ($news !== []) {
             $sections[] = ['path' => 'news', 'lastmod' => $newest['news'], 'changefreq' => 'daily', 'priority' => '0.9'];

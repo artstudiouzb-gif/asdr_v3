@@ -282,6 +282,7 @@ final class LanguageController
             'short_name' => trim((string) ($_POST['short_name'] ?? '')),
             'is_default' => !empty($_POST['is_default']),
             'is_active' => !empty($_POST['is_active']),
+            'is_public' => Input::post()->bool('is_public'),
             'sort_order' => (int) ($_POST['sort_order'] ?? 0),
         ], null];
     }

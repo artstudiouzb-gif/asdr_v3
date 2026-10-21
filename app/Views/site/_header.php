@@ -277,7 +277,7 @@ $a11yToggle = '<button type="button" class="a11y-toggle' . ($a11yActive ? ' is-a
     . '<span>' . $et('Для слабовидящих') . '</span></button>';
 
 $langHtml = '';
-$activeLangs = Language::active();
+$activeLangs = Language::site();
 $hrefLangs = $activeLangs;
 $contentLangs = \App\Core\Locale::contentLangs();
 if ($contentLangs !== null) {

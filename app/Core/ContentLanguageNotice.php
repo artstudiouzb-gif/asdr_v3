@@ -15,7 +15,7 @@ final class ContentLanguageNotice
     public static function renderIfMissing(array $availableCodes, string $path): bool
     {
         $current = Locale::current();
-        $active = Language::active();
+        $active = Language::site();
         $activeCodes = array_map(static fn (array $lang): string => (string) $lang['code'], $active);
         $availableCodes = array_values(array_unique(array_intersect($availableCodes, $activeCodes)));
 

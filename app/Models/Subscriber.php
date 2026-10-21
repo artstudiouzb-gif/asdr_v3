@@ -30,7 +30,7 @@ final class Subscriber
             return 'invalid';
         }
 
-        $activeLangs = Language::activeCodes();
+        $activeLangs = Language::publicCodes();
         $lang = strtolower(trim((string) $lang));
         if (!in_array($lang, $activeLangs, true)) {
             $lang = Language::defaultCode();
