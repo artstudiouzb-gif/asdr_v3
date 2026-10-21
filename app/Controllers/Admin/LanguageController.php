@@ -156,9 +156,32 @@ final class LanguageController
 
         $enabled = Input::post()->bool('uz_cyrillic');
         Setting::set(UzCyrillic::SETTING, $enabled ? '1' : '0');
+        Setting::set(\App\Core\UzLatin::SETTING, Input::post()->bool('uz_latin_new') ? '1' : '0');
         // Пункт «Ўзбекча» печатает шапка, а она лежит в кэше страниц.
         Cache::forgetPrefix('page:');
-        Flash::success($enabled ? 'Кириллица включена.' : 'Кириллица выключена: пункт «Ўзбекча» убран из переключателя языков.');
+        Flash::success('Письменности сохранены. ' . ($enabled ? 'Кириллица включена.' : 'Кириллица выключена: пункт «Ўзбекча» убран из переключателя языков.'));
+
+        Redirect::to('/admin/languages');
+    }
+
+    /**
+     * Узбекские записи базы — новой латиницей. Разово и по кнопке: операция
+     * ложится в журнал «Найти и заменить», оттуда её и отменяют.
+     */
+    public function convertLatin(): void
+    {
+        Auth::requireSuperAdmin();
+        Csrf::verifyRequest();
+
+        $result = \App\Core\TextReplace::convertLanguage(
+            'uz',
+            static fn (string $text): string => \App\Core\UzLatin::html($text),
+            'Новая латиница (узбекские записи)',
+            Auth::id()
+        );
+        Flash::success($result['fields'] === 0
+            ? 'Узбекские записи уже записаны новой латиницей — менять нечего.'
+            : 'Переведено полей: ' . $result['fields'] . '. Отменить можно в «Инструменты» → «Найти и заменить» → «Последние замены».');
 
         Redirect::to('/admin/languages');
     }

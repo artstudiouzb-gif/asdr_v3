@@ -17,6 +17,9 @@ final class Slug
         'ғ' => 'g',
         'ҳ' => 'h',
         'ў' => 'o',
+        // Новая узбекская латиница (UzLatin): адрес остаётся тем же, что у
+        // прежнего написания — Şahar и Shahar дают один slug.
+        'ö' => 'o', 'ğ' => 'g', 'ş' => 'sh', 'ç' => 'ch',
     ];
 
     public static function make(string $text): string

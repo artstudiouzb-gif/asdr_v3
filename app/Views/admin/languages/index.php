@@ -50,7 +50,7 @@ require __DIR__ . '/../layout/header.php';
 </div>
 
 <div class="form-card">
-    <h2 class="u-inline-291b7bbb01">Узбекская кириллица</h2>
+    <h2 class="u-inline-291b7bbb01">Узбекская письменность</h2>
     <form method="post" action="/admin/languages/script">
         <?= Csrf::field() ?>
         <div class="form-field form-field--checkbox">
@@ -58,7 +58,17 @@ require __DIR__ . '/../layout/header.php';
             <label for="uz_cyrillic">Показывать «Ўзбекча» в переключателе языков</label>
         </div>
         <p class="form-hint">Кириллица получается транслитерацией узбекского текста. Выключенная — пункт исчезает из переключателя, а посетители, выбравшие её раньше, видят латиницу.</p>
+        <div class="form-field form-field--checkbox">
+            <input type="checkbox" id="uz_latin_new" name="uz_latin_new" value="1" <?= \App\Core\UzLatin::enabled() ? 'checked' : '' ?>>
+            <label for="uz_latin_new">Новая латиница: Oʻ → Ö, Gʻ → Ğ, Sh → Ş, Ch → Ç</label>
+        </div>
+        <p class="form-hint">Буквы меняются при показе узбекских страниц, а в базе текст остаётся прежним — выключите галочку, и сайт вернётся к старому написанию. Набирать можно и старыми, и новыми буквами; поиск находит оба. Иностранные слова (с буквами c, w — Facebook, Microsoft), адреса и почта не меняются; фрагмент, который трогать нельзя, оборачивают атрибутом <code>data-no-translit</code>.</p>
         <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить</button>
+    </form>
+    <form method="post" action="/admin/languages/latin-convert" data-confirm="Переписать все узбекские записи базы новой латиницей? Операцию можно отменить в «Найти и заменить».">
+        <?= Csrf::field() ?>
+        <p class="form-hint">Галочка меняет буквы только при показе. Кнопка ниже переписывает саму базу: узбекские страницы, блоки, новости, проекты и переводы (заголовки, тексты, подписи) — тогда новое написание уходит и в Telegram, RSS и карту сайта. Адреса страниц, ссылки и файлы не меняются. Блоки сохраняют прежнюю версию в своей истории, а всю операцию можно отменить в «Инструменты» → «Найти и заменить».</p>
+        <button type="submit" class="btn"><?= \App\Core\AdminUi::icon('replace') ?>Перевести узбекские записи базы на новую латиницу</button>
     </form>
 </div>
 
