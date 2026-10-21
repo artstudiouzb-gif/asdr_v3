@@ -46,6 +46,21 @@ test('Priority-бургер является последним элементо
     assert_contains('[data-priority-overflow]', $css);
 });
 
+test('Разделитель гасится только у пункта перед «Ещё», а не у всех ссылок меню', function (): void {
+    // Осиротевший селектор в списке прилипал к правилу content: none, и у
+    // пунктов без подменю разделителя не было вовсе.
+    $css = (string) preg_replace('~/\*.*?\*/~s', '', (string) file_get_contents(APP_ROOT . '/public/assets/css/frontend.css'));
+    preg_match_all('~([^{}]+)\{[^}]*content:\s*none\s*!important~', $css, $m);
+    foreach ($m[1] as $selectors) {
+        foreach (explode(',', $selectors) as $selector) {
+            $selector = trim($selector);
+            if (str_contains($selector, 'with-item-dividers')) {
+                assert_true(str_contains($selector, '[data-priority-overflow]'), 'Разделитель гасится у всех пунктов: ' . $selector);
+            }
+        }
+    }
+});
+
 test('Прозрачная шапка использует компактный hamburger без белой карточки', function (): void {
     $css = theme_css();
 
