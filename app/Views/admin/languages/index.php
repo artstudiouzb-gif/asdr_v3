@@ -11,7 +11,7 @@ require __DIR__ . '/../layout/header.php';
 <div class="admin-page-actions">
     <a class="btn btn--primary" href="/admin/languages/translations"><?= \App\Core\AdminUi::icon('language') ?>Переводы интерфейса</a>
 </div>
-<p class="form-hint">Язык по умолчанию доступен на сайте без префикса в URL; остальные активные языки — по префиксу <code>/код/…</code>.</p>
+<p class="form-hint">Язык по умолчанию доступен на сайте без префикса в URL; остальные активные языки — по префиксу <code>/код/…</code>. «Активен» — язык есть в админке; «На сайте» — посетитель видит его в переключателе и по адресу. Снимите «На сайте», чтобы готовить переводы заранее: скрытый язык на сайте видит только супер-администратор.</p>
 
 <?php foreach ($items as $item): ?>
     <form id="lang-<?= (int) $item['id'] ?>" method="post" action="/admin/languages/<?= (int) $item['id'] ?>/edit">
@@ -22,7 +22,7 @@ require __DIR__ . '/../layout/header.php';
 <div class="table-responsive">
     <table class="data-table language-settings-table u-inline-5370cbf1a7">
         <thead>
-            <tr><th>Код</th><th>Название</th><th>Короткое</th><th>По умолчанию</th><th>Активен</th><th>Порядок</th><th class="language-settings-table__actions-head">Действия</th></tr>
+            <tr><th>Код</th><th>Название</th><th>Короткое</th><th>По умолчанию</th><th>Активен</th><th>На сайте</th><th>Порядок</th><th class="language-settings-table__actions-head">Действия</th></tr>
         </thead>
         <tbody>
             <?php foreach ($items as $item): ?>
@@ -33,6 +33,7 @@ require __DIR__ . '/../layout/header.php';
                     <td><input class="u-inline-1a91ef9eca" type="text" name="short_name" value="<?= htmlspecialchars((string) ($item['short_name'] ?? ''), ENT_QUOTES) ?>" placeholder="<?= htmlspecialchars(\App\Models\Language::shortLabel($item), ENT_QUOTES) ?>" form="<?= $f ?>"></td>
                     <td class="u-inline-dac4fe6c9b"><input type="checkbox" name="is_default" value="1" <?= $item['is_default'] ? 'checked' : '' ?> form="<?= $f ?>"></td>
                     <td class="u-inline-dac4fe6c9b"><input type="checkbox" name="is_active" value="1" <?= $item['is_active'] ? 'checked' : '' ?> form="<?= $f ?>"></td>
+                    <td class="u-inline-dac4fe6c9b"><input type="checkbox" name="is_public" value="1" <?= \App\Models\Language::isPublic($item) ? 'checked' : '' ?><?= $item['is_default'] ? ' disabled' : '' ?> form="<?= $f ?>" aria-label="Показывать на сайте"></td>
                     <td><input class="u-inline-d26d79f4c2" type="number" name="sort_order" value="<?= (int) $item['sort_order'] ?>" form="<?= $f ?>"></td>
                     <td class="data-table__actions language-settings-table__actions">
                         <button type="submit" class="btn btn--small btn--primary" form="<?= $f ?>"><?= \App\Core\AdminUi::icon('save') ?>Сохранить</button>
@@ -97,6 +98,10 @@ require __DIR__ . '/../layout/header.php';
         <div class="form-field form-field--checkbox">
             <input type="checkbox" id="is_active" name="is_active" value="1" checked>
             <label for="is_active">Активен</label>
+        </div>
+        <div class="form-field form-field--checkbox">
+            <input type="checkbox" id="is_public" name="is_public" value="1" checked>
+            <label for="is_public">Показывать на сайте</label>
         </div>
         <div class="form-field form-field--checkbox">
             <input type="checkbox" id="is_default" name="is_default" value="1">

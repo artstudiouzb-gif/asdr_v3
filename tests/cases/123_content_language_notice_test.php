@@ -31,7 +31,7 @@ test('Уведомление об отсутствующем переводе л
 
 test('Переключатель языка не скрывает активные языки без перевода', function (): void {
     $header = (string) file_get_contents(APP_ROOT . '/app/Views/site/_header.php');
-    assert_contains('$activeLangs = Language::active()', $header);
+    assert_contains('$activeLangs = Language::site()', $header);
     assert_contains('$hrefLangs = $activeLangs', $header);
     assert_contains('foreach ($activeLangs as $l)', $header);
     assert_contains('foreach ($hrefLangs as $hrefLang)', $header);

@@ -52,7 +52,7 @@ final class WeeklyRoundup
         $until = $now->format('Y-m-d H:i:s');
 
         $out = [];
-        foreach (Language::activeCodes() as $code) {
+        foreach (Language::publicCodes() as $code) {
             $items = array_values(array_filter(
                 News::published(self::MAX_ITEMS * 2, 0, $code),
                 static function (array $news) use ($since, $until): bool {

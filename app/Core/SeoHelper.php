@@ -18,7 +18,7 @@ final class SeoHelper
             return "";
         }
 
-        $activeCodes = Language::activeCodes();
+        $activeCodes = Language::publicCodes();
         if (count($activeCodes) <= 1) {
             return "";
         }

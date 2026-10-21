@@ -376,7 +376,7 @@ final class SocialSettings
         $ownLang = trim((string) ($news['lang'] ?? '')) ?: $default;
         $rows[$ownLang] = $news;
 
-        $activeCodes = Database::isConnected() ? Language::activeCodes() : ['uz', 'ru', 'en'];
+        $activeCodes = Database::isConnected() ? Language::publicCodes() : ['uz', 'ru', 'en'];
         // Порядок языков в посте: сначала основной (узбекский), затем остальные
         usort($activeCodes, static function (string $a, string $b) use ($default): int {
             if ($a === $default) return -1;
@@ -487,7 +487,7 @@ final class SocialSettings
         $present = array_column(self::languageBlocks($news, AppUrl::base()), 'code');
 
         return array_values(array_filter(
-            Language::activeCodes(),
+            Language::publicCodes(),
             static fn (string $code): bool => !in_array($code, $present, true)
         ));
     }
