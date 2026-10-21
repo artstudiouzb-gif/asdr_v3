@@ -31,9 +31,6 @@ final class UzCyrillic
         return \App\Models\Setting::get(self::SETTING, '1') !== '0';
     }
 
-    /** Теги, внутри которых текст не трогаем. */
-    private const SKIP_TAGS = ['script', 'style', 'code', 'pre', 'textarea', 'kbd', 'samp'];
-
     /**
      * Знаки, которыми латиница ставит и кавычки: в конце слова такой знак —
      * кавычка, а не tutuq belgisi.
@@ -104,93 +101,21 @@ final class UzCyrillic
 
     public static function text(string $latin): string
     {
+        // Буквы нового алфавита (Ö, Ğ, Ş, Ç) редактор может набрать и сам:
+        // кириллица строится от одного написания, иначе слово с ними
+        // считалось бы иностранным и оставалось латиницей.
+        $latin = UzLatin::toOld($latin);
         if ($latin === '' || !preg_match('/[a-zA-Z]/', $latin)) {
             return $latin;
         }
 
-        // Сущности, URI, почта и домены — не обычный текст: их
-        // транслитерация ломает адрес или саму HTML-сущность.
-        $chunks = preg_split(
-            '~(
-                &[a-zA-Z][a-zA-Z0-9]+;
-                |&\#(?:\d+|[xX][0-9a-fA-F]+);
-                |(?:https?|ftp)://[^\s<]+
-                |(?:mailto:|tel:)[^\s<]+
-                |[\w.+\-]+@[\w.\-]+\.[\p{L}]{2,63}
-                |(?<![\w@])(?:[\p{L}\p{N}](?:[\p{L}\p{N}-]*[\p{L}\p{N}])?\.)+
-                    [\p{L}]{2,63}(?:/[^\s<]*)?
-            )~iux',
-            $latin,
-            -1,
-            PREG_SPLIT_DELIM_CAPTURE
-        );
-        if ($chunks === false) {
-            return $latin;
-        }
-
-        $out = '';
-        foreach ($chunks as $index => $chunk) {
-            // Захваченные разделители стоят на нечётных местах.
-            $out .= $index % 2 === 1 ? $chunk : self::convert($chunk);
-        }
-
-        return $out;
+        return UzbekText::plainChunks($latin, static fn (string $chunk): string => self::convert($chunk));
     }
 
     /** Переводит только текстовые узлы готовой разметки. */
     public static function html(string $html): string
     {
-        $parts = preg_split('/(<[^>]*>)/u', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
-        if ($parts === false) {
-            return $html;
-        }
-
-        $skipTag = null;   // имя тега, внутри которого пропускаем текст
-        $skipDepth = 0;
-        $out = '';
-
-        foreach ($parts as $part) {
-            if ($part === '') {
-                continue;
-            }
-
-            if ($part[0] !== '<') {
-                $out .= $skipTag === null ? self::text($part) : $part;
-                continue;
-            }
-
-            $out .= $part;
-            if (!preg_match('/^<\s*(\/?)\s*([a-zA-Z0-9-]+)/', $part, $m)) {
-                continue;
-            }
-            $isClosing = $m[1] === '/';
-            $tag = strtolower($m[2]);
-            $selfClosing = str_ends_with(rtrim($part), '/>');
-
-            if ($skipTag === null) {
-                $skipHere = in_array($tag, self::SKIP_TAGS, true)
-                    || preg_match('/\sdata-no-translit(?=\s|=|\/?>)/i', $part) === 1;
-                if (!$isClosing && !$selfClosing && $skipHere) {
-                    $skipTag = $tag;
-                    $skipDepth = 1;
-                }
-                continue;
-            }
-
-            if ($tag !== $skipTag || $selfClosing) {
-                continue;
-            }
-            if ($isClosing) {
-                $skipDepth--;
-                if ($skipDepth <= 0) {
-                    $skipTag = null;
-                }
-            } else {
-                $skipDepth++;
-            }
-        }
-
-        return $out;
+        return UzbekText::textNodes($html, static fn (string $text): string => self::text($text));
     }
 
     private static function convert(string $text): string

@@ -259,6 +259,82 @@ final class TextReplace
     }
 
     /**
+     * Перевод всех записей одного языка новым правилом письма (новая
+     * латиница). Ходит по тем же таблицам и полям, что поиск с заменой, но
+     * только по строкам с `lang = $lang`: у таблиц без колонки языка базовый
+     * язык — русский (переводы лежат в `*_translations`), и узбекского
+     * текста там нет. Адреса, slug'и и технические поля не трогаются тем же
+     * правилом `isTechnical`. Операция ложится в общий журнал отмены.
+     *
+     * @param callable(string): string $convert
+     * @return array{fields: int, log: string}
+     */
+    public static function convertLanguage(string $lang, callable $convert, string $label, ?int $userId, bool $dryRun = false): array
+    {
+        $leaf = static function (string $text, int &$n) use ($convert): string {
+            $new = $convert($text);
+            if ($new !== $text) {
+                $n++;
+            }
+
+            return $new;
+        };
+        $changes = [];
+        $targets = self::targets(false);
+        $all = ContentLocator::columns();
+        Database::transaction(static function (\PDO $pdo) use ($lang, $leaf, $userId, $dryRun, $targets, $all, &$changes): void {
+            foreach ($targets as $table => $columns) {
+                $pk = ContentLocator::primaryKey($pdo, $table);
+                if ($pk === null || !in_array('lang', $all[$table] ?? [], true)) {
+                    continue;
+                }
+                $extra = $table === 'blocks' ? ', `title`, `type`, `custom_css`' : '';
+                $select = array_values(array_unique(array_merge([$pk], $columns)));
+                $stmt = $pdo->prepare('SELECT `' . implode('`, `', $select) . '`' . $extra . ' FROM `' . $table . '` WHERE `lang` = ?'
+                    . ($dryRun ? '' : ' FOR UPDATE'));
+                $stmt->execute([$lang]);
+                foreach (Database::rows($stmt) as $row) {
+                    foreach ($columns as $column) {
+                        $old = $row[$column] ?? null;
+                        if (!is_string($old) || $old === '') {
+                            continue;
+                        }
+                        $count = 0;
+                        $new = self::transformIn($old, $leaf, $count);
+                        if ($new === $old) {
+                            continue;
+                        }
+                        $id = (string) $row[$pk];
+                        if (!$dryRun) {
+                            if ($table === 'blocks' && $column === 'data') {
+                                $previous = json_decode($old, true);
+                                BlockRevision::snapshot(
+                                    (int) $id,
+                                    $row['title'] !== null ? (string) $row['title'] : null,
+                                    is_array($previous) ? $previous : [],
+                                    $row['custom_css'] !== null ? (string) $row['custom_css'] : null,
+                                    $userId,
+                                    (string) $row['type']
+                                );
+                            }
+                            self::write($pdo, $table, $pk, $id, $column, $new);
+                        }
+                        $changes[] = ['table' => $table, 'id' => $id, 'column' => $column, 'old' => $old, 'new' => $new];
+                    }
+                }
+            }
+        });
+
+        if ($dryRun || $changes === []) {
+            return ['fields' => count($changes), 'log' => ''];
+        }
+        $log = self::saveLog($label, '', $userId, $changes);
+        self::afterChange();
+
+        return ['fields' => count($changes), 'log' => $log];
+    }
+
+    /**
      * Последние операции, новые сверху.
      *
      * @return list<array{id: string, at: string, needle: string, replacement: string, fields: int, undone: string}>
@@ -293,12 +369,28 @@ final class TextReplace
      */
     public static function replaceIn(string $value, string $pattern, string $replacement, int &$count): string
     {
+        return self::transformIn(
+            $value,
+            static fn (string $text, int &$n): string => self::replaceText($text, $pattern, $replacement, $n),
+            $count
+        );
+    }
+
+    /**
+     * Преобразование одного значения: JSON — по текстовым значениям (ключи
+     * и технические поля не трогаются), остальное — как текст. Что делать с
+     * текстом, решает `$leaf`; он же прибавляет к `$count` число правок.
+     *
+     * @param callable(string, int&): string $leaf
+     */
+    public static function transformIn(string $value, callable $leaf, int &$count): string
+    {
         $first = $value[0] ?? '';
         if ($first === '{' || $first === '[') {
             $decoded = json_decode($value, true);
             if (is_array($decoded)) {
                 $before = $count;
-                $walked = self::walk($decoded, $pattern, $replacement, $count, '');
+                $walked = self::walk($decoded, $leaf, $count, '');
                 if ($count === $before) {
                     return $value;
                 }
@@ -307,16 +399,17 @@ final class TextReplace
             }
         }
 
-        return self::replaceText($value, $pattern, $replacement, $count);
+        return $leaf($value, $count);
     }
 
-    private static function walk(mixed $node, string $pattern, string $replacement, int &$count, string $key): mixed
+    /** @param callable(string, int&): string $leaf */
+    private static function walk(mixed $node, callable $leaf, int &$count, string $key): mixed
     {
         if (is_array($node)) {
             foreach ($node as $k => $child) {
                 // У списка ключ — номер, техническим он не бывает: решает
                 // имя поля, в котором список лежит.
-                $node[$k] = self::walk($child, $pattern, $replacement, $count, is_string($k) ? $k : $key);
+                $node[$k] = self::walk($child, $leaf, $count, is_string($k) ? $k : $key);
             }
 
             return $node;
@@ -325,7 +418,7 @@ final class TextReplace
             return $node;
         }
 
-        return self::replaceText($node, $pattern, $replacement, $count);
+        return $leaf($node, $count);
     }
 
     /** В HTML меняется только текст между тегами. */

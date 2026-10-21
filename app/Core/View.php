@@ -51,6 +51,9 @@ final class View
         // вариант текста, а кэш блоков не нужно множить на письменность.
         if (self::isPublic($template) && self::wantsCyrillic()) {
             $html = UzCyrillic::html($html);
+        } elseif (self::isPublic($template) && UzLatin::wanted()) {
+            // Новая латиница — тем же путём: база остаётся прежней.
+            $html = UzLatin::html($html);
         }
         // «Исходный код страницы» — публичное лицо сайта не меньше, чем сама
         // страница: разметку читают ведомственные проверки, интеграторы и
