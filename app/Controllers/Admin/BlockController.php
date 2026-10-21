@@ -394,6 +394,8 @@ final class BlockController
     /**
      * Копия блока — сразу за оригиналом, в той же ячейке. Перенести её в
      * соседнюю колонку можно кнопкой «Переместить» или перетаскиванием.
+     *
+     * @param array<string, string> $params
      */
     public function duplicate(array $params): void
     {
