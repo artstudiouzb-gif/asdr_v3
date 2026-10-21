@@ -244,6 +244,7 @@ CREATE TABLE IF NOT EXISTS languages (
     short_name      VARCHAR(16) NOT NULL DEFAULT '' COMMENT 'короткое название для переключателя: Рус, Oʻzb',
     is_default      TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'язык по умолчанию (URL без префикса)',
     is_active       TINYINT(1) NOT NULL DEFAULT 1,
+    is_public       TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'показывать на сайте (0 — только админка и супер-админ)',
     sort_order      INT NOT NULL DEFAULT 0,
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uq_languages_code (code)
@@ -1310,7 +1311,8 @@ INSERT INTO migrations (filename) VALUES
     ('2026_10_14_menu_icon_image.sql'),
     ('2026_10_14_menu_icon_variants.sql'),
     ('2026_10_14_pages_hide_title.sql'),
-    ('2026_10_14_pages_hide_crumbs.sql')
+    ('2026_10_14_pages_hide_crumbs.sql'),
+    ('2026_10_21_languages_is_public.sql')
 ON DUPLICATE KEY UPDATE filename = filename;
 
 CREATE TABLE IF NOT EXISTS search_log (

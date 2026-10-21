@@ -154,7 +154,7 @@ final class Router
             return $path;
         }
 
-        $activeCodes = Language::activeCodes();
+        $activeCodes = Language::siteCodes();
         $defaultCode = Language::defaultCode();
 
         // Языковой префикс не создаёт второго адреса служебным областям.

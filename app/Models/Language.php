@@ -15,11 +15,13 @@ final class Language
         'short_name' => 'Рус',
         'is_default' => 1,
         'is_active' => 1,
+        'is_public' => 1,
         'sort_order' => 0,
     ];
 
     private static ?array $activeCache = null;
     private static ?array $defaultCache = null;
+    private static ?bool $previewCache = null;
 
     /**
      * @return array<int, array<string, mixed>> все языки (для админки)
@@ -52,6 +54,84 @@ final class Language
         }
 
         return self::$activeCache;
+    }
+
+    /**
+     * Языки, открытые посетителю сайта: активные и не скрытые.
+     *
+     * Скрытый язык остаётся в админке целиком — переводы готовят заранее, —
+     * а на сайте его видит только супер-админ: проверить перевод до открытия
+     * нечем, кроме самой страницы. Язык по умолчанию скрыть нельзя: без него
+     * у сайта нет адреса без префикса.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function site(): array
+    {
+        return self::forSite(self::active(), self::sitePreview());
+    }
+
+    /**
+     * Правило отбора отдельно от источника: супер-админ видит все активные,
+     * остальные — только открытые.
+     *
+     * @param array<int, array<string, mixed>> $active
+     * @return array<int, array<string, mixed>>
+     */
+    public static function forSite(array $active, bool $preview): array
+    {
+        return $preview
+            ? array_values($active)
+            : array_values(array_filter($active, static fn (array $l): bool => self::isPublic($l)));
+    }
+
+    /** @return list<string> */
+    public static function siteCodes(): array
+    {
+        return array_values(array_map(static fn (array $l) => (string) $l['code'], self::site()));
+    }
+
+    /**
+     * Открытые языки без поправки на супер-админа: то, что видит поиск и
+     * получают рассылки, — карта сайта, robots.txt, hreflang, Telegram.
+     *
+     * @return list<string>
+     */
+    public static function publicCodes(): array
+    {
+        return array_values(array_map(static fn (array $l) => (string) $l['code'], self::visible()));
+    }
+
+    /** @param array<string, mixed> $language */
+    public static function isPublic(array $language): bool
+    {
+        return (int) ($language['is_public'] ?? 1) === 1 || (int) ($language['is_default'] ?? 0) === 1;
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private static function visible(): array
+    {
+        return self::forSite(self::active(), false);
+    }
+
+    private static function sitePreview(): bool
+    {
+        if (count(self::visible()) === count(self::active())) {
+            return false;
+        }
+        // Сессию у посетителя не поднимаем: без метки входа спрашивать
+        // некого, а поднятая сессия сделала бы каждую страницу персональной.
+        if (self::$previewCache === null) {
+            try {
+                self::$previewCache = \App\Core\Auth::mightBeSignedIn()
+                    && \App\Core\Auth::check()
+                    && \App\Core\Auth::isSuperAdmin();
+            } catch (\Throwable) {
+                self::$previewCache = false;
+            }
+        }
+
+        return self::$previewCache;
     }
 
     public static function default(): array
@@ -150,8 +230,8 @@ final class Language
                 $pdo->exec('UPDATE languages SET is_default = 0');
             }
             $stmt = $pdo->prepare(
-                'INSERT INTO languages (code, name, short_name, is_default, is_active, sort_order, created_at)
-                 VALUES (:code, :name, :short_name, :is_default, :is_active, :sort_order, NOW())'
+                'INSERT INTO languages (code, name, short_name, is_default, is_active, is_public, sort_order, created_at)
+                 VALUES (:code, :name, :short_name, :is_default, :is_active, :is_public, :sort_order, NOW())'
             );
             $stmt->execute([
                 ':code' => $data['code'],
@@ -159,6 +239,7 @@ final class Language
                 ':short_name' => self::shortNameFor($data),
                 ':is_default' => !empty($data['is_default']) ? 1 : 0,
                 ':is_active' => !empty($data['is_active']) ? 1 : 0,
+                ':is_public' => !array_key_exists('is_public', $data) || !empty($data['is_public']) || !empty($data['is_default']) ? 1 : 0,
                 ':sort_order' => (int) ($data['sort_order'] ?? 0),
             ]);
             $id = (int) $pdo->lastInsertId();
@@ -183,7 +264,7 @@ final class Language
             }
             $stmt = $pdo->prepare(
                 'UPDATE languages SET code = :code, name = :name, short_name = :short_name,
-                 is_default = :is_default, is_active = :is_active, sort_order = :sort_order WHERE id = :id'
+                 is_default = :is_default, is_active = :is_active, is_public = :is_public, sort_order = :sort_order WHERE id = :id'
             );
             $stmt->execute([
                 ':code' => $data['code'],
@@ -191,6 +272,7 @@ final class Language
                 ':short_name' => self::shortNameFor($data),
                 ':is_default' => !empty($data['is_default']) ? 1 : 0,
                 ':is_active' => !empty($data['is_active']) ? 1 : 0,
+                ':is_public' => !array_key_exists('is_public', $data) || !empty($data['is_public']) || !empty($data['is_default']) ? 1 : 0,
                 ':sort_order' => (int) ($data['sort_order'] ?? 0),
                 ':id' => $id,
             ]);
@@ -219,7 +301,7 @@ final class Language
     {
         $count = (int) $pdo->query('SELECT COUNT(*) FROM languages WHERE is_default = 1')->fetchColumn();
         if ($count === 0) {
-            $pdo->exec('UPDATE languages SET is_default = 1, is_active = 1 ORDER BY sort_order ASC, id ASC LIMIT 1');
+            $pdo->exec('UPDATE languages SET is_default = 1, is_active = 1, is_public = 1 ORDER BY sort_order ASC, id ASC LIMIT 1');
         }
     }
 
@@ -228,5 +310,6 @@ final class Language
     {
         self::$activeCache = null;
         self::$defaultCache = null;
+        self::$previewCache = null;
     }
 }
