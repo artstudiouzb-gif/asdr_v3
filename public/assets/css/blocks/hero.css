@@ -194,19 +194,43 @@
 .hero__yt { overflow: hidden; pointer-events: none; opacity: 0; transition: opacity .4s ease; }
 .hero__yt.is-ready { opacity: 1; }
 
-/* Ролик 16:9 растягивается до перекрытия обложки: iframe нельзя обрезать
-   через object-fit, поэтому масштабируем его сами. */
+/* Ролик 16:9 масштабируется сам: iframe не умеет object-fit. Размер
+   считается от самого слоя (единицы контейнера), а не от окна: прежние
+   100vw/177.78vh давали «заполнить» при любой настройке и не знали высоты
+   обложки. «Заполнить» — больший из двух размеров, «показать целиком» —
+   меньший; кадр сдвигает остаток по осям долями --yt-x/--yt-y, которые
+   выставляют те же классы положения, что у фотографии. */
+.hero__yt {
+    container-type: size;
+    --yt-w: max(100cqw, 177.78cqh);
+    --yt-h: max(56.25cqw, 100cqh);
+    --yt-x: .5;
+    --yt-y: .5;
+}
+.hero__yt--contain {
+    --yt-w: min(100cqw, 177.78cqh);
+    --yt-h: min(56.25cqw, 100cqh);
+    background: var(--hero-bg);
+}
 .hero__yt iframe {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 100vw;
-    height: 56.25vw;
-    min-height: 100%;
-    min-width: 177.78vh;
-    transform: translate(-50%, -50%);
+    top: calc((100cqh - var(--yt-h)) * var(--yt-y));
+    left: calc((100cqw - var(--yt-w)) * var(--yt-x));
+    width: var(--yt-w);
+    height: var(--yt-h);
     border: 0;
     pointer-events: none;
+}
+.hero__yt.media-position--left-top, .hero__yt.media-position--left-center, .hero__yt.media-position--left-bottom { --yt-x: 0; }
+.hero__yt.media-position--right-top, .hero__yt.media-position--right-center, .hero__yt.media-position--right-bottom { --yt-x: 1; }
+.hero__yt.media-position--left-top, .hero__yt.media-position--center-top, .hero__yt.media-position--right-top { --yt-y: 0; }
+.hero__yt.media-position--left-bottom, .hero__yt.media-position--center-bottom, .hero__yt.media-position--right-bottom { --yt-y: 1; }
+@media (max-width: 720px) {
+    .hero__yt[class*="media-position-mobile--"] { --yt-x: .5; --yt-y: .5; }
+    .hero__yt.media-position-mobile--left-top, .hero__yt.media-position-mobile--left-center, .hero__yt.media-position-mobile--left-bottom { --yt-x: 0; }
+    .hero__yt.media-position-mobile--right-top, .hero__yt.media-position-mobile--right-center, .hero__yt.media-position-mobile--right-bottom { --yt-x: 1; }
+    .hero__yt.media-position-mobile--left-top, .hero__yt.media-position-mobile--center-top, .hero__yt.media-position-mobile--right-top { --yt-y: 0; }
+    .hero__yt.media-position-mobile--left-bottom, .hero__yt.media-position-mobile--center-bottom, .hero__yt.media-position-mobile--right-bottom { --yt-y: 1; }
 }
 
 .hero__overlay {

@@ -44,16 +44,22 @@ final class HeroMediaRenderer
         }
 
         if ($type === 'video' && $d['video_url'] !== '') {
-            $layers .= self::video($d);
+            $layers .= self::video($d, $positions);
         } elseif ($type === 'youtube' && $d['youtube_id'] !== '') {
-            $layers .= self::youtube($d);
+            $layers .= self::youtube($d, $positions);
         }
 
         return $layers === '' ? '' : '<div class="hero__media" aria-hidden="true">' . $layers . '</div>';
     }
 
-    /** @param array<string, mixed> $d */
-    private static function video(array $d): string
+    /**
+     * Кадр и «показать целиком» у ролика те же, что у фотографии: настройки
+     * слайда одни на все виды фона, и ролик, который их не слушает, молча
+     * отменял выбор редактора.
+     *
+     * @param array<string, mixed> $d
+     */
+    private static function video(array $d, string $positions): string
     {
         $poster = HeroSlideData::fallbackImage($d);
         $sources = '<source data-hero-src="' . htmlspecialchars((string) $d['video_url'], ENT_QUOTES) . '" type="video/mp4">';
@@ -61,7 +67,7 @@ final class HeroMediaRenderer
         // Ролик не стартует по атрибуту autoplay: старт даёт скрипт, когда слайд
         // действительно показан. Иначе карусель тянула бы все видео сразу — на
         // мобильном трафике это дороже, чем всё остальное на странице.
-        return '<video class="hero__video" data-hero-video'
+        return '<video class="hero__video ' . $positions . '" data-hero-video'
             . ' data-hero-mobile-media="' . htmlspecialchars((string) $d['mobile_media'], ENT_QUOTES) . '"'
             . ($d['video_mobile_url'] !== ''
                 ? ' data-hero-video-mobile="' . htmlspecialchars((string) $d['video_mobile_url'], ENT_QUOTES) . '"'
@@ -78,9 +84,13 @@ final class HeroMediaRenderer
      * YouTube как фон. Iframe создаёт скрипт: до его готовности (и навсегда,
      * если ролик недоступен или автовоспроизведение запрещено) виден постер.
      *
+     * Iframe не умеет `object-fit`, поэтому «заполнить» и «показать целиком»
+     * считает CSS от размеров слоя (`hero__yt--contain`), а кадр — классом
+     * положения, тем же, что у фотографии.
+     *
      * @param array<string, mixed> $d
      */
-    private static function youtube(array $d): string
+    private static function youtube(array $d, string $positions): string
     {
         $params = [
             'autoplay' => '1',
@@ -103,7 +113,9 @@ final class HeroMediaRenderer
         $src = 'https://www.youtube-nocookie.com/embed/' . rawurlencode((string) $d['youtube_id'])
             . '?' . http_build_query($params, '', '&', PHP_QUERY_RFC3986);
 
-        return '<div class="hero__yt" data-hero-youtube'
+        $fit = $d['image_fit'] === 'contain' ? ' hero__yt--contain' : '';
+
+        return '<div class="hero__yt ' . $positions . $fit . '" data-hero-youtube'
             . ' data-hero-mobile-media="' . htmlspecialchars((string) $d['mobile_media'], ENT_QUOTES) . '"'
             . ' data-hero-yt-src="' . htmlspecialchars($src, ENT_QUOTES) . '" aria-hidden="true"></div>';
     }
