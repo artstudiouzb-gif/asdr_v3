@@ -2137,8 +2137,6 @@ p { line-height: var(--base-line-height, 1.6); }/* --- Шапка: глубин�
    Псевдоэлемент позиционируется на правой границе каждого пункта (кроме последнего). *//* Priority-контейнер «Ещё» технически остаётся последним дочерним элементом,
    поэтому фактически последний пункт меню нельзя определять через :last-child. */
 
-.site-menu--with-item-dividers > .site-menu__link:not(:last-child)::before,
-
 [data-priority-menu].site-menu--with-item-dividers > .site-menu__link:has(+ [data-priority-overflow])::before,
 [data-priority-menu].site-menu--with-item-dividers > .site-menu__item:has(+ [data-priority-overflow])::before {
     content: none !important;
