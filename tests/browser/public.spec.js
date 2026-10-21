@@ -121,7 +121,8 @@ test('Uzbek home uses localized title and secure language URL', async ({ page })
     const response = await page.goto('/uz');
     expect(response).not.toBeNull();
     expect(response.status()).toBe(200);
-    await expect(page).toHaveTitle(/Bosh sahifa/);
+    // Узбекская страница выводится новой латиницей (UzLatin): «Bosh» → «Boş».
+    await expect(page).toHaveTitle(/Boş sahifa/);
     expect(page.url()).toMatch(/^http:\/\/127\.0\.0\.1:8080\/uz\/?$/);
 });
 
