@@ -169,6 +169,10 @@ $placeForm = static function (array $block, string $current) use ($placeTargets)
                     <button type="submit" class="btn btn--small<?= $blockActive ? '' : ' btn--warning' ?>"><?= $blockActive ? \App\Core\AdminUi::icon('eye-off') . 'Скрыть' : \App\Core\AdminUi::icon('eye') . 'Показать' ?></button>
                 </form>
                 <?= $placeForm($block, '0') ?>
+                <form method="post" action="/admin/blocks/<?= (int) $block['id'] ?>/duplicate">
+                    <?= Csrf::field() ?>
+                    <button type="submit" class="btn btn--small" title="<?= BlockTypeRegistry::isContainer((string) $block['type']) ? 'Копия вместе с содержимым ячеек встанет сразу за этим блоком' : 'Копия встанет сразу за этим блоком' ?>"><?= \App\Core\AdminUi::icon('copy') ?>Копировать</button>
+                </form>
                 <a class="btn btn--small btn--secondary" href="/admin/blocks/<?= (int) $block['id'] ?>/edit"><?= \App\Core\AdminUi::icon('edit') ?>Редактировать</a>
                 <form method="post" action="/admin/blocks/<?= (int) $block['id'] ?>/delete" data-confirm="Удалить блок «<?= htmlspecialchars($block['title'] ?: ('Блок #' . $block['id']), ENT_QUOTES) ?>»?">
                     <?= Csrf::field() ?>
@@ -208,6 +212,9 @@ $placeForm = static function (array $block, string $current) use ($placeTargets)
                                 </span>
                                 <span class="columns-editor__child-actions">
                                     <?= $placeForm($kid, $cellKey) ?>
+                                    <form method="post" action="/admin/blocks/<?= (int) $kid['id'] ?>/duplicate">
+                                        <?= Csrf::field() ?><button class="btn btn--small" title="Копировать — копия встанет сразу под этим блоком" aria-label="Копировать"><?= \App\Core\AdminUi::icon('copy') ?></button>
+                                    </form>
                                     <a class="btn btn--small" href="/admin/blocks/<?= (int) $kid['id'] ?>/edit" title="Редактировать" aria-label="Редактировать"><?= \App\Core\AdminUi::icon('edit') ?></a>
                                     <form method="post" action="/admin/blocks/<?= (int) $kid['id'] ?>/delete" data-confirm="Удалить вложенный блок?">
                                         <?= Csrf::field() ?><button class="btn btn--small btn--danger" title="Удалить" aria-label="Удалить"><?= \App\Core\AdminUi::icon('trash') ?></button>

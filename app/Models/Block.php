@@ -234,6 +234,76 @@ final class Block
         }
     }
 
+    /**
+     * Копия блока встаёт сразу за оригиналом — в той же ячейке контейнера или
+     * на том же уровне страницы. Контейнер копируется вместе с содержимым:
+     * пустые «Колонки» вместо копии собранного ряда редактору ни к чему.
+     * Скрытый блок остаётся скрытым — копия не должна сама появиться на сайте.
+     *
+     * Возвращает id копии или null, если оригинала нет.
+     */
+    public static function duplicate(int $id): ?int
+    {
+        $source = self::findById($id);
+        if ($source === null) {
+            return null;
+        }
+
+        $pdo = Database::pdo();
+        $pdo->beginTransaction();
+        try {
+            $parent = $source['parent_block_id'] !== null ? (int) $source['parent_block_id'] : null;
+            $order = (int) $source['sort_order'];
+            // Соседей ниже оригинала сдвигаем на одну позицию, чтобы копия
+            // встала рядом, а не в конец списка.
+            $pdo->prepare(
+                'UPDATE blocks SET sort_order = sort_order + 1
+                 WHERE page_id = :pid AND lang = :lang AND parent_block_id <=> :parent
+                   AND column_index = :col AND sort_order > :ord'
+            )->execute([
+                ':pid' => (int) $source['page_id'],
+                ':lang' => (string) $source['lang'],
+                ':parent' => $parent,
+                ':col' => (int) $source['column_index'],
+                ':ord' => $order,
+            ]);
+
+            $copyId = self::insertCopy($source, $parent, (int) $source['column_index'], $order + 1);
+            foreach (self::childrenOf($id) as $child) {
+                self::insertCopy($child, $copyId, (int) $child['column_index'], (int) $child['sort_order']);
+            }
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+
+        return $copyId;
+    }
+
+    /** @param array<string, mixed> $row */
+    private static function insertCopy(array $row, ?int $parentId, int $columnIndex, int $sortOrder): int
+    {
+        $stmt = Database::pdo()->prepare(
+            'INSERT INTO blocks (page_id, parent_block_id, column_index, lang, type, title, data, custom_css, sort_order, is_active, created_at)
+             VALUES (:page_id, :parent, :col, :lang, :type, :title, :data, :custom_css, :sort_order, :active, NOW())'
+        );
+        $stmt->execute([
+            ':page_id' => (int) $row['page_id'],
+            ':parent' => $parentId,
+            ':col' => $columnIndex,
+            ':lang' => (string) $row['lang'],
+            ':type' => (string) $row['type'],
+            ':title' => $row['title'],
+            ':data' => (string) ($row['data'] ?? '{}'),
+            ':custom_css' => (string) ($row['custom_css'] ?? ''),
+            ':sort_order' => $sortOrder,
+            ':active' => (int) ($row['is_active'] ?? 1),
+        ]);
+
+        return (int) Database::pdo()->lastInsertId();
+    }
+
     public static function delete(int $id): void
     {
         $pdo = Database::pdo();
