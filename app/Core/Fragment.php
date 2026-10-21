@@ -48,6 +48,8 @@ final class Fragment
         $html = View::renderPartial($template, $data);
         if (View::wantsCyrillic()) {
             $html = UzCyrillic::html($html);
+        } elseif (UzLatin::wanted()) {
+            $html = UzLatin::html($html);
         }
         if (Asset::cdnBase() !== '') {
             $html = Asset::rewriteMedia($html);

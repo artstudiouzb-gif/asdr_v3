@@ -43,7 +43,9 @@ final class SearchQuery
 
     public static function normalize(string $value): string
     {
-        $value = mb_strtolower(trim(strip_tags($value)));
+        // Новые буквы (Ş, Ö…) сводятся к прежнему написанию: в базе текст
+        // хранится им, и запрос «Şahar» обязан найти «shahar».
+        $value = mb_strtolower(trim(strip_tags(UzLatin::toOld($value))));
         $value = str_replace(['ё', '’', '‘', '`', 'ʻ', 'ʼ', 'ʹ', '´'], ['е', "'", "'", "'", "'", "'", "'", "'"], $value);
         $value = preg_replace("/[^\p{L}\p{N}']+/u", ' ', $value) ?? $value;
 
