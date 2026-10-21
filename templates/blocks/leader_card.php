@@ -5,6 +5,11 @@ use App\Core\Icon;
 /**
  * Карточка руководителя: слева портрет и контакты, справа вкладки.
  *
+ * Вертикальная раскладка (`layout = stack`) — карточка сотрудника: фото
+ * сверху, под ним подразделение, имя, должность, а разделы идут
+ * раскрывающимися `<details>` вместо вкладок. Скрипт вкладок ей не нужен:
+ * раскрытие работает само, без JS тоже.
+ *
  * Вкладки — прогрессивное улучшение. Сервер отдаёт обычные разделы с
  * заголовками и якорные ссылки на них: без JS посетитель видит всё содержимое
  * сразу, а ссылки просто прокручивают к разделу. Роли вкладок расставляет JS
@@ -17,6 +22,9 @@ use App\Core\Icon;
 $photo = trim((string) ($data['photo'] ?? ''));
 $name = trim((string) ($data['name'] ?? ''));
 $position = trim((string) ($data['position'] ?? ''));
+$department = trim((string) ($data['department'] ?? ''));
+// Значения проверены схемой полей (BlockFieldSchema) — читаем как есть.
+$stacked = $data['layout'] === 'stack';
 $phone = trim((string) ($data['phone'] ?? ''));
 $email = trim((string) ($data['email'] ?? ''));
 $hours = trim((string) ($data['hours'] ?? ''));
@@ -45,7 +53,7 @@ $bio = trim((string) ($data['bio'] ?? ''));
 $duties = trim((string) ($data['duties'] ?? ''));
 
 $tabs = [];
-if ($facts !== []) {
+if ($facts !== [] && !empty($data['show_facts'])) {
     $tabs[] = ['key' => 'facts', 'title' => trim((string) ($data['facts_title'] ?? '')) ?: t('Основная информация'), 'icon' => trim((string) ($data['facts_icon'] ?? ''))];
 }
 if ($bio !== '') {
@@ -57,20 +65,46 @@ if ($duties !== '') {
 
 // Мобильный режим «только иконки» применяем лишь когда иконка есть у каждой
 // показанной вкладки. Иначе одна из кнопок стала бы визуально пустой.
-$iconsOnly = !empty($data['mobile_icons_only'])
+$iconsOnly = !$stacked
+    && !empty($data['mobile_icons_only'])
     && $tabs !== []
     && array_filter($tabs, static fn (array $tab): bool => $tab['icon'] === '') === [];
 
 // Тег имени и уровень заголовков вкладок связаны: если имя — заголовок, то
 // разделы карточки должны идти ровно на уровень ниже.
-// Значение проверено схемой полей (BlockFieldSchema) — читаем как есть.
 $nameTag = (string) $data['name_tag'];
 $panelTag = $nameTag === 'h3' ? 'h4' : 'h3';
 
 $panelId = static fn (string $key): string => 'leader-' . (int) $blockId . '-' . $key;
 $esc = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
+
+// Содержимое раздела одно на обе раскладки: вкладка и раскрывающийся раздел
+// различаются оболочкой, а вторая копия разметки разъехалась бы с первой.
+$renderPanel = static function (string $key) use ($facts, $bio, $duties, $esc): void {
+    ?>
+    <?php if ($key === 'facts'): ?>
+        <dl class="leader-card__facts">
+            <?php foreach ($facts as $row): ?>
+                <div class="leader-card__fact">
+                    <dt class="leader-card__fact-label">
+                        <?php if (trim((string) ($row['icon_svg'] ?? '')) !== ''): ?>
+                            <span class="leader-card__fact-icon" aria-hidden="true"><?= Icon::render((string) $row['icon_svg'], 18) ?></span>
+                        <?php endif; ?>
+                        <?= $esc((string) ($row['label'] ?? '')) ?>
+                    </dt>
+                    <dd class="leader-card__fact-value"><?= nl2br($esc((string) ($row['value'] ?? ''))) ?></dd>
+                </div>
+            <?php endforeach; ?>
+        </dl>
+    <?php elseif ($key === 'bio'): ?>
+        <div class="leader-card__rich"><?= $bio ?></div>
+    <?php else: ?>
+        <div class="leader-card__rich"><?= $duties ?></div>
+    <?php endif; ?>
+    <?php
+};
 ?>
-<div class="leader-card<?= $iconsOnly ? ' leader-card--mobile-icons' : '' ?>" data-tab-count="<?= count($tabs) ?>"<?= $tabs !== [] ? ' data-leader-card' : '' ?>>
+<div class="leader-card<?= $stacked ? ' leader-card--stack' : '' ?><?= $iconsOnly ? ' leader-card--mobile-icons' : '' ?>" data-tab-count="<?= count($tabs) ?>"<?= $tabs !== [] && !$stacked ? ' data-leader-card' : '' ?>>
     <div class="leader-card__side">
         <?php if ($photo !== ''): ?>
             <div class="leader-card__photo">
@@ -79,6 +113,7 @@ $esc = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES)
         <?php endif; ?>
 
         <div class="leader-card__ident">
+            <?php if ($department !== ''): ?><p class="leader-card__dept"><?= nl2br($esc($department)) ?></p><?php endif; ?>
             <?php if ($name !== ''): ?><<?= $nameTag ?> class="leader-card__name"><?= $esc($name) ?></<?= $nameTag ?>><?php endif; ?>
             <?php if ($position !== ''): ?><p class="leader-card__position"><?= nl2br($esc($position)) ?></p><?php endif; ?>
         </div>
@@ -123,7 +158,24 @@ $esc = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES)
         </div>
     </div>
 
-    <?php if ($tabs !== []): ?>
+    <?php if ($tabs !== [] && $stacked): ?>
+        <div class="leader-card__accs">
+            <?php foreach ($tabs as $tab): ?>
+                <details class="leader-card__acc" id="<?= $esc($panelId($tab['key'])) ?>">
+                    <summary class="leader-card__acc-summary">
+                        <?php if ($tab['icon'] !== ''): ?>
+                            <span class="leader-card__tab-icon" aria-hidden="true"><?= Icon::render($tab['icon'], 20) ?></span>
+                        <?php endif; ?>
+                        <span class="leader-card__acc-title"><?= $esc($tab['title']) ?></span>
+                        <span class="leader-card__acc-chevron" aria-hidden="true"><?= Icon::render('chevron-down', 16) ?></span>
+                    </summary>
+                    <div class="leader-card__acc-body">
+                        <?php $renderPanel($tab['key']); ?>
+                    </div>
+                </details>
+            <?php endforeach; ?>
+        </div>
+    <?php elseif ($tabs !== []): ?>
         <div class="leader-card__main">
             <nav class="leader-card__tabs" data-leader-tablist aria-label="<?= $esc(t('Разделы карточки')) ?>">
                 <span class="leader-card__tab-indicator" aria-hidden="true"></span>
@@ -143,25 +195,7 @@ $esc = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES)
                 <section class="leader-card__panel" id="<?= $esc($panelId($tab['key'])) ?>" data-leader-panel="<?= $esc($tab['key']) ?>">
                     <<?= $panelTag ?> class="leader-card__panel-title"><?= $esc($tab['title']) ?></<?= $panelTag ?>>
 
-                    <?php if ($tab['key'] === 'facts'): ?>
-                        <dl class="leader-card__facts">
-                            <?php foreach ($facts as $row): ?>
-                                <div class="leader-card__fact">
-                                    <dt class="leader-card__fact-label">
-                                        <?php if (trim((string) ($row['icon_svg'] ?? '')) !== ''): ?>
-                                            <span class="leader-card__fact-icon" aria-hidden="true"><?= Icon::render((string) $row['icon_svg'], 18) ?></span>
-                                        <?php endif; ?>
-                                        <?= $esc((string) ($row['label'] ?? '')) ?>
-                                    </dt>
-                                    <dd class="leader-card__fact-value"><?= nl2br($esc((string) ($row['value'] ?? ''))) ?></dd>
-                                </div>
-                            <?php endforeach; ?>
-                        </dl>
-                    <?php elseif ($tab['key'] === 'bio'): ?>
-                        <div class="leader-card__rich"><?= $bio ?></div>
-                    <?php else: ?>
-                        <div class="leader-card__rich"><?= $duties ?></div>
-                    <?php endif; ?>
+                    <?php $renderPanel($tab['key']); ?>
                 </section>
             <?php endforeach; ?>
         </div>
