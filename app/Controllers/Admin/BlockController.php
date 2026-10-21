@@ -391,6 +391,30 @@ final class BlockController
         exit;
     }
 
+    /**
+     * Копия блока — сразу за оригиналом, в той же ячейке. Перенести её в
+     * соседнюю колонку можно кнопкой «Переместить» или перетаскиванием.
+     *
+     * @param array<string, string> $params
+     */
+    public function duplicate(array $params): void
+    {
+        Auth::requireLogin();
+        Csrf::verifyRequest();
+
+        $block = Block::findById((int) $params['id']);
+        $copyId = $block !== null ? Block::duplicate((int) $block['id']) : null;
+        if ($block === null || $copyId === null) {
+            http_response_code(404);
+            View::render('errors/404');
+            return;
+        }
+
+        \App\Core\Cache::clearPageCache((int) $block['page_id']);
+        Flash::success('Блок скопирован: копия стоит сразу за оригиналом.');
+        \App\Core\Redirect::to($this->pageEditUrl($block));
+    }
+
     /** AJAX-сохранение нового порядка блоков (drag-and-drop, задача 134). */
     public function reorder(): void
     {
