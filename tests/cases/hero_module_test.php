@@ -82,3 +82,30 @@ test('Hero editor: switching to an image cannot reuse the old video poster', fun
     $data = HeroSlideData::normalize(['media_type' => 'image', 'image' => '/new.jpg', 'poster' => '/old.jpg']);
     assert_same('/new.jpg', HeroSlideData::fallbackImage($data));
 });
+
+test('Hero media: YouTube и MP4 слушают «показать целиком» и положение кадра', function (): void {
+    $yt = HeroMediaRenderer::render(HeroSlideData::withDefaults([
+        'media_type' => 'youtube', 'youtube_url' => 'https://youtu.be/dQw4w9WgXcQ',
+        'image_fit' => 'contain', 'image_position' => 'left-top', 'image_position_mobile' => 'right-bottom',
+    ]), true);
+    assert_true(preg_match('/class="hero__yt ([^"]*)"/', $yt, $m) === 1, 'слой YouTube есть');
+    assert_contains('hero__yt--contain', $m[1]);
+    assert_contains('media-position--left-top', $m[1]);
+    assert_contains('media-position-mobile--right-bottom', $m[1]);
+
+    $cover = HeroMediaRenderer::render(HeroSlideData::withDefaults([
+        'media_type' => 'youtube', 'youtube_url' => 'https://youtu.be/dQw4w9WgXcQ',
+    ]), true);
+    assert_not_contains('hero__yt--contain', $cover, '«заполнить» — умолчание');
+
+    $mp4 = HeroMediaRenderer::render(HeroSlideData::withDefaults([
+        'media_type' => 'video', 'video_url' => '/uploads/public/v.mp4', 'image_position' => 'center-bottom',
+    ]), true);
+    assert_true(preg_match('/<video class="hero__video ([^"]*)"/', $mp4, $m) === 1);
+    assert_contains('media-position--center-bottom', $m[1]);
+
+    // Правила, которые переводят классы в размер и сдвиг плеера, есть в стилях.
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/blocks/hero.css');
+    assert_contains('.hero__yt--contain', $css);
+    assert_contains('.hero__yt.media-position--left-top', $css);
+});
