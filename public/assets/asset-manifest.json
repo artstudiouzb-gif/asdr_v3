@@ -132,11 +132,11 @@
     },
     "/assets/css/blocks/leader-card.css": {
       "path": "/assets/css/blocks/leader-card.min.css",
-      "sourceSha256": "fa55adecf6e005de3232371006e936c420c58459ea6237527fe89e2696a46047",
-      "sha256": "0148bd1226a1c0cafaabf35bbdea80926478fdc21c6bd280039b753a5e343738",
-      "raw": 7556,
-      "gzip": 1896,
-      "brotli": 1606
+      "sourceSha256": "3ec044600949cb1a99d8a54e5505c50bc3c12309cbabba3386480656347bf717",
+      "sha256": "402dade4b6b7450923fd21f0a385c6bd71bfbf628979df565a3f3e294e3b14b5",
+      "raw": 9720,
+      "gzip": 2237,
+      "brotli": 1915
     },
     "/assets/css/blocks/media-gallery.css": {
       "path": "/assets/css/blocks/media-gallery.min.css",

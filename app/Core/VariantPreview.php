@@ -80,6 +80,8 @@ final class VariantPreview
         'table' => 'таблица со строками и колонками',
         'tree' => 'схема подчинения',
         'auto' => 'сетка, а при переполнении — прокрутка',
+        'profile' => 'фото и контакты слева, вкладки справа',
+        'profile-stack' => 'фото сверху, текст и раскрывающиеся разделы под ним',
     ];
 
     /**
@@ -147,6 +149,8 @@ final class VariantPreview
             'table' => self::table($mods),
             'tree' => self::tree($mods),
             'auto' => self::auto(),
+            'profile' => self::profile(),
+            'profile-stack' => self::profileStack(),
             default => '',
         };
 
@@ -970,6 +974,41 @@ final class VariantPreview
         $out .= self::line($x + 4, $y + 5, $w - 8, 0.55, 2.5);
         $out .= self::line($x + 4, $y + 11, $w - 8, 0.3);
         $out .= self::box($x + 4, $y + $h - 9, 14, 5, 0.5, 2);
+
+        return $out;
+    }
+
+    /** Карточка руководителя: портрет слева, справа дорожка вкладок и строки. */
+    private static function profile(): string
+    {
+        $h = self::H - self::PAD * 2;
+        $out = self::frame(self::PAD, self::PAD, self::W - self::PAD * 2, $h);
+        $out .= self::box(self::PAD + 3, self::PAD + 3, 14, 14, 0.32);
+        $out .= self::line(self::PAD + 3, self::PAD + 21, 14, 0.6, 2.5);
+        $out .= self::line(self::PAD + 3, self::PAD + 26, 10, 0.3);
+        $x = self::W / 2 + 2;
+        $out .= self::box($x, self::PAD + 3, 24, 5, 0.18, 2.5);
+        $out .= self::box($x, self::PAD + 3, 8, 5, 0.55, 2.5);
+        $out .= self::line($x, self::PAD + 13, 24, 0.3);
+        $out .= self::line($x, self::PAD + 18, 20, 0.3);
+        $out .= self::line($x, self::PAD + 23, 22, 0.3);
+
+        return $out;
+    }
+
+    /** Вертикальная карточка сотрудника: фото, строки текста, строка раздела со стрелкой. */
+    private static function profileStack(): string
+    {
+        $w = 26;
+        $x = (self::W - $w) / 2;
+        $y = self::PAD - 2;
+        $h = self::H - $y * 2;
+        $out = self::frame($x, $y, $w, $h);
+        $out .= self::box($x + 3, $y + 3, $w - 6, 13, 0.32);
+        $out .= self::line($x + 3, $y + 19, $w - 8, 0.6, 2.5);
+        $out .= self::line($x + 3, $y + 24, $w - 12, 0.3);
+        $out .= self::frame($x + 3, $y + $h - 9, $w - 6, 6, 1.5);
+        $out .= self::disc($x + $w - 6, $y + $h - 6, 1.6, 0.6);
 
         return $out;
     }
