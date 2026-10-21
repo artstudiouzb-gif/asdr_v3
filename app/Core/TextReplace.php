@@ -240,7 +240,7 @@ final class TextReplace
                 $stmt = $pdo->prepare('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $pk . '` = ? FOR UPDATE');
                 $stmt->execute([(string) $change['id']]);
                 $current = $stmt->fetchColumn();
-                if (!is_string($current) || $current !== (string) $change['new']) {
+                if (!is_string($current) || !self::sameValue($current, (string) $change['new'])) {
                     $conflicts++;
                     continue;
                 }
@@ -344,6 +344,41 @@ final class TextReplace
         }
 
         return implode('', $parts);
+    }
+
+    /**
+     * То же ли значение лежит в поле. JSON сравнивается по содержимому: MySQL
+     * хранит колонку JSON в своём виде (ключи по порядку, пробел после
+     * двоеточия), и прочитанная строка побайтно не совпадает с записанной —
+     * отмена считала бы каждый блок правленным после замены.
+     */
+    private static function sameValue(string $current, string $written): bool
+    {
+        if ($current === $written) {
+            return true;
+        }
+        $a = json_decode($current, true);
+        $b = json_decode($written, true);
+
+        return is_array($a) && is_array($b) && self::sortKeys($a) === self::sortKeys($b);
+    }
+
+    /**
+     * @param array<array-key, mixed> $value
+     * @return array<array-key, mixed>
+     */
+    private static function sortKeys(array $value): array
+    {
+        if (!array_is_list($value)) {
+            ksort($value);
+        }
+        foreach ($value as $k => $child) {
+            if (is_array($child)) {
+                $value[$k] = self::sortKeys($child);
+            }
+        }
+
+        return $value;
     }
 
     private static function isTechnical(string $name): bool
