@@ -17,6 +17,9 @@
        возвращается к началу строки увереннее, а композиция страницы и ширина
        сеток не меняются. */
     --editorial-reading: 760px;
+    /* Отступ крошек от шапки сайта. Одно число на оба места: полосу над
+       контентом и крошки внутри «Колонок» первым блоком. */
+    --editorial-crumbs-top: 14px;
     --editorial-line: color-mix(in srgb, var(--gov-border) 92%, transparent);
     --editorial-muted: color-mix(in srgb, var(--gov-muted) 94%, transparent);
     /* Корень страницы — не секция: здесь цвет свой. Внутри блоков правила
@@ -27,7 +30,7 @@
 .editorial-page__crumbs {
     width: var(--editorial-wide);
     margin: 0 auto;
-    padding-top: 14px;
+    padding-top: var(--editorial-crumbs-top);
 }
 
 .editorial-page__crumbs .content-crumbs,
@@ -40,16 +43,40 @@
 
 /* Крошки первой строкой внутри «Колонок» (App\Core\PageHero::
    withCrumbsInColumns): блок стоит шапкой страницы при скрытом заголовке.
-   Это уже содержимое секции, поэтому цвет — от секции: на тёмном фоне
-   крошки светлые, без своей подстройки под каждый фон. */
+   Выглядят и стоят они ровно как обычная полоса: тот же кегль и цвет, те же
+   14px от шапки сайта, и тот же промежуток до содержимого — верхний отступ
+   секции. Для этого секция отдаёт свой верхний отступ крошкам: сверху у неё
+   остаются 14px, а прежний отступ уходит промежутком под крошками. Отступ
+   секции задаёт её класс ступени, поэтому переменная объявлена по ступеням —
+   иначе прочитать его в CSS нечем. */
+.editorial-page__content > .cms-block:has(> .content-crumbs--in-block) {
+    padding-top: var(--editorial-crumbs-top);
+}
+.cms-block--space-none:has(> .content-crumbs--in-block) { --crumbs-gap: var(--block-pad-top, 0px); }
+.cms-block--space-xs:has(> .content-crumbs--in-block) { --crumbs-gap: var(--block-pad-top, var(--section-space-xs)); }
+.cms-block--space-small:has(> .content-crumbs--in-block) { --crumbs-gap: var(--block-pad-top, var(--section-space-s)); }
+.cms-block--space-mid:has(> .content-crumbs--in-block) { --crumbs-gap: var(--block-pad-top, var(--section-space-m)); }
+.cms-block--space-premium:has(> .content-crumbs--in-block) { --crumbs-gap: var(--block-pad-top, var(--section-space-l)); }
+.cms-block--space-max:has(> .content-crumbs--in-block) { --crumbs-gap: var(--block-pad-top, var(--section-space-xl)); }
 .content-crumbs--in-block {
-    margin: 0 0 clamp(16px, 2vw, 24px);
-    color: var(--section-muted-fg, var(--editorial-muted));
+    margin: 0 0 var(--crumbs-gap, 0px);
+    color: var(--editorial-muted);
     font-size: var(--font-size-meta, var(--step--4));
     line-height: 1.4;
 }
-.content-crumbs--in-block span { color: inherit; }
-.content-crumbs--in-block a { color: var(--section-link-fg, var(--gov-teal-text)); }
+/* Свой отступ сверху редактор задаёт через !important
+   (public-layout-polish.css, @media screen) — снять его у секции нечем без
+   второго флага. Поэтому там крошки сами поднимаются на разницу. */
+@media screen {
+    .cms-block--pad-top-custom > .content-crumbs--in-block {
+        margin-top: calc(var(--editorial-crumbs-top) - var(--block-pad-top));
+    }
+}
+/* На своём фоне секции (navy, свой цвет, фото) цвет — от секции, иначе
+   приглушённые крошки теряются на тёмном. */
+.cms-block--bg > .content-crumbs--in-block { color: var(--section-muted-fg); }
+.cms-block--bg > .content-crumbs--in-block span { color: inherit; }
+.cms-block--bg > .content-crumbs--in-block a { color: var(--section-link-fg); }
 
 /* Compact page title ----------------------------------------------------- */
 .content-pagehead--editorial {
