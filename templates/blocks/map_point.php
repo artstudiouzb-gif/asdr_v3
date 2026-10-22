@@ -2,7 +2,10 @@
 /** @var array $data */
 $title = trim((string) ($data['title'] ?? ''));
 $image = trim((string) ($data['image'] ?? ''));
-$embedUrl = \App\Core\MapEmbedUrl::normalize($data['embed_url'] ?? '');
+$embedUrl = \App\Core\MapEmbedUrl::forLang(
+    \App\Core\MapEmbedUrl::normalize($data['embed_url'] ?? ''),
+    \App\Core\Locale::current()
+);
 $cardTitle = trim((string) ($data['card_title'] ?? ''));
 $address = trim((string) ($data['address'] ?? ''));
 $btnText = trim((string) ($data['button_text'] ?? ''));
