@@ -29,6 +29,9 @@ final class PageHero
     /** Модификатор крошек, разложенных поверх обложки (`_crumbs.php`). */
     public const ON_HERO_CLASS = 'content-crumbs--on-hero';
 
+    /** Модификатор крошек, встроенных первой строкой в секцию «Колонок». */
+    public const IN_BLOCK_CLASS = 'content-crumbs--in-block';
+
     /** Первый блок — обложка: страница отдаёт ей и шапку, и крошки. */
     public static function isHero(string $content): bool
     {
@@ -46,6 +49,52 @@ final class PageHero
             '/^\s*<section\b[^>]*\bcms-block--hero\b/',
             $content
         );
+    }
+
+    /**
+     * Первый блок — «Колонки». Их собирают шапкой страницы (текст с фото,
+     * заголовок на фоне секции), и тогда отдельная полоса крошек над ними
+     * стоит чужой строкой — тот же случай, что у обложки.
+     */
+    public static function isColumns(string $content): bool
+    {
+        return (bool) preg_match('/^\s*<section\b[^>]*\bcms-block--columns\b/', $content);
+    }
+
+    /**
+     * Крошки первой строкой внутри секции «Колонок»: на её фоне и в её
+     * отступах, а не полосой над ней. В отличие от обложки — в потоке, а не
+     * поверх: у колонок нет композиции, рассчитанной на слой сверху, и
+     * absolute наехал бы на текст первой колонки.
+     *
+     * Звать только когда заголовок страницы скрыт: видимый h1 стоит между
+     * полосой крошек и первым блоком, и крошки внутри блока оказались бы под
+     * заголовком — навигация «откуда я пришёл» ниже того, куда пришёл.
+     *
+     * @return array{0: string, 1: string} содержимое и неиспользованные крошки
+     */
+    public static function withCrumbsInColumns(string $content, string $crumbsHtml): array
+    {
+        if (trim($crumbsHtml) === '') {
+            return [$content, ''];
+        }
+
+        $crumbsHtml = str_replace(
+            'class="content-crumbs"',
+            'class="content-crumbs ' . self::IN_BLOCK_CLASS . '"',
+            $crumbsHtml
+        );
+        $injected = (string) preg_replace(
+            '/^(\s*<section\b[^>]*\bcms-block--columns\b[^>]*>)/',
+            '$1' . addcslashes($crumbsHtml, '\\$'),
+            $content,
+            1,
+            $count
+        );
+
+        return $count > 0
+            ? [$injected, '']
+            : [$content, str_replace(' ' . self::IN_BLOCK_CLASS, '', $crumbsHtml)];
     }
 
     /**
