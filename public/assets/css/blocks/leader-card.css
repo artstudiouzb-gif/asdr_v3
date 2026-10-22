@@ -354,7 +354,6 @@ h3.leader-card__name { font-family: inherit; }
     --leader-avatar: 160px;
     --leader-lift: calc(var(--leader-avatar) / 2 + var(--leader-pad));
     margin-top: calc(var(--leader-avatar) / 2);
-    height: calc(100% - var(--leader-avatar) / 2);
 }
 .leader-card--avatar .leader-card__photo {
     position: relative;
@@ -378,6 +377,29 @@ h3.leader-card__name { font-family: inherit; }
 .leader-card--center .leader-card__contact,
 .leader-card--center .leader-card__socials,
 .leader-card--center .leader-card__hours { justify-content: center; }
+
+/* Карточки в ряд «Колонок» — одной высоты. Ячейка растягивается по ряду
+   сеткой, а блок внутри неё — нет: у .cms-block высота по содержимому, и
+   `height: 100%` карточки считать было не от чего — карточка с должностью в
+   одну строку выходила ниже соседних. Цепочка ячейка → блок → карточка
+   становится колонкой flex, растягивается только блок с карточкой (соседние
+   блоки ячейки остаются своей высоты), а разделы карточки прижаты к низу
+   (`align-self: end`), поэтому и они встают на одну линию. У колонки со
+   своим выравниванием («сверху», «по центру») растягивать нечего — там
+   высоты остаются по содержимому, как и просил редактор. */
+.cms-columns__col:has(> .cms-block > .leader-card--stack) {
+    display: flex;
+    flex-direction: column;
+}
+.cms-columns__col > .cms-block:has(> .leader-card--stack) {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+}
+.cms-columns__col > .cms-block > .leader-card--stack {
+    flex: 1 0 auto;
+    height: auto;
+}
 
 .leader-card__accs {
     display: flex;
