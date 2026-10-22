@@ -342,16 +342,26 @@ h3.leader-card__name { font-family: inherit; }
    в «Колонках» фото наезжало бы на заголовок секции, а высота карточки в
    ячейке перестала бы совпадать с соседней. Кольцо — цвет поверхности
    карточки, поэтому снизу фото сливается с ней, а сверху отделено от фона
-   секции. */
-.leader-card--avatar {
-    --leader-avatar: 136px;
+   секции.
+   В ячейке «Колонок» общее правило frontend.css снимает верхний отступ у
+   первого потомка блока на три уровня вглубь (вес до 0,5,0) — то есть и у
+   карточки, и у фото, и выступа не было. Поэтому фото поднимается не
+   отрицательным margin-top, а сдвигом (`top`) плюс отрицательным нижним
+   полем — их то правило не трогает, — а поле карточки повторено селектором
+   ячейки того же веса, что у общего правила (файл блока идёт после бандла). */
+.leader-card--avatar,
+.cms-columns__col > .cms-block > .leader-card--avatar {
+    --leader-avatar: 160px;
+    --leader-lift: calc(var(--leader-avatar) / 2 + var(--leader-pad));
     margin-top: calc(var(--leader-avatar) / 2);
     height: calc(100% - var(--leader-avatar) / 2);
 }
 .leader-card--avatar .leader-card__photo {
+    position: relative;
+    top: calc(-1 * var(--leader-lift));
     width: var(--leader-avatar);
     aspect-ratio: 1;
-    margin-top: calc(-1 * (var(--leader-avatar) / 2 + var(--leader-pad)));
+    margin-bottom: calc(-1 * var(--leader-lift));
     border: 4px solid var(--gov-surface);
     border-radius: var(--radius-pill);
     box-shadow: var(--shadow-control);
