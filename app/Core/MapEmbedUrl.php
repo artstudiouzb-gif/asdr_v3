@@ -68,6 +68,76 @@ final class MapEmbedUrl
         return $url;
     }
 
+    /**
+     * Язык интерфейса Яндекс Карт по коду языка сайта. Чего здесь нет,
+     * Яндекс не поддерживает — ссылка тогда остаётся как есть.
+     */
+    private const YANDEX_LANGS = [
+        'ru' => 'ru_RU',
+        'uz' => 'uz_UZ',
+        'en' => 'en_US',
+        'tr' => 'tr_TR',
+        'uk' => 'uk_UA',
+    ];
+
+    /**
+     * Переводит окно карты на язык страницы. Ссылку редактор копирует в том
+     * интерфейсе, в каком открыл карту, и без этого на /uz карта оставалась
+     * русской (и наоборот). Язык, указанный в ссылке, заменяется: блоки
+     * копируют между языками, и чужой язык приезжает вместе со ссылкой.
+     * У Google встроенной ссылки (`/maps/embed?pb=…`) язык зашит в самой
+     * строке pb (`!3m2!1sru!2suz`, `!5m2!1sru!2suz`), и `hl` его не
+     * перебивает — поэтому меняется и он.
+     */
+    public static function forLang(string $url, string $lang): string
+    {
+        $lang = strtolower($lang);
+        if ($url === '' || !preg_match('/^[a-z]{2}$/', $lang)) {
+            return $url;
+        }
+
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        if (self::hostMatches($host, 'google.com') || self::hostMatches($host, 'google.uz')) {
+            $url = (string) preg_replace(
+                '/!([35])m2!1s[a-zA-Z]{2,3}(?:-[a-zA-Z]{2})?!2s/',
+                '!$1m2!1s' . $lang . '!2s',
+                $url
+            );
+
+            return self::withParam($url, 'hl', $lang);
+        }
+
+        if (self::isYandexHost($host) && isset(self::YANDEX_LANGS[$lang])) {
+            return self::withParam($url, 'lang', self::YANDEX_LANGS[$lang]);
+        }
+
+        return $url;
+    }
+
+    /**
+     * Ставит параметр, не пересобирая строку запроса: http_build_query
+     * закодировал бы «!» в pb Google, и ссылка перестала бы совпадать с
+     * той, что вставил редактор.
+     */
+    private static function withParam(string $url, string $name, string $value): string
+    {
+        $fragment = '';
+        $hash = strpos($url, '#');
+        if ($hash !== false) {
+            $fragment = substr($url, $hash);
+            $url = substr($url, 0, $hash);
+        }
+
+        $pattern = '/([?&])' . preg_quote($name, '/') . '=[^&]*/';
+        if (preg_match($pattern, $url)) {
+            $url = (string) preg_replace($pattern, '${1}' . $name . '=' . $value, $url, 1);
+        } else {
+            $url .= (str_contains($url, '?') ? '&' : '?') . $name . '=' . $value;
+        }
+
+        return $url . $fragment;
+    }
+
     private static function isYandexHost(string $host): bool
     {
         return self::hostMatches($host, 'yandex.ru')
