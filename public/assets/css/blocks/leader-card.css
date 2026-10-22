@@ -8,7 +8,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: clamp(20px, 3vw, 36px);
     align-items: stretch;
-    padding: clamp(18px, 2.4vw, 28px);
+    /* Отступ карточки — переменная: от него считается вынос круглого фото. */
+    --leader-pad: clamp(18px, 2.4vw, 28px);
+    padding: var(--leader-pad);
     background: var(--gov-surface);
     border: 1px solid var(--gov-border);
     border-radius: var(--radius);
@@ -17,8 +19,8 @@
 .leader-card::after {
     content: "";
     position: absolute;
-    top: clamp(18px, 2.4vw, 28px);
-    bottom: clamp(18px, 2.4vw, 28px);
+    top: var(--leader-pad);
+    bottom: var(--leader-pad);
     left: 50%;
     width: 1px;
     background: var(--gov-border);
@@ -331,9 +333,41 @@ h3.leader-card__name { font-family: inherit; }
     line-height: 1.25;
     overflow-wrap: break-word;
 }
-.leader-card--stack .leader-card__name { font-size: var(--step-0); }
+.leader-card--stack .leader-card__name { font-size: var(--step-1); }
 .leader-card--stack .leader-card__position { font-size: var(--step--1); }
 .leader-card--stack .leader-card__info:not(:has(*)) { display: none; }
+
+/* Круглое фото выступает над карточкой на половину диаметра. Место под
+   выступ карточка берёт своим верхним полем, а не у соседнего блока: иначе
+   в «Колонках» фото наезжало бы на заголовок секции, а высота карточки в
+   ячейке перестала бы совпадать с соседней. Кольцо — цвет поверхности
+   карточки, поэтому снизу фото сливается с ней, а сверху отделено от фона
+   секции. */
+.leader-card--avatar {
+    --leader-avatar: 136px;
+    margin-top: calc(var(--leader-avatar) / 2);
+    height: calc(100% - var(--leader-avatar) / 2);
+}
+.leader-card--avatar .leader-card__photo {
+    width: var(--leader-avatar);
+    aspect-ratio: 1;
+    margin-top: calc(-1 * (var(--leader-avatar) / 2 + var(--leader-pad)));
+    border: 4px solid var(--gov-surface);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-control);
+}
+.leader-card--avatar .leader-card__side { gap: 16px; }
+
+/* Выравнивание по центру — фото, подпись и контакты. Разделы остаются
+   слева: заголовок раздела стоит в одной строке со стрелкой. */
+.leader-card--center .leader-card__side {
+    justify-items: center;
+    text-align: center;
+}
+.leader-card--center .leader-card__info { align-items: center; }
+.leader-card--center .leader-card__contact,
+.leader-card--center .leader-card__socials,
+.leader-card--center .leader-card__hours { justify-content: center; }
 
 .leader-card__accs {
     display: flex;
