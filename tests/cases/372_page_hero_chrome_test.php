@@ -106,3 +106,35 @@ test('Крошки поверх обложки-записи разложены C
     assert_contains('.site-content:has(.cms-block--page-hero)', $css, 'отступ снят и у вложенной обложки');
     assert_contains('.projdetail--hero', $css, 'у страницы проекта свой верхний отступ');
 });
+
+test('Крошки уходят первой строкой в «Колонки», стоящие первым блоком', function () {
+    $crumbs = '<script type="application/ld+json">{}</script>' . "\n"
+        . '<nav class="content-crumbs" aria-label="x"><a href="/">Главная</a><span>Отдел</span></nav>';
+    $columns = "<section\n    id=\"block-7\"\n    class=\"cms-block cms-block--columns\"\n>\n<div class=\"cms-columns cms-columns--2\"></div>\n</section>";
+    $text = '<section class="cms-block cms-block--text"><div></div></section>';
+
+    assert_true(PageHero::isColumns($columns), 'колонки первым блоком');
+    assert_false(PageHero::isColumns($text), 'другой блок — не колонки');
+    assert_false(PageHero::isColumns($text . $columns), 'колонки не первыми — не шапка');
+
+    [$content, $left] = PageHero::withCrumbsInColumns($columns, $crumbs);
+    assert_same('', $left, 'встроенные крошки вызывающему не возвращаются');
+    assert_contains('class="content-crumbs ' . PageHero::IN_BLOCK_CLASS . '"', $content, 'крошки помечены');
+    assert_true(
+        strpos($content, 'content-crumbs') > strpos($content, 'cms-block--columns')
+            && strpos($content, 'content-crumbs') < strpos($content, 'cms-columns cms-columns--2'),
+        'крошки внутри секции и перед сеткой колонок'
+    );
+
+    [$same, $back] = PageHero::withCrumbsInColumns($text, $crumbs);
+    assert_same($text, $same, 'чужой блок не трогается');
+    assert_not_contains(PageHero::IN_BLOCK_CLASS, $back, 'невстроенные крошки — обычной полосой');
+});
+
+test('Крошки внутри «Колонок» оформлены и берут цвет секции', function () {
+    $css = (string) file_get_contents(APP_ROOT . '/public/assets/css/public-editorial-pages.css');
+    assert_contains('.content-crumbs--in-block {', $css, 'у встроенных крошек есть оформление');
+    // На тёмном фоне секции тёмные крошки пропали бы: цвет — от секции.
+    assert_contains('var(--section-muted-fg', $css, 'цвет текста — от секции');
+    assert_contains('var(--section-link-fg', $css, 'цвет ссылок — от секции');
+});
