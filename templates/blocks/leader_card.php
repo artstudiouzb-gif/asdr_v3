@@ -25,6 +25,9 @@ $position = trim((string) ($data['position'] ?? ''));
 $department = trim((string) ($data['department'] ?? ''));
 // Значения проверены схемой полей (BlockFieldSchema) — читаем как есть.
 $stacked = $data['layout'] === 'stack';
+// Круглое фото и выравнивание — настройки только вертикальной раскладки.
+$avatar = $stacked && $photo !== '' && $data['photo_shape'] === 'round';
+$centered = $stacked && $data['text_align'] === 'center';
 $phone = trim((string) ($data['phone'] ?? ''));
 $email = trim((string) ($data['email'] ?? ''));
 $hours = trim((string) ($data['hours'] ?? ''));
@@ -104,11 +107,11 @@ $renderPanel = static function (string $key) use ($facts, $bio, $duties, $esc): 
     <?php
 };
 ?>
-<div class="leader-card<?= $stacked ? ' leader-card--stack' : '' ?><?= $iconsOnly ? ' leader-card--mobile-icons' : '' ?>" data-tab-count="<?= count($tabs) ?>"<?= $tabs !== [] && !$stacked ? ' data-leader-card' : '' ?>>
+<div class="leader-card<?= $stacked ? ' leader-card--stack' : '' ?><?= $avatar ? ' leader-card--avatar' : '' ?><?= $centered ? ' leader-card--center' : '' ?><?= $iconsOnly ? ' leader-card--mobile-icons' : '' ?>" data-tab-count="<?= count($tabs) ?>"<?= $tabs !== [] && !$stacked ? ' data-leader-card' : '' ?>>
     <div class="leader-card__side">
         <?php if ($photo !== ''): ?>
             <div class="leader-card__photo">
-                <?= \App\Core\Media::picture($photo, $name, null, null, 'leader-card__img', false, '(max-width: 720px) 70vw, 320px') ?>
+                <?= \App\Core\Media::picture($photo, $name, null, null, 'leader-card__img', false, $avatar ? '160px' : '(max-width: 720px) 70vw, 320px') ?>
             </div>
         <?php endif; ?>
 
