@@ -97,6 +97,12 @@ $hidePageHead = $showPageHead && !empty($page['hide_title']);
 if (!empty($page['hide_crumbs']) && !$firstIsHero) {
     $crumbsHtml = '';
 }
+// «Колонки» первым блоком при скрытом заголовке — шапка страницы, собранная
+// редактором: крошки уходят внутрь неё, как у обложки. При видимом заголовке
+// не трогаем — крошки оказались бы под h1.
+if ($hidePageHead && $crumbsHtml !== '' && \App\Core\PageHero::isColumns($content)) {
+    [$content, $crumbsHtml] = \App\Core\PageHero::withCrumbsInColumns($content, $crumbsHtml);
+}
 
 
 $hasSidebar = $sidebar !== null && trim($sidebar['html']) !== '';

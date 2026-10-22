@@ -38,6 +38,19 @@
     line-height: 1.4;
 }
 
+/* Крошки первой строкой внутри «Колонок» (App\Core\PageHero::
+   withCrumbsInColumns): блок стоит шапкой страницы при скрытом заголовке.
+   Это уже содержимое секции, поэтому цвет — от секции: на тёмном фоне
+   крошки светлые, без своей подстройки под каждый фон. */
+.content-crumbs--in-block {
+    margin: 0 0 clamp(16px, 2vw, 24px);
+    color: var(--section-muted-fg, var(--editorial-muted));
+    font-size: var(--font-size-meta, var(--step--4));
+    line-height: 1.4;
+}
+.content-crumbs--in-block span { color: inherit; }
+.content-crumbs--in-block a { color: var(--section-link-fg, var(--gov-teal-text)); }
+
 /* Compact page title ----------------------------------------------------- */
 .content-pagehead--editorial {
     position: relative;
