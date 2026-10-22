@@ -55,14 +55,15 @@
     padding: 0;
 }
 
+/* Заголовок занимает ширину контейнера, как и содержимое под ним: колонка
+   чтения (760px) переносила длинное название на середине строки, оставляя
+   справа пустую половину шапки. Узкой остаётся только вводная строка. */
 .content-pagehead__copy {
     position: relative;
     z-index: 2;
-    max-width: 760px;
 }
 
 .content-pagehead--editorial .content-pagehead__title {
-    max-width: 760px;
     margin: 0;
     color: var(--section-title-fg);
     font-family: var(--font-heading, var(--font-family));
