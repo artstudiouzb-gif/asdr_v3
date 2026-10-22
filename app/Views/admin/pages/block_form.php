@@ -1412,7 +1412,7 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
         <?php endif; ?>
 
         <?php if ($type === 'leader_card'): ?>
-            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('leader_card', $data, ['layout', 'photo', 'department', 'name', 'name_tag', 'position', 'phone', 'email', 'hours', 'facebook', 'x', 'linkedin', 'instagram', 'telegram', 'show_facts', 'facts_title', 'facts_icon']) ?>
+            <?= \App\Core\BlockData\BlockFieldSchema::formHtml('leader_card', $data, ['layout', 'photo_shape', 'text_align', 'photo', 'department', 'name', 'name_tag', 'position', 'phone', 'email', 'hours', 'facebook', 'x', 'linkedin', 'instagram', 'telegram', 'show_facts', 'facts_title', 'facts_icon']) ?>
             <div>
                 <label>Строки первой вкладки</label>
                 <div data-repeater="items">
