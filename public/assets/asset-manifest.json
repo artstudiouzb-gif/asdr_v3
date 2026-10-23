@@ -100,19 +100,19 @@
     },
     "/assets/css/blocks/hero-art-layout.css": {
       "path": "/assets/css/blocks/hero-art-layout.min.css",
-      "sourceSha256": "aedc10e3f1482aee893dc01bba10022d23413729c540d427c579cdaa3ea91c4e",
-      "sha256": "ca7ab5cbc43d0c72ac197408a3d91166d2389fd07df6d200eeeb9f5aca73b36d",
-      "raw": 1370,
-      "gzip": 423,
-      "brotli": 352
+      "sourceSha256": "61566c9bd5d687d417e7551e24fa51857a9343164b8d03704796cba60416e960",
+      "sha256": "86904743fe1f89125c84ce9beec1cfe8937f4acc1284d62cb0aca1e44a83dced",
+      "raw": 1352,
+      "gzip": 418,
+      "brotli": 349
     },
     "/assets/css/blocks/hero.css": {
       "path": "/assets/css/blocks/hero.min.css",
-      "sourceSha256": "a720db33905e94f5293ae8e132579032beb75c1cf991e85178f2179ae8124515",
-      "sha256": "79a5c34225dac07f655449241702bd25263723857e351342646494aa933215b4",
-      "raw": 14449,
-      "gzip": 3564,
-      "brotli": 3178
+      "sourceSha256": "cd8a58561f4649cfa2b0503da6c0186bed52d0888e8dc3c9916143163dbc66f6",
+      "sha256": "c8369bc98395331e4610be71cd4aec57355bc2cb15947fc9b26f3c9b0249cda0",
+      "raw": 14476,
+      "gzip": 3567,
+      "brotli": 3183
     },
     "/assets/css/blocks/image.css": {
       "path": "/assets/css/blocks/image.min.css",
