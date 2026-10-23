@@ -103,15 +103,21 @@
 .doc-desc strong, .doc-desc b { color: var(--gov-ink); }
 .doc-desc a { position: relative; z-index: 2; color: var(--gov-teal-text); text-decoration: underline; text-underline-offset: .15em; }
 
-/* Фото обложки в зоне описания: книжная пропорция (первая страница издания),
-   кадр от верхнего края — у титула главное наверху. Текст его обтекает, а
-   `flow-root` держит обтекание внутри описания, чтобы кнопки не подтягивало. */
-.doc-desc--cover { display: flow-root; }
+/* Фото обложки в зоне описания: квадрат — он одинаково ложится рядом с
+   абзацем любой длины, а книжный кадр в узкой карточке вытягивал описание
+   в столбец. Кадр от верхнего края — у титула главное наверху. Текст —
+   колонкой рядом (не обтеканием): обтекание оставляло под квадратом хвост
+   из одного слова. Когда тексту рядом не остаётся 220px (телефон, узкая
+   колонка), он уходит под фото: столбик в два слова читать нельзя. */
+.doc-desc--cover { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 14px; }
+.doc-desc__text { flex: 1 1 220px; min-width: 0; }
+.doc-desc__text > :first-child { margin-top: 0; }
+.doc-desc__text > :last-child { margin-bottom: 0; }
 .doc-desc__cover {
-    float: left;
-    width: clamp(72px, 34%, 120px);
-    aspect-ratio: 3 / 4;
-    margin: 4px 14px 6px 0;
+    flex: none;
+    width: clamp(72px, 28%, 112px);
+    aspect-ratio: 1;
+    margin-top: 4px;
     overflow: hidden;
     border-radius: var(--radius-sm);
     background: color-mix(in srgb, var(--gov-navy) 8%, var(--gov-surface));
@@ -206,7 +212,7 @@
 .doc-card--compact { gap: 12px 14px; padding: 14px 16px; }
 .doc-card--compact .doc-sheet { width: 40px; height: 50px; }
 .doc-card--compact .doc-sheet__label { margin-bottom: 7px; padding: 2px 5px; }
-.doc-card--compact .doc-desc__cover { width: 56px; margin-right: 10px; }
+.doc-card--compact .doc-desc__cover { width: 56px; }
 .doc-card--compact .doc-card__body { gap: 6px; }
 
 /* --- Карточка акта ------------------------------------------------------ */
@@ -214,7 +220,28 @@
    оно замыкало бы растянутую ссылку в полосе подвала, и карточка
    открывалась бы только по нижней строке. */
 .doc-files.act-card__foot { position: static; justify-content: flex-start; margin-top: auto; }
-.act-card .act-card__editorial-head { align-items: flex-start; }
+/* Шапка акта: лист формата и рядом реквизиты с названием. Название
+   выравнивается по центру листа, а длинное (три строки и больше) растёт вниз
+   от его верха — так короткое не висит над пустотой, а длинное не съезжает
+   выше значка. Зазор 16px — тот же, что между листом и текстом у карточки
+   документа. */
+.act-card .act-card__editorial-head {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0;
+}
+.act-card__heading {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+}
+.act-card .act-card__heading .act-card__desc { margin: 0; overflow-wrap: anywhere; }
 /* Название и описание не тянутся по высоте. У `.feature-card__text` из темы
    `flex: 1`, и в ряду, где соседняя карточка выше, свободная высота уходила
    под название: описание и кнопка уезжали вниз, а тексты соседей стояли на
