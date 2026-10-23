@@ -121,6 +121,7 @@ final class DocumentPresenter
         // Своё название ссылки редактора: «Постановление (PDF)» вместо
         // «Скачать», «Русская версия» вместо названия языка.
         $names = is_array($document['file_labels'] ?? null) ? $document['file_labels'] : [];
+        $labels = [];
         foreach ($languages ?? \App\Models\Language::site() as $language) {
             $labels[(string) $language['code']] = trim((string) ($language['name'] ?? '')) ?: strtoupper((string) $language['code']);
         }
