@@ -713,9 +713,17 @@
 /* --- Мобильная раскладка --- */
 @media (max-width: 720px) {
     .hero { --hero-nav-pad: 38px; }
-    .hero { --hero-text-width: 100%; }
+    /* Своя ширина текста (`text_width`) — величина десктопа, и на телефоне
+       она не действует. Переменной её не снять: настройка печатается в
+       scoped CSS с весом id (`#block-N .hero`), и `.hero` здесь ей
+       проигрывает — колонка в 50 % оставляла заголовку 230px из 487 и
+       ломала его по слову в строке. Поэтому ширину снимает само свойство. */
+    .hero__text { max-width: 100%; }
     .hero__inner { padding: var(--space-l) var(--space-s); padding-block-end: calc(var(--space-l) + var(--hero-nav-space)); }
-    .hero__nav { padding: var(--space-xs) var(--space-s); }
+    /* Капсула управления по центру: у края она на узком экране висит под
+       последним словом заголовка и читается частью текста, а не полосой
+       управления всей обложкой. */
+    .hero__nav { justify-content: center; padding: var(--space-xs) var(--space-s); }
     .hero__thumbs { display: none; }
     .hero__art--hide-mobile { display: none; }
     .hero--no-arrows-mobile .hero__arrow { display: none; }
