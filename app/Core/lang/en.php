@@ -193,6 +193,7 @@ return [
     'Мы в соцсети' => 'Find us on',
     'Политика конфиденциальности' => 'Privacy policy',
     'Дополнительные ссылки' => 'Additional links',
+    'Документы — прокрутка вбок' => 'Documents — scroll sideways',
     'Категории — прокрутка вбок' => 'Categories — scroll sideways',
     'Источник:' => 'Source:',
     'Основное меню' => 'Main menu',

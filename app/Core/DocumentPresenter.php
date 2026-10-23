@@ -40,6 +40,24 @@ final class DocumentPresenter
      */
     private const META_AS_DESCRIPTION = 60;
 
+    /** Сколько документов «Авто» ещё листает каруселью; дальше это архив. */
+    public const CAROUSEL_MAX_AUTO = 12;
+
+    /**
+     * Карусель или сетка. «Авто» листает, когда документы не помещаются в два
+     * ряда: витрина изданий на странице читается рядом, а не стеной. Больше
+     * CAROUSEL_MAX_AUTO — это архив, его ищут поиском, а не листают.
+     */
+    public static function carousel(string $layout, int $count, int $columns): bool
+    {
+        if ($count < 2 || $layout === 'grid') {
+            return false;
+        }
+
+        return $layout === 'slider'
+            || ($count > max(1, $columns) * 2 && $count <= self::CAROUSEL_MAX_AUTO);
+    }
+
     /**
      * @param array<string, mixed> $document
      * @param list<array<string, mixed>>|null $languages языки сайта; null — из базы
