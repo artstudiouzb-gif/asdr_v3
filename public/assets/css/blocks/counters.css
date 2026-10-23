@@ -633,9 +633,6 @@ html[data-a11y-motion="off"] .counter--goal .counter__fill { animation: none; }
     .counter__axis-labels > :last-child { text-align: right; }
     .counter__axis-now { position: static; transform: none; text-align: center; }
     .counter__icon { margin-top: 0; }
-    .cms-block--hero:has(+ .cms-block--counters) .block-hero--media { padding-bottom: 0; }
-    .cms-block--hero + .cms-block--counters { padding-top: var(--section-space-l); }
-    .cms-block--hero + .cms-block--counters .block-counters { margin-top: 0; }
 }
 /* Телефон: в половине экрана иконка слева съедала место числа — она встаёт
    над ним. Карточки идут по одной: у них своя рамка и отступы, и в
