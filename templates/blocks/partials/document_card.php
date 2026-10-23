@@ -1,37 +1,32 @@
 <?php
 
 use App\Core\DocumentPresenter;
-use App\Core\Icon;
 
-/** @var array $doc */
-/** @var bool|null $compact */
+/**
+ * Карточка документа: лицо (обложка или лист формата), название, описание и
+ * файлы — главный на языке страницы плюс переводы. Карточка — `<article>`, а
+ * не ссылка: у документа бывает несколько файлов, и ссылки переводов внутри
+ * ссылки-карточки браузер разорвал бы. Кликабельна она всё равно целиком —
+ * это делает главная кнопка (см. document_files.php).
+ *
+ * @var array $doc
+ * @var bool|null $compact
+ */
 $presented = DocumentPresenter::prepare($doc);
-$tag = $presented['url'] !== '' ? 'a' : 'div';
 $compact = !empty($compact);
 ?>
-<<?= $tag ?>
-    class="doc-card<?= $compact ? ' doc-card--compact' : '' ?>"
+<article
+    class="doc-card<?= $compact ? ' doc-card--compact' : '' ?><?= $presented['cover'] !== '' ? ' doc-card--cover' : '' ?>"
     data-document-card
     data-document-kind="<?= htmlspecialchars($presented['extension'], ENT_QUOTES) ?>"
     data-document-search="<?= htmlspecialchars($presented['search'], ENT_QUOTES) ?>"
-    <?= $presented['url'] !== '' ? 'href="' . htmlspecialchars($presented['url'], ENT_QUOTES) . '"' : '' ?>
-    <?= $presented['url'] !== '' && $presented['direct_file'] ? 'download' : '' ?>
 >
-    <span class="doc-card__icon" aria-hidden="true">
-        <?= Icon::render($presented['icon'], 24, 'doc-card__icon-svg', 1.5) ?>
-    </span>
+    <?php include __DIR__ . '/document_visual.php'; ?>
     <span class="doc-card__body">
         <span class="doc-card__title"><?= htmlspecialchars($presented['title'], ENT_QUOTES) ?></span>
-        <?php if ($presented['meta'] !== ''): ?>
-            <span class="doc-card__meta"><?= htmlspecialchars($presented['meta'], ENT_QUOTES) ?></span>
+        <?php if ($presented['description'] !== ''): ?>
+            <span class="doc-desc"><?= $presented['description'] ?></span>
         <?php endif; ?>
+        <?php $filesClass = ''; include __DIR__ . '/document_files.php'; ?>
     </span>
-    <?php if ($presented['url'] !== ''): ?>
-        <span class="doc-card__dl" aria-hidden="true">
-            <?= Icon::render($presented['direct_file'] ? 'download' : 'external-link', 18, 'doc-card__download-icon', 1.8) ?>
-        </span>
-        <span class="visually-hidden">
-            <?= htmlspecialchars(t($presented['direct_file'] ? 'Скачать документ' : 'Открыть документ'), ENT_QUOTES) ?>
-        </span>
-    <?php endif; ?>
-</<?= $tag ?>>
+</article>

@@ -33,6 +33,8 @@ return [
     'Подписаться' => 'Subscribe',
     'Поделиться' => 'Share',
     'Скачать' => 'Download',
+    'Другие языки' => 'Other languages',
+    'Общая версия' => 'All-language version',
     'Скачать все фото' => 'Download all photos',
     'Печать' => 'Print',
     'Распечатать' => 'Print',
