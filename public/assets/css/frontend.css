@@ -1932,8 +1932,20 @@ p { line-height: var(--base-line-height, 1.6); }/* --- Шапка: глубин�
 .site-footer--columns .site-footer__col--menu li { margin-bottom: 10px; break-inside: avoid; }
 /* Ниже 720px подвал в одну колонку, и дорожка меню становится во всю ширину
    экрана — «не больше двух, каждая от 220px» тут снова даёт две полуколонки
-   с разъехавшимися строками. На телефоне список идёт одной. */
-@media (max-width: 720px) { .site-footer--columns .site-footer__col--menu ul { columns: 1; } }
+   с разъехавшимися строками. Поэтому на телефоне меню — сетка из двух
+   колонок, а не газетные колонки: строки идут рядами и не разъезжаются.
+   Одной колонкой каждый пункт занимал строку в 50px (зона касания 40px и
+   отступ), и семь разделов уводили контакты на второй экран подвала.
+   Отступ между пунктами снят — расстояние даёт сама зона касания.
+   Колонки подвала, вставшие одна под другую, разделены линией: без неё
+   меню, контакты и подписка читались одним списком. */
+@media (max-width: 720px) {
+    .site-footer--columns .site-footer__inner { padding-top: 28px; }
+    .site-footer--columns .site-footer__col + .site-footer__col { padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, .1); }
+    .site-footer--columns .site-footer__col--menu ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 20px; columns: auto; }
+    .site-footer--columns .site-footer__col--menu li { margin: 0; }
+    .site-footer--columns .footer-subscribe { max-width: none; }
+}
 
 .site-footer--columns .site-footer__bottom {
     border-top: 1px solid rgba(255, 255, 255, .12); color: rgba(255, 255, 255, .55);

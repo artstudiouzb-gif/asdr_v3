@@ -5350,7 +5350,12 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
         display: inline-flex;
         align-items: center;
         min-height: 40px;
-    }/* Кнопка поиска в шапке была 36×32. */
+    }
+    /* Телефон и почта в контактах — такие ссылки, и строка выросла до 40px с
+       текстом по центру, а значок остался у верха: съезжал на 9px выше
+       подписи. Адрес — обычный текст в несколько строк, ему значок у первой
+       строки и нужен, поэтому выравнивание меняется только рядом со ссылкой. */
+    .footer-contacts__item:has(> a) .footer-contacts__icon { align-self: center; }/* Кнопка поиска в шапке была 36×32. */
     
     .site-search button { min-height: 40px; min-width: 40px; }
 }/* Минимум 24px требуется не только на телефоне: мышью в строку высотой
