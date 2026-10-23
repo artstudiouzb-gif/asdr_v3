@@ -243,7 +243,7 @@ final class TelegramController
         Auth::requireLogin();
         Csrf::verifyRequest();
 
-        $res = TelegramLink::confirm((int) Auth::id());
+        $res = TelegramLink::confirm((int) Auth::id(), \App\Core\Input::post()->str('password', '', 4096));
         if ($res['ok']) {
             Flash::success($res['message']);
         } else {

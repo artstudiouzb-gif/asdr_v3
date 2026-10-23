@@ -19,6 +19,23 @@ final class RepoAuth
     private const CLEAR_ON_SUCCESS = ['pair', 'account'];
 
     /**
+     * Сколько неверных кодов второго фактора принимает одна попытка входа.
+     * Лимит по паре «IP + аккаунт» обходится сменой адреса: cookie ожидания
+     * предъявляется откуда угодно, и каждый новый адрес получал бы свои
+     * попытки. Поэтому счётчик живёт и в самой сессии ожидания, и на
+     * аккаунте целиком — те же три уровня, что у входа в панель (Auth).
+     */
+    public const MAX_CODE_ATTEMPTS = 5;
+    public const ACCOUNT_CODE_ATTEMPTS = 10;
+
+    /**
+     * Хэш-заглушка той же стоимости, что и настоящие: без неё ответ на
+     * несуществующий логин приходит заметно быстрее, и по времени ответа
+     * перебираются существующие учётные записи.
+     */
+    private const DUMMY_HASH = '$2y$12$y5X4n8BXlrDgRkrkGc7Nye52mBU8ZGJIAokLrqH4MlOxFSo8gRNvK';
+
+    /**
      * @return array{status: string, retry_after?: int}
      */
     public static function attemptLogin(string $username, string $password): array
@@ -34,8 +51,9 @@ final class RepoAuth
         }
 
         $user = RepoUser::findByUsername($username);
+        $passwordOk = password_verify($password, $user ? (string) $user['password_hash'] : self::DUMMY_HASH);
 
-        if (!$user || !password_verify($password, $user['password_hash'])) {
+        if (!$user || !$passwordOk) {
             foreach (array_keys($identifiers) as $identifier) {
                 RateLimiter::recordAttempt($identifier, false);
             }
@@ -58,6 +76,7 @@ final class RepoAuth
         session_regenerate_id(true);
         $_SESSION['repo_pending_user_id'] = (int) $user['id'];
         $_SESSION['repo_pending_since'] = time();
+        $_SESSION['repo_pending_failures'] = 0;
 
         $totpOn = (int) $user['totp_enabled'] === 1;
         $telegramOn = self::telegramChannelAvailable($user);
@@ -187,7 +206,9 @@ final class RepoAuth
         }
 
         $identifier = 'repo2fa|' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . '|' . mb_strtolower($user['username']);
-        if (RateLimiter::tooManyAttempts($identifier)) {
+        $accountIdentifier = 'repo2fa-account|' . (int) $user['id'];
+        if (RateLimiter::tooManyAttempts($identifier)
+            || RateLimiter::tooManyAttempts($accountIdentifier, self::ACCOUNT_CODE_ATTEMPTS)) {
             return false;
         }
 
@@ -207,10 +228,18 @@ final class RepoAuth
 
         if (!$valid) {
             RateLimiter::recordAttempt($identifier, false);
+            RateLimiter::recordAttempt($accountIdentifier, false);
+            // Исчерпала попытки — вход начинается заново, с пароля.
+            $_SESSION['repo_pending_failures'] = (int) ($_SESSION['repo_pending_failures'] ?? 0) + 1;
+            if ($_SESSION['repo_pending_failures'] >= self::MAX_CODE_ATTEMPTS) {
+                self::clearPending();
+            }
+
             return false;
         }
 
         RateLimiter::clearAttempts($identifier);
+        RateLimiter::clearAttempts($accountIdentifier);
         self::clearPending();
         self::establishSession($user);
 
@@ -262,6 +291,7 @@ final class RepoAuth
         unset(
             $_SESSION['repo_pending_user_id'],
             $_SESSION['repo_pending_since'],
+            $_SESSION['repo_pending_failures'],
             $_SESSION['repo_2fa_totp'],
             $_SESSION['repo_2fa_telegram'],
             $_SESSION['repo_tg_code_hash'],

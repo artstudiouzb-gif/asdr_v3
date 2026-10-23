@@ -469,6 +469,7 @@ return [
     'Проверьте правильность заполнения формы.' => 'Please check the form fields.',
     'Сессия устарела' => 'Session expired',
     'Неверные параметры запроса' => 'Invalid request parameters',
+    'Слишком много запросов. Повторите позже.' => 'Too many requests. Please try again later.',
     'Слишком много попыток' => 'Too many attempts',
     'Согласие на использование cookie' => 'Cookie consent',
     'Мы используем cookie для аналитики. Продолжая, вы соглашаетесь с их использованием.' => 'We use cookies for analytics. By continuing, you agree to their use.',

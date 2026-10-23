@@ -258,8 +258,11 @@ test('Переключатель письменности возвращает �
     assert_same('/', $safe('//evil.example/'));
     assert_same('/', $safe('/\\evil.example'));
     assert_same('/', $safe(''));
-    // Перевод строки разорвал бы заголовок Location.
-    assert_same('/uz/news', $safe("/uz/news\r\nSet-Cookie: a=1"));
+    // Перевод строки разорвал бы заголовок Location, а табуляцию браузер
+    // выбрасывает из адреса — адрес с ними не обрезается, а отклоняется.
+    assert_same('/', $safe("/uz/news\r\nSet-Cookie: a=1"));
+    assert_same('/', $safe("/\t/evil.example"));
+    assert_same('/', $safe('/uz news'));
 });
 
 test('Письменность запоминается, не сбрасывая остальные настройки', function () {
