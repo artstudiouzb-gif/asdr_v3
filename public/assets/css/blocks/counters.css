@@ -153,6 +153,9 @@ body.design-surface-interactive .block-counters--panel-auto,
 .counter__label {
     margin: 4px 0 0;
     max-inline-size: 30ch;
+    /* Слово длиннее ячейки переносится, а не уходит под обрезку сетки:
+       оборванная посередине подпись хуже переноса внутри слова. */
+    overflow-wrap: break-word;
     color: var(--counters-muted);
     font-size: var(--step--1);
     font-weight: 500;
@@ -634,14 +637,20 @@ html[data-a11y-motion="off"] .counter--goal .counter__fill { animation: none; }
     .counter__axis-now { position: static; transform: none; text-align: center; }
     .counter__icon { margin-top: 0; }
 }
-/* Телефон: в половине экрана иконка слева съедала место числа — она встаёт
-   над ним. Карточки идут по одной: у них своя рамка и отступы, и в
-   половине экрана на число оставалось меньше ширины «25 400». */
-@media (max-width: 480px) {
+/* Телефон: в половине экрана иконка слева съедала место числа и подписи —
+   она встаёт над ним. Порог 560px, а не 480: на экране 481–560px в половине
+   ряда подписи оставалось около 90px, и «HAMKOR TASHKILOTLAR» капслоком
+   выходило за ячейку, а сетка показателей обрезает выступающее
+   (overflow: hidden ради разделителей) — конец слова пропадал. */
+@media (max-width: 560px) {
     :is(.block-counters--row, .block-counters--cards) .counter { flex-direction: column; }
     /* В столбце тело показателя ужималось по содержимому, и плашка
        изменения выходила за ячейку — тело берёт ширину ячейки целиком. */
     :is(.block-counters--row, .block-counters--cards) .counter__body { align-self: stretch; }
+}
+/* Карточки идут по одной: у них своя рамка и отступы, и в половине экрана
+   на число оставалось меньше ширины «25 400». */
+@media (max-width: 480px) {
     .block-counters--cards { --counters-cols: 1; }
     .block-counters--row .counter { --counter-pad-x: 14px; }
     .block-counters--panel-none.block-counters--row .block-counters__grid { margin-inline: -14px; }
