@@ -832,11 +832,32 @@ final class BlockRenderer
             'news_latest' => self::enrichNewsLatest($data),
             'news_feature' => self::enrichNewsFeature($data),
             'news_docs' => self::enrichNewsDocs($data),
+            'docs_list' => self::enrichDocsList($data),
             'cards_grid' => self::enrichCardsGrid($data),
             'media_gallery' => self::enrichMediaGallery($data),
             'instagram_feed' => self::enrichInstagramFeed($data),
             default => $data,
         };
+    }
+
+    /**
+     * Источник «каталог»: документы приходят записями типа контента, набранный
+     * в блоке список при этом не выводится (он остаётся в данных — вернуть
+     * ручной список можно одним переключением). Удалённый тип возвращает
+     * блок к ручному списку.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private static function enrichDocsList(array $data): array
+    {
+        $typeId = (int) ($data['content_type'] ?? 0);
+        $catalog = $typeId > 0 ? \App\Core\CatalogDocuments::items($typeId) : null;
+        if ($catalog !== null) {
+            $data['items'] = $catalog;
+        }
+
+        return $data;
     }
 
     private static function enrichForm(array $data): array

@@ -176,3 +176,34 @@ test('Документы: «Авто» листает каруселью, ког
     assert_true(!DocumentPresenter::carousel('grid', 20, 2), 'явная сетка');
     assert_true(!DocumentPresenter::carousel('slider', 1, 2), 'одному документу листать нечего');
 });
+
+test('Документы из каталога: роль поля — по его виду, перевод поверх основного языка', function (): void {
+    $fields = [
+        ['name' => 'nomer', 'field_type' => 'text'],
+        ['name' => 'opis', 'field_type' => 'textarea'],
+        ['name' => 'fayl', 'field_type' => 'file'],
+        ['name' => 'oblozhka', 'field_type' => 'image'],
+        ['name' => 'data', 'field_type' => 'date'],
+        ['name' => 'vtoroy_fayl', 'field_type' => 'file'],
+    ];
+    $entries = [
+        ['id' => 7, 'title' => 'Постановление', 'data' => json_encode([
+            'nomer' => 'ПП-12', 'opis' => "Первый абзац.\n\nВторой & последний.", 'fayl' => '/uploads/public/pp.pdf',
+            'oblozhka' => 'javascript:alert(1)', 'data' => '2026-03-12', 'vtoroy_fayl' => '/uploads/public/other.pdf',
+        ], JSON_UNESCAPED_UNICODE)],
+        ['id' => 8, 'title' => '', 'data' => '{}'],
+    ];
+    $translations = [7 => ['title' => 'Qaror', 'data' => ['opis' => '', 'nomer' => 'PQ-12']]];
+
+    $items = \App\Core\CatalogDocuments::map($fields, $entries, $translations);
+
+    assert_same(1, count($items), 'запись без названия не выводится');
+    $doc = $items[0];
+    assert_same('Qaror', $doc['title']);
+    assert_same('PQ-12', $doc['number']);
+    assert_same('/uploads/public/pp.pdf', $doc['url'], 'файл — первое поле-файл');
+    assert_same('', $doc['cover'], 'опасный адрес обложки не выводится');
+    assert_same('12.03.2026', $doc['date']);
+    // Пустое поле перевода уступает основному языку; простой текст — абзацами.
+    assert_same('<p>Первый абзац.</p><p>Второй &amp; последний.</p>', $doc['description']);
+});

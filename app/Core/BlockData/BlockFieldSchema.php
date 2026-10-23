@@ -36,7 +36,7 @@ final class BlockFieldSchema
         'partners' => ['items' => []],
         'testimonials' => ['items' => []],
         'faq' => ['items' => []],
-        'docs_list' => ['items' => []],
+        'docs_list' => ['items' => [], 'content_type' => 0],
         'stages' => ['items' => []],
         'contact_cards' => ['items' => []],
         // Положение иконки у «Иконка и текст» зависит от выравнивания: у

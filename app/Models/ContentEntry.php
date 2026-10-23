@@ -385,6 +385,37 @@ final class ContentEntry
     }
 
     /**
+     * Переводы нескольких записей на один язык одним запросом: блок
+     * документов из каталога выводит их десятками, и запрос на запись был бы
+     * тем же N+1, что когда-то у карты сайта.
+     *
+     * @param list<int> $entryIds
+     * @return array<int, array{title:?string, data:array<string, mixed>}>
+     */
+    public static function translationsFor(array $entryIds, string $lang): array
+    {
+        $entryIds = array_values(array_unique(array_filter($entryIds, static fn (int $id): bool => $id > 0)));
+        if ($entryIds === []) {
+            return [];
+        }
+        $marks = implode(',', array_fill(0, count($entryIds), '?'));
+        $stmt = Database::pdo()->prepare(
+            "SELECT entry_id, title, data FROM content_entry_translations WHERE lang = ? AND entry_id IN ({$marks})"
+        );
+        $stmt->execute([$lang, ...$entryIds]);
+        $out = [];
+        foreach (Database::rows($stmt) as $r) {
+            $data = $r['data'] ? json_decode((string) $r['data'], true) : [];
+            $out[(int) $r['entry_id']] = [
+                'title' => $r['title'] !== null ? (string) $r['title'] : null,
+                'data' => is_array($data) ? $data : [],
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     public static function upsertTranslation(int $entryId, string $lang, ?string $title, array $data): void
