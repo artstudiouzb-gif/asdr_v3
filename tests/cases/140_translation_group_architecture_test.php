@@ -23,8 +23,29 @@ test('Мультиязычная архитектура: создание отд
 
     assert_true($origId > 0, 'Новость создана');
 
+    $gallery = \App\Core\Database::pdo()->prepare(
+        'INSERT INTO news_images (news_id, path, alt_text, caption, credit, sort_order) VALUES (:id, :p, :a, :c, :cr, :s)'
+    );
+    $gallery->execute([':id' => $origId, ':p' => '/uploads/public/g2.jpg', ':a' => 'Второе', ':c' => 'Подпись 2', ':cr' => 'Фото: пресс-служба', ':s' => 2]);
+    $gallery->execute([':id' => $origId, ':p' => '/uploads/public/g1.jpg', ':a' => 'Первое', ':c' => 'Подпись 1', ':cr' => null, ':s' => 1]);
+
     $uzId = TranslationGroupHelper::createTranslation('news', $origId, 'uz');
     assert_true($uzId > 0 && $uzId !== $origId, 'Создан отдельный пост для узбекского языка');
+
+    // Галерея («Дополнительные медиа») переносится в перевод, как и обложка:
+    // те же снимки, тот же порядок, подписи и автор вместе со снимком.
+    $uzGallery = \App\Core\Database::pdo()->prepare(
+        'SELECT path, caption, credit FROM news_images WHERE news_id = :id ORDER BY sort_order, id'
+    );
+    $uzGallery->execute([':id' => $uzId]);
+    assert_same(
+        [
+            ['path' => '/uploads/public/g1.jpg', 'caption' => 'Подпись 1', 'credit' => null],
+            ['path' => '/uploads/public/g2.jpg', 'caption' => 'Подпись 2', 'credit' => 'Фото: пресс-служба'],
+        ],
+        $uzGallery->fetchAll(\PDO::FETCH_ASSOC),
+        'Фото галереи перенесены в перевод в прежнем порядке'
+    );
 
     $uzNews = News::findById($uzId);
     assert_true($uzNews !== null, 'Узбекская новость найдена в таблице news по своему ID');
