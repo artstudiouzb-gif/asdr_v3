@@ -136,6 +136,9 @@ final class HeroSlideData
             'art_position' => 'above',
             'art_size' => 'medium',
             'art_width' => 320,
+            // На телефоне эмблема над заголовком занимает весь первый экран
+            // и уводит текст и кнопку вниз, поэтому по умолчанию прячется.
+            'art_mobile' => 'hide',
 
             // --- Показ ---
             // Своя длительность показа, секунды. 0 — «как у обложки»: у
@@ -249,6 +252,7 @@ final class HeroSlideData
             'art_position' => BlockDataInput::enum($input, 'art_position', ['above', 'left', 'right'], 'above'),
             'art_size' => BlockDataInput::enum($input, 'art_size', ['small', 'medium', 'large', 'custom'], 'medium'),
             'art_width' => self::ranged($input['art_width'] ?? null, 40, 1200, 320),
+            'art_mobile' => BlockDataInput::enum($input, 'art_mobile', ['hide', 'show'], 'hide'),
 
             'duration' => self::duration($input['duration'] ?? null),
 
@@ -382,6 +386,7 @@ final class HeroSlideData
         $d['art_position'] = $enum($d['art_position'] ?? '', ['above', 'left', 'right'], 'above');
         $d['art_size'] = $enum($d['art_size'] ?? '', ['small', 'medium', 'large', 'custom'], 'medium');
         $d['art_width'] = self::ranged($d['art_width'] ?? null, 40, 1200, 320);
+        $d['art_mobile'] = $enum($d['art_mobile'] ?? '', ['hide', 'show'], 'hide');
         $d['duration'] = self::duration($d['duration'] ?? null);
 
         $d['_visible_from'] = BlockVisibility::normalize($d['_visible_from'] ?? '');

@@ -253,6 +253,10 @@ $customDuration = (int) $data['duration'];
                     <input type="number" id="art_width" name="art_width" min="40" max="1200" step="1" value="<?= (int) $data['art_width'] ?>">
                     <span class="form-hint">Применяется только при выборе «Свой размер».</span>
                 </div>
+                <?= $select('art_mobile', 'На телефоне', [
+                    'hide' => 'Скрывать',
+                    'show' => 'Показывать',
+                ], (string) $data['art_mobile'], 'На узком экране эмблема над заголовком занимает весь первый экран.', 'col-6') ?>
             </div>
         </div>
 
