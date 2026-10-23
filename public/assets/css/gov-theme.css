@@ -4127,11 +4127,15 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
    запасное значение остаётся ради страниц из старого кэша. */
 
 .imgcards-grid { display: grid; grid-template-columns: repeat(var(--cards-cols, 4), minmax(0, 1fr)); gap: var(--card-gap, 20px); }
-@media (max-width: 1000px) { .imgcards-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1000px) { .imgcards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .imgcards-grid { grid-template-columns: 1fr; } }/* Кадр карточки — 16:9: карточки стоят рядом, и высота, набранная
-   содержимым, делала ряд разновысоким. */
+   содержимым, делала ряд разновысоким. `justify-self: stretch` — не
+   страховка: элемент сетки с пропорцией по умолчанию не растягивается, а
+   берёт ширину из высоты, и минимальная высота на главной (190px) давала
+   190 × 16/9 = 338px при колонке 317px — в двух колонках телефона карточка
+   вылезала за край экрана (замерено на 690px: ширина страницы 692px). */
 
-.imgcard { position: relative; display: block; aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden; text-decoration: none; color: #fff; isolation: isolate; }
+.imgcard { position: relative; display: block; justify-self: stretch; aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden; text-decoration: none; color: #fff; isolation: isolate; }
 .imgcard__media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: var(--gov-navy) center/cover no-repeat; transform: scale(1.001); transition: transform .7s cubic-bezier(.22, 1, .36, 1); will-change: transform; }
 .imgcard:hover .imgcard__media { transform: scale(1.04); }/* Карточка без изображения: фирменная подложка с эмблемой вместо пустой
    тёмной плашки. Материалы без картинки встречаются всегда, и выглядеть они
@@ -4219,7 +4223,10 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
 .section-head--align-center .section-head__kicker--line::after { content: ""; flex: none; width: 24px; height: 2px; border-radius: var(--radius-pill); background: currentColor; }
 .section-head__kicker--plain { color: var(--section-muted-fg, var(--gov-muted)); }
 .section-head--align-center .section-head__kicker { justify-content: center; }
-.carousel-nav { display: inline-flex; gap: 8px; }
+/* Точки сжимаются до 24px (область касания по WCAG 2.2), а полоса не
+   шире своего места: шесть постов ленты Instagram на экране 360px давали
+   полосу 368px при колонке 320px — страница прокручивалась вбок. */
+.carousel-nav { display: inline-flex; gap: 8px; max-width: 100%; }
 .carousel-nav[hidden] { display: none; }/* 44px — минимальная цель для касания; прежде это требование лежало в
    отдельном правиле выше по файлу, которое перекрывалось этим. */
 
@@ -4236,6 +4243,8 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
 .carousel-nav__dot {
     display: grid;
     place-items: center;
+    flex: 0 1 28px;
+    min-width: 24px;
     width: 28px;
     height: 40px;
     padding: 0;
