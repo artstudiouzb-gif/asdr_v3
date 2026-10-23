@@ -9,11 +9,13 @@ $metaDescription = t('Фотогалереи и альбомы мероприя�
 require __DIR__ . '/_header.php';
 ?>
 <div class="content-list">
-    <nav class="content-crumbs" aria-label="<?= htmlspecialchars(t('Хлебные крошки'), ENT_QUOTES) ?>">
-        <a href="<?= htmlspecialchars(Locale::url('/'), ENT_QUOTES) ?>"><?= htmlspecialchars(t('Главная'), ENT_QUOTES) ?></a>
-        <span>/</span>
-        <span><?= htmlspecialchars(t('Фотоальбомы'), ENT_QUOTES) ?></span>
-    </nav>
+    <?php
+    $crumbs = [
+        ['label' => t('Главная'), 'url' => Locale::url('/')],
+        ['label' => t('Фотоальбомы')],
+    ];
+    require __DIR__ . '/_crumbs.php';
+    ?>
 
     <header class="content-list__head">
         <h1><?= htmlspecialchars(t('Фотоальбомы'), ENT_QUOTES) ?></h1>
