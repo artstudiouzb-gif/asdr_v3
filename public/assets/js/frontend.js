@@ -1001,6 +1001,9 @@
                 t.classList.toggle('is-active', on);
                 t.setAttribute('aria-pressed', on ? 'true' : 'false');
             });
+            // На телефоне карточки лежат полосой: новая вкладка открывается
+            // с начала, а точки пересчитываются под её число карточек.
+            gallery.dispatchEvent(new CustomEvent('asdr:carousel-refresh'));
         };
         tabs.forEach(function (t) { t.addEventListener('click', function () { apply(t.getAttribute('data-media-tab')); }); });
         // Открытую вкладку выбирает сервер (она приходит в адресе вместе с
@@ -1149,7 +1152,9 @@
             if (max < 2 || track.clientWidth < 1) { return [0]; }
 
             var trackRect = track.getBoundingClientRect();
-            var candidates = items.map(function (item) {
+            // Карточки, скрытые вкладкой («Видео / Фото»), места в полосе не
+            // занимают и страницей быть не могут.
+            var candidates = items.filter(function (item) { return !item.hidden; }).map(function (item) {
                 var rect = item.getBoundingClientRect();
                 return Math.max(0, Math.min(max, rect.left - trackRect.left + track.scrollLeft));
             });
@@ -1212,6 +1217,11 @@
             var active = positions.length > 1;
             root.classList.toggle('is-carousel-active', active);
             nav.hidden = !active;
+            // Сетка, которая полосой становится только на телефоне, на
+            // компьютере ничего не прокручивает — и остановкой табуляции быть
+            // не должна. Без скрипта атрибут остаётся: там полосу листают
+            // клавиатурой сами.
+            track.tabIndex = active ? 0 : -1;
             if (!active) {
                 track.scrollLeft = 0;
                 return;
@@ -1277,6 +1287,14 @@
         var measure = function () {
             window.requestAnimationFrame(function () { sync(true); });
         };
+        // Содержимое полосы меняется без смены её размера (вкладка медиатеки
+        // прячет одни карточки и показывает другие) — наблюдатель размера
+        // этого не заметит, поэтому владелец полосы просит пересчёт сам.
+        root.addEventListener('asdr:carousel-refresh', function () {
+            stopMotion();
+            track.scrollLeft = 0;
+            measure();
+        });
         if ('ResizeObserver' in window) {
             var resizeObserver = new ResizeObserver(measure);
             resizeObserver.observe(track);
