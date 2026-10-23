@@ -2467,6 +2467,12 @@ body.mobile-menu-open .site-drawer__panel { transform: translateX(0); }
     }
 }
 
+/* Меню, от которого в строке остался один пункт, скрипт сворачивает в бургер
+   (класс ставит priority-навигация в frontend.js). */
+.site-header--menu-collapsed [data-priority-menu] { display: none; }
+.site-header--menu-collapsed .site-burger { display: inline-flex; }
+.site-header--menu-collapsed .hdr-util { justify-content: flex-end; }
+
 /* На мобильных устройствах навигация открывается через drawer. */
 @media (max-width: 720px) {
     [data-priority-overflow] { display: none; }
