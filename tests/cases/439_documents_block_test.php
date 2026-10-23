@@ -144,3 +144,15 @@ test('Документ: своё название ссылки вместо «С
     assert_contains('English', $html);
     assert_not_contains('>Скачать<', $html);
 });
+
+test('Акт: название стоит в шапке рядом с листом формата, номера по порядку нет', function (): void {
+    $html = render_view('templates/blocks/partials/act_card.php', [
+        'doc' => ['title' => 'Предложения по развитию отрасли', 'url' => '/uploads/public/a.pdf', 'description' => '<p>Текст</p>', 'cover' => ''],
+        'docIndex' => 0,
+    ]);
+
+    // Лист и название — соседи внутри одной шапки, и шапка не скрыта от диктора.
+    assert_true((bool) preg_match('~<div class="act-card__editorial-head">\s*<span class="doc-visual[^"]*"[^>]*>.*?</span>\s*<div class="act-card__heading">.*?act-card__desc">Предложения по развитию отрасли</p>~s', $html), 'название рядом с листом');
+    assert_not_contains('act-card__index', $html);
+    assert_contains('<div class="doc-desc__text"><p>Текст</p></div>', $html);
+});
