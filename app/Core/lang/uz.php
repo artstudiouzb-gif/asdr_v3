@@ -33,6 +33,8 @@ return [
     'Подписаться' => 'Obuna bo‘lish',
     'Поделиться' => 'Ulashish',
     'Скачать' => 'Yuklab olish',
+    'Другие языки' => 'Boshqa tillarda',
+    'Общая версия' => 'Umumiy versiya',
     'Скачать все фото' => 'Barcha suratlarni yuklab olish',
     'Печать' => 'Chop etish',
     'Распечатать' => 'Chop etish',
