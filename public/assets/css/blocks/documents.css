@@ -1,17 +1,14 @@
 /*
- * Документы: лист формата, обложка, описание и файлы по языкам.
+ * Документы: лист формата, описание с фото обложки и файлы по языкам.
  * Подключается частью темы по типам `docs_list` и `news_docs`
  * (AssetCollector::THEME_PART_MAP): общий бандл держится в своём бюджете,
  * а страницам без документов эти правила не нужны.
  */
 
 /* --- Тело карточки ------------------------------------------------------ */
-/* Карточка — ряд с переносом: лицо слева, текст справа, а в узкой колонке
-   текст сам уходит под лицо, когда ему не хватает 240px. Медиазапрос здесь
+/* Карточка — ряд с переносом: лист слева, текст справа, а в узкой колонке
+   текст сам уходит под лист, когда ему не хватает 240px. Медиазапрос здесь
    не помог бы: ширину карточки задаёт число колонок блока, а не экран. */
-/* Карточка — контейнер измерения: обложке нужно знать ширину своей
-   карточки, а её задаёт число колонок блока. */
-.doc-card { container: doc-card / inline-size; }
 .doc-card__body {
     display: flex;
     flex: 1 1 240px;
@@ -89,34 +86,6 @@
 }
 .doc-sheet__icon { position: relative; z-index: 1; margin-top: 12px; }
 
-/* --- Обложка ------------------------------------------------------------ */
-/* Первая страница издания: книжная пропорция и кадр от верхнего края —
-   у титула главное наверху. */
-.doc-visual--cover {
-    display: block;
-    flex: none;
-    width: 112px;
-    aspect-ratio: 3 / 4;
-    overflow: hidden;
-    border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--gov-navy) 8%, var(--gov-surface));
-    box-shadow: var(--shadow-control);
-}
-.doc-visual--cover picture { display: contents; }
-/* В узкой карточке (три-четыре колонки) обложка встаёт над текстом во всю
-   ширину: квадратик 112px в углу оставлял справа пустое поле. Кадр от
-   верхнего края — там у титула название. */
-@container doc-card (max-width: 400px) {
-    .doc-card:not(.doc-card--compact) .doc-visual--cover { width: 100%; aspect-ratio: 16 / 10; }
-}
-.doc-visual__img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-}
-
 /* --- Описание ------------------------------------------------------------ */
 /* Обычный регистр и кегль текста карточки: описание — абзац, а не подпись
    формата. Ссылки в нём стоят над ссылкой всей карточки. */
@@ -133,6 +102,29 @@
 .doc-desc ul, .doc-desc ol { padding-inline-start: 1.2em; }
 .doc-desc strong, .doc-desc b { color: var(--gov-ink); }
 .doc-desc a { position: relative; z-index: 2; color: var(--gov-teal-text); text-decoration: underline; text-underline-offset: .15em; }
+
+/* Фото обложки в зоне описания: книжная пропорция (первая страница издания),
+   кадр от верхнего края — у титула главное наверху. Текст его обтекает, а
+   `flow-root` держит обтекание внутри описания, чтобы кнопки не подтягивало. */
+.doc-desc--cover { display: flow-root; }
+.doc-desc__cover {
+    float: left;
+    width: clamp(72px, 34%, 120px);
+    aspect-ratio: 3 / 4;
+    margin: 4px 14px 6px 0;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--gov-navy) 8%, var(--gov-surface));
+    box-shadow: var(--shadow-control);
+}
+.doc-desc__cover picture { display: contents; }
+.doc-desc__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+}
 
 /* --- Файлы ------------------------------------------------------------- */
 .doc-files {
@@ -214,16 +206,21 @@
 .doc-card--compact { gap: 12px 14px; padding: 14px 16px; }
 .doc-card--compact .doc-sheet { width: 40px; height: 50px; }
 .doc-card--compact .doc-sheet__label { margin-bottom: 7px; padding: 2px 5px; }
-.doc-card--compact .doc-visual--cover { width: 64px; }
+.doc-card--compact .doc-desc__cover { width: 56px; margin-right: 10px; }
 .doc-card--compact .doc-card__body { gap: 6px; }
 
 /* --- Карточка акта ------------------------------------------------------ */
 /* Подвал акта — тот же блок файлов. Своё позиционирование у подвала снято:
    оно замыкало бы растянутую ссылку в полосе подвала, и карточка
    открывалась бы только по нижней строке. */
-.doc-files.act-card__foot { position: static; justify-content: flex-start; }
+.doc-files.act-card__foot { position: static; justify-content: flex-start; margin-top: auto; }
 .act-card .act-card__editorial-head { align-items: flex-start; }
-.act-card .doc-visual--cover { width: 96px; }
+/* Название и описание не тянутся по высоте. У `.feature-card__text` из темы
+   `flex: 1`, и в ряду, где соседняя карточка выше, свободная высота уходила
+   под название: описание и кнопка уезжали вниз, а тексты соседей стояли на
+   разной высоте. Свободное место забирает подвал (`margin-top: auto`). */
+.feature-card.act-card .act-card__desc,
+.feature-card.act-card .act-card__summary { flex: 0 0 auto; }
 /* Без номера название — заголовок карточки: у изданий и отчётов реквизитов
    нет, и обычным текстом оно терялось среди описания. */
 .feature-card.act-card--no-number .act-card__desc {
