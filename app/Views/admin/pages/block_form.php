@@ -1736,6 +1736,26 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                 return $html;
             };
             ?>
+            <?php
+            // Источник списка: набранный здесь или записи каталога. Документ,
+            // нужный на нескольких страницах, заводится один раз — в каталоге.
+            $docTypes = \App\Models\ContentType::all();
+            $docTypeId = (int) ($data['content_type'] ?? 0);
+            ?>
+            <div class="form-field">
+                <label for="docs_content_type">Откуда брать документы</label>
+                <select id="docs_content_type" name="content_type">
+                    <option value="0">Список ниже</option>
+                    <?php foreach ($docTypes as $docType): ?>
+                        <option value="<?= (int) $docType['id'] ?>" <?= $docTypeId === (int) $docType['id'] ? 'selected' : '' ?>>Каталог «<?= htmlspecialchars((string) $docType['name'], ENT_QUOTES) ?>»</option>
+                    <?php endforeach; ?>
+                </select>
+                <span class="form-hint">
+                    Из каталога выводятся опубликованные записи в порядке каталога (не больше <?= \App\Core\CatalogDocuments::LIMIT ?>).
+                    Поля записи распознаются по виду: файл — файл документа, картинка — обложка, многострочный текст — описание,
+                    дата — дата акта, первое однострочное поле — номер акта. Список ниже при этом не выводится, но сохраняется.
+                </span>
+            </div>
             <div>
                 <label>Документы</label>
                 <div data-repeater="items">
