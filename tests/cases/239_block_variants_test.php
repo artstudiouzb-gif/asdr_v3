@@ -602,10 +602,18 @@ test('Карточки: раскладка выбирается редактор
     assert_contains('cat-grid cards-track', $compactSlider['html']);
     assert_contains('block-categories__head', $compactSlider['html']);
 
-    // Собранные раньше страницы не меняются: у вариантов без фотографии
-    // «авто» — это сетка, как и было.
+    // «Авто» у текстовых карточек — сетка на компьютере и полоса на
+    // телефоне: класс полосы мобильный, управление стоит под ней, а не в
+    // шапке. Две карточки остаются сеткой, «Сетка» — столбцом и на телефоне.
     $iconAuto = variant_block('cards_grid', ['variant' => 'icon', 'items' => $items], 777);
-    assert_not_contains('data-carousel', $iconAuto['html']);
+    assert_contains('cards-track--mobile', $iconAuto['html']);
+    assert_not_contains('class="cards-grid cards-track"', $iconAuto['html']);
+    assert_contains('class="carousel-foot"', $iconAuto['html']);
+    assert_not_contains('section-head__tools', $iconAuto['html']);
+    $iconPair = variant_block('cards_grid', ['variant' => 'icon', 'items' => array_slice($items, 0, 2)], 779);
+    assert_not_contains('data-carousel', $iconPair['html']);
+    $iconGrid = variant_block('cards_grid', ['variant' => 'icon', 'layout' => 'grid', 'items' => $items], 780);
+    assert_not_contains('data-carousel', $iconGrid['html']);
     $compactAuto = variant_block('cards_grid', ['variant' => 'compact', 'items' => $items], 778);
     assert_not_contains('data-carousel', $compactAuto['html']);
 });

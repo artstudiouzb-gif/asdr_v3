@@ -47,8 +47,8 @@ $numbering = !empty($data['numbering']);
 // карточек с фотографией: сетка, а когда карточек больше, чем колонок, полоса.
 // Порог считается по настройке «Колонок», а не по числу 4: в сетке и в кадре
 // слайдера обязано помещаться одно и то же число карточек, иначе настройка
-// действует наполовину. У остальных вариантов «авто» — это сетка: включать им
-// прокрутку задним числом значило бы поменять вид собранных страниц.
+// действует наполовину. У текстовых карточек «авто» — сетка, а на телефоне
+// полоса (см. $mobileTrack ниже); столбец на телефоне даёт «Сетка».
 $layout = (string) $data['layout'];
 $itemCount = count($items);
 $explicitSlider = $layout === 'slider' && $itemCount > 1;
@@ -260,13 +260,23 @@ if ($variant === 'icon' && $visualStyle === 'new') {
         <?php endif; ?>
     </div>
 <?php else: ?>
-    <div class="block-cards<?= $cardClasses ?><?= $numbering ? ' block-cards--numbered' : '' ?>"<?= $explicitSlider ? ' data-carousel' : '' ?>>
+    <?php
+    // «Авто» у текстовых карточек — сетка на компьютере и полоса на
+    // телефоне: в столбец четыре-шесть карточек направлений занимали по три
+    // экрана, и до следующего раздела было не долистать. Две карточки
+    // остаются столбцом: полоса из двух прячет половину ради одной строки.
+    // Управление у такой полосы стоит под ней, а не в шапке — на телефоне
+    // оно нужно у пальца, рядом с карточками.
+    $mobileTrack = !$explicitSlider && $layout === 'auto' && $itemCount > 2;
+    $cardsCarousel = $explicitSlider || $mobileTrack;
+    ?>
+    <div class="block-cards<?= $cardClasses ?><?= $numbering ? ' block-cards--numbered' : '' ?>"<?= $cardsCarousel ? ' data-carousel' : '' ?>>
         <?php
         // Шапка секции — общая: у «Преимуществ» было своё описание раздела, и
         // при переезде сюда оно обязано остаться, иначе текст пропал бы со
         // страниц молча.
         $cardsNav = '';
-        if ($explicitSlider) {
+        if ($cardsCarousel) {
             ob_start();
             include __DIR__ . '/partials/carousel_nav.php';
             $cardsNav = (string) ob_get_clean();
@@ -278,22 +288,22 @@ if ($variant === 'icon' && $visualStyle === 'new') {
             'description_html' => true,
             'all_text' => $allText,
             'all_url' => $allUrl,
-            'tools' => $cardsNav,
+            'tools' => $explicitSlider ? $cardsNav : '',
         ]) ?>
         <?php if ($items === []): ?>
             <p class="block-cards__empty"><?= htmlspecialchars(t('Пункты ещё не добавлены.'), ENT_QUOTES) ?></p>
         <?php else: ?>
-            <div class="cards-grid<?= $explicitSlider ? ' cards-track' : '' ?>"<?= $explicitSlider ? ' data-carousel-track tabindex="0" role="group" aria-label="' . htmlspecialchars(t('Карточки — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
+            <div class="cards-grid<?= $explicitSlider ? ' cards-track' : ($mobileTrack ? ' cards-track--mobile' : '') ?>"<?= $cardsCarousel ? ' data-carousel-track tabindex="0" role="group" aria-label="' . htmlspecialchars(t('Карточки — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
                 <?php foreach ($items as $index => $item): ?>
                     <?php $url = $safeLink($item); $hasIcon = !empty($item['icon_svg']); ?>
                     <?php if ($url !== '' && $hasIcon): ?>
-                    <a class="feature-card feature-card--has-icon"<?= $explicitSlider ? ' data-carousel-item' : '' ?> href="<?= htmlspecialchars($url, ENT_QUOTES) ?>">
+                    <a class="feature-card feature-card--has-icon"<?= $cardsCarousel ? ' data-carousel-item' : '' ?> href="<?= htmlspecialchars($url, ENT_QUOTES) ?>">
                     <?php elseif ($url !== ''): ?>
-                    <a class="feature-card"<?= $explicitSlider ? ' data-carousel-item' : '' ?> href="<?= htmlspecialchars($url, ENT_QUOTES) ?>">
+                    <a class="feature-card"<?= $cardsCarousel ? ' data-carousel-item' : '' ?> href="<?= htmlspecialchars($url, ENT_QUOTES) ?>">
                     <?php elseif ($hasIcon): ?>
-                    <article class="feature-card feature-card--has-icon"<?= $explicitSlider ? ' data-carousel-item' : '' ?>>
+                    <article class="feature-card feature-card--has-icon"<?= $cardsCarousel ? ' data-carousel-item' : '' ?>>
                     <?php else: ?>
-                    <article class="feature-card"<?= $explicitSlider ? ' data-carousel-item' : '' ?>>
+                    <article class="feature-card"<?= $cardsCarousel ? ' data-carousel-item' : '' ?>>
                     <?php endif; ?>
                         <?php // «В строке с заголовком»: заголовок уходит в верхнюю
                               // строку, к иконке, а номер прижимается вправо — так
@@ -318,6 +328,7 @@ if ($variant === 'icon' && $visualStyle === 'new') {
                     <?php if ($url !== ''): ?></a><?php else: ?></article><?php endif; ?>
                 <?php endforeach; ?>
             </div>
+            <?php if ($mobileTrack): ?><div class="carousel-foot"><?= $cardsNav ?></div><?php endif; ?>
         <?php endif; ?>
     </div>
 <?php endif; ?>

@@ -205,10 +205,11 @@
 /* Телефон: карточка — строка «кадр слева, подпись справа», как компактная
    новость. Во всю ширину восемь роликов давали 2400px — самый длинный блок
    главной, где на экран помещалось полтора заголовка. Пропорция кадра из
-   настройки блока сохраняется: меняется только его ширина. */
+   настройки блока сохраняется: меняется только его ширина. Так выглядит
+   постраничный архив; витрина на телефоне — полоса (ниже). */
 @media (max-width: 560px) {
     .mediagallery-grid { gap: 12px; }
-    .mediagallery-grid > :is(.mediacard--photo, .mediacard--video) {
+    .mediagallery-grid:not(.mediagallery-grid--track) > :is(.mediacard--photo, .mediacard--video) {
         display: grid;
         grid-template-columns: min(38%, 140px) minmax(0, 1fr);
         grid-auto-rows: min-content;
@@ -216,18 +217,37 @@
         column-gap: 14px;
         padding: 10px;
     }
-    .mediagallery-grid > :is(.mediacard--photo, .mediacard--video) > .mediacard__media {
+    .mediagallery-grid:not(.mediagallery-grid--track) > :is(.mediacard--photo, .mediacard--video) > .mediacard__media {
         grid-row: 1 / span 3;
         align-self: start;
         border-radius: var(--radius-sm);
     }
-    .mediagallery-grid > :is(.mediacard--photo, .mediacard--video) > :not(.mediacard__media) {
+    .mediagallery-grid:not(.mediagallery-grid--track) > :is(.mediacard--photo, .mediacard--video) > :not(.mediacard__media) {
         grid-column: 2;
         margin: 0;
     }
-    .mediagallery-grid > :is(.mediacard--photo, .mediacard--video) > .mediacard__date--auto + .mediacard__title { margin-top: 6px; }
+    .mediagallery-grid:not(.mediagallery-grid--track) > :is(.mediacard--photo, .mediacard--video) > .mediacard__date--auto + .mediacard__title { margin-top: 6px; }
     .mediagallery-grid .mediacard__title { font-size: var(--step--1); }
-    .mediagallery-grid .mediacard__play { width: 36px; height: 36px; }
-    .mediagallery-grid .mediacard__play svg { width: 16px; height: 16px; }
-    .mediagallery-grid .mediacard__duration { right: 6px; bottom: 6px; }
+    .mediagallery-grid:not(.mediagallery-grid--track) .mediacard__play { width: 36px; height: 36px; }
+    .mediagallery-grid:not(.mediagallery-grid--track) .mediacard__play svg { width: 16px; height: 16px; }
+    .mediagallery-grid:not(.mediagallery-grid--track) .mediacard__duration { right: 6px; bottom: 6px; }
+}
+
+/* Витрина на телефоне — полоса: карточка в прежнем виде «кадр сверху,
+   подпись снизу» на 85 % ширины, край следующей подсказывает, что ряд
+   листается. Высота блока — одна карточка вместо восьми строк. Скрытые
+   вкладкой карточки остаются display:none (атрибут hidden) и места в полосе
+   не занимают. */
+@media (max-width: 560px) {
+    .mediagallery-grid--track {
+        display: flex;
+        grid-template-columns: none;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 4px;
+    }
+    .mediagallery-grid--track > .mediacard {
+        flex: 0 0 85%;
+        scroll-snap-align: start;
+    }
 }

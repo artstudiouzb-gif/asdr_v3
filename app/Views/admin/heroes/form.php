@@ -75,7 +75,7 @@ $group = static function (string $title, string $hint, string $state, string $bo
 
     $summaryFields = [
         'Размер обложки' => 'width,height,height_mobile',
-        'Текст и расположение' => 'text_position,text_align_y,title_size,title_scale',
+        'Текст и расположение' => 'text_position,text_position_mobile,text_align_y,title_size,title_scale',
         'Цветовая схема' => 'scheme,content_scheme',
         'Наложение и подложка' => 'overlay,overlay_opacity',
         'Навигация' => 'nav_indicator,nav_arrows',
@@ -315,6 +315,7 @@ $overlayDirections = [
         <?php
         ob_start(); ?>
             <?= $select('text_position', 'Текст по горизонтали', $posOptions, (string) $settings['text_position']) ?>
+            <?= $select('text_position_mobile', 'Текст по горизонтали на телефоне', ['same' => 'Как на компьютере'] + $posOptions, (string) $settings['text_position_mobile']) ?>
             <?= $select('text_align_y', 'Текст по вертикали', $yOptions, (string) $settings['text_align_y']) ?>
             <div class="form-field">
                 <label for="text_width_value">Ширина текстовой колонки</label>

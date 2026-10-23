@@ -48,7 +48,16 @@ if ($showTabs) {
     <?php $tabsHtml = (string) ob_get_clean();
 }
 ?>
-<div class="block-mediagallery" data-media-gallery data-media-active="<?= htmlspecialchars($activeTab, ENT_QUOTES) ?>">
+<?php
+// На телефоне список становится полосой с прокруткой: строками «кадр слева»
+// восемь роликов всё равно занимали три экрана, а полоса держит одну
+// карточку и показывает край следующей. Сетку компьютера она не трогает —
+// какой быть раскладке, решает CSS по ширине, движок карусели лишь
+// раскрывает управление, когда карточки не помещаются. Постраничный вывод
+// остаётся списком: это архив, его листают страницами, а не вбок.
+$mediaTrack = count($items) > 1 && empty($data['paginate']);
+?>
+<div class="block-mediagallery" data-media-gallery data-media-active="<?= htmlspecialchars($activeTab, ENT_QUOTES) ?>"<?= $mediaTrack ? ' data-carousel' : '' ?>>
     <?= \App\Core\SectionHead::render([
         'title' => (string) $title,
         'description' => (string) ($data['description'] ?? ''),
@@ -63,7 +72,7 @@ if ($showTabs) {
     <?php if (empty($items)): ?>
         <p class="block-mediagallery__empty"><?= htmlspecialchars(t('Материалы ещё не добавлены.'), ENT_QUOTES) ?></p>
     <?php else: ?>
-        <div class="mediagallery-grid mediagallery-grid--desktop-4 mediagallery-grid--ratio-<?= htmlspecialchars($ratio, ENT_QUOTES) ?> mediagallery-grid--cols-<?= $initialColumns ?>" data-media-grid>
+        <div class="mediagallery-grid mediagallery-grid--desktop-4 mediagallery-grid--ratio-<?= htmlspecialchars($ratio, ENT_QUOTES) ?> mediagallery-grid--cols-<?= $initialColumns ?><?= $mediaTrack ? ' mediagallery-grid--track' : '' ?>" data-media-grid<?= $mediaTrack ? ' data-carousel-track tabindex="0" role="group" aria-label="' . htmlspecialchars(t('Медиа — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
             <?php foreach ($items as $item): ?>
                 <?php
                 $url = trim((string) ($item['url'] ?? ''));
@@ -83,7 +92,7 @@ if ($showTabs) {
                 }
                 $tag = $url !== '' ? 'a' : 'div';
                 ?>
-                <<?= $tag ?> class="mediacard mediacard--<?= $kind ?>" data-media-kind="<?= $kind ?>"<?= $url !== '' ? ' href="' . htmlspecialchars($url, ENT_QUOTES) . '"' : '' ?>>
+                <<?= $tag ?> class="mediacard mediacard--<?= $kind ?>" data-media-kind="<?= $kind ?>"<?= $mediaTrack ? ' data-carousel-item' : '' ?><?= $url !== '' ? ' href="' . htmlspecialchars($url, ENT_QUOTES) . '"' : '' ?>>
                     <span class="mediacard__media">
                         <?php if ($img !== ''): ?><?= \App\Core\Media::picture($img, (string) $item['title'], null, null, 'mediacard__img', true, '(max-width: 560px) 100vw, (max-width: 1000px) 50vw, 25vw') ?><?php endif; ?>
                         <span class="mediacard__play mediacard__play--<?= $kind ?>" aria-hidden="true">
@@ -108,6 +117,7 @@ if ($showTabs) {
                 </<?= $tag ?>>
             <?php endforeach; ?>
         </div>
+        <?php if ($mediaTrack): ?><div class="carousel-foot"><?php include __DIR__ . '/partials/carousel_nav.php'; ?></div><?php endif; ?>
     <?php endif; ?>
     <?php
     // Полоса страниц у блока — та же, что у ленты новостей и каталогов:

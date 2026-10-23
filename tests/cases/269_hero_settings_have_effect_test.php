@@ -51,7 +51,7 @@ test('Каждая настройка обложки влияет на выво�
     $probe = [
     'width' => 'standard', 'height' => 'compact', 'height_value' => '600px',
     'height_mobile' => 'tall', 'height_mobile_value' => '400px',
-    'text_position' => 'right', 'text_align_y' => 'bottom', 'text_width' => '500px',
+    'text_position' => 'right', 'text_position_mobile' => 'left', 'text_align_y' => 'bottom', 'text_width' => '500px',
     'title_size' => 'xl', 'subtitle_size' => 's',
     'title_scale' => 130,
     'text_offset_top' => 33,
