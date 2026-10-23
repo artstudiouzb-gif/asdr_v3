@@ -353,7 +353,8 @@ final class HeroRenderer
         // Explicit width keeps wide SVG/PNG logos stable in the auto grid
         // column. Height stays automatic, preserving the original ratio.
         return '<span class="hero__art hero__art--' . htmlspecialchars($size, ENT_QUOTES)
-            . ' hero__art--' . htmlspecialchars((string) $d['art_position'], ENT_QUOTES) . '"'
+            . ' hero__art--' . htmlspecialchars((string) $d['art_position'], ENT_QUOTES)
+            . ($d['art_mobile'] === 'hide' ? ' hero__art--hide-mobile' : '') . '"'
             . ($alt === '' ? ' aria-hidden="true"' : '') . '>'
             . '<img src="' . htmlspecialchars($image, ENT_QUOTES) . '" alt="' . htmlspecialchars($alt, ENT_QUOTES) . '"'
             . ' width="' . $width . '" loading="lazy" decoding="async"></span>';

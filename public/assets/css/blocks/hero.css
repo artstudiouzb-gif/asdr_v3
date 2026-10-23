@@ -717,6 +717,7 @@
     .hero__inner { padding: var(--space-l) var(--space-s); padding-block-end: calc(var(--space-l) + var(--hero-nav-space)); }
     .hero__nav { padding: var(--space-xs) var(--space-s); }
     .hero__thumbs { display: none; }
+    .hero__art--hide-mobile { display: none; }
     .hero--no-arrows-mobile .hero__arrow { display: none; }
     /* Кнопки на узком экране растягиваются на строку: обрезанная CTA хуже,
        чем высокая колонка. */
