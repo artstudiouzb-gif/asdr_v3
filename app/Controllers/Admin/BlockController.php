@@ -966,7 +966,7 @@ final class BlockController
                 }
                 return array_merge(
                     BlockFieldSchema::normalize('docs_list', $_POST, $locale),
-                    ['items' => $items]
+                    ['items' => $items, 'content_type' => \App\Core\Input::post()->int('content_type', 0, 0)]
                 );
             case 'map_point':
                 return array_merge(

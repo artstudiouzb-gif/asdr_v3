@@ -162,6 +162,8 @@ final class ContentEntryController
             return;
         }
         ContentEntry::delete((int) $entry['id']);
+        // Запись могла стоять в блоке «Документы» на любой странице.
+        \App\Core\Cache::forgetPrefix('page:');
         Flash::success('Запись удалена.');
         header('Location: ' . AdminListQuery::returnPath('/admin/content/' . $type['slug'], $_POST['return_query'] ?? ''));
         exit;
@@ -209,6 +211,10 @@ final class ContentEntryController
                 ContentEntry::upsertTranslation($id, $code, $trTitle !== '' ? $trTitle : null, $trValues);
             }
         }
+
+        // Записи каталога выводит и блок «Документы» на страницах, а кэш
+        // страницы о правке каталога иначе не узнал бы.
+        \App\Core\Cache::forgetPrefix('page:');
 
         return [true, null, $id];
     }
