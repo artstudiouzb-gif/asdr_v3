@@ -194,6 +194,11 @@ $appearanceList = [
         </ol>
         <form method="post" action="/admin/profile/telegram/link">
             <?= Csrf::field() ?>
+            <div class="form-field">
+                <label for="tg_link_password">Подтвердите паролем</label>
+                <input type="password" id="tg_link_password" name="password" autocomplete="current-password" required>
+                <p class="form-hint">Пароль нужен, чтобы чужая сессия не могла подставить свой Telegram для кодов входа.</p>
+            </div>
             <button type="submit" class="btn btn--primary">Проверить привязку</button>
         </form>
     <?php endif; ?>

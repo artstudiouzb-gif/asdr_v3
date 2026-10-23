@@ -128,6 +128,16 @@ final class NewsController
             return;
         }
 
+        // Архив собирается заново на каждый запрос — это десятки мегабайт
+        // чтения и записи на shared-хостинге. Без предела частоты один
+        // посетитель мог бы занять диск и процессор сайта целиком.
+        if (!\App\Core\RateLimiter::throttle('news_photos_zip', (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'), 10, 10)) {
+            http_response_code(429);
+            header('Retry-After: 600');
+            echo t('Слишком много запросов. Повторите позже.');
+            return;
+        }
+
         $uploadsDir = rtrim((string) Config::get('paths.public_uploads', ''), '/');
         $uploadsUrl = rtrim((string) Config::get('paths.public_uploads_url', '/uploads/public'), '/');
         $paths = [];
@@ -157,6 +167,14 @@ final class NewsController
         }
 
         $tmp = tempnam(sys_get_temp_dir(), 'ndz');
+        // Посетитель может закрыть вкладку посреди отдачи — тогда PHP
+        // обрывает скрипт, и строка удаления после readfile() не выполнится.
+        // Временные архивы копились бы в каталоге до конца диска.
+        register_shutdown_function(static function () use ($tmp): void {
+            if (is_string($tmp) && is_file($tmp)) {
+                @unlink($tmp);
+            }
+        });
         $zip = new \ZipArchive();
         $zip->open($tmp, \ZipArchive::OVERWRITE);
         foreach ($files as $i => $file) {

@@ -193,6 +193,11 @@ $mark = static function (bool $done, bool $started = true): string {
 
         <form method="post" action="/admin/telegram/link">
             <?= Csrf::field() ?>
+            <div class="form-field">
+                <label for="tg_link_password_main">Подтвердите паролем</label>
+                <input type="password" id="tg_link_password_main" name="password" autocomplete="current-password" required>
+                <p class="form-hint">Пароль нужен, чтобы чужая сессия не могла подставить свой Telegram для кодов входа.</p>
+            </div>
             <button type="submit" class="btn btn--primary"><?= AdminUi::icon('check') ?>Проверить привязку аккаунта</button>
         </form>
     <?php endif; ?>

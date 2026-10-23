@@ -57,10 +57,19 @@ final class TelegramLink
      *
      * @return array{ok:bool, message:string}
      */
-    public static function confirm(int $userId): array
+    public static function confirm(int $userId, string $password): array
     {
         if (!TelegramBot::isConfigured()) {
             return ['ok' => false, 'message' => 'Привязка недоступна: токен бота не задан.'];
+        }
+        // Telegram — канал второго фактора, и привязка заменяет прежний чат.
+        // Без пароля чужая сессия могла бы подставить свой чат: коды входа и
+        // уведомления о входах уходили бы ей, а владелец их больше не видел.
+        // Тот же порядок, что у приложения-аутентификатора и у отвязки.
+        $user = User::findById($userId);
+        $attempts = RateLimiter::throttle('tg_link_reauth', $userId . '|' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'), 5, 15, false);
+        if ($user === null || !$attempts || !password_verify($password, (string) $user['password_hash'])) {
+            return ['ok' => false, 'message' => 'Неверный пароль. Telegram не привязан.'];
         }
         $code = self::currentCode();
         if ($code === null || $code === '') {
