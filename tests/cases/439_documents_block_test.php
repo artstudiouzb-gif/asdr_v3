@@ -156,3 +156,23 @@ test('Акт: название стоит в шапке рядом с листо
     assert_not_contains('act-card__index', $html);
     assert_contains('<div class="doc-desc__text"><p>Текст</p></div>', $html);
 });
+
+test('Акт с обложкой: фото — своя колонка карточки, в описании его нет', function (): void {
+    $html = render_view('templates/blocks/partials/act_card.php', [
+        'doc' => ['title' => 'Издание', 'url' => '/uploads/public/a.pdf', 'description' => '<p>Текст</p>', 'cover' => '/uploads/public/cover.jpg'],
+    ]);
+
+    assert_contains('act-card--media', $html);
+    assert_true((bool) preg_match('~<div class="act-card__frame">\s*<span class="act-card__media"[^>]*>.*?</span>\s*<div class="act-card__main">~s', $html), 'фото слева, содержимое справа');
+    assert_not_contains('doc-desc--cover', $html);
+    assert_contains('<div class="doc-desc__text"><p>Текст</p></div>', $html);
+});
+
+test('Документы: «Авто» листает каруселью, когда не помещаются в два ряда, но не архив', function (): void {
+    assert_true(!DocumentPresenter::carousel('auto', 4, 2), 'два ряда по две — сетка');
+    assert_true(DocumentPresenter::carousel('auto', 5, 2), 'пятый документ — карусель');
+    assert_true(!DocumentPresenter::carousel('auto', DocumentPresenter::CAROUSEL_MAX_AUTO + 1, 2), 'архив — сетка с поиском');
+    assert_true(DocumentPresenter::carousel('slider', 2, 4), 'явная карусель');
+    assert_true(!DocumentPresenter::carousel('grid', 20, 2), 'явная сетка');
+    assert_true(!DocumentPresenter::carousel('slider', 1, 2), 'одному документу листать нечего');
+});

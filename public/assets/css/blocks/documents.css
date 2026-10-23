@@ -259,6 +259,66 @@
 }
 .act-card__summary { position: relative; z-index: 1; }
 
+/* --- Акт с обложкой --------------------------------------------------- */
+/* Обложка — левая колонка во всю высоту карточки, всё остальное справа.
+   Раскладку решает ширина самой карточки, а не экрана: карточка бывает и в
+   двух колонках на 1440px, и в колонке конструктора, и в кадре карусели.
+   Поэтому карточка — контейнер, а сетка лежит на обёртке внутри неё
+   (контейнерный запрос не меняет сам контейнер). Узко — фото сверху 16:9. */
+.feature-card.act-card.act-card--media {
+    gap: 0;
+    padding: 0;
+    container: act-card / inline-size;
+}
+.act-card__frame {
+    display: grid;
+    flex: 1 1 auto;
+    grid-template-columns: minmax(0, 1fr);
+}
+.act-card__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--gov-navy) 8%, var(--gov-surface));
+}
+.act-card__media picture { display: contents; }
+.act-card__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+}
+.act-card__main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    padding: 24px;
+}
+.act-card__main > .doc-files { margin-top: auto; }
+@container act-card (min-width: 520px) {
+    .act-card__frame { grid-template-columns: clamp(180px, 40%, 320px) minmax(0, 1fr); }
+    /* Высоту колонки задаёт ряд, но не меньше квадрата: распорка в потоке
+       держит минимум, фото лежит поверх неё. */
+    .act-card__media { aspect-ratio: auto; }
+    .act-card__media::before { content: ""; display: block; padding-top: 100%; }
+}
+
+/* --- Карусель ----------------------------------------------------------- */
+/* Сетку актов и карточек объявляет тема; лента — тот же общий .cards-track,
+   и ей нужна раскладка в строку. Карточки в кадре одной высоты: кнопки
+   стоят на одной линии, как и в сетке. */
+.block-docslist :is(.docslist-acts, .docslist-grid).cards-track {
+    display: flex;
+    gap: var(--card-gap, 20px);
+    align-items: stretch;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .doc-files__main, .doc-files__lang { transition: none; }
 }

@@ -12,14 +12,18 @@ $searchEnabled = !empty($data['search_enabled']);
 // Фирменный знак на карточке акта. У блоков, сохранённых до появления
 // настройки, ключа нет — умолчание схемы подставляет включённое состояние.
 $showEmblem = !empty($data['emblem']);
+$carousel = $variant !== 'links' && \App\Core\DocumentPresenter::carousel((string) $data['layout'], is_array($items) ? count($items) : 0, $cols);
 $prepared = array_map([\App\Core\DocumentPresenter::class, 'prepare'], is_array($items) ? $items : []);
 $kinds = array_values(array_unique(array_filter(array_column($prepared, 'extension'), static fn (string $kind): bool => $kind !== 'other')));
 // Хвост последнего ряда растягивается на всю ширину: пять актов в три
 // колонки иначе оставляют справа пустую ячейку.
-$templateCss = \App\Core\GridBalance::css($blockId, '.docslist-grid', '.doc-card', count($prepared), $cols)
-    . \App\Core\GridBalance::css($blockId, '.docslist-acts', '.act-card', count($prepared), $cols);
+// В карусели колонок нет — есть ширина кадра: столько карточек видно сразу.
+$templateCss = $carousel
+    ? '#block-' . (int) $blockId . '{--cards-cols:' . max(1, min($cols, 3)) . '}'
+    : \App\Core\GridBalance::css($blockId, '.docslist-grid', '.doc-card', count($prepared), $cols)
+        . \App\Core\GridBalance::css($blockId, '.docslist-acts', '.act-card', count($prepared), $cols);
 ?>
-<div class="block-docslist block-docslist--<?= $variant ?>" data-document-list>
+<div class="block-docslist block-docslist--<?= $variant ?>" data-document-list<?= $carousel ? ' data-carousel' : '' ?>>
     <div class="section-head">
         <?php if ($title !== ''): ?><h2 class="section-head__title"><?= \App\Core\TitleMarkup::html($title) ?></h2><?php endif; ?>
         <?php if ($allText !== '' && $allUrl !== ''): ?><?= \App\Core\SectionHead::allLink($allText, $allUrl) ?><?php endif; ?>
@@ -27,7 +31,8 @@ $templateCss = \App\Core\GridBalance::css($blockId, '.docslist-grid', '.doc-card
     <?php if (empty($items)): ?>
         <p class="block-docslist__empty"><?= htmlspecialchars(t('Документы ещё не добавлены.'), ENT_QUOTES) ?></p>
     <?php else: ?>
-        <?php if ($searchEnabled && count($items) >= 4): ?>
+        <?php /* Поиск — у архива: витрину в карусели листают, а не ищут. */ ?>
+        <?php if ($searchEnabled && !$carousel && count($items) >= 4): ?>
             <div class="document-tools" role="search" aria-label="<?= htmlspecialchars(t('Поиск документов'), ENT_QUOTES) ?>">
                 <label class="document-tools__search">
                     <span class="visually-hidden"><?= htmlspecialchars(t('Найти документ'), ENT_QUOTES) ?></span>
@@ -48,7 +53,8 @@ $templateCss = \App\Core\GridBalance::css($blockId, '.docslist-grid', '.doc-card
                 <span class="document-tools__count" data-document-count aria-live="polite"></span>
             </div>
         <?php endif; ?>
-        <div class="<?= $variant === 'links' ? 'media-list docslist-links' : ($actsVariant ? 'docslist-acts' : 'docslist-grid') ?>">
+        <div class="<?= $variant === 'links' ? 'media-list docslist-links' : ($actsVariant ? 'docslist-acts' : 'docslist-grid') ?><?= $carousel ? ' cards-track' : '' ?>"<?= $carousel ? ' data-carousel-track tabindex="0" role="group" aria-label="' . htmlspecialchars(t('Документы — прокрутка вбок'), ENT_QUOTES) . '"' : '' ?>>
+            <?php $carouselItem = $carousel; ?>
             <?php foreach ($items as $docIndex => $doc): ?>
                 <?php if ($actsVariant): ?>
                     <?php $editorialAct = $variant === 'acts-editorial'; ?>
@@ -58,6 +64,8 @@ $templateCss = \App\Core\GridBalance::css($blockId, '.docslist-grid', '.doc-card
                 <?php endif; ?>
             <?php endforeach; ?>
         </div>
+        <?php /* Стрелки под лентой, а не в шапке: на телефоне они нужны у пальца. */ ?>
+        <?php if ($carousel): ?><div class="carousel-foot"><?php include __DIR__ . '/partials/carousel_nav.php'; ?></div><?php endif; ?>
         <p class="block-docslist__empty" data-document-empty hidden><?= htmlspecialchars(t('Ничего не найдено.'), ENT_QUOTES) ?></p>
     <?php endif; ?>
 </div>
