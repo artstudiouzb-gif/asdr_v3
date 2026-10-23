@@ -58,6 +58,30 @@ test('FooterConfig: копирайт бывает своим у каждого �
     assert_same('© {year} Strategik rivojlanish agentligi', FooterConfig::bottomFor($cfg, 'en'), 'без своего текста — общий');
 });
 
+test('FooterConfig: тексты колонки бывают своими у языка, пустые — общие', function () {
+    $cfg = FooterConfig::normalize(['columns' => [[
+        'heading' => 'Bo‘limlar',
+        'widget' => 'about',
+        'text' => '<p>Sayt sinov rejimida ishlamoqda</p>',
+        'widget2' => 'menu',
+        'heading_by_lang' => ['RU' => ' Разделы '],
+        'text_by_lang' => ['ru' => '<p>Сайт работает в тестовом режиме</p><script>alert(1)</script>', 'en' => ''],
+        'text2_by_lang' => ['ru' => '<p>у меню текста нет</p>'],
+    ]]]);
+    $col = $cfg['columns'][0];
+    assert_same([], $col['text2_by_lang'], 'виджет без текста не хранит и переводов текста');
+    assert_same([], array_keys(array_diff_key($col['text_by_lang'], ['ru' => 1])), 'пустой перевод отброшен');
+    assert_false(str_contains($col['text_by_lang']['ru'], '<script'), 'перевод проходит тот же санитайзер');
+
+    $ru = FooterConfig::columnFor($col, 'ru');
+    assert_same('Разделы', $ru['heading']);
+    assert_true(str_contains($ru['text'], 'тестовом режиме'));
+    $uz = FooterConfig::columnFor($col, 'uz');
+    assert_same('Bo‘limlar', $uz['heading'], 'основной язык — общий текст');
+    assert_same('<p>Sayt sinov rejimida ishlamoqda</p>', $uz['text']);
+    assert_same('<p>Sayt sinov rejimida ishlamoqda</p>', FooterConfig::columnFor($col, 'en')['text'], 'без своего текста — общий');
+});
+
 test('FooterConfig: недопустимый стиль → columns', function () {
     assert_same('columns', FooterConfig::normalize(['style' => 'zzz'])['style']);
     assert_same('minimal', FooterConfig::normalize(['style' => 'minimal'])['style']);

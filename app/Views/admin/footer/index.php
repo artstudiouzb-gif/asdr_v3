@@ -22,6 +22,36 @@ $widgetSelect = function (string $name, string $current, bool $optional = false)
     }
     return $out . '</select>';
 };
+
+/**
+ * Поля колонки на остальных языках — свёрнуты: колонку переводят не всякую,
+ * а пустое поле значит «как основной текст».
+ */
+$otherLangs = array_values(array_filter(
+    (array) ($languages ?? []),
+    static fn (array $lang): bool => strtolower((string) ($lang['code'] ?? '')) !== '' && strtolower((string) $lang['code']) !== ($defaultLangCode ?? '')
+));
+$columnLangFields = function (string $index, array $col) use ($otherLangs): string {
+    if ($otherLangs === []) {
+        return '';
+    }
+    $fields = ['heading' => 'Заголовок', 'text' => 'Текст', 'text2' => 'Текст второго виджета'];
+    $out = '<details class="form-field"><summary>Тексты колонки на других языках</summary>';
+    foreach ($otherLangs as $lang) {
+        $code = strtolower((string) $lang['code']);
+        $badge = ' <span class="badge badge--small">' . htmlspecialchars((string) $lang['name'], ENT_QUOTES) . ' (' . strtoupper(htmlspecialchars($code, ENT_QUOTES)) . ')</span>';
+        foreach ($fields as $field => $label) {
+            $name = 'columns[' . $index . '][' . $field . '_by_lang][' . htmlspecialchars($code, ENT_QUOTES) . ']';
+            $value = htmlspecialchars((string) (((array) ($col[$field . '_by_lang'] ?? []))[$code] ?? ''), ENT_QUOTES);
+            $out .= '<label>' . $label . $badge . '</label>';
+            $out .= $field === 'heading'
+                ? '<input type="text" name="' . $name . '" maxlength="100" value="' . $value . '" placeholder="Пусто — как основной">'
+                : '<textarea name="' . $name . '" rows="2" placeholder="Пусто — как основной текст">' . $value . '</textarea>';
+        }
+    }
+
+    return $out . '</details>';
+};
 ?>
 <div class="admin-builder-workspace">
     <form method="post" action="/admin/footer" class="form-grid">
@@ -81,6 +111,7 @@ $widgetSelect = function (string $name, string $current, bool $optional = false)
                             <label>Текст второго виджета</label>
                             <textarea name="columns[<?= $i ?>][text2]" rows="2" placeholder="<p>Произвольный текст…</p>"><?= htmlspecialchars((string) ($col['text2'] ?? ''), ENT_QUOTES) ?></textarea>
                         </div>
+                        <?= $columnLangFields((string) $i, $col) ?>
                         <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить колонку</button>
                     </div>
                 <?php endforeach; ?>
@@ -113,6 +144,7 @@ $widgetSelect = function (string $name, string $current, bool $optional = false)
                     <label>Текст второго виджета</label>
                     <textarea name="columns[__INDEX__][text2]" rows="2" placeholder="<p>Произвольный текст…</p>"></textarea>
                 </div>
+                <?= $columnLangFields('__INDEX__', []) ?>
                 <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>Удалить колонку</button>
             </template>
             <div class="repeater-actions">

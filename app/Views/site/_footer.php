@@ -165,6 +165,7 @@ $renderFooterWidget = function (array $col) use ($footerLogo, $siteName, $addres
     <div class="site-footer__inner">
         <?php foreach ($footerCfg['columns'] as $col): ?>
             <?php
+            $col = \App\Core\FooterConfig::columnFor($col, $footerLang);
             $inner = $renderFooterWidget($col);
             $colClass = 'site-footer__col--' . $col['widget'];
             $widget2 = (string) ($col['widget2'] ?? '');
