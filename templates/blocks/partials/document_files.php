@@ -8,7 +8,7 @@ use App\Core\Icon;
  * всей карточки — растянутый псевдоэлемент главной кнопки: вложить ссылки
  * переводов в карточку-ссылку нельзя, `<a>` в `<a>` браузер разрывает.
  *
- * @var array{title:string,files:list<array{lang:string,label:string,url:string,meta:string,extension:string,direct_file:bool,current:bool}>} $presented
+ * @var array{title:string,meta:string,files:list<array{lang:string,label:string,url:string,meta:string,extension:string,direct_file:bool,current:bool}>} $presented
  * @var string $filesClass
  */
 $docFiles = $presented['files'];
@@ -19,7 +19,9 @@ $mainFile = $docFiles[0];
 $otherFiles = array_slice($docFiles, 1);
 // Версии на языке страницы нет — главная кнопка называет язык файла, иначе
 // посетитель узнал бы о нём, только открыв документ.
-$mainMeta = $mainFile['meta'];
+// Подпись главной кнопки — подготовленная: своя подпись редактора главнее
+// автоматической («PDF · 2,4 МБ» по файлу).
+$mainMeta = $presented['meta'];
 if ($mainFile['lang'] !== '' && !$mainFile['current']) {
     $mainMeta = trim($mainFile['label'] . ($mainMeta !== '' ? ', ' . $mainMeta : ''));
 }

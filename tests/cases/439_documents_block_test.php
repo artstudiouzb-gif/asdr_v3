@@ -109,3 +109,17 @@ test('Документ: обложка встаёт вместо листа фо
     assert_not_contains('javascript:', $html);
     assert_same(1, substr_count($html, 'doc-sheet--pdf'), 'карточка с негодной обложкой получает лист');
 });
+
+test('Документ: своя подпись формата главнее автоматической', function (): void {
+    $rendered = BlockRenderer::render([
+        'id' => 4393,
+        'type' => 'docs_list',
+        'data' => json_encode(['variant' => 'links', 'items' => [[
+            'title' => 'Стратегия',
+            'meta' => 'PDF · 2.4 МБ',
+            'url' => '/uploads/public/s.pdf',
+        ]]], JSON_UNESCAPED_UNICODE),
+    ]);
+
+    assert_contains('<span class="doc-files__meta">PDF · 2.4 МБ</span>', (string) $rendered['html']);
+});
