@@ -400,3 +400,22 @@
     .news-columns { display: block; }
     .news-column { break-inside: avoid; margin-bottom: 16px; }
 }
+
+/* Телефон: компактная карточка — строка «кадр слева, текст справа».
+   Во всю ширину каждая из них была кадром 16:10 и подписью под ним: четыре
+   компактные карточки мозаики занимали 1900px из 2300px блока, то есть
+   четыре экрана на четыре заголовка. Строкой они берут по ~110px, а главная
+   новость (обложка цикла) остаётся крупной — ей и положено открывать список. */
+@media (max-width: 560px) {
+    .newslist-grid { --newsgrid-gap: 12px; }
+    .newslist-grid .relnews-card--compact {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 12px;
+    }
+    .newslist-grid .relnews-card--compact .news-cover { flex: 0 0 min(34%, 128px); }
+    .newslist-grid .relnews-card--compact .relnews-card__media { aspect-ratio: 4 / 3; }
+    .newslist-grid .relnews-card--compact .relnews-card__body { gap: 6px; padding: 0; }
+    .newslist-grid .relnews-card.relnews-card--compact .relnews-card__title { margin: 0; font-size: var(--step--1); }
+}

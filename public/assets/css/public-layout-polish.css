@@ -433,6 +433,16 @@
     }
 }
 
+/* Две колонки телефона и планшета (561–900px) и нечётное число карточек:
+   последняя стояла одна в половине ряда, и справа от неё оставалась дыра.
+   Растяжение хвоста `GridBalance` здесь не работает — оно живёт шире 900px,
+   поэтому одиночка занимает ряд целиком сама. */
+@media (min-width: 561px) and (max-width: 900px) {
+    .cards-grid > .feature-card:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+    }
+}
+
 @media (max-width: 560px) {
     .cards-grid{
         grid-template-columns: 1fr;

@@ -201,3 +201,33 @@
 .mediagallery-grid + .listing-pager {
     margin-top: var(--section-space-s, 24px);
 }
+
+/* Телефон: карточка — строка «кадр слева, подпись справа», как компактная
+   новость. Во всю ширину восемь роликов давали 2400px — самый длинный блок
+   главной, где на экран помещалось полтора заголовка. Пропорция кадра из
+   настройки блока сохраняется: меняется только его ширина. */
+@media (max-width: 560px) {
+    .mediagallery-grid { gap: 12px; }
+    .mediagallery-grid > :is(.mediacard--photo, .mediacard--video) {
+        display: grid;
+        grid-template-columns: min(38%, 140px) minmax(0, 1fr);
+        grid-auto-rows: min-content;
+        align-content: start;
+        column-gap: 14px;
+        padding: 10px;
+    }
+    .mediagallery-grid > :is(.mediacard--photo, .mediacard--video) > .mediacard__media {
+        grid-row: 1 / span 3;
+        align-self: start;
+        border-radius: var(--radius-sm);
+    }
+    .mediagallery-grid > :is(.mediacard--photo, .mediacard--video) > :not(.mediacard__media) {
+        grid-column: 2;
+        margin: 0;
+    }
+    .mediagallery-grid > :is(.mediacard--photo, .mediacard--video) > .mediacard__date--auto + .mediacard__title { margin-top: 6px; }
+    .mediagallery-grid .mediacard__title { font-size: var(--step--1); }
+    .mediagallery-grid .mediacard__play { width: 36px; height: 36px; }
+    .mediagallery-grid .mediacard__play svg { width: 16px; height: 16px; }
+    .mediagallery-grid .mediacard__duration { right: 6px; bottom: 6px; }
+}

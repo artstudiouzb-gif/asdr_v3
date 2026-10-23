@@ -114,7 +114,7 @@ test('Каждое поле слайда влияет на вывод', function
     'cta2_icon' => 'arrow-right', 'cta2_new_tab' => true,
     'cta_color' => '#abcdef', 'link_color' => '#fedcba', 'cta_text_color' => '#102030',
     'art_image' => '/uploads/public/art.png', 'art_alt' => 'Описание знака', 'art_position' => 'right',
-    'art_size' => 'custom', 'art_width' => 200,
+    'art_size' => 'custom', 'art_width' => 200, 'art_mobile' => 'show',
     'duration' => 9, 'css_class' => 'my-slide',
     '_visible_from' => '2020-01-01 00:00', '_visible_to' => '2099-01-01 00:00', '_visible_device' => 'desktop',
     ];
@@ -141,6 +141,7 @@ test('Каждое поле слайда влияет на вывод', function
     'art_position' => ['art_image' => '/uploads/public/art.png'],
     'art_size' => ['art_image' => '/uploads/public/art.png'],
     'art_width' => ['art_image' => '/uploads/public/art.png', 'art_size' => 'custom'],
+    'art_mobile' => ['art_image' => '/uploads/public/art.png'],
     'image_mobile' => ['media_type' => 'image', 'image' => '/uploads/public/a.jpg'],
     'image_position_mobile' => ['media_type' => 'image', 'image' => '/uploads/public/a.jpg'],
     'image_fit' => ['media_type' => 'image', 'image' => '/uploads/public/a.jpg'],
