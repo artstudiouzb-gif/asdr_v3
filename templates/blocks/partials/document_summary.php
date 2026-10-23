@@ -12,13 +12,18 @@ use App\Core\Media;
  *
  * @var array{cover:string,description:string} $presented
  * @var string $summaryClass
+ * @var bool|null $summaryCover false — обложку выводит сама карточка
  */
-if ($presented['cover'] === '' && $presented['description'] === '') {
+$summaryShowsCover = (!isset($summaryCover) || $summaryCover) && $presented['cover'] !== '';
+// Партиал подключается в общую область видимости: флаг сбрасывается, иначе
+// следующая карточка унаследовала бы решение предыдущей.
+$summaryCover = null;
+if (!$summaryShowsCover && $presented['description'] === '') {
     return;
 }
 ?>
-<div class="doc-desc<?= $summaryClass !== '' ? ' ' . $summaryClass : '' ?><?= $presented['cover'] !== '' ? ' doc-desc--cover' : '' ?>">
-    <?php if ($presented['cover'] !== ''): ?>
+<div class="doc-desc<?= $summaryClass !== '' ? ' ' . $summaryClass : '' ?><?= $summaryShowsCover ? ' doc-desc--cover' : '' ?>">
+    <?php if ($summaryShowsCover): ?>
         <span class="doc-desc__cover" aria-hidden="true"><?= Media::picture($presented['cover'], '', null, null, 'doc-desc__img', true, '(max-width: 560px) 40vw, 160px') ?></span>
     <?php endif; ?>
     <?php if ($presented['description'] !== ''): ?><div class="doc-desc__text"><?= $presented['description'] ?></div><?php endif; ?>

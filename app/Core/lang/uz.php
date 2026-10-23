@@ -193,6 +193,7 @@ return [
     'Мы в соцсети' => 'Ijtimoiy tarmoqdamiz',
     'Политика конфиденциальности' => 'Maxfiylik siyosati',
     'Дополнительные ссылки' => 'Qo‘shimcha havolalar',
+    'Документы — прокрутка вбок' => 'Hujjatlar — yon tomonga aylantirish',
     'Категории — прокрутка вбок' => 'Turkumlar — yon tomonga aylantirish',
     'Источник:' => 'Manba:',
     'Основное меню' => 'Asosiy menyu',

@@ -17,7 +17,7 @@ $compact = !empty($compact);
 ?>
 <article
     class="doc-card<?= $compact ? ' doc-card--compact' : '' ?>"
-    data-document-card
+    data-document-card<?= !empty($carouselItem) ? ' data-carousel-item' : '' ?>
     data-document-kind="<?= htmlspecialchars($presented['extension'], ENT_QUOTES) ?>"
     data-document-search="<?= htmlspecialchars($presented['search'], ENT_QUOTES) ?>"
 >
