@@ -15,7 +15,11 @@ final class FooterController
     public function index(): void
     {
         Auth::requireSuperAdmin();
-        View::render('admin/footer/index', ['config' => FooterConfig::get()]);
+        View::render('admin/footer/index', [
+            'config' => FooterConfig::get(),
+            'languages' => \App\Models\Language::active(),
+            'defaultLangCode' => strtolower(\App\Models\Language::defaultCode()),
+        ]);
     }
 
     public function update(): void
@@ -31,6 +35,9 @@ final class FooterController
                 'text' => (string) ($col['text'] ?? ''),
                 'widget2' => (string) ($col['widget2'] ?? ''),
                 'text2' => (string) ($col['text2'] ?? ''),
+                'heading_by_lang' => (array) ($col['heading_by_lang'] ?? []),
+                'text_by_lang' => (array) ($col['text_by_lang'] ?? []),
+                'text2_by_lang' => (array) ($col['text2_by_lang'] ?? []),
             ];
         }
 
@@ -52,7 +59,8 @@ final class FooterController
             'v' => (int) ($_POST['v'] ?? 1),
             'style' => $_POST['style'] ?? 'columns',
             'columns' => $columns,
-            'bottom' => $_POST['bottom'] ?? '',
+            'bottom' => \App\Core\Input::post()->str('bottom'),
+            'bottom_by_lang' => (array) ($_POST['bottom_by_lang'] ?? []),
             'bottom_links' => $bottomLinks,
             // Фон подвала описывают те же поля, что и фон секции страницы,
             // поэтому и разбирает их тот же нормализатор.

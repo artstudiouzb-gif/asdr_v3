@@ -4,7 +4,9 @@ use App\Models\Setting;
 
 /** @var string $logo */
 $logo = $logo ?? '';
-$siteName = Setting::get('site_name', 'ASDR');
+// Название и адрес — на языке страницы (у них есть поля для каждого языка в
+// «Настройках сайта»): основное значение на русской версии печатало узбекский.
+$siteName = Setting::getLocalized('site_name', \App\Core\Locale::current(), 'ASDR');
 /** @var string $canonicalUrl — задаётся в _header.php (та же область видимости View) */
 $printUrl = $canonicalUrl ?? '';
 
@@ -31,7 +33,7 @@ $footerCfg = \App\Core\FooterConfig::get();
 $footerStyle = $footerCfg['style'] ?? 'columns';
 $phone = Setting::get('contact_phone', '');
 $email = Setting::get('contact_email', '');
-$address = Setting::get('contact_address', '');
+$address = Setting::getLocalized('contact_address');
 $footerLang = \App\Core\Locale::current();
 $footerMenu = [];
 try {
@@ -42,7 +44,7 @@ try {
     \App\Core\Logger::swallowed('Подвал: не удалось загрузить меню для языка ' . $footerLang, $e);
 }
 $footerSocial = $hcfg['social_buttons'] ?? [];
-$footerBottom = \App\Core\FooterConfig::renderBottom($footerCfg['bottom'], $siteName);
+$footerBottom = \App\Core\FooterConfig::renderBottom(\App\Core\FooterConfig::bottomFor($footerCfg, $footerLang), $siteName);
 
 // Ссылки справа в строке копирайта. Собираются один раз: разметка нижней
 // строки повторяется у обоих стилей подвала, и вторая копия разъехалась бы
@@ -163,6 +165,7 @@ $renderFooterWidget = function (array $col) use ($footerLogo, $siteName, $addres
     <div class="site-footer__inner">
         <?php foreach ($footerCfg['columns'] as $col): ?>
             <?php
+            $col = \App\Core\FooterConfig::columnFor($col, $footerLang);
             $inner = $renderFooterWidget($col);
             $colClass = 'site-footer__col--' . $col['widget'];
             $widget2 = (string) ($col['widget2'] ?? '');
