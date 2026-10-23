@@ -26,7 +26,13 @@ echo \App\Core\SchemaOrg::render(\App\Core\SchemaOrg::breadcrumbs($crumbsSchema)
 <nav class="content-crumbs<?= !empty($crumbsClass) ? ' ' . htmlspecialchars((string) $crumbsClass, ENT_QUOTES) : '' ?>" aria-label="<?= htmlspecialchars(t('Хлебные крошки'), ENT_QUOTES) ?>">
     <?php $last = count($crumbs) - 1; ?>
     <?php foreach ($crumbs as $i => $c): ?>
-        <?php if (!empty($c['url']) && $i !== $last): ?>
+        <?php if ($i === 0 && !empty($c['url'])): ?>
+            <?php // Первый пункт — всегда главная: значок вместо слова экономит
+                  // строку на телефоне, где крошки иначе переносятся. Слово
+                  // остаётся для диктора и в разметке BreadcrumbList выше. ?>
+            <a class="content-crumbs__home" href="<?= htmlspecialchars((string) $c['url'], ENT_QUOTES) ?>"><?= \App\Core\Icon::render('home', 16, 'ui-icon') ?><span class="visually-hidden"><?= htmlspecialchars((string) $c['label'], ENT_QUOTES) ?></span></a>
+            <span aria-hidden="true">/</span>
+        <?php elseif (!empty($c['url']) && $i !== $last): ?>
             <a href="<?= htmlspecialchars((string) $c['url'], ENT_QUOTES) ?>"><?= htmlspecialchars((string) $c['label'], ENT_QUOTES) ?></a>
             <span aria-hidden="true">/</span>
         <?php else: ?>

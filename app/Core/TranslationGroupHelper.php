@@ -396,6 +396,18 @@ final class TranslationGroupHelper
             if (in_array($module, ['pages', 'projects'], true) && $newId > 0) {
                 self::copyBlocksForTranslation($pdo, $originalId, $newId, $targetLang);
             }
+            if ($module === 'news' && $newId > 0) {
+                // Галерея — те же снимки на любом языке, как обложка, видео и
+                // аудио выше. Без копии переводчик собирал её заново по одному
+                // файлу. Подписи и alt едут вместе со снимком: непереведённая
+                // подпись видна в форме и правится, а пропавшая молча оставляет
+                // фото без описания.
+                $pdo->prepare(
+                    'INSERT INTO news_images (news_id, path, alt_text, caption, credit, focal_x, focal_y, sort_order)
+                     SELECT :new_id, path, alt_text, caption, credit, focal_x, focal_y, sort_order
+                     FROM news_images WHERE news_id = :orig_id ORDER BY sort_order, id'
+                )->execute([':new_id' => $newId, ':orig_id' => $originalId]);
+            }
 
             if ($ownsTransaction) {
                 $pdo->commit();
