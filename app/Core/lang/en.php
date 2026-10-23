@@ -242,6 +242,7 @@ return [
     'Наверх' => 'To top',
     'Отзывы — прокрутка вбок' => 'Testimonials — scroll sideways',
     'Карточки — прокрутка вбок' => 'Cards — scroll sideways',
+    'Медиа — прокрутка вбок' => 'Media — scroll sideways',
     'Этапы — прокрутка вбок' => 'Stages — scroll sideways',
     'Партнёры' => 'Partners',
     'Партнёры — прокрутка вбок' => 'Partners — scroll sideways',

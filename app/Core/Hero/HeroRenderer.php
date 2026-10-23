@@ -268,6 +268,10 @@ final class HeroRenderer
             'hero--y-' . $alignY,
             'hero--content-' . $contentScheme,
         ];
+        $mobilePosition = (string) $s['text_position_mobile'];
+        if ($mobilePosition !== 'same') {
+            $classes[] = 'hero--mpos-' . $mobilePosition;
+        }
         if ($first) {
             $classes[] = 'is-active';
         }

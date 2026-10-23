@@ -80,6 +80,11 @@ final class HeroSettings
 
             // --- Раскладка контента ---
             'text_position' => 'left',
+            // Положение на телефоне — своё: текст у левого края узкого кадра
+            // висит над капсулой управления, стоящей по центру, и колонка
+            // читается сдвинутой. По умолчанию центр; «same» — как на
+            // компьютере.
+            'text_position_mobile' => 'center',
             'text_align_y' => 'center',
             'text_width' => '',
             'title_size' => 'l',
@@ -175,6 +180,7 @@ final class HeroSettings
                 : '',
 
             'text_position' => BlockDataInput::enum($input, 'text_position', ['left', 'center', 'right'], 'left'),
+            'text_position_mobile' => BlockDataInput::enum($input, 'text_position_mobile', ['same', 'left', 'center', 'right'], 'center'),
             'text_align_y' => BlockDataInput::enum($input, 'text_align_y', ['top', 'center', 'bottom'], 'center'),
             'text_width' => self::length($input, 'text_width_value', 'text_width_unit', ['px', '%', 'vw']),
             'title_size' => BlockDataInput::enum($input, 'title_size', ['s', 'm', 'l', 'xl'], 'l'),
@@ -231,6 +237,7 @@ final class HeroSettings
         $s['height_mobile_value'] = self::cssLength($s['height_mobile_value'] ?? '', ['px', 'vh', 'dvh', 'rem']);
 
         $s['text_position'] = $enum($s['text_position'] ?? '', ['left', 'center', 'right'], 'left');
+        $s['text_position_mobile'] = $enum($s['text_position_mobile'] ?? '', ['same', 'left', 'center', 'right'], 'center');
         $s['text_align_y'] = $enum($s['text_align_y'] ?? '', ['top', 'center', 'bottom'], 'center');
         $s['text_width'] = self::cssLength($s['text_width'] ?? '', ['px', '%', 'vw']);
         $s['title_size'] = $enum($s['title_size'] ?? '', ['s', 'm', 'l', 'xl'], 'l');

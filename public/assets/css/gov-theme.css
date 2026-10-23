@@ -4328,6 +4328,28 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
         scroll-snap-align: start;
     }
 }
+/* «Авто» у текстовых карточек: сетка на компьютере, полоса на телефоне —
+   та же доля кадра, что у карточек с фото, поэтому край следующей карточки
+   виден и подсказывает, что ряд листается. Карточки ряда одной высоты:
+   flex растягивает их по самой длинной. */
+@media (max-width: 560px) {
+    .cards-grid.cards-track--mobile {
+        display: flex;
+        grid-template-columns: none;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 4px;
+    }
+    .cards-track--mobile > * {
+        flex: 0 0 85%;
+        scroll-snap-align: start;
+    }
+}
+/* Управление полосой, которая бывает только на телефоне, стоит под ней — у
+   пальца, а не в шапке секции. Пока карточки помещаются, панель скрыта, и
+   пустой строки с отступом под сеткой оставаться не должно. */
+.carousel-foot { display: flex; justify-content: center; margin-top: var(--space-s, 16px); }
+.carousel-foot:has(> .carousel-nav[hidden]) { display: none; }
 @media (prefers-reduced-motion: reduce) {
     .carousel-nav__dot::before { transition: none; }
 }/* Медиа-галерея — карточки с play и длительностью. */
