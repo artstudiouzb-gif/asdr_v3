@@ -142,8 +142,12 @@ test('Подвал: меню в две дорожки только в широк
         'жёсткого columns: 2 не осталось'
     );
     // На телефоне подвал в одну колонку, дорожка меню во всю ширину — тогда
-    // «от 220px» снова даёт две полуколонки, поэтому явно возвращаем одну.
-    assert_contains('@media (max-width: 720px) { .site-footer--columns .site-footer__col--menu ul { columns: 1; } }', $css);
+    // «от 220px» даёт две газетные полуколонки с разъехавшимися строками.
+    // Поэтому там меню — сетка из двух колонок: строки идут рядами.
+    assert_true(
+        preg_match('/@media \(max-width: 720px\) \{[^@]*\.site-footer--columns \.site-footer__col--menu ul \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/', $css) === 1,
+        'на телефоне меню подвала — сетка из двух колонок'
+    );
 });
 
 test('FooterConfig: ссылки нижней строки — подпись, адрес, лимит и проверка href', function () {

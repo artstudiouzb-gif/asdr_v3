@@ -1436,13 +1436,10 @@ body.design-detail-sidebar .content-detail__aside .content-detail__row dt { colo
 .site-footer__line { margin: 6px 0; color: var(--text-muted); }
 .site-footer__line a { color: inherit; text-decoration: none; }
 .site-footer__line a:hover { color: var(--gov-teal); }
-.site-footer__col--menu ul { list-style: none; margin: 0; padding: 0; }
 .site-footer__widget + .site-footer__widget { margin-top: 24px; }
 .site-footer__col--menu li { margin: 8px 0; }
-.site-footer__col--menu a { text-decoration: none; color: var(--text-main); }
-.site-footer__col--menu a:hover { color: var(--gov-teal); }
 .site-footer__social { display: flex; gap: 8px; flex-wrap: wrap; margin: 0; }
-.site-footer__social-link { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--gov-navy); color: #fff; text-decoration: none; font-weight: 700; }/* Контакты подвала: иконка + значение. Список, а не абзацы — это перечень
+/* Контакты подвала: иконка + значение. Список, а не абзацы — это перечень
    однотипных строк, и диктор объявляет их числом. */
 
 .footer-contacts { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
@@ -1932,15 +1929,26 @@ p { line-height: var(--base-line-height, 1.6); }/* --- Шапка: глубин�
 .site-footer--columns .site-footer__col--menu li { margin-bottom: 10px; break-inside: avoid; }
 /* Ниже 720px подвал в одну колонку, и дорожка меню становится во всю ширину
    экрана — «не больше двух, каждая от 220px» тут снова даёт две полуколонки
-   с разъехавшимися строками. На телефоне список идёт одной. */
-@media (max-width: 720px) { .site-footer--columns .site-footer__col--menu ul { columns: 1; } }
+   с разъехавшимися строками. Поэтому на телефоне меню — сетка из двух
+   колонок, а не газетные колонки: строки идут рядами и не разъезжаются.
+   Одной колонкой каждый пункт занимал строку в 50px (зона касания 40px и
+   отступ), и семь разделов уводили контакты на второй экран подвала.
+   Отступ между пунктами снят — расстояние даёт сама зона касания.
+   Колонки подвала, вставшие одна под другую, разделены линией: без неё
+   меню, контакты и подписка читались одним списком (колонки есть только у
+   вида «Колонки», поэтому префикс вида здесь не нужен). */
+@media (max-width: 720px) {
+    .site-footer__col + .site-footer__col { padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, .1); }
+    .site-footer--columns .site-footer__col--menu ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 20px; }
+    .site-footer--columns .site-footer__col--menu li { margin: 0; }
+}
 
 .site-footer--columns .site-footer__bottom {
     border-top: 1px solid rgba(255, 255, 255, .12); color: rgba(255, 255, 255, .55);
     padding: 18px 0;
 }
 .site-footer__social-link {
-    display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 50%;
+    display: inline-grid; place-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%;
     background: rgba(255, 255, 255, .1); font-weight: 700;
     transition: background .15s ease, transform .15s ease;
 }
