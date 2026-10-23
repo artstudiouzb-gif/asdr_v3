@@ -17,7 +17,7 @@ $showEmblem = !isset($showEmblem) || (bool) $showEmblem;
 $docIndex = isset($docIndex) ? (int) $docIndex : 0;
 ?>
 <article
-    class="feature-card act-card<?= $presented['cover'] !== '' ? ' act-card--cover' : '' ?><?= $number === '' ? ' act-card--no-number' : '' ?>"
+    class="feature-card act-card<?= $number === '' ? ' act-card--no-number' : '' ?>"
     data-document-card
     data-document-kind="<?= htmlspecialchars($presented['extension'], ENT_QUOTES) ?>"
     data-document-search="<?= htmlspecialchars(trim($presented['search'] . ' ' . mb_strtolower($number . ' ' . $date)), ENT_QUOTES) ?>"
@@ -36,9 +36,7 @@ $docIndex = isset($docIndex) ? (int) $docIndex : 0;
     <?php /* Без номера акта название и есть заголовок карточки: у изданий и
              отчётов реквизитов нет, и обычным текстом оно терялось. */ ?>
     <p class="feature-card__text act-card__desc"><?= htmlspecialchars($presented['title'], ENT_QUOTES) ?></p>
-    <?php if ($presented['description'] !== ''): ?>
-        <div class="doc-desc act-card__summary"><?= $presented['description'] ?></div>
-    <?php endif; ?>
+    <?php $summaryClass = 'act-card__summary'; include __DIR__ . '/document_summary.php'; ?>
     <?php /* У акта без файла подвал пуст: его линия висела бы под названием
              как обрыв карточки, поэтому партиал без файлов не печатает ничего. */ ?>
     <?php $filesClass = 'act-card__foot'; include __DIR__ . '/document_files.php'; ?>

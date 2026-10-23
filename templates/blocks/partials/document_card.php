@@ -3,7 +3,7 @@
 use App\Core\DocumentPresenter;
 
 /**
- * Карточка документа: лицо (обложка или лист формата), название, описание и
+ * Карточка документа: лист формата, название, описание с фото обложки и
  * файлы — главный на языке страницы плюс переводы. Карточка — `<article>`, а
  * не ссылка: у документа бывает несколько файлов, и ссылки переводов внутри
  * ссылки-карточки браузер разорвал бы. Кликабельна она всё равно целиком —
@@ -16,17 +16,15 @@ $presented = DocumentPresenter::prepare($doc);
 $compact = !empty($compact);
 ?>
 <article
-    class="doc-card<?= $compact ? ' doc-card--compact' : '' ?><?= $presented['cover'] !== '' ? ' doc-card--cover' : '' ?>"
+    class="doc-card<?= $compact ? ' doc-card--compact' : '' ?>"
     data-document-card
     data-document-kind="<?= htmlspecialchars($presented['extension'], ENT_QUOTES) ?>"
     data-document-search="<?= htmlspecialchars($presented['search'], ENT_QUOTES) ?>"
 >
     <?php include __DIR__ . '/document_visual.php'; ?>
-    <span class="doc-card__body">
+    <div class="doc-card__body">
         <span class="doc-card__title"><?= htmlspecialchars($presented['title'], ENT_QUOTES) ?></span>
-        <?php if ($presented['description'] !== ''): ?>
-            <span class="doc-desc"><?= $presented['description'] ?></span>
-        <?php endif; ?>
+        <?php $summaryClass = ''; include __DIR__ . '/document_summary.php'; ?>
         <?php $filesClass = ''; include __DIR__ . '/document_files.php'; ?>
-    </span>
+    </div>
 </article>

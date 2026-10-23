@@ -88,7 +88,7 @@ test('Документ: длинная «мета» — это описание,
     assert_same('PDF, 2 МБ', $short['meta']);
 });
 
-test('Документ: обложка встаёт вместо листа формата', function (): void {
+test('Документ: обложка встаёт в описание, лист формата остаётся', function (): void {
     $rendered = BlockRenderer::render([
         'id' => 4392,
         'type' => 'docs_list',
@@ -104,10 +104,11 @@ test('Документ: обложка встаёт вместо листа фо
     ]);
     $html = (string) $rendered['html'];
 
-    assert_contains('doc-visual--cover', $html);
-    assert_contains('doc-card--cover', $html);
+    assert_contains('class="doc-desc doc-desc--cover"', $html);
+    assert_contains('doc-desc__img', $html);
     assert_not_contains('javascript:', $html);
-    assert_same(1, substr_count($html, 'doc-sheet--pdf'), 'карточка с негодной обложкой получает лист');
+    assert_same(2, substr_count($html, 'doc-sheet--pdf'), 'лист формата есть у обеих карточек');
+    assert_same(1, substr_count($html, 'doc-desc__cover'), 'негодная обложка не выводится');
 });
 
 test('Документ: своя подпись формата главнее автоматической', function (): void {
