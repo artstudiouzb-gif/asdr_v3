@@ -930,11 +930,18 @@ final class BlockController
                     // безопасные адреса. Пустые не храним — «нет перевода» и
                     // «пустая строка» на выводе значат одно и то же.
                     $files = [];
+                    $fileLabels = [];
                     $sentFiles = is_array($item['files'] ?? null) ? $item['files'] : [];
+                    $sentLabels = is_array($item['file_labels'] ?? null) ? $item['file_labels'] : [];
                     foreach (\App\Models\Language::activeCodes() as $code) {
                         $fileUrl = trim((string) ($sentFiles[$code] ?? ''));
                         if ($fileUrl !== '' && \App\Core\UrlGuard::isSafeLink($fileUrl)) {
                             $files[$code] = $fileUrl;
+                            // Название ссылки без файла не храним: подписывать нечего.
+                            $fileLabel = self::linkLabel($sentLabels[$code] ?? '');
+                            if ($fileLabel !== '') {
+                                $fileLabels[$code] = $fileLabel;
+                            }
                         }
                     }
                     $description = trim((string) ($item['description'] ?? ''));
@@ -948,7 +955,9 @@ final class BlockController
                         'cover' => $cover,
                         'meta' => trim((string) ($item['meta'] ?? '')),
                         'url' => $url,
+                        'link_label' => $url !== '' ? self::linkLabel($item['link_label'] ?? '') : '',
                         'files' => $files,
+                        'file_labels' => $fileLabels,
                         // Реквизиты акта: показываются только в варианте
                         // «Правовые акты», в остальных лежат про запас.
                         'number' => trim((string) ($item['number'] ?? '')),
@@ -994,6 +1003,17 @@ final class BlockController
             default:
                 return [];
         }
+    }
+
+    /**
+     * Название ссылки документа: одна строка без разметки и не длиннее
+     * кнопки — подпись в 80 знаков разорвала бы ряд файлов.
+     */
+    private static function linkLabel(mixed $value): string
+    {
+        $label = trim((string) preg_replace('/\s+/u', ' ', strip_tags(is_string($value) ? $value : '')));
+
+        return mb_substr($label, 0, 60);
     }
 
     /**
