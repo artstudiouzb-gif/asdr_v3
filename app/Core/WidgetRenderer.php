@@ -234,7 +234,7 @@ final class WidgetRenderer
             case 'contacts':
                 $data['phone'] = Setting::get('contact_phone');
                 $data['email'] = Setting::get('contact_email');
-                $data['address'] = Setting::get('contact_address');
+                $data['address'] = Setting::getLocalized('contact_address', $lang);
                 $data['social'] = HeaderConfig::get()['social_buttons'];
                 break;
         }

@@ -62,6 +62,10 @@ final class FooterConfig
         ],
         // Плейсхолдеры: {year} — текущий год, {site} — название сайта.
         'bottom' => '© {year} {site}',
+        // Копирайт на других языках: {код языка: текст}. Пустое значение —
+        // общий текст выше. Без этой карты строка, набранная на основном
+        // языке, выводилась одинаково на всех версиях сайта.
+        'bottom_by_lang' => [],
         // Ссылки справа в строке копирайта: [{label, url}].
         'bottom_links' => [],
         // Фон подвала: те же режимы, что и у секции страницы (цвет, градиент,
@@ -106,6 +110,57 @@ final class FooterConfig
      * Разворачивает плейсхолдеры нижней строки ({year}, {site}) и очищает от
      * разметки (простой текст). Чистая функция для рендера и тестов.
      */
+    /**
+     * Шаблон копирайта для языка страницы: свой текст языка или общий.
+     *
+     * @param array<string, mixed> $config
+     */
+    public static function bottomFor(array $config, string $lang): string
+    {
+        $own = (string) (((array) ($config['bottom_by_lang'] ?? []))[strtolower($lang)] ?? '');
+
+        return $own !== '' ? $own : (string) ($config['bottom'] ?? self::DEFAULTS['bottom']);
+    }
+
+    /**
+     * Колонка на языке страницы: свой заголовок и тексты языка поверх общих.
+     *
+     * @param array<string, mixed> $col
+     * @return array<string, mixed>
+     */
+    public static function columnFor(array $col, string $lang): array
+    {
+        $lang = strtolower($lang);
+        foreach (['heading', 'text', 'text2'] as $field) {
+            $own = (string) (((array) ($col[$field . '_by_lang'] ?? []))[$lang] ?? '');
+            if ($own !== '') {
+                $col[$field] = $own;
+            }
+        }
+
+        return $col;
+    }
+
+    /**
+     * Значения по кодам языков: чужой код и пустой текст отбрасываются.
+     *
+     * @param callable(string): string $clean
+     * @return array<string, string>
+     */
+    private static function langMap(mixed $map, callable $clean): array
+    {
+        $result = [];
+        foreach ((array) $map as $code => $text) {
+            $code = strtolower(trim((string) $code));
+            $text = is_string($text) ? $clean($text) : '';
+            if (preg_match('/^[a-z]{2,5}$/', $code) === 1 && $text !== '') {
+                $result[$code] = $text;
+            }
+        }
+
+        return $result;
+    }
+
     public static function renderBottom(string $template, string $siteName): string
     {
         $out = strtr($template, [
@@ -172,12 +227,21 @@ final class FooterConfig
                 $text2 = (in_array($widget2, self::TEXT_WIDGETS, true) && trim($text2) !== '')
                     ? HtmlSanitizer::sanitize($text2)
                     : '';
+                $heading = static fn (string $value): string => mb_substr(trim($value), 0, 100);
+                $html = static fn (string $value): string => trim($value) !== '' ? HtmlSanitizer::sanitize($value) : '';
                 $columns[] = [
-                    'heading' => mb_substr(trim((string) ($col['heading'] ?? '')), 0, 100),
+                    'heading' => $heading((string) ($col['heading'] ?? '')),
                     'widget' => $widget,
                     'text' => $text,
                     'widget2' => $widget2,
                     'text2' => $text2,
+                    // Свои тексты колонки на других языках. Пусто — общий текст:
+                    // колонку переводят не целиком, а там, где текст есть.
+                    'heading_by_lang' => self::langMap($col['heading_by_lang'] ?? [], $heading),
+                    'text_by_lang' => in_array($widget, self::TEXT_WIDGETS, true)
+                        ? self::langMap($col['text_by_lang'] ?? [], $html) : [],
+                    'text2_by_lang' => in_array($widget2, self::TEXT_WIDGETS, true)
+                        ? self::langMap($col['text2_by_lang'] ?? [], $html) : [],
                 ];
                 if (count($columns) >= self::MAX_COLUMNS) {
                     break;
@@ -192,6 +256,10 @@ final class FooterConfig
         if ($result['bottom'] === '') {
             $result['bottom'] = self::DEFAULTS['bottom'];
         }
+        $result['bottom_by_lang'] = self::langMap(
+            $config['bottom_by_lang'] ?? [],
+            static fn (string $value): string => mb_substr(trim($value), 0, 300)
+        );
         $result['bottom_links'] = self::normalizeBottomLinks($config['bottom_links'] ?? null);
         $result['v'] = self::VERSION;
 
