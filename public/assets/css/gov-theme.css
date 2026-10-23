@@ -3889,6 +3889,15 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
        иначе 50vw и подобные значения сжимают текст в узкий столбик. */
     
     .block-hero .block-hero__text { max-width: none; }
+    /* Крошки на обложке лежат поверх неё абсолютно и места под себя не
+       оставляют: на телефоне они переносятся на вторую строку и заезжали на
+       надзаголовок (замерено на 475px: крошки до 148px, надзаголовок с 144).
+       Здесь крошки встают в поток своей строкой, а надзаголовок под ними
+       скрыт — на узком экране крошки уже называют место страницы. */
+    .block-hero:has(> .content-crumbs--on-hero) { flex-wrap: wrap; align-content: flex-start; }
+    .block-hero > .content-crumbs--on-hero { position: relative; top: auto; flex: 0 0 100%; padding-bottom: 20px; }
+    .hero:has(> .content-crumbs--on-hero) .hero__inner { padding-top: calc(var(--space-l) + 3.5em); }
+    :is(.block-hero, .hero):has(> .content-crumbs--on-hero) :is(.block-hero__eyebrow, .hero__eyebrow) { display: none; }
 }/* Заголовок секции: серифный + ссылка «Все …». */
 
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
@@ -6555,7 +6564,6 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 }
 .doc-card:hover .doc-card__dl { background: var(--gov-navy); color: #ffffff; transform: scale(1.06); }/* --- Наши преимущества (Advantages Block) --- */
 
-.advantages-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px; }
 /* Собственные правила «Преимуществ» удалены вместе с типом: карточку и её
    шапку рисуют общие `.feature-card` и `.section-head`. Пока копия жила рядом,
    она молча расходилась с оригиналом — подложка иконки у «Карточек» давно
@@ -6681,30 +6689,9 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     }
 }/* --- Этапы реализации / Дорожная карта (Stages Block) --- */
 
-.block-stages__list { display: flex; flex-direction: column; gap: 20px; position: relative; }
-.block-stages__list::before {
-    content: ''; position: absolute; top: 20px; bottom: 20px; left: 24px; width: 2px;
-    background: color-mix(in srgb, var(--gov-teal) 30%, var(--gov-border));
-}
-.stage-item {
-    display: grid; grid-template-columns: 50px 1fr; gap: 20px; align-items: start;
-    position: relative; z-index: 1;
-}
-.stage-item__num {
-    display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%;
-    background: var(--gov-surface); border: 2px solid var(--gov-teal);
-    color: var(--gov-teal-text); font-weight: 800; font-size: var(--step-1);
-    box-shadow: var(--shadow-control);
-}
-.stage-item--active .stage-item__num {
-    background: var(--gov-navy); border-color: var(--gov-navy); color: #ffffff;
-}
-.stage-item__body {
-    padding: 20px 24px; border: 1px solid var(--gov-border); border-radius: var(--radius);
-    background: var(--gov-surface); box-shadow: var(--card-shadow);
-}
-.stage-item__title { font-weight: 700; font-size: var(--step-0); color: var(--section-title-fg); margin: 0 0 6px; }
-.stage-item__text { color: var(--gov-muted, #475569); font-size: var(--step--1); line-height: var(--base-line-height, 1.55); margin: 0; }
+/* Прежний список этапов (`.block-stages__list`, `.stage-item`) снят: шаблон
+   «Этапов» давно рисует ленту и список своими классами, а эти правила не
+   срабатывали ни на одной странице. */
 
 /* Пульсация текущего этапа отключается при системном запросе «меньше
    движения». Правило стоит в конце файла намеренно: выше определения
