@@ -922,10 +922,33 @@ final class BlockController
                     if ($url !== '' && !\App\Core\UrlGuard::isSafeLink($url)) {
                         $url = '';
                     }
+                    $cover = trim((string) ($item['cover'] ?? ''));
+                    if ($cover !== '' && !\App\Core\UrlGuard::isSafeMedia($cover)) {
+                        $cover = '';
+                    }
+                    // Версии файла по языкам: только активные языки и только
+                    // безопасные адреса. Пустые не храним — «нет перевода» и
+                    // «пустая строка» на выводе значат одно и то же.
+                    $files = [];
+                    $sentFiles = is_array($item['files'] ?? null) ? $item['files'] : [];
+                    foreach (\App\Models\Language::activeCodes() as $code) {
+                        $fileUrl = trim((string) ($sentFiles[$code] ?? ''));
+                        if ($fileUrl !== '' && \App\Core\UrlGuard::isSafeLink($fileUrl)) {
+                            $files[$code] = $fileUrl;
+                        }
+                    }
+                    $description = trim((string) ($item['description'] ?? ''));
                     $items[] = [
                         'title' => TextProcessor::typographPlain($itemTitle, $locale),
+                        // Описание из мини-редактора: та же разметка, что у
+                        // лида (абзацы, выделение, списки, ссылки).
+                        'description' => $description !== ''
+                            ? TextProcessor::process(\App\Core\HtmlSanitizer::sanitizeLead($description), $locale)
+                            : '',
+                        'cover' => $cover,
                         'meta' => trim((string) ($item['meta'] ?? '')),
                         'url' => $url,
+                        'files' => $files,
                         // Реквизиты акта: показываются только в варианте
                         // «Правовые акты», в остальных лежат про запас.
                         'number' => trim((string) ($item['number'] ?? '')),

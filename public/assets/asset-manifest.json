@@ -14,11 +14,11 @@
       "/assets/css/public-editorial-pages.css",
       "/assets/css/public-home.css"
     ],
-    "sourceSha256": "9a0ffbc51ec72a24d68c5ece6ae4d2b062ab1b9bb6d8c48db9c74c5ba8a72171",
-    "sha256": "97e1946525db1cd8d8a0ceb1f220b6495c7fa8caf22571d594c7e932f1558c12",
-    "raw": 408085,
-    "gzip": 68667,
-    "brotli": 53246
+    "sourceSha256": "8e26cd57e04b80f56956f4aa1b9378bf78b220656f545a721b5849ac9ccfc6cd",
+    "sha256": "d252afb8a373d8c3e398396e0aff3a9109c67637db8458d7c78a5fcabf8a94bc",
+    "raw": 405587,
+    "gzip": 68289,
+    "brotli": 52938
   },
   "js": {
     "path": "/assets/js/public.min.js",
@@ -89,6 +89,14 @@
       "raw": 587,
       "gzip": 298,
       "brotli": 229
+    },
+    "/assets/css/blocks/documents.css": {
+      "path": "/assets/css/blocks/documents.min.css",
+      "sourceSha256": "15052a5496f285ccf41247668ed0b3f2ee4970af3ddc74f528aa45b037a83c65",
+      "sha256": "1dc1ef42f8d22ec5f63ed934b76421457c986dbac22d13ec07ad99cbed21ecca",
+      "raw": 5217,
+      "gzip": 1650,
+      "brotli": 1384
     },
     "/assets/css/blocks/embed.css": {
       "path": "/assets/css/blocks/embed.min.css",

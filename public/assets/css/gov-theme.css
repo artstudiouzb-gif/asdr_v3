@@ -2107,9 +2107,8 @@ body.lightbox-active { overflow: hidden; }
         transform: translateY(-2px);
     }
     :where(.news-card__link,
-        .newsdocs-item, .doc-card, .album-card, .cat-tile,
-        .mediacard):hover :where(
-        .doc-card__dl, .news-card__more) {
+        .newsdocs-item, .album-card, .cat-tile,
+        .mediacard):hover :where(.news-card__more) {
         transform: translateX(3px);
     }
 }
@@ -2121,7 +2120,7 @@ body.lightbox-active { overflow: hidden; }
     transform: translateY(0);
 }
 
-:where( .doc-card__dl, .news-card__more) {
+:where(.news-card__more) {
     transition: transform .18s ease, color .18s ease;
 }/* Grid/flex-элементы не должны расширять страницу длинным заголовком или URL. */
 
@@ -2195,8 +2194,6 @@ body.lightbox-active { overflow: hidden; }
         grid-template-columns: 80px minmax(0, 1fr) auto;
         gap: 12px;
     }
-    .doc-card { grid-template-columns: auto minmax(0, 1fr); gap: 12px; }
-    .doc-card__dl { grid-column: 2; justify-self: start; }
     .section-head { align-items: flex-start; }
 }
 
@@ -4755,19 +4752,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
 .newsdocs-item__title { font-weight: 700; color: var(--section-title-fg); line-height: 1.35; font-size: var(--step--1); }
 .newsdocs-item:hover .newsdocs-item__title { color: var(--gov-teal); }
 .newsdocs-docs { display: flex; flex-direction: column; gap: 14px; }
-.doc-card__icon { 
-    display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); 
-    background: color-mix(in srgb, var(--gov-teal) 12%, var(--gov-surface)); color: var(--gov-teal); 
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s, color 0.3s;
-}
-.doc-card:hover .doc-card__icon {
-    transform: scale(1.08) rotate(4deg);
-    background: var(--gov-teal);
-    color: #fff;
-}
-.doc-card__body { display: flex; flex-direction: column; gap: 4px; }
-.doc-card__title { font-weight: 700; color: var(--gov-title); font-size: var(--step--1); line-height: 1.35; transition: color 0.3s ease; }
-.doc-card__meta { color: var(--gov-muted); font-size: var(--step--3); text-transform: uppercase; letter-spacing: .04em; }/* CTA-полоса (navy) «Есть вопросы или предложения?». */
+/* CTA-полоса (navy) «Есть вопросы или предложения?». */
 
 .block-ctaband { 
     display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; 
@@ -6293,12 +6278,8 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     border-top: 1px solid var(--gov-border);
 }/* Длинное описание источника не должно выдавливать кнопку за карточку. */
 
-.act-card__meta { display: inline-flex; align-items: center; gap: 6px; min-width: 0; flex: 1 1 auto; color: var(--gov-muted); font-size: var(--font-size-meta, var(--step--3)); text-transform: uppercase; letter-spacing: var(--meta-letter-spacing, .04em); }
-.act-card__meta-icon { flex: none; }
-.act-card__action { display: inline-flex; align-items: center; gap: 6px; flex: none; color: var(--gov-teal-text); font-weight: 700; font-size: var(--font-size-btn, var(--step--2)); }
-.act-card:hover .act-card__action { gap: 9px; }
 @media (prefers-reduced-motion: reduce) {
-    .act-card, .act-card__action { transition: none; }
+    .act-card { transition: none; }
     .act-card:hover { transform: none; }
 }/* ==========================================================================
    Подпись к фотографии — один компонент на галерею новости, фотоленту и
@@ -6552,8 +6533,8 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
 .document-tools__search input { border: 0; background: transparent; outline: none; color: var(--gov-ink); font: inherit; }
 
 .doc-card {
-    display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
-    padding: 16px 18px; border: 1px solid var(--gov-border); border-radius: var(--radius);
+    position: relative; display: flex; flex-wrap: wrap; gap: 16px 18px; align-items: flex-start;
+    padding: 20px; border: 1px solid var(--gov-border); border-radius: var(--radius);
     background: var(--gov-surface); text-decoration: none; color: var(--gov-ink);
     box-shadow: var(--card-shadow);
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -6563,28 +6544,10 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     border-color: color-mix(in srgb, var(--gov-teal) 40%, var(--gov-border));
     box-shadow: var(--shadow-hover);
 }
-.doc-card__icon {
-    display: grid; place-items: center; width: 44px; height: 44px;
-    border-radius: var(--radius-sm); background: color-mix(in srgb, var(--gov-navy) 8%, var(--gov-surface));
-    color: var(--gov-teal-text); flex-shrink: 0;
-}
-.doc-card[data-document-kind="pdf"] .doc-card__icon { background: #fff1f2; color: #e11d48; }
-.doc-card[data-document-kind="doc"] .doc-card__icon,
-.doc-card[data-document-kind="docx"] .doc-card__icon { background: #eff6ff; color: #2563eb; }
-.doc-card[data-document-kind="xls"] .doc-card__icon,
-.doc-card[data-document-kind="xlsx"] .doc-card__icon { background: #f0fdf4; color: #16a34a; }
 
-.doc-card__title { font-weight: 700; font-size: var(--step--1); color: var(--gov-title); line-height: 1.35; display: block; }
+.doc-card__title { font-weight: 700; font-size: var(--font-size-card-title, var(--step-0)); color: var(--gov-title); line-height: 1.35; display: block; }
 .doc-card:hover .doc-card__title { color: var(--gov-teal-text); }
-.doc-card__meta { display: block; color: var(--gov-muted, #475569); font-size: var(--step--3); font-weight: 600; margin-top: 3px; }
-.doc-card__dl {
-    /* 44px — минимальная цель для касания: кнопка скачивания круглая и стояла
-       34px, то есть меньше нормы, хотя рядом карусель уже приведена к 44. */
-    display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
-    background: color-mix(in srgb, var(--gov-navy) 6%, transparent); color: var(--gov-title);
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-.doc-card:hover .doc-card__dl { background: var(--gov-navy); color: #ffffff; transform: scale(1.06); }/* --- Наши преимущества (Advantages Block) --- */
+/* --- Наши преимущества (Advantages Block) --- */
 
 /* Собственные правила «Преимуществ» удалены вместе с типом: карточку и её
    шапку рисуют общие `.feature-card` и `.section-head`. Пока копия жила рядом,
@@ -6639,8 +6602,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     box-shadow: var(--shadow-hover);
 }
 
-.feature-card .contact-card__icon,
-.feature-card .act-card__editorial-icon {
+.feature-card .contact-card__icon {
     width: 44px;
     height: 44px;
     margin: 0;
@@ -6649,8 +6611,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow-panel > .s
     color: var(--gov-teal-text);
 }
 
-.feature-card:hover .contact-card__icon,
-.feature-card:hover .act-card__editorial-icon {
+.feature-card:hover .contact-card__icon {
     transform: scale(1.06);
     background-color: var(--gov-navy);
     color: #fff;

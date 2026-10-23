@@ -59,6 +59,10 @@ final class AssetCollector
         // Ключ совпадает с типом блока — подключение происходит само,
         // когда блок есть на странице (BlockRenderer::renderPage).
         'counters' => '/assets/css/blocks/counters.css',
+        // Документы: лист формата, обложка и файлы по языкам. Карточку
+        // документа рисуют два типа блока, поэтому и ключа два.
+        'docs_list' => '/assets/css/blocks/documents.css',
+        'news_docs' => '/assets/css/blocks/documents.css',
     ];
 
     /**
@@ -122,8 +126,15 @@ final class AssetCollector
     public static function renderThemeStyles(): string
     {
         $html = '';
+        $seen = [];
         foreach (array_keys(self::$themeParts) as $key) {
+            // Несколько типов делят одну часть (документы, новости): второй
+            // `<link>` на тот же файл — лишний запрос и повтор каскада.
             $url = Asset::url(FrontendAssets::blockAsset(self::THEME_PART_MAP[$key]));
+            if (isset($seen[$url])) {
+                continue;
+            }
+            $seen[$url] = true;
             $html .= '<link rel="stylesheet" href="' . htmlspecialchars($url, ENT_QUOTES) . '" data-theme-part>' . "\n";
         }
 

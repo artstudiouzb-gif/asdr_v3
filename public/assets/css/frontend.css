@@ -2970,7 +2970,7 @@ input[type="text"], input[type="email"], input[type="password"], input[type="sea
 .faq-tools select { padding: 9px 34px 9px 12px; }
 .document-tools__count { color: var(--gov-muted); font-size: var(--step--2); }
 .doc-card[hidden], .faq-item[hidden] { display: none; }
-.doc-card__action { font-size: var(--step--4); color: var(--gov-teal-text); }
+
 
 .faq-item__category {
     flex: 0 0 auto;

@@ -1683,44 +1683,63 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
 
         <?php if ($type === 'docs_list'): ?>
             <?= \App\Core\BlockData\BlockFieldSchema::formHtml('docs_list', $data) ?>
+            <?php
+            // Строка документа печатается одной функцией — и для сохранённых
+            // строк, и для шаблона новой: две копии разметки репитера уже
+            // расходились в соседних блоках (подсказка была только у одной).
+            $docLanguages = \App\Models\Language::active();
+            $docRow = static function (string $idx, array $item) use ($docLanguages): string {
+                $esc = static fn (mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES);
+                $name = static fn (string $field): string => 'items[' . $idx . '][' . $field . ']';
+                $fileField = static function (string $fieldName, string $label, string $value, string $hint = '') use ($esc): string {
+                    return '<div class="form-field"><label>' . $esc($label) . '</label>'
+                        . '<div class="u-inline-b9bbe540d3">'
+                        . '<input class="u-inline-7623f05545" type="text" name="' . $esc($fieldName) . '" value="' . $esc($value) . '">'
+                        . '<button type="button" class="btn btn--secondary btn--small" data-media-pick data-media-target="[name=\'' . $esc($fieldName) . '\']" data-media-type="all_files">Выбрать</button>'
+                        . '</div>'
+                        . ($hint !== '' ? '<span class="form-hint">' . $esc($hint) . '</span>' : '')
+                        . '</div>';
+                };
+                $files = is_array($item['files'] ?? null) ? $item['files'] : [];
+
+                $html = '<div class="form-field"><label>Название</label><input type="text" name="' . $name('title') . '" value="' . $esc($item['title'] ?? '') . '"></div>'
+                    . '<div class="form-field"><label>Описание</label><textarea name="' . $name('description') . '" data-mini-editor>' . $esc($item['description'] ?? '') . '</textarea>'
+                    . '<span class="form-hint">О чём документ и кому он нужен. Жирный, курсив, списки и ссылки. Выводится обычным текстом, не заглавными.</span></div>'
+                    . \App\Core\AdminUi::imageField($name('cover'), (string) ($item['cover'] ?? ''), [
+                        'label' => 'Обложка (необязательно)',
+                        'hint' => 'Первая страница издания или титул отчёта — встанет вместо значка формата.',
+                    ])
+                    . $fileField($name('url'), 'Файл', (string) ($item['url'] ?? ''), 'Общий файл для всех языков. Если ниже загружен перевод на язык страницы, по главной кнопке скачивается он.');
+
+                if (count($docLanguages) > 1) {
+                    $html .= '<fieldset class="bf-group"><legend>Файл на других языках</legend>'
+                        . '<p class="form-hint">Посетитель скачивает версию на языке страницы, остальные видит рядом подписями языков.</p>';
+                    foreach ($docLanguages as $language) {
+                        $code = (string) $language['code'];
+                        $html .= $fileField('items[' . $idx . '][files][' . $code . ']', (string) $language['name'], (string) ($files[$code] ?? ''));
+                    }
+                    $html .= '</fieldset>';
+                }
+
+                $html .= '<div class="form-field"><label>Номер акта</label><input type="text" name="' . $name('number') . '" value="' . $esc($item['number'] ?? '') . '" placeholder="ПФ-6079"><span class="form-hint">Показывается в варианте «Правовые акты».</span></div>'
+                    . '<div class="form-field"><label>Дата акта</label><input type="text" name="' . $name('date') . '" value="' . $esc($item['date'] ?? '') . '" placeholder="12 марта 2026 г."></div>'
+                    . '<div class="form-field"><label>Подпись формата (необязательно)</label><input type="text" name="' . $name('meta') . '" value="' . $esc($item['meta'] ?? '') . '" placeholder="PDF · 2,4 МБ">'
+                    . '<span class="form-hint">Формат и размер локального файла определяются сами. Текст о документе пишите в «Описание».</span></div>'
+                    . '<button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше">' . \App\Core\AdminUi::icon('arrow-up') . '</button>'
+                    . '<button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже">' . \App\Core\AdminUi::icon('arrow-down') . '</button>'
+                    . '<button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove>' . \App\Core\AdminUi::icon('trash') . 'Удалить</button>';
+
+                return $html;
+            };
+            ?>
             <div>
                 <label>Документы</label>
                 <div data-repeater="items">
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
-                        <div class="repeater-row">
-                            <div class="form-field"><label>Название</label><input type="text" name="items[<?= $i ?>][title]" value="<?= htmlspecialchars($item['title'] ?? '', ENT_QUOTES) ?>"></div>
-                            <div class="form-field"><label>Мета (необязательно)</label><input type="text" name="items[<?= $i ?>][meta]" value="<?= htmlspecialchars($item['meta'] ?? '', ENT_QUOTES) ?>"><span class="form-hint">Формат и размер локального файла определяются автоматически.</span></div>
-                            <div class="form-field"><label>Номер акта</label><input type="text" name="items[<?= $i ?>][number]" value="<?= htmlspecialchars($item['number'] ?? '', ENT_QUOTES) ?>" placeholder="ПФ-6079"><span class="form-hint">Показывается в варианте «Правовые акты».</span></div>
-                            <div class="form-field"><label>Дата акта</label><input type="text" name="items[<?= $i ?>][date]" value="<?= htmlspecialchars($item['date'] ?? '', ENT_QUOTES) ?>" placeholder="12 марта 2026 г."></div>
-                            <div class="form-field">
-                                <label>Ссылка на файл</label>
-                                <div class="u-inline-b9bbe540d3">
-                                    <input class="u-inline-7623f05545" type="text" name="items[<?= $i ?>][url]" value="<?= htmlspecialchars($item['url'] ?? '', ENT_QUOTES) ?>">
-                                    <button type="button" class="btn btn--secondary btn--small" data-media-pick data-media-target="[name='items[<?= $i ?>][url]']" data-media-type="all_files">Выбрать</button>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
-                            <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
-                            <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
-                        </div>
+                        <div class="repeater-row"><?= $docRow((string) $i, is_array($item) ? $item : []) ?></div>
                     <?php endforeach; ?>
                 </div>
-                <template data-repeater-template="items">
-                    <div class="form-field"><label>Название</label><input type="text" name="items[__INDEX__][title]"></div>
-                    <div class="form-field"><label>Мета</label><input type="text" name="items[__INDEX__][meta]"></div>
-                    <div class="form-field"><label>Номер акта</label><input type="text" name="items[__INDEX__][number]" placeholder="ПФ-6079"></div>
-                    <div class="form-field"><label>Дата акта</label><input type="text" name="items[__INDEX__][date]" placeholder="12 марта 2026 г."></div>
-                    <div class="form-field">
-                        <label>Ссылка на файл</label>
-                        <div class="u-inline-b9bbe540d3">
-                            <input class="u-inline-7623f05545" type="text" name="items[__INDEX__][url]">
-                            <button type="button" class="btn btn--secondary btn--small" data-media-pick data-media-target="[name='items[__INDEX__][url]']" data-media-type="all_files">Выбрать</button>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn--small" data-repeater-move="up" aria-label="Переместить выше" title="Переместить выше"><?= \App\Core\AdminUi::icon('arrow-up') ?></button>
-                    <button type="button" class="btn btn--small" data-repeater-move="down" aria-label="Переместить ниже" title="Переместить ниже"><?= \App\Core\AdminUi::icon('arrow-down') ?></button>
-                    <button type="button" class="btn btn--small btn--danger repeater-row__remove" data-repeater-remove><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
-                </template>
+                <template data-repeater-template="items"><?= $docRow('__INDEX__', []) ?></template>
                 <div class="repeater-actions"><button type="button" class="btn btn--small" data-repeater-add="items"><?= \App\Core\AdminUi::icon('plus') ?>Добавить документ</button></div>
             </div>
         <?php endif; ?>
