@@ -1691,32 +1691,36 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
             $docRow = static function (string $idx, array $item) use ($docLanguages): string {
                 $esc = static fn (mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES);
                 $name = static fn (string $field): string => 'items[' . $idx . '][' . $field . ']';
-                $fileField = static function (string $fieldName, string $label, string $value, string $hint = '') use ($esc): string {
+                // Рядом с каждым файлом — название его ссылки: пусто значит
+                // «Скачать» у главной кнопки и название языка у перевода.
+                $fileField = static function (string $fieldName, string $label, string $value, string $labelName, string $labelValue, string $labelPlaceholder, string $hint = '') use ($esc): string {
                     return '<div class="form-field"><label>' . $esc($label) . '</label>'
                         . '<div class="u-inline-b9bbe540d3">'
                         . '<input class="u-inline-7623f05545" type="text" name="' . $esc($fieldName) . '" value="' . $esc($value) . '">'
                         . '<button type="button" class="btn btn--secondary btn--small" data-media-pick data-media-target="[name=\'' . $esc($fieldName) . '\']" data-media-type="all_files">Выбрать</button>'
                         . '</div>'
+                        . '<input type="text" name="' . $esc($labelName) . '" value="' . $esc($labelValue) . '" placeholder="' . $esc($labelPlaceholder) . '" aria-label="' . $esc('Название ссылки: ' . $label) . '">'
                         . ($hint !== '' ? '<span class="form-hint">' . $esc($hint) . '</span>' : '')
                         . '</div>';
                 };
                 $files = is_array($item['files'] ?? null) ? $item['files'] : [];
+                $fileLabels = is_array($item['file_labels'] ?? null) ? $item['file_labels'] : [];
 
                 $html = '<div class="form-field"><label>Название</label><input type="text" name="' . $name('title') . '" value="' . $esc($item['title'] ?? '') . '"></div>'
                     . '<div class="form-field"><label>Описание</label><textarea name="' . $name('description') . '" data-mini-editor>' . $esc($item['description'] ?? '') . '</textarea>'
                     . '<span class="form-hint">О чём документ и кому он нужен. Жирный, курсив, списки и ссылки. Выводится обычным текстом, не заглавными.</span></div>'
                     . \App\Core\AdminUi::imageField($name('cover'), (string) ($item['cover'] ?? ''), [
                         'label' => 'Обложка (необязательно)',
-                        'hint' => 'Первая страница издания или титул отчёта — встанет вместо значка формата.',
+                        'hint' => 'Первая страница издания или титул отчёта — встанет рядом с описанием, значок формата остаётся.',
                     ])
-                    . $fileField($name('url'), 'Файл', (string) ($item['url'] ?? ''), 'Общий файл для всех языков. Если ниже загружен перевод на язык страницы, по главной кнопке скачивается он.');
+                    . $fileField($name('url'), 'Файл', (string) ($item['url'] ?? ''), $name('link_label'), (string) ($item['link_label'] ?? ''), 'Название ссылки — по умолчанию «Скачать»', 'Общий файл для всех языков. Если ниже загружен перевод на язык страницы, по главной кнопке скачивается он. Под адресом — название ссылки.');
 
                 if (count($docLanguages) > 1) {
                     $html .= '<fieldset class="bf-group"><legend>Файл на других языках</legend>'
                         . '<p class="form-hint">Посетитель скачивает версию на языке страницы, остальные видит рядом подписями языков.</p>';
                     foreach ($docLanguages as $language) {
                         $code = (string) $language['code'];
-                        $html .= $fileField('items[' . $idx . '][files][' . $code . ']', (string) $language['name'], (string) ($files[$code] ?? ''));
+                        $html .= $fileField('items[' . $idx . '][files][' . $code . ']', (string) $language['name'], (string) ($files[$code] ?? ''), 'items[' . $idx . '][file_labels][' . $code . ']', (string) ($fileLabels[$code] ?? ''), 'Название ссылки — по умолчанию «' . (string) $language['name'] . '»');
                     }
                     $html .= '</fieldset>';
                 }

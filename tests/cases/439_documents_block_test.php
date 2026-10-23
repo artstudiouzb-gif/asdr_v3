@@ -124,3 +124,23 @@ test('Документ: своя подпись формата главнее а
 
     assert_contains('<span class="doc-files__meta">PDF · 2.4 МБ</span>', (string) $rendered['html']);
 });
+
+test('Документ: своё название ссылки вместо «Скачать» и названия языка', function (): void {
+    $doc = [
+        'title' => 'Постановление',
+        'url' => '/uploads/public/act.pdf',
+        'link_label' => 'Текст постановления',
+        'files' => ['uz' => '/uploads/public/act-uz.pdf', 'en' => '/uploads/public/act-en.pdf'],
+        'file_labels' => ['uz' => 'Oʻzbekcha matn'],
+    ];
+    $html = render_view('templates/blocks/partials/document_files.php', [
+        'presented' => DocumentPresenter::prepare($doc, 'ru', documents_test_languages()),
+        'filesClass' => '',
+    ]);
+
+    assert_contains('<span class="doc-files__action">Текст постановления</span>', $html);
+    assert_contains('Oʻzbekcha matn', $html);
+    // Без своего названия перевод подписан языком.
+    assert_contains('English', $html);
+    assert_not_contains('>Скачать<', $html);
+});
