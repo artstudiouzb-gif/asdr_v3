@@ -231,8 +231,11 @@ test('Длинное desktop-меню переносит только лишни
     assert_contains('fitMenu', $script);
     assert_contains('menu.insertBefore', $script);
     assert_contains('.site-menu__overflow-toggle', $css);
-    assert_true(!str_contains($script, 'site-header--menu-collapsed'), 'desktop-меню не должно скрываться целиком');
-    assert_true(!str_contains($css, '.site-header--menu-collapsed'), 'desktop-бургер не заменяет всё меню');
+    // Целиком меню сворачивается в бургер только тогда, когда в строке
+    // остался бы один пункт рядом с «Ещё» — такое меню читается как поломка
+    // (просьба владельца). Пока помещаются два и больше, работает «Ещё».
+    assert_contains('directMenuItems(menu).length < 2', $script, 'бургер вместо меню — только при одном пункте в строке');
+    assert_contains('.site-header--menu-collapsed .site-burger', $css);
 });
 
 test('MenuItem: хранит только ключ Tabler-иконки, разделитель сохраняется (БД)', function () {

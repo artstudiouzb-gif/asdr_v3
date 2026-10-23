@@ -483,6 +483,15 @@
             var parts = menuParts(menu);
             if (!parts.overflow || !parts.toggle || !parts.panel) { return; }
 
+            // Меню, от которого в строке остался один пункт, — это уже не
+            // меню: «Агентство» и рядом «Ещё» выглядят как поломка. Тогда
+            // шапка переходит в мобильный вид (бургер и выезжающее меню), а
+            // перед замером возвращается в обычный — иначе скрытое меню
+            // нечем мерить.
+            var siteHeader = menu.closest('.site-header');
+            var burger = siteHeader ? siteHeader.querySelector('.site-burger') : null;
+            if (siteHeader) { siteHeader.classList.remove('site-header--menu-collapsed'); }
+
             restoreItems(menu, parts);
             if (!desktop.matches || !menu.offsetParent || !doesNotFit(header, menu, parts)) {
                 return;
@@ -497,6 +506,12 @@
                 // prepend сохраняет исходный порядок при переносе с конца.
                 parts.panel.insertBefore(item, parts.panel.firstChild);
                 items = directMenuItems(menu);
+            }
+
+            if (burger && directMenuItems(menu).length < 2) {
+                restoreItems(menu, parts);
+                siteHeader.classList.add('site-header--menu-collapsed');
+                return;
             }
 
             if (!parts.panel.children.length) {
