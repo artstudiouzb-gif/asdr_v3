@@ -529,6 +529,34 @@ final class Uploader
         return rtrim(rtrim(number_format($value, 3, '.', ''), '0'), '.');
     }
 
+    private const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    /**
+     * Опасно ли значение атрибута SVG. Браузер выбрасывает из адреса
+     * переводы строки и табуляцию, поэтому `java<перевод строки>script:`
+     * для него — тот же `javascript:`; сравнивать можно только значение без
+     * пробельных и управляющих символов. Ссылочным атрибутам разрешены
+     * якорь внутри файла, http(s) и относительный путь — `data:` в ссылке
+     * это вложенный документ, который санитайзер не видел.
+     */
+    public static function unsafeSvgValue(string $name, string $value): bool
+    {
+        $normalized = strtolower((string) preg_replace('/[\x00-\x20\x7F]+/', '', $value));
+        foreach (['javascript:', 'vbscript:', 'data:text/html', 'data:application/xhtml', 'data:image/svg'] as $scheme) {
+            if (str_contains($normalized, $scheme)) {
+                return true;
+            }
+        }
+        if (in_array($name, ['href', 'src'], true) && $normalized !== '' && $normalized[0] !== '#') {
+            $scheme = (string) parse_url($normalized, PHP_URL_SCHEME);
+
+            return $scheme !== '' && !in_array($scheme, ['http', 'https'], true)
+                && !preg_match('#^data:image/(png|jpe?g|gif|webp);#', $normalized);
+        }
+
+        return false;
+    }
+
     public static function sanitizeSvgString(string $svg): string
     {
         // Быстрая грубая очистка на случай, если DOM не сможет разобрать документ.
@@ -560,13 +588,33 @@ final class Uploader
             return '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
         }
 
+        // Корень обязан быть элементом SVG. Файл с расширением .svg браузер
+        // отдаёт как image/svg+xml и разбирает как XML, а корень в
+        // пространстве XHTML превращает его в обычную страницу — со своими
+        // формами и ссылками, которых этот санитайзер не описывает.
+        $root = $dom->documentElement;
+        if ($root->namespaceURI !== self::SVG_NS || $root->localName !== 'svg') {
+            return '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
+        }
+
         $xpath = new \DOMXPath($dom);
 
-        // 1. Удаляем опасные элементы.
+        // 1. Удаляем опасные элементы — и любой элемент не из пространства
+        // SVG. Чужое пространство (XHTML, MathML) это готовая разметка
+        // страницы внутри картинки; служебные узлы редакторов
+        // (sodipodi, inkscape, RDF) на вывод не влияют, их потеря безвредна.
         foreach ($dangerousTags as $tag) {
             $nodes = iterator_to_array($dom->getElementsByTagName($tag));
             foreach ($nodes as $node) {
                 $node->parentNode?->removeChild($node);
+            }
+        }
+        $foreign = $xpath->query('//*');
+        if ($foreign !== false) {
+            foreach (iterator_to_array($foreign) as $node) {
+                if ($node instanceof \DOMElement && $node->namespaceURI !== self::SVG_NS) {
+                    $node->parentNode?->removeChild($node);
+                }
             }
         }
 
@@ -579,8 +627,9 @@ final class Uploader
                 }
                 $attrs = iterator_to_array($node->attributes ?? []);
                 foreach ($attrs as $attr) {
-                    $name = strtolower($attr->nodeName);
-                    $value = $attr->nodeValue ?? '';
+                    // Имя без префикса: префикс пространства имён выбирает
+                    // автор файла (z:href работает так же, как xlink:href).
+                    $name = strtolower($attr->localName ?? $attr->nodeName);
 
                     // Обработчики событий on* — удаляем целиком.
                     if (str_starts_with($name, 'on')) {
@@ -588,19 +637,7 @@ final class Uploader
                         continue;
                     }
 
-                    // href / xlink:href / src с javascript:/data:text/html — удаляем.
-                    if (in_array($name, ['href', 'xlink:href', 'src'], true)) {
-                        $normalized = strtolower(preg_replace('/\s+/', '', $value) ?? '');
-                        if (str_starts_with($normalized, 'javascript:')
-                            || str_starts_with($normalized, 'data:text/html')
-                            || str_starts_with($normalized, 'vbscript:')) {
-                            $node->removeAttribute($attr->nodeName);
-                            continue;
-                        }
-                    }
-
-                    // Любое значение атрибута с javascript: внутри (например, style).
-                    if (stripos($value, 'javascript:') !== false || stripos($value, 'vbscript:') !== false) {
+                    if (self::unsafeSvgValue($name, $attr->nodeValue ?? '')) {
                         $node->removeAttribute($attr->nodeName);
                     }
                 }
@@ -610,8 +647,7 @@ final class Uploader
         // 3. Гарантируем viewBox. Без него SVG нечем масштабировать: как
         // CSS-маска (фирменная эмблема, --gov-emblem) он не отрисуется вовсе,
         // а в <img> с заданной высотой схлопывается по ширине.
-        $root = $dom->documentElement;
-        if (strtolower($root->localName) === 'svg' && trim($root->getAttribute('viewBox')) === '') {
+        if (trim($root->getAttribute('viewBox')) === '') {
             $width = Emblem::length($root->getAttribute('width'));
             $height = Emblem::length($root->getAttribute('height'));
             if ($width !== null && $height !== null && $width > 0.0 && $height > 0.0) {

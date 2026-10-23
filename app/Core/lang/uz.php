@@ -470,6 +470,7 @@ return [
     'Проверьте правильность заполнения формы.' => 'Forma to‘g‘ri to‘ldirilganini tekshiring.',
     'Сессия устарела' => 'Sessiya muddati tugagan',
     'Неверные параметры запроса' => 'So‘rov parametrlari noto‘g‘ri',
+    'Слишком много запросов. Повторите позже.' => 'Juda ko‘p so‘rov. Keyinroq qayta urinib ko‘ring.',
     'Слишком много попыток' => 'Juda ko‘p urinish',
     'Согласие на использование cookie' => 'Cookie-fayllardan foydalanishga rozilik',
     'Мы используем cookie для аналитики. Продолжая, вы соглашаетесь с их использованием.' => 'Tahlil uchun cookie-fayllardan foydalanamiz. Davom etish orqali ulardan foydalanishga rozilik bildirasiz.',

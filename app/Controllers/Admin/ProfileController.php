@@ -183,7 +183,7 @@ final class ProfileController
         Csrf::verifyRequest();
 
         // Общая с разделом «Telegram» логика — чтобы два места не разъезжались.
-        $res = \App\Core\TelegramLink::confirm((int) Auth::id());
+        $res = \App\Core\TelegramLink::confirm((int) Auth::id(), \App\Core\Input::post()->str('password', '', 4096));
         if ($res['ok']) {
             Flash::success($res['message']);
         } else {
