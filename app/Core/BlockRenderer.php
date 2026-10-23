@@ -845,6 +845,9 @@ final class BlockRenderer
      * в блоке список при этом не выводится (он остаётся в данных — вернуть
      * ручной список можно одним переключением). Удалённый тип возвращает
      * блок к ручному списку.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      */
     private static function enrichDocsList(array $data): array
     {
