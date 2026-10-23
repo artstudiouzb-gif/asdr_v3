@@ -92,10 +92,10 @@
     },
     "/assets/css/blocks/documents.css": {
       "path": "/assets/css/blocks/documents.min.css",
-      "sourceSha256": "15052a5496f285ccf41247668ed0b3f2ee4970af3ddc74f528aa45b037a83c65",
-      "sha256": "1dc1ef42f8d22ec5f63ed934b76421457c986dbac22d13ec07ad99cbed21ecca",
-      "raw": 5217,
-      "gzip": 1650,
+      "sourceSha256": "608980df4999ded2ae3ca098e046a096bf8e61a33634519875b2bced4fe0d453",
+      "sha256": "de5c822fb9b501bbaa2059670a97e1d06b3c572c04542dcff0644b14757cf035",
+      "raw": 5195,
+      "gzip": 1651,
       "brotli": 1384
     },
     "/assets/css/blocks/embed.css": {
