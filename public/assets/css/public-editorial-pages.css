@@ -832,28 +832,12 @@
     gap: 20px;
 }
 
-/* Фирменный водяной знак остаётся и в редакционном варианте: в углу с номером
-   он мешал, поэтому уходит вниз карточки, где пусто. Раньше его тут просто
-   выключали, и фирменный слой пропадал со всех страниц с актами. */
+/* Фирменный водяной знак остаётся и в редакционном варианте: вверху он
+   ложился бы под название, поэтому уходит вниз карточки, где пусто. */
 .editorial-page__content .block-docslist--acts-editorial .act-card__emblem {
     inset-block-start: auto;
     inset-block-end: -12px;
     inset-inline-end: -12px;
-}
-
-.editorial-page__content .act-card__editorial-head {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 4px;
-}
-
-.editorial-page__content .act-card__index {
-    color: color-mix(in srgb, var(--gov-navy) 25%, transparent);
-    font-size: var(--font-size-h3, var(--step-3));
-    font-weight: 800;
 }
 
 .editorial-page__content .block-docslist--acts-editorial .act-card__head {
@@ -873,8 +857,10 @@
     font-size: var(--font-size-meta, var(--step--3));
 }
 
+/* Название стоит в шапке рядом с листом формата (documents.css) — отступ
+   сверху, отделявший его от номера по порядку, больше не нужен. */
 .editorial-page__content .block-docslist--acts-editorial .act-card__desc {
-    margin-top: 17px;
+    margin-top: 0;
 }
 
 .editorial-page__content .block-docslist--acts-editorial .act-card__foot {

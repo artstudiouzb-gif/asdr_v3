@@ -158,7 +158,7 @@ final class DocumentPresenter
         }
         $size = self::localFileSize($url);
         if ($size !== null) {
-            $parts[] = Format::fileSize($size);
+            $parts[] = Format::fileSize($size, [t('Б'), t('КБ'), t('МБ')]);
         }
 
         return [
