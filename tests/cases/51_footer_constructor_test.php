@@ -42,6 +42,22 @@ test('FooterConfig::renderBottom разворачивает {year} и {site}', f
     assert_true(!str_contains($out, '{year}') && !str_contains($out, '{site}'), 'плейсхолдеры заменены');
 });
 
+test('FooterConfig: копирайт бывает своим у каждого языка, пустой — общий', function () {
+    $cfg = FooterConfig::normalize([
+        'bottom' => '© {year} Strategik rivojlanish agentligi',
+        'bottom_by_lang' => [
+            'RU' => ' © {year} Агентство стратегического развития ',
+            'en' => '',
+            'bad code' => 'мусор',
+        ],
+    ]);
+    assert_same(['ru' => '© {year} Агентство стратегического развития'], $cfg['bottom_by_lang'],
+        'код приводится к нижнему регистру, пустые и чужие ключи отброшены');
+    assert_same('© {year} Агентство стратегического развития', FooterConfig::bottomFor($cfg, 'ru'));
+    assert_same('© {year} Strategik rivojlanish agentligi', FooterConfig::bottomFor($cfg, 'uz'), 'основной язык — общий текст');
+    assert_same('© {year} Strategik rivojlanish agentligi', FooterConfig::bottomFor($cfg, 'en'), 'без своего текста — общий');
+});
+
 test('FooterConfig: недопустимый стиль → columns', function () {
     assert_same('columns', FooterConfig::normalize(['style' => 'zzz'])['style']);
     assert_same('minimal', FooterConfig::normalize(['style' => 'minimal'])['style']);

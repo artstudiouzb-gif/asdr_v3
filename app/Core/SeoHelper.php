@@ -46,7 +46,7 @@ final class SeoHelper
     {
         $phone = Setting::get("contact_phone", "") ?: Setting::get("site_phone", "");
         $email = Setting::get("contact_email", "") ?: Setting::get("site_email", "");
-        $address = Setting::get("contact_address", "");
+        $address = Setting::getLocalized("contact_address");
 
         $data = ["@context" => "https://schema.org"] + self::organizationRef($appUrl);
 

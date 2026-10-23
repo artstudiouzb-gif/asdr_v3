@@ -62,6 +62,10 @@ final class FooterConfig
         ],
         // Плейсхолдеры: {year} — текущий год, {site} — название сайта.
         'bottom' => '© {year} {site}',
+        // Копирайт на других языках: {код языка: текст}. Пустое значение —
+        // общий текст выше. Без этой карты строка, набранная на основном
+        // языке, выводилась одинаково на всех версиях сайта.
+        'bottom_by_lang' => [],
         // Ссылки справа в строке копирайта: [{label, url}].
         'bottom_links' => [],
         // Фон подвала: те же режимы, что и у секции страницы (цвет, градиент,
@@ -106,6 +110,18 @@ final class FooterConfig
      * Разворачивает плейсхолдеры нижней строки ({year}, {site}) и очищает от
      * разметки (простой текст). Чистая функция для рендера и тестов.
      */
+    /**
+     * Шаблон копирайта для языка страницы: свой текст языка или общий.
+     *
+     * @param array<string, mixed> $config
+     */
+    public static function bottomFor(array $config, string $lang): string
+    {
+        $own = (string) (((array) ($config['bottom_by_lang'] ?? []))[strtolower($lang)] ?? '');
+
+        return $own !== '' ? $own : (string) ($config['bottom'] ?? self::DEFAULTS['bottom']);
+    }
+
     public static function renderBottom(string $template, string $siteName): string
     {
         $out = strtr($template, [
@@ -191,6 +207,14 @@ final class FooterConfig
         $result['bottom'] = mb_substr(trim((string) ($config['bottom'] ?? self::DEFAULTS['bottom'])), 0, 300);
         if ($result['bottom'] === '') {
             $result['bottom'] = self::DEFAULTS['bottom'];
+        }
+        $result['bottom_by_lang'] = [];
+        foreach ((array) ($config['bottom_by_lang'] ?? []) as $code => $text) {
+            $code = strtolower(trim((string) $code));
+            $text = is_string($text) ? mb_substr(trim($text), 0, 300) : '';
+            if (preg_match('/^[a-z]{2,5}$/', $code) === 1 && $text !== '') {
+                $result['bottom_by_lang'][$code] = $text;
+            }
         }
         $result['bottom_links'] = self::normalizeBottomLinks($config['bottom_links'] ?? null);
         $result['v'] = self::VERSION;

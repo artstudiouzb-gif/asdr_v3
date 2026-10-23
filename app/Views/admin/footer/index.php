@@ -201,7 +201,17 @@ $widgetSelect = function (string $name, string $current, bool $optional = false)
 
                 <label for="bottom">Копирайт / текст</label>
                 <input type="text" id="bottom" name="bottom" value="<?= htmlspecialchars($config['bottom'], ENT_QUOTES) ?>">
-                <span class="form-hint">Плейсхолдеры: <code>{year}</code> — текущий год, <code>{site}</code> — название сайта.</span>
+                <span class="form-hint">Плейсхолдеры: <code>{year}</code> — текущий год, <code>{site}</code> — название сайта на языке страницы.</span>
+                <?php foreach (($languages ?? []) as $footLang): ?>
+                    <?php
+                    $footCode = strtolower((string) ($footLang['code'] ?? ''));
+                    if ($footCode === '' || $footCode === ($defaultLangCode ?? '')) {
+                        continue;
+                    }
+                    ?>
+                    <label for="bottom_<?= htmlspecialchars($footCode, ENT_QUOTES) ?>">Копирайт <span class="badge badge--small"><?= htmlspecialchars((string) $footLang['name'], ENT_QUOTES) ?> (<?= strtoupper(htmlspecialchars($footCode, ENT_QUOTES)) ?>)</span></label>
+                    <input type="text" id="bottom_<?= htmlspecialchars($footCode, ENT_QUOTES) ?>" name="bottom_by_lang[<?= htmlspecialchars($footCode, ENT_QUOTES) ?>]" maxlength="300" value="<?= htmlspecialchars((string) ($config['bottom_by_lang'][$footCode] ?? ''), ENT_QUOTES) ?>" placeholder="Пусто — как основной текст">
+                <?php endforeach; ?>
             </div>
             <?php $bottomLinks = (array) ($config['bottom_links'] ?? []); ?>
             <p class="form-hint">
