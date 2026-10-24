@@ -120,6 +120,7 @@ $eventIcons = array_map(
 );
 $docIcon = \App\Core\Icon::render('file-text', 22, 'ui-icon', 1.5);
 $dlIcon = \App\Core\Icon::render('download', 17, 'ui-icon', 1.8);
+$openIcon = \App\Core\Icon::render('external-link', 17, 'ui-icon', 1.8);
 ?>
 <?php
 // Тип отображения (выбирается в админке): standard — только обложка,
@@ -596,13 +597,14 @@ $hasSidebar = $sidebar !== null && trim((string) ($sidebar['html'] ?? '')) !== '
                     <div class="newsdetail-docs">
                         <?php foreach ($docs as $doc): ?>
                             <?php $du = trim((string) ($doc['url'] ?? '')); ?>
-                            <a class="newsdetail-doc" href="<?= htmlspecialchars($du, ENT_QUOTES) ?>" <?= $du !== '' ? 'download' : '' ?>>
+                            <?php $duView = $du !== '' && \App\Core\DocumentPresenter::opensInBrowser($du); ?>
+                            <a class="newsdetail-doc" href="<?= htmlspecialchars($du, ENT_QUOTES) ?>" <?= $duView ? 'target="_blank" rel="noopener"' : ($du !== '' ? 'download' : '') ?>>
                                 <span class="newsdetail-doc__icon"><?= $docIcon ?></span>
                                 <span class="newsdetail-doc__body">
                                     <span class="newsdetail-doc__title"><?= htmlspecialchars((string) ($doc['title'] ?? ''), ENT_QUOTES) ?></span>
                                     <?php if (!empty($doc['meta'])): ?><span class="newsdetail-doc__meta"><?= htmlspecialchars((string) $doc['meta'], ENT_QUOTES) ?></span><?php endif; ?>
                                 </span>
-                                <span class="newsdetail-doc__dl"><?= $dlIcon ?></span>
+                                <span class="newsdetail-doc__dl"><?= $duView ? $openIcon : $dlIcon ?></span>
                             </a>
                         <?php endforeach; ?>
                     </div>

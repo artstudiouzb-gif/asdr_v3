@@ -113,6 +113,13 @@ test('Документы определяют формат, действие и 
     assert_same('file-type-pdf', $pdf['icon']);
     assert_true($pdf['direct_file']);
     assert_contains('PDF', $pdf['meta']);
+    // PDF браузер показывает сам: ссылка открывает его в новой вкладке, а не
+    // скачивает (атрибут download отменял бы inline из download.php).
+    $pdfHtml = render_view('templates/blocks/partials/document_files.php', ['presented' => $pdf]);
+    assert_not_contains(' download', $pdfHtml);
+    assert_contains('target="_blank"', $pdfHtml);
+    $docx = DocumentPresenter::prepare(['title' => 'Положение', 'url' => '/uploads/public/rules.docx']);
+    assert_contains(' download', render_view('templates/blocks/partials/document_files.php', ['presented' => $docx]));
 
     $page = DocumentPresenter::prepare(['title' => 'Раздел', 'url' => '/documents']);
     assert_same('other', $page['extension']);
