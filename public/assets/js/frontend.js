@@ -33,9 +33,10 @@
     // и прочитать документ на месте нельзя. Ссылку на свой PDF ведём на
     // страницу просмотра (/pdf). Компьютеры и Safari показывают PDF сами,
     // без скрипта ссылка остаётся прямой. Ссылка бывает переписана на CDN —
-    // его адрес приходит из подвала вместе с адресом просмотрщика.
-    var pdfViewerUrl = label('pdfViewer', '');
-    if (pdfViewerUrl && navigator.pdfViewerEnabled !== true) {
+    // его адрес приходит из подвала. Начало адреса постоянное: всё, что
+    // приходит из разметки, стоит после «?», а язык страницы сервер
+    // превращает в префикс сам (переадресация в Site\PdfController).
+    if (label('pdfLang', '') && navigator.pdfViewerEnabled !== true) {
         var pdfOrigins = [window.location.origin, label('pdfCdn', '')];
         document.addEventListener('click', function (event) {
             if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) { return; }
@@ -47,7 +48,7 @@
             try { url = new URL(link.href); } catch (error) { return; }
             if (pdfOrigins.indexOf(url.origin) === -1 || !/^\/uploads\/public\/.+\.pdf$/i.test(url.pathname)) { return; }
             event.preventDefault();
-            var target = pdfViewerUrl + '?file=' + encodeURIComponent(url.pathname);
+            var target = '/pdf?file=' + encodeURIComponent(url.pathname) + '&lang=' + encodeURIComponent(label('pdfLang', ''));
             if (link.target === '_blank') {
                 window.open(target, '_blank', 'noopener');
             } else {

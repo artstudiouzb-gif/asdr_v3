@@ -6,8 +6,11 @@ namespace App\Controllers\Site;
 
 use App\Core\Asset;
 use App\Core\Input;
+use App\Core\Locale;
 use App\Core\Media;
+use App\Core\Redirect;
 use App\Core\View;
+use App\Models\Language;
 
 /**
  * Просмотр PDF прямо на сайте (/pdf?file=/uploads/public/….pdf).
@@ -29,11 +32,17 @@ final class PdfController
 
     public function show(): void
     {
-        $file = self::filePath(Input::query()->str('file', '', self::MAX_PATH));
+        $query = Input::query();
+        $file = self::filePath($query->str('file', '', self::MAX_PATH));
         if ($file === null) {
             http_response_code(404);
             View::render('errors/404');
             return;
+        }
+
+        $target = self::languageTarget($query->str('lang', '', 8), $file, Locale::current(), Language::publicCodes());
+        if ($target !== null) {
+            Redirect::to($target);
         }
 
         header('X-Robots-Tag: noindex');
@@ -44,6 +53,23 @@ final class PdfController
             'workerUrl' => self::localAsset('/assets/vendor/pdfjs/pdf.worker.min.mjs'),
             'viewerScript' => self::localAsset('/assets/js/pdf-viewer.js'),
         ]);
+    }
+
+    /**
+     * Адрес языковой версии просмотра или null, если переходить некуда.
+     * Скрипт ведёт на `/pdf?…&lang=uz`, а не на `/uz/pdf`: начало адреса
+     * перехода у него постоянное, и ничего из разметки в него не попадает —
+     * префикс языка ставит сервер.
+     *
+     * @param list<string> $publicCodes
+     */
+    public static function languageTarget(string $lang, string $file, string $current, array $publicCodes): ?string
+    {
+        if ($lang === '' || $lang === $current || !in_array($lang, $publicCodes, true)) {
+            return null;
+        }
+
+        return Locale::url('/pdf', $lang) . '?file=' . rawurlencode($file);
     }
 
     /**

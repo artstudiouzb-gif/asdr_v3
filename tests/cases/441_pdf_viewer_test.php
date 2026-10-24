@@ -36,8 +36,16 @@ test('Просмотр PDF принимает только свой файл и�
     }
 });
 
-test('Подвал передаёт скрипту адрес просмотрщика PDF', function (): void {
+test('Подвал передаёт скрипту язык для просмотрщика PDF', function (): void {
     $footer = render_view('app/Views/site/_footer.php', []);
-    // Адрес просмотрщика приходит из подвала: язык страницы скрипт не знает.
-    assert_contains('"pdfViewer":', $footer);
+    // Язык идёт параметром, а префикс адреса ставит сервер: начало адреса
+    // перехода у скрипта постоянное, из разметки в него ничего не попадает.
+    assert_contains('"pdfLang":', $footer);
+});
+
+test('Просмотр PDF переводит параметр языка в префикс адреса', function (): void {
+    assert_same('/uz/pdf?file=%2Fuploads%2Fpublic%2Fa.pdf', PdfController::languageTarget('uz', '/uploads/public/a.pdf', 'ru', ['ru', 'uz']));
+    assert_same(null, PdfController::languageTarget('ru', '/uploads/public/a.pdf', 'ru', ['ru', 'uz']), 'язык уже тот');
+    assert_same(null, PdfController::languageTarget('xx', '/uploads/public/a.pdf', 'ru', ['ru', 'uz']), 'чужой код');
+    assert_same(null, PdfController::languageTarget('', '/uploads/public/a.pdf', 'ru', ['ru', 'uz']));
 });
