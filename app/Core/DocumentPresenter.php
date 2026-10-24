@@ -33,6 +33,16 @@ final class DocumentPresenter
     ];
 
     /**
+     * Форматы, которые браузер показывает сам: такой файл открывается в новой
+     * вкладке, а не скачивается. Атрибут `download` отменял `inline` из
+     * `download.php`, и посетитель получал файл в загрузки вместо чтения.
+     * Word и таблицы браузер не покажет — их скачивание остаётся.
+     *
+     * @var list<string>
+     */
+    private const VIEWABLE = ['pdf'];
+
+    /**
      * Описание длиннее этого числа знаков в поле «Мета» — это не подпись
      * формата, а текст о документе. Поле «Мета» рассчитано на «PDF · 1,2 МБ»
      * и выводится капслоком; редакторы, у которых не было поля описания,
@@ -61,7 +71,7 @@ final class DocumentPresenter
     /**
      * @param array<string, mixed> $document
      * @param list<array<string, mixed>>|null $languages языки сайта; null — из базы
-     * @return array{title:string,url:string,meta:string,extension:string,icon:string,direct_file:bool,search:string,description:string,cover:string,files:list<array{lang:string,label:string,name:string,url:string,meta:string,extension:string,direct_file:bool,current:bool}>}
+     * @return array{title:string,url:string,meta:string,extension:string,icon:string,direct_file:bool,search:string,description:string,cover:string,files:list<array{lang:string,label:string,name:string,url:string,meta:string,extension:string,direct_file:bool,viewable:bool,current:bool}>}
      */
     public static function prepare(array $document, ?string $lang = null, ?array $languages = null): array
     {
@@ -131,7 +141,7 @@ final class DocumentPresenter
      *
      * @param array<string, mixed> $document
      * @param list<array<string, mixed>>|null $languages языки сайта; null — из базы
-     * @return list<array{lang:string,label:string,name:string,url:string,meta:string,extension:string,direct_file:bool,current:bool}>
+     * @return list<array{lang:string,label:string,name:string,url:string,meta:string,extension:string,direct_file:bool,viewable:bool,current:bool}>
      */
     public static function files(array $document, string $lang, ?array $languages = null): array
     {
@@ -166,7 +176,7 @@ final class DocumentPresenter
         return $list;
     }
 
-    /** @return array{lang:string,label:string,name:string,url:string,meta:string,extension:string,direct_file:bool,current:bool} */
+    /** @return array{lang:string,label:string,name:string,url:string,meta:string,extension:string,direct_file:bool,viewable:bool,current:bool} */
     private static function file(string $lang, string $label, string $url, bool $current, string $name = ''): array
     {
         $extension = self::extension($url);
@@ -187,6 +197,7 @@ final class DocumentPresenter
             'meta' => implode(' · ', $parts),
             'extension' => $extension !== '' ? $extension : 'other',
             'direct_file' => in_array($extension, self::DOWNLOADABLE, true),
+            'viewable' => in_array($extension, self::VIEWABLE, true),
             'current' => $current,
         ];
     }
@@ -205,6 +216,12 @@ final class DocumentPresenter
             'zip', 'rar', '7z' => 'zip',
             default => 'other',
         };
+    }
+
+    /** Файл по адресу открывается в браузере (см. VIEWABLE). */
+    public static function opensInBrowser(string $url): bool
+    {
+        return in_array(self::extension($url), self::VIEWABLE, true);
     }
 
     private static function extension(string $url): string

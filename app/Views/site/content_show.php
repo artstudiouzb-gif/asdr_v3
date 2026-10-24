@@ -104,8 +104,9 @@ $sideFields = array_values(array_filter(
                 </dl>
                 <?php foreach ($sideFields as $f): ?>
                     <?php if ($f['field_type'] === 'file' && !empty($entry['data'][$f['name']])): ?>
-                        <a class="catdetail__download" href="<?= htmlspecialchars((string) $entry['data'][$f['name']], ENT_QUOTES) ?>" target="_blank" rel="noopener" download>
-                            <?= \App\Core\Icon::render('download', 16, 'ui-icon', 1.8) ?>
+                        <?php $fileView = \App\Core\DocumentPresenter::opensInBrowser((string) $entry['data'][$f['name']]); ?>
+                        <a class="catdetail__download" href="<?= htmlspecialchars((string) $entry['data'][$f['name']], ENT_QUOTES) ?>" target="_blank" rel="noopener"<?= $fileView ? '' : ' download' ?>>
+                            <?= \App\Core\Icon::render($fileView ? 'external-link' : 'download', 16, 'ui-icon', 1.8) ?>
                             <?= htmlspecialchars(t((string) $f['label']), ENT_QUOTES) ?>
                         </a>
                     <?php endif; ?>
