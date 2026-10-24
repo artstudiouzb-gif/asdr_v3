@@ -500,4 +500,7 @@ return [
     'цель' => 'maqsad',
     'откроется в Instagram' => 'Instagramda ochiladi',
     'Подписаться в Instagram' => 'Instagramda obuna bo‘lish',
+    // Просмотр PDF на телефонах (/pdf).
+    'Загрузка документа…' => 'Hujjat yuklanmoqda…',
+    'Не удалось открыть документ. Скачайте файл, чтобы прочитать его.' => 'Hujjatni ochib bo‘lmadi. O‘qish uchun faylni yuklab oling.',
 ];

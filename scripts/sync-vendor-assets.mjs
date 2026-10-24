@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import process from 'node:process';
 
 const files = [
@@ -147,4 +147,45 @@ if (checkOnly) {
     await writeFile(spriteIndexTarget, spriteIndexFile);
 }
 
-console.log(`Coloris and Tabler vendor assets ${checkOnly ? 'verified' : 'synced'} (${spriteIndex.length} icons indexed).`);
+// Просмотрщик PDF для телефонов (страница /pdf). Chrome на Android своего
+// просмотрщика не имеет и скачивает файл, поэтому документ рисует PDF.js со
+// своего домена. Сборка legacy — она работает и в устаревших WebView
+// встроенных браузеров (Telegram, Instagram). Таблицы кодировок (cmaps) и
+// стандартные шрифты нужны документам с кириллицей во встроенных CID-шрифтах;
+// wasm — декодерам сканов (JBIG2, JPEG 2000) и цветовых профилей. Песочница
+// скриптов PDF (quickjs) не берётся: скрипты документов мы не исполняем.
+// Файлы двоичные, поэтому сравниваются байтами, без нормализации строк.
+const pdfjsRoot = 'node_modules/pdfjs-dist';
+const pdfjsTarget = 'public/assets/vendor/pdfjs';
+const pdfjsFiles = [
+    ['legacy/build/pdf.min.mjs', 'pdf.min.mjs'],
+    ['legacy/build/pdf.worker.min.mjs', 'pdf.worker.min.mjs'],
+    ['LICENSE', 'LICENSE'],
+];
+for (const dir of ['cmaps', 'iccs', 'standard_fonts', 'wasm']) {
+    for (const name of (await readdir(`${pdfjsRoot}/${dir}`)).sort()) {
+        if (!name.startsWith('quickjs')) {
+            pdfjsFiles.push([`${dir}/${name}`, `${dir}/${name}`]);
+        }
+    }
+}
+for (const [source, target] of pdfjsFiles) {
+    const expected = await readFile(`${pdfjsRoot}/${source}`);
+    const path = `${pdfjsTarget}/${target}`;
+    if (checkOnly) {
+        let current;
+        try {
+            current = await readFile(path);
+        } catch {
+            throw new Error(`${path} is missing. Run npm run build:vendor.`);
+        }
+        if (!current.equals(expected)) {
+            throw new Error(`${path} is stale. Run npm run build:vendor.`);
+        }
+        continue;
+    }
+    await mkdir(path.slice(0, path.lastIndexOf('/')), { recursive: true });
+    await writeFile(path, expected);
+}
+
+console.log(`Coloris and Tabler vendor assets ${checkOnly ? 'verified' : 'synced'} (${spriteIndex.length} icons indexed, ${pdfjsFiles.length} PDF.js files).`);

@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import { extname } from 'node:path';
 
 const binaryExtensions = new Set([
-  '.avif', '.bmp', '.doc', '.docx', '.eot', '.gif', '.ico', '.jpeg', '.jpg',
-  '.mp3', '.mp4', '.ogg', '.pdf', '.png', '.ttf', '.wav', '.webm', '.webp',
+  '.avif', '.bcmap', '.bmp', '.doc', '.docx', '.eot', '.gif', '.ico', '.jpeg', '.jpg',
+  '.mp3', '.mp4', '.icc', '.ogg', '.pdf', '.pfb', '.png', '.ttf', '.wav', '.wasm', '.webm', '.webp',
   '.woff', '.woff2', '.xls', '.xlsx', '.zip',
 ]);
 
