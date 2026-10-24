@@ -158,8 +158,11 @@ if (checkOnly) {
 const pdfjsRoot = 'node_modules/pdfjs-dist';
 const pdfjsTarget = 'public/assets/vendor/pdfjs';
 const pdfjsFiles = [
-    ['legacy/build/pdf.min.mjs', 'pdf.min.mjs'],
-    ['legacy/build/pdf.worker.min.mjs', 'pdf.worker.min.mjs'],
+    // Расширение .js, а не .mjs: Apache хостинга .mjs не знает и отдаёт без
+    // JavaScript-типа, а модуль и воркер с чужим типом браузер при nosniff
+    // не выполняет — просмотрщик падал на живом сайте, а локально работал.
+    ['legacy/build/pdf.min.mjs', 'pdf.min.js'],
+    ['legacy/build/pdf.worker.min.mjs', 'pdf.worker.min.js'],
     ['LICENSE', 'LICENSE'],
 ];
 for (const dir of ['cmaps', 'iccs', 'standard_fonts', 'wasm']) {

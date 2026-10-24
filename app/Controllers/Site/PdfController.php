@@ -49,8 +49,8 @@ final class PdfController
         View::render('site/pdf_viewer', [
             'fileUrl' => $file,
             'fileName' => rawurldecode(basename($file)),
-            'pdfjsUrl' => self::localAsset('/assets/vendor/pdfjs/pdf.min.mjs'),
-            'workerUrl' => self::localAsset('/assets/vendor/pdfjs/pdf.worker.min.mjs'),
+            'pdfjsUrl' => self::localAsset('/assets/vendor/pdfjs/pdf.min.js'),
+            'workerUrl' => self::localAsset('/assets/vendor/pdfjs/pdf.worker.min.js'),
             'viewerScript' => self::localAsset('/assets/js/pdf-viewer.js'),
         ]);
     }

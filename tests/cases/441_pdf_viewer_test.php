@@ -49,3 +49,14 @@ test('Просмотр PDF переводит параметр языка в п�
     assert_same(null, PdfController::languageTarget('xx', '/uploads/public/a.pdf', 'ru', ['ru', 'uz']), 'чужой код');
     assert_same(null, PdfController::languageTarget('', '/uploads/public/a.pdf', 'ru', ['ru', 'uz']));
 });
+
+test('Модуль и воркер PDF.js отдаются расширением, которое знает любой Apache', function (): void {
+    // .mjs хостинг отдавал как application/octet-stream, и при nosniff
+    // браузер модуль не выполнял: просмотрщик падал только на живом сайте.
+    assert_true(is_file(APP_ROOT . '/public/assets/vendor/pdfjs/pdf.min.js'));
+    assert_true(is_file(APP_ROOT . '/public/assets/vendor/pdfjs/pdf.worker.min.js'));
+    assert_same([], glob(APP_ROOT . '/public/assets/vendor/pdfjs/*.mjs') ?: []);
+    foreach (['/.htaccess', '/public/.htaccess'] as $file) {
+        assert_contains('AddType application/wasm .wasm', (string) file_get_contents(APP_ROOT . $file));
+    }
+});
