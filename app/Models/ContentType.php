@@ -97,7 +97,7 @@ final class ContentType
     public const RESERVED_ROOT = [
         'admin', 'api', 'assets', 'health', 'install', 'repo', 'uploads',
         'catalog', 'news', 'projects', 'albums', 'opendata', 'search',
-        'goals', 'forms', 'push', 'subscribe', 'unsubscribe', 'script',
+        'goals', 'forms', 'push', 'subscribe', 'unsubscribe', 'script', 'pdf',
         'sitemap.xml', 'robots.txt', 'rss.xml', 'captcha.png',
     ];
 

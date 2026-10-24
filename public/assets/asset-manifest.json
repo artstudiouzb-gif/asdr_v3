@@ -27,11 +27,11 @@
       "/assets/js/frontend.js",
       "/assets/js/forms.js"
     ],
-    "sourceSha256": "8c496917f8a8ec8b4d3db697aa88502080af2271e530cbc71057122285314b29",
-    "sha256": "14dabe62b78a2feb26716fc4131178ca1a6e6a4cd20ee00f0d5280fa55d554e3",
-    "raw": 60796,
-    "gzip": 16176,
-    "brotli": 14202
+    "sourceSha256": "d748b40a33501565d3c986610886d8ddd765134d1cfc307e32d6267cd4f8ad31",
+    "sha256": "457d3c8e82222e955ba1debc14f24a106f091bbe40a5f8bfa5ba1d320edba491",
+    "raw": 61436,
+    "gzip": 16393,
+    "brotli": 14377
   },
   "blocks": {
     "/assets/css/blocks/buttons.css": {
@@ -177,6 +177,14 @@
       "raw": 17614,
       "gzip": 3381,
       "brotli": 2924
+    },
+    "/assets/css/blocks/pdf-viewer.css": {
+      "path": "/assets/css/blocks/pdf-viewer.min.css",
+      "sourceSha256": "c425a895ede71b759caac05bde7a64320be2a0aa54fb9e2046f36a9ac6648d5b",
+      "sha256": "66aebda22992b400867caa0c2738ab0f7d6b64bc106750f289c70ae4668459f6",
+      "raw": 1724,
+      "gzip": 738,
+      "brotli": 567
     },
     "/assets/css/blocks/table.css": {
       "path": "/assets/css/blocks/table.min.css",

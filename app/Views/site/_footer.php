@@ -277,6 +277,9 @@ $renderFooterWidget = function (array $col) use ($footerLogo, $siteName, $addres
     'formSuccess' => t('Спасибо! Ваша заявка отправлена.'),
     'formCheck' => t('Проверьте форму.'),
     'formNetworkError' => t('Сетевая ошибка. Попробуйте ещё раз.'),
+    // Просмотр PDF на телефонах без своего просмотрщика (frontend.js).
+    'pdfLang' => \App\Core\Locale::current(),
+    'pdfCdn' => \App\Core\Asset::cdnBase() !== '' ? (string) parse_url(\App\Core\Asset::cdnBase(), PHP_URL_SCHEME) . '://' . (string) parse_url(\App\Core\Asset::cdnBase(), PHP_URL_HOST) : '',
 ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>
 </script>
 <?php foreach (\App\Core\FrontendAssets::scripts() as $script): ?>
