@@ -25,7 +25,10 @@ if (root) {
     let baseWidth = 0;
     const pages = [];
 
-    const fail = () => {
+    const fail = (error) => {
+        // Причина остаётся в консоли: на экране посетителю она ни к чему,
+        // а без неё отказ на живом сайте нечем разобрать.
+        console.error('PDF viewer:', error);
         pagesBox.innerHTML = '';
         const message = document.createElement('p');
         message.className = 'pdf-viewer__status pdf-viewer__status--error';

@@ -33,6 +33,9 @@
 <IfModule mod_mime.c>
     AddType text/css .css
     AddType application/javascript .js
+    # Декодеры сканов PDF.js (JBIG2, JPEG 2000): без типа application/wasm
+    # браузер не компилирует модуль потоком.
+    AddType application/wasm .wasm
     AddType font/woff2 .woff2
     AddType image/svg+xml .svg
 </IfModule>
