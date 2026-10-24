@@ -35,3 +35,10 @@
 /CLAUDE.md export-ignore
 /PRE_RELEASE_TASKS.md export-ignore
 /skills-lock.json export-ignore
+
+# Двоичные файлы PDF.js (таблицы кодировок, шрифты, wasm): без пометки
+# text=auto мог бы принять отдельный файл за текст и испортить его.
+*.bcmap binary
+*.pfb binary
+*.wasm binary
+*.icc binary

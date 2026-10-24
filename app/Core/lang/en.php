@@ -499,4 +499,7 @@ return [
     'цель' => 'target',
     'откроется в Instagram' => 'opens on Instagram',
     'Подписаться в Instagram' => 'Follow on Instagram',
+    // Просмотр PDF на телефонах (/pdf).
+    'Загрузка документа…' => 'Loading the document…',
+    'Не удалось открыть документ. Скачайте файл, чтобы прочитать его.' => 'The document could not be opened. Download the file to read it.',
 ];
