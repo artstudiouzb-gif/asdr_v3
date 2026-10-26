@@ -219,6 +219,20 @@ final class SecurityHeaders
         self::$pageStyleOrigins = array_values(array_unique([...self::$pageStyleOrigins, ...$style]));
         self::$pageScriptOrigins = array_values(array_unique([...self::$pageScriptOrigins, ...$script]));
 
+        self::refreshPublicCsp();
+    }
+
+    /**
+     * Пересылает публичную CSP, когда база уже подключена.
+     *
+     * send() стоит в bootstrap до Database::init(): заголовки нужны и на
+     * 503. Но хосты счётчиков (GA, Метрика) записаны в настройках, а без
+     * базы publicCspOptions() молча отвечает «счётчиков нет» — и CSP
+     * блокировала tag.js и gtag.js на каждой странице, хотя ID введены.
+     * Поэтому после подключения к базе заголовок собирается заново.
+     */
+    public static function refreshPublicCsp(): void
+    {
         if (PHP_SAPI === 'cli' || headers_sent()) {
             return;
         }
@@ -231,10 +245,17 @@ final class SecurityHeaders
             return;
         }
 
+        header('Content-Security-Policy: ' . self::currentPublicCsp());
+    }
+
+    /** Публичная CSP этого запроса: настройки счётчиков плюс постраничные ассеты. */
+    public static function currentPublicCsp(): string
+    {
         $opts = self::publicCspOptions();
         $opts['extra_style'] = self::$pageStyleOrigins;
         $opts['extra_script'] = self::$pageScriptOrigins;
-        header('Content-Security-Policy: ' . self::publicCsp(self::nonce(), $opts));
+
+        return self::publicCsp(self::nonce(), $opts);
     }
 
     /**
