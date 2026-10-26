@@ -110,7 +110,7 @@ final class InstagramFeed
     /**
      * Сохранённые посты для вывода. Сеть не трогает.
      *
-     * @return list<array{id: string, type: string, caption: string, title: string, permalink: string, image: string, timestamp: string}>
+     * @return list<array{id: string, type: string, caption: string, title: string, title_v: int, permalink: string, image: string, timestamp: string}>
      */
     public static function posts(int $limit): array
     {
@@ -135,7 +135,7 @@ final class InstagramFeed
      * копии; ссылки, которых в ней нет, возвращаются отдельно — о них говорит
      * подсказка в форме блока.
      *
-     * @return array{posts: list<array{id: string, type: string, caption: string, title: string, permalink: string, image: string, timestamp: string}>, missing: list<string>}
+     * @return array{posts: list<array{id: string, type: string, caption: string, title: string, title_v: int, permalink: string, image: string, timestamp: string}>, missing: list<string>}
      */
     public static function picked(string $links): array
     {
@@ -222,7 +222,7 @@ final class InstagramFeed
             // Заголовок, совпадающий с первой фразой подписи, — запасной, а не
             // сформулированный: такой (и копию до появления заголовков)
             // модель видит снова.
-            if ($old !== null && $old['caption'] === $item['caption']
+            if ($old !== null && $old['caption'] === $item['caption'] && $old['title_v'] === InstagramPostTitle::VERSION
                 && $old['title'] !== '' && $old['title'] !== InstagramPostTitle::fallback($old['caption'])) {
                 $titles[$item['id']] = $old['title'];
             } else {
@@ -251,6 +251,7 @@ final class InstagramFeed
                 'type' => $item['type'],
                 'caption' => $item['caption'],
                 'title' => $titles[$item['id']] ?? InstagramPostTitle::fallback($item['caption']),
+                'title_v' => InstagramPostTitle::VERSION,
                 'permalink' => $item['permalink'],
                 'image' => $image,
                 'timestamp' => $item['timestamp'],
@@ -548,7 +549,7 @@ final class InstagramFeed
 
     /**
      * @param array<mixed> $row
-     * @return array{id: string, type: string, caption: string, title: string, permalink: string, image: string, timestamp: string}|null
+     * @return array{id: string, type: string, caption: string, title: string, title_v: int, permalink: string, image: string, timestamp: string}|null
      */
     private static function clean(array $row): ?array
     {
@@ -558,13 +559,19 @@ final class InstagramFeed
             return null;
         }
 
+        $titleCurrent = (int) ($row['title_v'] ?? 0) === InstagramPostTitle::VERSION;
+
         return [
             'id' => (string) ($row['id'] ?? ''),
             'type' => (string) ($row['type'] ?? 'IMAGE'),
             'caption' => (string) ($row['caption'] ?? ''),
-            // Копия, сохранённая до появления заголовков, его не несёт:
-            // карточка берёт первую фразу подписи до следующего обновления.
-            'title' => mb_substr(trim((string) ($row['title'] ?? '')), 0, InstagramPostTitle::MAX_LENGTH) ?: InstagramPostTitle::fallback((string) ($row['caption'] ?? '')),
+            // Копия, сохранённая до появления заголовков или по прежним
+            // правилам (без отметки версии), карточке не годится: та резала
+            // заголовок по байтам. До следующего обновления карточка берёт
+            // первую фразу подписи.
+            'title' => ($titleCurrent ? InstagramPostTitle::clean((string) ($row['title'] ?? '')) : '')
+                ?: InstagramPostTitle::fallback((string) ($row['caption'] ?? '')),
+            'title_v' => $titleCurrent ? InstagramPostTitle::VERSION : 0,
             'permalink' => $permalink,
             'image' => $image,
             'timestamp' => (string) ($row['timestamp'] ?? ''),
