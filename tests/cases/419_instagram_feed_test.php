@@ -268,3 +268,24 @@ test('Instagram: проверка подключения идёт по шага�
     assert_same(['Доступ', 'Токен', 'Чтение публикаций'], array_column($own['steps'], 'name'), 'у Instagram Login IG User ID не нужен');
     assert_contains('пока нет публикаций', $own['steps'][2]['text']);
 });
+
+// Примеры с живого сайта: trim() по байтам отрезал у «л» байт, общий с «»»,
+// у «“» — байты, общие с «—», и вместо буквы вставал «?»; грубая обрезка до
+// 90 символов шла раньше обрезки по слову, а открывающая кавычка снималась и
+// тогда, когда закрывающая оставалась в тексте.
+test('Instagram: запасной заголовок не ломает буквы, слова и кавычки', function () {
+    $ru = \App\Core\InstagramPostTitle::fallback("📊 В разделе «Исследования и аналитика» опубликован первый материал\n\nЛаванда, роза…");
+    assert_same('В разделе «Исследования и аналитика» опубликован первый материал', $ru);
+
+    $uz = \App\Core\InstagramPostTitle::fallback('“Tahlil va tadqiqotlar” boʻlimida birinchi material eʼlon qilindi');
+    assert_same('“Tahlil va tadqiqotlar” boʻlimida birinchi material eʼlon qilindi', $uz);
+
+    $caption = '«Özbekiston — 2030» strategiyasining 48-maqsadi sanoatning drayver sohalarini rivojlantirish va hududlarning sanoat salohiyatidan toʻliq foydalanishga qaratilgan.';
+    $long = \App\Core\InstagramPostTitle::fallback($caption);
+    assert_true(str_starts_with($long, '«Özbekiston — 2030»'), 'парная кавычка остаётся');
+    assert_true(str_ends_with($long, 'sohalarini…'), 'обрезка по слову с многоточием: ' . $long);
+    assert_true(mb_strlen($long) <= \App\Core\InstagramPostTitle::MAX_LENGTH);
+    assert_true(str_starts_with(\App\Core\InstagramPostTitle::rest($caption, $long), 'rivojlantirish va'), 'подпись продолжает с целого слова');
+
+    assert_same('Agentlik forumi', \App\Core\InstagramPostTitle::clean('«Agentlik forumi'), 'кавычка без пары снимается');
+});
