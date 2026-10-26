@@ -1125,7 +1125,7 @@ function quality_budgets(): array
             'why' => 'exit обрывает процесс: действие с ним нельзя вызвать из теста, '
                 . 'не потеряв весь прогон. Редирект — Redirect::to(), он бросает '
                 . 'исключение, которое ловит роутер',
-            'ceiling' => static fn (): int => 272,
+            'ceiling' => static fn (): int => 269,
             'measure' => static function (): array {
                 return quality_regex_in_files(quality_controller_files(), '/\bexit\b/');
             },
@@ -1137,7 +1137,7 @@ function quality_budgets(): array
             'why' => 'приведение писалось по месту в каждой строке и расходилось: '
                 . 'где-то пробелы обрезали, где-то нет, массив вместо строки давал '
                 . '«Array» или TypeError. Правило одно — InputBag (Input::post/query)',
-            'ceiling' => static fn (): int => 658,
+            'ceiling' => static fn (): int => 654,
             'measure' => static function (): array {
                 return quality_regex_in_files(quality_controller_files(), '/\$_(POST|GET|REQUEST)\b/');
             },
