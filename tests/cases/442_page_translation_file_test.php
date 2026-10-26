@@ -32,6 +32,34 @@ test('Xlsx: таблица переживает запись и чтение, в
     assert_same('c', $read[3][0]);
 });
 
+// Файл из чужой программы: элементы с префиксом пространства имён
+// (`<x:c>`), пустая строка общего словаря `<si/>`, пустой ряд и ячейка
+// inlineStr без `<is>`. Такой файл ронял загрузку на foreach (null), а
+// атрибут типа ячейки у элемента из children($ns) не читался вовсе.
+test('Xlsx: читает файл с префиксом x: и пустыми ячейками', function () {
+    $ns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+    $path = tempnam(sys_get_temp_dir(), 'xt');
+    $zip = new \ZipArchive();
+    $zip->open($path, \ZipArchive::OVERWRITE);
+    $zip->addFromString('xl/workbook.xml', '<x:workbook xmlns:x="' . $ns . '" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><x:sheets><x:sheet name="S" sheetId="1" r:id="rId1"/></x:sheets></x:workbook>');
+    $zip->addFromString('xl/_rels/workbook.xml.rels', '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="ws" Target="worksheets/data.xml"/></Relationships>');
+    $zip->addFromString('xl/sharedStrings.xml', '<x:sst xmlns:x="' . $ns . '"><x:si/><x:si><x:r><x:t>Пере</x:t></x:r><x:r><x:t>вод</x:t></x:r></x:si><x:si><x:t>Ключ</x:t></x:si></x:sst>');
+    $zip->addFromString('xl/worksheets/data.xml', '<x:worksheet xmlns:x="' . $ns . '"><x:sheetData>'
+        . '<x:row r="1"><x:c r="A1" t="s"><x:v>2</x:v></x:c><x:c r="C1" t="s"><x:v>1</x:v></x:c></x:row>'
+        . '<x:row r="2"/>'
+        . '<x:row r="3"><x:c r="A3" t="inlineStr"/><x:c r="B3" t="s"><x:v>0</x:v></x:c><x:c r="D3"><x:v>42</x:v></x:c></x:row>'
+        . '</x:sheetData></x:worksheet>');
+    $zip->close();
+    try {
+        $rows = Xlsx::read($path);
+    } finally {
+        @unlink($path);
+    }
+    assert_same(['Ключ', '', 'Перевод'], $rows[0], 'строка словаря по типу ячейки, пропуск колонки сохраняет позицию');
+    assert_same([], $rows[1]);
+    assert_same(['', '', '', '42'], $rows[2], 'пустые ячейки — пустые строки, а не падение');
+});
+
 test('Xlsx: не таблица — понятная ошибка, а не падение', function () {
     $path = tempnam(sys_get_temp_dir(), 'xt');
     file_put_contents($path, 'не zip');

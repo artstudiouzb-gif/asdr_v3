@@ -24,6 +24,9 @@ use ZipArchive;
  */
 final class Xlsx
 {
+    private const MAIN_NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+    private const RELS_NS = 'http://schemas.openxmlformats.org/package/2006/relationships';
+
     /** Предел распакованного листа: XML разбирается целиком в памяти. */
     public const MAX_XML_BYTES = 40 * 1024 * 1024;
 
@@ -130,24 +133,23 @@ final class Xlsx
             $shared = [];
             $sharedXml = self::entry($zip, 'xl/sharedStrings.xml', false);
             if ($sharedXml !== '') {
-                $doc = self::parseXml($sharedXml);
-                foreach ($doc->si as $si) {
+                foreach (self::kids(self::parseXml($sharedXml), 'si') as $si) {
                     $shared[] = self::richText($si);
                 }
             }
 
             $doc = self::parseXml(self::entry($zip, $sheetPath, true));
             $rows = [];
-            foreach ($doc->sheetData->row ?? [] as $row) {
+            foreach (self::kids(self::kids($doc, 'sheetData')[0] ?? null, 'row') as $row) {
                 $cells = [];
-                foreach ($row->c as $cell) {
-                    $ref = (string) ($cell['r'] ?? '');
+                foreach (self::kids($row, 'c') as $cell) {
+                    $ref = self::attr($cell, 'r');
                     $index = $ref !== '' ? self::columnIndex($ref) : count($cells);
-                    $type = (string) ($cell['t'] ?? '');
-                    $value = match ($type) {
-                        's' => $shared[(int) $cell->v] ?? '',
-                        'inlineStr' => self::richText($cell->is),
-                        default => (string) $cell->v,
+                    $v = (string) (self::kids($cell, 'v')[0] ?? '');
+                    $value = match (self::attr($cell, 't')) {
+                        's' => $shared[(int) $v] ?? '',
+                        'inlineStr' => self::richText(self::kids($cell, 'is')[0] ?? null),
+                        default => $v,
                     };
                     while (count($cells) < $index) {
                         $cells[] = '';
@@ -167,16 +169,15 @@ final class Xlsx
     {
         $workbook = self::entry($zip, 'xl/workbook.xml', true);
         $rels = self::entry($zip, 'xl/_rels/workbook.xml.rels', false);
-        $doc = self::parseXml($workbook);
-        $sheet = $doc->sheets->sheet[0] ?? null;
+        $sheet = self::kids(self::kids(self::parseXml($workbook), 'sheets')[0] ?? null, 'sheet')[0] ?? null;
         if ($sheet === null) {
             throw new InvalidArgumentException('В книге нет ни одного листа.');
         }
         $rid = (string) ($sheet->attributes('http://schemas.openxmlformats.org/officeDocument/2006/relationships')['id'] ?? '');
         if ($rid !== '' && $rels !== '') {
-            foreach (self::parseXml($rels)->Relationship as $rel) {
-                if ((string) $rel['Id'] === $rid) {
-                    $target = ltrim((string) $rel['Target'], '/');
+            foreach (self::parseXml($rels)->children(self::RELS_NS) as $rel) {
+                if (self::attr($rel, 'Id') === $rid) {
+                    $target = ltrim(self::attr($rel, 'Target'), '/');
 
                     return str_starts_with($target, 'xl/') ? $target : 'xl/' . $target;
                 }
@@ -218,21 +219,61 @@ final class Xlsx
         return $doc;
     }
 
+    /**
+     * Атрибут без пространства имён. У элемента, полученного через
+     * `children($ns)`, запись `$el['t']` ищет атрибут в том же пространстве
+     * и обычный `t="s"` не видит — тип ячейки терялся, и вместо текста
+     * читался номер строки общего словаря.
+     */
+    private static function attr(\SimpleXMLElement $el, string $name): string
+    {
+        return (string) ($el->attributes()[$name] ?? '');
+    }
+
     /** Текст ячейки: простой `<t>` или куски с оформлением `<r><t>`. */
     private static function richText(?\SimpleXMLElement $node): string
     {
-        if ($node === null) {
-            return '';
-        }
-        if (isset($node->t)) {
-            return (string) $node->t;
+        $t = self::kids($node, 't');
+        if ($t !== []) {
+            return (string) $t[0];
         }
         $text = '';
-        foreach ($node->r as $run) {
-            $text .= (string) $run->t;
+        foreach (self::kids($node, 'r') as $run) {
+            $text .= (string) (self::kids($run, 't')[0] ?? '');
         }
 
         return $text;
+    }
+
+    /**
+     * Дочерние элементы по имени — в пространстве имён таблицы, записаны они
+     * с префиксом (`<x:c>`) или без.
+     *
+     * Обращение `$node->c` видит только элементы без префикса, а на
+     * отсутствующем узле отдаёт пустышку, у которой следующий шаг — `null`:
+     * так файл из чужой программы ронял загрузку на `foreach (null)` вместо
+     * того, чтобы прочитаться. Ответ здесь всегда список, пусть и пустой.
+     *
+     * @return list<\SimpleXMLElement>
+     */
+    private static function kids(?\SimpleXMLElement $node, string $name): array
+    {
+        if ($node === null) {
+            return [];
+        }
+        $out = [];
+        foreach ([self::MAIN_NS, ''] as $ns) {
+            foreach ($node->children($ns) as $child) {
+                if ($child->getName() === $name) {
+                    $out[] = $child;
+                }
+            }
+            if ($out !== []) {
+                break;
+            }
+        }
+
+        return $out;
     }
 
     private static function column(int $index): string
