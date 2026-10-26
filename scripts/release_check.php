@@ -30,6 +30,12 @@ $add = static function (string $name, string $status, string $message) use (&$ch
 };
 
 $add('php_version', version_compare(PHP_VERSION, '8.4.0', '>=') ? 'ok' : 'error', 'PHP ' . PHP_VERSION);
+// Версия консольного PHP: у веб-сайта на хостинге она бывает другой — её
+// показывает «Состояние системы».
+$advisory = \App\Core\PhpAdvisory::check();
+$add('php_cve', $advisory['vulnerable'] ? 'error' : 'ok', $advisory['vulnerable']
+    ? 'PHP ' . PHP_VERSION . ' уязвима (' . implode(', ', $advisory['cves']) . '), нужна ' . $advisory['fixed'] . '+'
+    : 'известных критических уязвимостей PHP нет');
 foreach (['pdo_mysql', 'mbstring', 'gd', 'curl', 'dom', 'fileinfo', 'openssl', 'zip'] as $extension) {
     $add('ext_' . $extension, extension_loaded($extension) ? 'ok' : 'error', $extension);
 }
