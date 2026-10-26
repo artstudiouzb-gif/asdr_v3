@@ -12,6 +12,11 @@ $module = $module ?? 'pages';
 $origId = (int) ($origId ?? 0);
 $translationEditUrl = trim((string) ($translationEditUrl ?? ''));
 $translationDefaultCode = (string) ($translationDefaultCode ?? '');
+// Видимость версий на сайте (id → published|scheduled|draft,
+// Translations::visibility): без неё черновой перевод выглядел как готовый.
+/** @var array<int, string> $visibility */
+$visibility = $visibility ?? [];
+$visibilityLabels = ['draft' => 'черновик, на сайте не виден', 'scheduled' => 'запланирован, на сайте пока не виден'];
 
 foreach ($siteLangs as $code):
     $targetId = null;
@@ -30,8 +35,10 @@ foreach ($siteLangs as $code):
            title="<?= $on ? 'Редактировать' : 'Добавить' ?> перевод на язык <?= htmlspecialchars(strtoupper($code), ENT_QUOTES) ?>"
           ><?= $on ? '' : '+' ?><?= htmlspecialchars($code, ENT_QUOTES) ?></a>
     <?php elseif ($on): ?>
-        <a class="u-inline-da0ab63f64" href="/admin/<?= urlencode($module) ?>/<?= $targetId ?>/edit"
-           title="Редактировать перевод на язык <?= htmlspecialchars(strtoupper($code), ENT_QUOTES) ?> (#<?= $targetId ?>)"
+        <?php $state = $visibility[$targetId] ?? 'published'; ?>
+        <a class="u-inline-da0ab63f64<?= isset($visibilityLabels[$state]) ? ' lang-badge--' . $state : '' ?>" href="/admin/<?= urlencode($module) ?>/<?= $targetId ?>/edit"
+           title="Редактировать перевод на язык <?= htmlspecialchars(strtoupper($code), ENT_QUOTES) ?> (#<?= $targetId ?>)<?= isset($visibilityLabels[$state]) ? ' — ' . $visibilityLabels[$state] : '' ?>"
+           <?= isset($visibilityLabels[$state]) ? 'aria-label="' . htmlspecialchars(strtoupper($code) . ': ' . $visibilityLabels[$state], ENT_QUOTES) . '"' : '' ?>
           ><?= htmlspecialchars($code, ENT_QUOTES) ?></a>
     <?php elseif ($origId > 0): ?>
         <form method="post" action="/admin/<?= rawurlencode($module) ?>/<?= $origId ?>/create-translation" class="translation-create-form">

@@ -280,11 +280,11 @@
       "sources": [
         "/assets/css/admin.css"
       ],
-      "sourceSha256": "5ce162bd355bb6ebe8427b23412852c7518c6602999392feac600d2e2becc9cd",
-      "sha256": "de4cf051bb06c0fb12ac2bbef99ec2833d95406e67668eb4613ff02eadb4be17",
-      "raw": 280508,
-      "gzip": 47637,
-      "brotli": 38615
+      "sourceSha256": "a1f2597bb40c9fd58245f0d8d1d230f461d831f5f76b2df3d150b41a3cad2e19",
+      "sha256": "88defde9b15f9d31b422eb8ee796af9f5b0c04e2262461efe0b3f1d7e0d30b4a",
+      "raw": 280801,
+      "gzip": 47682,
+      "brotli": 38655
     },
     "/assets/admin/admin-shell.min.css": {
       "sources": [

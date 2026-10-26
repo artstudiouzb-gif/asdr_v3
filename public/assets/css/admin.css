@@ -5302,6 +5302,9 @@ details.design-manual[open] > summary::before { transform: rotate(90deg); }
 .u-inline-d26d79f4c2{width:70px;}
 .u-inline-d7a10ee612{position:absolute;right:0;z-index:10;width:260px;padding:12px;text-align:left;box-shadow:0 8px 24px rgba(16,24,40,.18);}
 .u-inline-da0ab63f64{display:inline-block;margin-right:4px;padding:2px 7px;border-radius:3px;font-size:var(--admin-fs-xs);font-weight:var(--admin-fw-semibold);text-transform:uppercase;text-decoration:none;background:#e6f4ea;color:#1e7e34;border:1px solid #a8dab5;transition:all .15s ease;}
+/* Значок языка у непубличной версии: на сайте её ещё нет (Translations::visibility). */
+.u-inline-da0ab63f64.lang-badge--draft{background:transparent;color:var(--admin-muted);border-style:dashed;border-color:currentColor;}
+.u-inline-da0ab63f64.lang-badge--scheduled{background:var(--admin-warning-soft);color:var(--admin-warning);border-style:dashed;border-color:var(--admin-warning-border);}
 .u-inline-e8d4cc3d50{font-size:var(--admin-fs-base);font-weight:var(--admin-fw-medium);}
 .u-inline-ec08abfabe{font-size:var(--admin-fs-base);padding:6px 12px;display:inline-flex;align-items:center;gap:6px;font-weight:var(--admin-fw-medium);}
 .u-inline-f6bd23a169{font-size:var(--admin-fs-base);padding:6px 10px;}
