@@ -53,6 +53,43 @@ final class Translations
     /** Поля перевода, которые не переносятся в запись: они служебные. */
     private const SERVICE_FIELDS = ['id', 'lang', 'created_at', 'updated_at'];
 
+    /**
+     * Видимость языковых версий для колонки «Языки» в списках: id записи →
+     * `published` | `scheduled` | `draft`.
+     *
+     * Значок языка вёл в редактор, но о статусе не говорил ничего: черновой
+     * перевод выглядел так же, как опубликованный, а сайт на нём отвечал
+     * «Перевод пока недоступен» — узнать причину можно было, только открыв
+     * каждую версию. «Запланировано» — опубликованная новость с датой в
+     * будущем: на сайте её тоже ещё нет.
+     *
+     * @param list<int> $ids
+     * @return array<int, string>
+     */
+    public static function visibility(string $table, array $ids): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
+        if ($ids === [] || !self::supportsLinkedRecords($table)) {
+            return [];
+        }
+        $realTable = $table === 'projects' ? 'pages' : $table;
+        $scheduled = $realTable === 'news' ? "WHEN status = 'published' AND published_at > NOW() THEN 'scheduled' " : '';
+
+        $out = [];
+        foreach (array_chunk($ids, self::CHUNK) as $chunk) {
+            $stmt = Database::pdo()->prepare(
+                "SELECT id, CASE {$scheduled}WHEN status = 'published' THEN 'published' ELSE 'draft' END AS visibility
+                 FROM `{$realTable}` WHERE id IN (" . implode(',', array_fill(0, count($chunk), '?')) . ')'
+            );
+            $stmt->execute($chunk);
+            foreach (Database::rows($stmt) as $row) {
+                $out[(int) $row['id']] = (string) $row['visibility'];
+            }
+        }
+
+        return $out;
+    }
+
     public static function supportsLinkedRecords(string $table): bool
     {
         return in_array($table, self::LINKED_RECORDS, true);

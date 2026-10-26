@@ -63,6 +63,7 @@ $langs = Language::active();
         <?php
         // Языки контента для всех строк одним запросом (без N+1).
         $langMap = \App\Models\Project::availableLangsForIds(array_map(static fn ($i): int => (int) $i['id'], $items), true);
+        $langVisibility = \App\Core\Translations::visibility('projects', array_merge([], ...array_map(static fn (array $l): array => array_values(array_map('intval', $l)), array_values($langMap))));
         $siteLangs = array_map(static fn (array $l): string => (string) $l['code'], $langs);
         ?>
         <?php foreach ($items as $item): ?>
@@ -72,7 +73,7 @@ $langs = Language::active();
                     <a class="data-table__primary" href="/admin/projects/<?= (int) $item['id'] ?>/edit"><?= htmlspecialchars($item['title'], ENT_QUOTES) ?></a>
                     <?php if (!empty($item['is_featured'])): ?><span class="badge badge--success" title="Показывается в блоке «Проекты» на главной"><?= \App\Core\AdminUi::icon('home', 13) ?> на главной</span><?php endif; ?>
                 </td>
-                <td class="u-inline-a9efa5449f"><?= \App\Core\View::renderPartial('admin/layout/lang_badges', ['siteLangs' => $siteLangs, 'has' => $langMap[(int) $item['id']] ?? [], 'module' => 'projects', 'origId' => (int) $item['id']]) ?></td>
+                <td class="u-inline-a9efa5449f"><?= \App\Core\View::renderPartial('admin/layout/lang_badges', ['siteLangs' => $siteLangs, 'has' => $langMap[(int) $item['id']] ?? [], 'module' => 'projects', 'origId' => (int) $item['id'], 'visibility' => $langVisibility]) ?></td>
                 <td>
                     <span class="badge badge--<?= $item['status'] ?>">
                         <?= $item['status'] === 'published' ? 'Опубликовано' : 'Черновик' ?>

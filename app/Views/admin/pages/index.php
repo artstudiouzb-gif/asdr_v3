@@ -84,6 +84,7 @@ $langs = Language::active();
         // Языки контента для всех строк одним запросом (без N+1) и список
         // активных языков сайта — чтобы показать и недостающие переводы.
         $langMap = \App\Models\Page::availableLangsForIds(array_map(static fn ($i): int => (int) $i['id'], $items), true);
+        $langVisibility = \App\Core\Translations::visibility('pages', array_merge([], ...array_map(static fn (array $l): array => array_values(array_map('intval', $l)), array_values($langMap))));
         $siteLangs = array_map(static fn (array $l): string => (string) $l['code'], $langs);
         ?>
         <?php foreach ($items as $item): ?>
@@ -110,7 +111,7 @@ $langs = Language::active();
                     <?php endif; ?>
                 </td>
                 <td>/<?= htmlspecialchars($item['slug'], ENT_QUOTES) ?></td>
-                <td class="u-inline-a9efa5449f"><?= \App\Core\View::renderPartial('admin/layout/lang_badges', ['siteLangs' => $siteLangs, 'has' => $langMap[(int) $item['id']] ?? [], 'module' => 'pages', 'origId' => (int) $item['id']]) ?></td>
+                <td class="u-inline-a9efa5449f"><?= \App\Core\View::renderPartial('admin/layout/lang_badges', ['siteLangs' => $siteLangs, 'has' => $langMap[(int) $item['id']] ?? [], 'module' => 'pages', 'origId' => (int) $item['id'], 'visibility' => $langVisibility]) ?></td>
                 <td>
                     <span class="badge badge--<?= $item['status'] ?>">
                         <?= $item['status'] === 'published' ? 'Опубликовано' : 'Черновик' ?>

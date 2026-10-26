@@ -88,6 +88,7 @@ $langs = Language::active();
         // активных языков сайта — чтобы показать и недостающие переводы.
         $itemIds = array_values(array_map(static fn ($i): int => (int) $i['id'], $items));
         $langMap = \App\Models\News::availableLangsForIds($itemIds, true);
+        $langVisibility = \App\Core\Translations::visibility('news', array_merge([], ...array_map(static fn (array $l): array => array_values(array_map('intval', $l)), array_values($langMap))));
         $siteLangs = array_map(static fn (array $l): string => (string) $l['code'], $langs);
         $readyNets = \App\Core\SocialSettings::readyNetworks();
         // Статус публикации в соцсети по всем строкам одним запросом (без N+1).
@@ -114,7 +115,7 @@ $langs = Language::active();
                         —
                     <?php endif; ?>
                 </td>
-                <td class="u-inline-a9efa5449f"><?= \App\Core\View::renderPartial('admin/layout/lang_badges', ['siteLangs' => $siteLangs, 'has' => $langMap[(int) $item['id']] ?? [], 'module' => 'news', 'origId' => (int) $item['id']]) ?></td>
+                <td class="u-inline-a9efa5449f"><?= \App\Core\View::renderPartial('admin/layout/lang_badges', ['siteLangs' => $siteLangs, 'has' => $langMap[(int) $item['id']] ?? [], 'module' => 'news', 'origId' => (int) $item['id'], 'visibility' => $langVisibility]) ?></td>
                 <td>
                     <span class="badge badge--<?= $item['status'] ?>">
                         <?= $item['status'] === 'published' ? 'Опубликовано' : 'Черновик' ?>
