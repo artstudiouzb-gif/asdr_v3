@@ -180,6 +180,31 @@ final class SpeculationRules
      */
     public static function scriptHtml(): string
     {
+        $json = self::json();
+
+        return $json === '' ? '' : '<script type="speculationrules">' . $json . '</script>';
+    }
+
+    /**
+     * Хэш содержимого правил для script-src (`'sha256-…'`), пустая строка —
+     * приём выключен.
+     *
+     * Одного `'inline-speculation-rules'` мало: Chrome на живом сайте
+     * отклонял правила с ним («Either the 'unsafe-inline' keyword, a hash…»).
+     * Хэш понимает любой браузер с поддержкой CSP, а в отличие от nonce он
+     * не меняется от запроса к запросу — тело страницы и ETag остаются
+     * прежними. Содержимое собирается из настроек тем же методом, что и
+     * разметка, поэтому хэш с ней не разойдётся.
+     */
+    public static function cspHash(): string
+    {
+        $json = self::json();
+
+        return $json === '' ? '' : "'sha256-" . base64_encode(hash('sha256', $json, true)) . "'";
+    }
+
+    private static function json(): string
+    {
         $rules = self::rules();
         if ($rules === []) {
             return '';
@@ -190,10 +215,7 @@ final class SpeculationRules
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
                 | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
         );
-        if (!is_string($json)) {
-            return '';
-        }
 
-        return '<script type="speculationrules">' . $json . '</script>';
+        return is_string($json) ? $json : '';
     }
 }
