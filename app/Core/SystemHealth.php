@@ -149,6 +149,10 @@ final class SystemHealth
                 'Проверить адрес сайта', '',
                 'Укажите APP_URL с https:// в конфигурации хостинга, включите SSL-сертификат и после этого заново откройте страницу проверки.',
             ],
+            'php_cve' => [
+                'Обновить PHP', '',
+                'В панели хостинга (cPanel → «Select PHP Version» / «MultiPHP Manager», в hPanel — «PHP Configuration») выберите исправленную сборку ветки 8.5 и перезапустите PHP. Если исправленной сборки ещё нет, попросите поддержку хостинга установить её; до этого отключите session.upload_progress.enabled в глобальном php.ini.',
+            ],
             'integrity' => [
                 'Пересобрать эталон', '',
                 'После завершённой выкладки выполните: php app/Console/integrity_check.php --baseline. Не пересобирайте эталон, пока происхождение изменённых файлов не проверено.',
@@ -375,6 +379,18 @@ final class SystemHealth
             $https ? self::OK : self::WARN,
             $https ? 'адрес сайта объявлен по https' : 'адрес сайта объявлен по http',
             $https ? '' : 'Пока app.url начинается с http://, не работает ни принудительный переход на https, ни HSTS, а cookie админки уходит открытым текстом.',
+            null
+        );
+
+        $advisory = PhpAdvisory::check();
+        $checks[] = self::check(
+            'php_cve',
+            'Версия PHP',
+            $advisory['vulnerable'] ? self::FAIL : self::OK,
+            'PHP ' . PHP_VERSION . ($advisory['vulnerable'] ? ' — уязвима (' . implode(', ', $advisory['cves']) . ')' : ''),
+            $advisory['vulnerable']
+                ? 'В этой версии PHP есть уязвимость, позволяющая выполнить код на сервере без входа. Код сайта её не закрывает — нужна версия ' . $advisory['fixed'] . ' или новее.'
+                : '',
             null
         );
 
