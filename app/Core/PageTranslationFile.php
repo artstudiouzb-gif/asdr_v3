@@ -176,7 +176,11 @@ final class PageTranslationFile
                 $result['skipped_existing'][] = (string) $page['title'];
                 continue;
             }
-            $result[$outcome]++;
+            if ($outcome === 'created') {
+                $result['created']++;
+            } else {
+                $result['updated']++;
+            }
             $result['pages'][] = (string) $page['title'];
         }
 
