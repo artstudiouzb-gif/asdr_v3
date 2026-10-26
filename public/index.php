@@ -244,6 +244,8 @@ $router->post('/admin/heroes/{id}/slides/{slide}/delete', [\App\Controllers\Admi
 // --- Admin: страницы + конструктор блоков ---
 $router->get('/admin/pages', [AdminPageController::class, 'index']);
 $router->get('/admin/pages/create', [AdminPageController::class, 'create']);
+$router->get('/admin/pages/translation/export', [\App\Controllers\Admin\PageTranslationController::class, 'export']);
+$router->post('/admin/pages/translation/import', [\App\Controllers\Admin\PageTranslationController::class, 'import']);
 $router->post('/admin/pages/create', [AdminPageController::class, 'store']);
 $router->get('/admin/pages/{id}/edit', [AdminPageController::class, 'edit']);
 $router->get('/admin/pages/{id}/preview', [AdminPageController::class, 'preview']);
