@@ -103,6 +103,27 @@ test('Разметка правил не несёт nonce — иначе ETag с
     }
 });
 
+// Одного 'inline-speculation-rules' Chrome на живом сайте не хватило —
+// правила отклонялись с просьбой о хэше. Хэш постоянен (в отличие от nonce),
+// поэтому ETag не страдает; считается он от того же JSON, что и разметка.
+test('CSP разрешает правила хэшем их содержимого', function (): void {
+    ensure_test_db();
+    \App\Models\Setting::set(SpeculationRules::SETTING, 'prerender');
+    $html = SpeculationRules::scriptHtml();
+    assert_true($html !== '', 'при включённом приёме правила печатаются');
+    $body = substr($html, strlen('<script type="speculationrules">'), -strlen('</script>'));
+    $hash = "'sha256-" . base64_encode(hash('sha256', $body, true)) . "'";
+    assert_same($hash, SpeculationRules::cspHash());
+
+    $csp = \App\Core\SecurityHeaders::publicCsp('n0nce', ['speculation_hash' => $hash]);
+    assert_contains($hash, $csp);
+    $forged = \App\Core\SecurityHeaders::publicCsp('n0nce', ['speculation_hash' => "'unsafe-inline'"]);
+    assert_true(!preg_match("#script-src[^;]*'unsafe-inline'#", $forged), 'чужое значение отбрасывается');
+
+    \App\Models\Setting::set(SpeculationRules::SETTING, 'off');
+    assert_same('', SpeculationRules::cspHash(), 'приём выключен — хэша нет');
+});
+
 test('Скрипты, обращающиеся к посетителю, ждут показа страницы', function (): void {
     $themeInit = (string) file_get_contents(APP_ROOT . '/public/assets/js/theme-init.js');
     assert_contains('asdrWhenActivated', $themeInit);
