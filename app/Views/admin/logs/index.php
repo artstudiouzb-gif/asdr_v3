@@ -44,6 +44,8 @@ $levelBadge = [
         'alert-triangle',
         'var(--admin-accent)',
         '<a class="btn btn--small" href="/admin/logs?channel=' . urlencode($channel) . '">' . AdminUi::icon('refresh') . 'Обновить</a>'
+        . ' <a class="btn btn--small" href="/admin/logs/download?channel=' . urlencode($channel) . '" title="Активный файл и архивы ротации одним ZIP">' . AdminUi::icon('download') . 'Скачать журнал</a>'
+        . ' <a class="btn btn--small" href="/admin/logs/download?channel=all" title="Все системные журналы одним ZIP">' . AdminUi::icon('download') . 'Скачать все</a>'
     ) ?>
 
     <?php if ($data['total'] === 0): ?>

@@ -224,6 +224,68 @@ final class LogReader
         return $count;
     }
 
+    /**
+     * Файлы канала для выгрузки: активный журнал и архивы ротации
+     * (`.log.1` … `.log.N`, `Logger::rotateIfNeeded`). Панель показывает
+     * только хвост активного файла, а проверке за период — например для
+     * отчёта об инциденте — нужен весь журнал, включая сдвинутое ротацией.
+     *
+     * @return list<string> абсолютные пути, от свежего к старому
+     */
+    public static function files(string $channel): array
+    {
+        $file = self::path($channel);
+        if ($file === '') {
+            return [];
+        }
+        $files = is_file($file) ? [$file] : [];
+        for ($i = 1; is_file($file . '.' . $i); $i++) {
+            $files[] = $file . '.' . $i;
+        }
+
+        return $files;
+    }
+
+    /**
+     * Собирает ZIP с журналами канала (`all` — все каналы сразу) во временный
+     * файл. Удалить его — забота вызывающего.
+     *
+     * @return string|null путь к архиву; null, если выгружать нечего или
+     *                     архив не собрался
+     */
+    public static function archive(string $channel): ?string
+    {
+        $channels = $channel === 'all' ? array_keys(self::CHANNELS) : [$channel];
+        $files = [];
+        foreach ($channels as $name) {
+            foreach (self::files($name) as $file) {
+                $files[] = $file;
+            }
+        }
+        if ($files === [] || !class_exists(\ZipArchive::class)) {
+            return null;
+        }
+
+        $tmp = tempnam(sys_get_temp_dir(), 'logs');
+        if ($tmp === false) {
+            return null;
+        }
+        $zip = new \ZipArchive();
+        if ($zip->open($tmp, \ZipArchive::OVERWRITE) !== true) {
+            @unlink($tmp);
+            return null;
+        }
+        foreach ($files as $file) {
+            $zip->addFile($file, basename($file));
+        }
+        if (!$zip->close()) {
+            @unlink($tmp);
+            return null;
+        }
+
+        return $tmp;
+    }
+
     /** Очистка канала: файл остаётся на месте, содержимое обнуляется. */
     public static function clear(string $channel): bool
     {

@@ -7,7 +7,9 @@ namespace App\Controllers\Admin;
 use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Flash;
+use App\Core\Input;
 use App\Core\LogReader;
+use App\Core\Redirect;
 use App\Core\View;
 
 /**
@@ -26,7 +28,7 @@ final class LogController
     {
         Auth::requireSuperAdmin();
 
-        $channel = (string) ($_GET['channel'] ?? 'error');
+        $channel = Input::query()->str('channel', 'error', 32);
         if (!isset(LogReader::CHANNELS[$channel])) {
             $channel = 'error';
         }
@@ -43,11 +45,10 @@ final class LogController
         Auth::requireSuperAdmin();
         Csrf::verifyRequest();
 
-        $channel = (string) ($_POST['channel'] ?? '');
+        $channel = Input::post()->str('channel', '', 32);
         if (!isset(LogReader::CHANNELS[$channel])) {
             Flash::error('Неизвестный журнал.');
-            header('Location: /admin/logs');
-            exit;
+            Redirect::to('/admin/logs');
         }
 
         if (LogReader::clear($channel)) {
@@ -56,8 +57,7 @@ final class LogController
             Flash::error('Не удалось очистить журнал: проверьте права на storage/logs.');
         }
 
-        header('Location: /admin/logs?channel=' . urlencode($channel));
-        exit;
+        Redirect::to('/admin/logs?channel=' . urlencode($channel));
     }
 
     /** Удаляет из файлового журнала только записи старше выбранного срока. */
@@ -66,12 +66,11 @@ final class LogController
         Auth::requireSuperAdmin();
         Csrf::verifyRequest();
 
-        $channel = (string) ($_POST['channel'] ?? '');
-        $days = (int) ($_POST['days'] ?? 0);
+        $channel = Input::post()->str('channel', '', 32);
+        $days = Input::post()->int('days');
         if (!isset(LogReader::CHANNELS[$channel]) || !in_array($days, [7, 30, 90], true)) {
             Flash::error('Не удалось определить журнал или срок хранения.');
-            header('Location: /admin/logs');
-            exit;
+            Redirect::to('/admin/logs');
         }
 
         $removed = LogReader::purgeOlderThan($channel, $days);
@@ -81,7 +80,47 @@ final class LogController
             Flash::success('Удалено старых записей: ' . $removed . '.');
         }
 
-        header('Location: /admin/logs?channel=' . urlencode($channel));
+        Redirect::to('/admin/logs?channel=' . urlencode($channel));
+    }
+
+    /**
+     * Выгрузка журнала целиком ZIP-архивом: активный файл и архивы ротации.
+     * Панель показывает только хвост, а проверке за период (отчёт об
+     * инциденте, передача инженеру) нужен весь журнал.
+     */
+    public function download(): void
+    {
+        Auth::requireSuperAdmin();
+
+        $channel = Input::query()->str('channel', '', 32);
+        if ($channel !== 'all' && !isset(LogReader::CHANNELS[$channel])) {
+            Flash::error('Неизвестный журнал.');
+            Redirect::to('/admin/logs');
+        }
+
+        $zip = LogReader::archive($channel);
+        if ($zip === null) {
+            Flash::error('Выгружать нечего: журнал пуст или архив не удалось собрать.');
+            Redirect::to('/admin/logs?channel=' . urlencode($channel === 'all' ? 'error' : $channel));
+        }
+        // Вкладку могут закрыть посреди отдачи — тогда строка после
+        // readfile() не выполнится, а временный архив остался бы на диске.
+        register_shutdown_function(static function () use ($zip): void {
+            if (is_file($zip)) {
+                @unlink($zip);
+            }
+        });
+
+        $name = 'logs-' . $channel . '-' . date('Y-m-d-His') . '.zip';
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="' . $name . '"');
+        header('Content-Length: ' . (string) filesize($zip));
+        header('X-Content-Type-Options: nosniff');
+        header('Cache-Control: no-store');
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        readfile($zip);
         exit;
     }
 }
