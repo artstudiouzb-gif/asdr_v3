@@ -29,6 +29,24 @@ $langs = Language::active();
     <div class="list-filters__actions"><button type="submit" class="btn btn--primary"><?= AdminUi::icon('filter') ?>Применить</button><a href="/admin/pages" class="btn"><?= AdminUi::icon('reset') ?>Сбросить</a></div>
 </form>
 
+<?php if (count($langs) > 1): ?>
+<details class="list-filters list-filters--panel">
+    <summary><?= AdminUi::icon('language') ?>Перевод всех страниц файлом</summary>
+    <p>Тексты всех страниц и проектов одного языка выгружаются одной таблицей Excel: по строке на каждое поле — заголовок, лид, SEO и тексты блоков. Переводчик заполняет последний столбец, ключи и исходный текст не меняет. Загруженная таблица создаёт языковые версии страниц черновиками; ссылки, картинки и оформление берутся из исходной страницы.</p>
+    <form method="get" action="/admin/pages/translation/export" class="list-filters">
+        <div class="list-filter"><label for="tr_from">С языка</label><select id="tr_from" name="from"><?php foreach ($langs as $l): ?><option value="<?= htmlspecialchars($l['code'], ENT_QUOTES) ?>"<?= $l['code'] === 'uz' ? ' selected' : '' ?>><?= htmlspecialchars($l['name'], ENT_QUOTES) ?></option><?php endforeach; ?></select></div>
+        <div class="list-filter"><label for="tr_to">На язык</label><select id="tr_to" name="to"><?php foreach ($langs as $l): ?><option value="<?= htmlspecialchars($l['code'], ENT_QUOTES) ?>"<?= $l['code'] === 'ru' ? ' selected' : '' ?>><?= htmlspecialchars($l['name'], ENT_QUOTES) ?></option><?php endforeach; ?></select></div>
+        <div class="list-filters__actions"><button type="submit" class="btn"><?= AdminUi::icon('download') ?>Скачать таблицу для перевода</button></div>
+    </form>
+    <form method="post" action="/admin/pages/translation/import" enctype="multipart/form-data" class="list-filters">
+        <?= Csrf::field() ?>
+        <div class="list-filter list-filter--search"><label for="tr_file">Переведённая таблица (.xlsx)</label><input type="file" id="tr_file" name="translation" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required></div>
+        <div class="list-filter"><label><input type="checkbox" name="overwrite" value="1"> Перезаписать уже готовые переводы</label></div>
+        <div class="list-filters__actions"><button type="submit" class="btn btn--primary"><?= AdminUi::icon('upload') ?>Загрузить перевод</button></div>
+    </form>
+</details>
+<?php endif; ?>
+
 <p class="list-results">Найдено: <strong><?= (int) $total ?></strong></p>
 
 <form id="bulkform" method="post" action="/admin/bulk/pages" class="bulk-bar" data-bulk-form>

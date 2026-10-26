@@ -474,6 +474,16 @@ final class TextReplace
         return $value;
     }
 
+    /**
+     * Текст ли это для читателя: то же правило, по которому замена решает,
+     * что менять. Его же спрашивает перевод страниц файлом — второй список
+     * «какие поля переводить» разъехался бы с этим.
+     */
+    public static function isReaderText(string $key, string $value): bool
+    {
+        return trim($value) !== '' && !self::isTechnical($key) && preg_match(self::NOT_TEXT_VALUE, $value) !== 1;
+    }
+
     private static function isTechnical(string $name): bool
     {
         // Ключи оформления блока (`_bg`, `_reveal`, …) — настройки, кроме двух
