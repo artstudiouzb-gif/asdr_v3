@@ -118,6 +118,10 @@ final class SecurityHeaders
             'https://www.youtube.com',
             'https://telegram.org',
         ];
+        $speculationHash = (string) ($opts['speculation_hash'] ?? '');
+        if (preg_match("#^'sha256-[A-Za-z0-9+/]{43}='$#", $speculationHash) === 1) {
+            $script[] = $speculationHash;
+        }
         $connect = ["'self'"];
         $style = ["'self'", "'unsafe-inline'"];
         $font = ["'self'", 'data:'];
@@ -262,7 +266,7 @@ final class SecurityHeaders
      * Опции публичной CSP из настроек. БД может быть недоступна (503 в
      * bootstrap) — тогда консервативный набор без внешних хостов.
      *
-     * @return array{ga: bool, ym: bool, counter_scripts: list<string>}
+     * @return array{ga: bool, ym: bool, counter_scripts: list<string>, speculation_hash: string}
      */
     private static function publicCspOptions(): array
     {
@@ -271,9 +275,10 @@ final class SecurityHeaders
                 'ga' => Analytics::gaId() !== '',
                 'ym' => Analytics::ymId() !== '',
                 'counter_scripts' => self::footerCounterScriptSources(),
+                'speculation_hash' => SpeculationRules::cspHash(),
             ];
         } catch (\Throwable) {
-            return ['ga' => false, 'ym' => false, 'counter_scripts' => []];
+            return ['ga' => false, 'ym' => false, 'counter_scripts' => [], 'speculation_hash' => ''];
         }
     }
 
