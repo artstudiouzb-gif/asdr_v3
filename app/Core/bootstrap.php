@@ -106,6 +106,8 @@ if (is_file($configFile)) {
         // без вывода системного трейса.
         try {
             Database::init($config['db']);
+            // Хосты счётчиков читаются из настроек — до базы их не знали.
+            SecurityHeaders::refreshPublicCsp();
         } catch (\Throwable $e) {
             \App\Core\Logger::critical('Падение БД (503): ' . $e->getMessage(), [
                 'url' => $_SERVER['REQUEST_URI'] ?? 'cli',

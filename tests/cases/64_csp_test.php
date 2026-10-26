@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Core\SecurityHeaders;
+use App\Models\Setting;
 
 // CSP публичной части и админки (roadmap v2, раздел «Безопасность»):
 // nonce вместо 'unsafe-inline' для скриптов, условные хосты, HSTS preload.
@@ -84,4 +85,29 @@ test('injectScriptNonce: добавляет nonce только тегам без
 test('hstsValue: preload по опции', function () {
     assert_same('max-age=31536000; includeSubDomains', SecurityHeaders::hstsValue(false));
     assert_same('max-age=63072000; includeSubDomains; preload', SecurityHeaders::hstsValue(true));
+});
+
+// Заголовок из bootstrap уходит до подключения к базе, и тогда хостов
+// счётчиков в нём нет: ID записаны в настройках. После Database::init()
+// bootstrap зовёт refreshPublicCsp(), а та собирает политику этим методом —
+// без пересылки tag.js и gtag.js блокировались на каждой странице.
+test('currentPublicCsp: при подключённой базе разрешает хосты введённых счётчиков', function () {
+    ensure_test_db();
+    $gaBackup = (string) Setting::get('analytics_ga_id', '');
+    $ymBackup = (string) Setting::get('analytics_ym_id', '');
+    try {
+        Setting::set('analytics_ga_id', 'G-4TLLXCNM3C');
+        Setting::set('analytics_ym_id', '113797325');
+        $csp = SecurityHeaders::currentPublicCsp();
+        assert_contains('https://www.googletagmanager.com', $csp);
+        assert_contains('https://mc.yandex.ru', $csp);
+
+        Setting::set('analytics_ga_id', '');
+        Setting::set('analytics_ym_id', '');
+        $csp = SecurityHeaders::currentPublicCsp();
+        assert_not_contains('googletagmanager', $csp, 'без ID хостов нет');
+    } finally {
+        Setting::set('analytics_ga_id', $gaBackup);
+        Setting::set('analytics_ym_id', $ymBackup);
+    }
 });
