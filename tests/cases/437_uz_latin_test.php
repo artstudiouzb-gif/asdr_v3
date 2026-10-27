@@ -40,6 +40,11 @@ test('Новая латиница: новые буквы понимают кир
     assert_same('Шаҳар Ўзбекистон', UzCyrillic::text('Şahar Özbekiston'));
     assert_same(\App\Core\SearchQuery::normalize('shahar o‘zbek'), \App\Core\SearchQuery::normalize('Şahar özbek'));
     assert_same(Slug::make('Shahar O‘zbekiston'), Slug::make('Şahar Özbekiston'));
+    // Те же буквы составными символами (текст из macOS/Word) и «Ș» с запятой
+    // снизу (румынская раскладка): на экране не отличить, правила обязаны понять.
+    assert_same('Ўзбекистон шаҳар ғоя чой', UzCyrillic::text("O\u{0308}zbekiston s\u{0327}ahar g\u{0306}oya c\u{0327}oy"));
+    assert_same('Шаҳар', UzCyrillic::text('Șahar'));
+    assert_same(\App\Core\SearchQuery::normalize('shahar'), \App\Core\SearchQuery::normalize('Șahar'));
 });
 
 test('Новая латиница в базе: только узбекские записи, без адресов, с отменой', function () {
