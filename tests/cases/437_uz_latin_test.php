@@ -45,6 +45,17 @@ test('Новая латиница: новые буквы понимают кир
     assert_same('Ўзбекистон шаҳар ғоя чой', UzCyrillic::text("O\u{0308}zbekiston s\u{0327}ahar g\u{0306}oya c\u{0327}oy"));
     assert_same('Шаҳар', UzCyrillic::text('Șahar'));
     assert_same(\App\Core\SearchQuery::normalize('shahar'), \App\Core\SearchQuery::normalize('Șahar'));
+    // На странице они выводятся одним кодом: иначе Ctrl+F по «Ş» их не найдёт.
+    assert_same('Şahar şahar Özbek', UzLatin::text("Șahar s\u{0327}ahar O\u{0308}zbek"));
+});
+
+test('Новая латиница: alt, aria-label, мета-описание и JSON-LD тоже', function () {
+    $html = UzLatin::html('<img src="/shahar.jpg" alt="Oʻzbekiston shahri">'
+        . '<meta name="description" content="Choy"><script type="application/ld+json">{"name":"Shahar","url":"/shahar"}</script>');
+    assert_contains('src="/shahar.jpg" alt="Özbekiston şahri"', $html);
+    assert_contains('content="Çoy"', $html);
+    assert_contains('{"name":"Şahar","url":"/shahar"}', $html);
+    assert_same('Google YouTube', UzLatin::text('Google YouTube'));
 });
 
 test('Новая латиница в базе: только узбекские записи, без адресов, с отменой', function () {

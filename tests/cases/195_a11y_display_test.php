@@ -134,6 +134,34 @@ test('Кириллица: теги, атрибуты и скрипты не пе
     assert_same('<kbd>Ctrl+K</kbd>', UzCyrillic::html('<kbd>Ctrl+K</kbd>'));
 });
 
+test('Кириллица: читаемые атрибуты, мета-описание и JSON-LD переводятся', function () {
+    // Диктор читает alt и aria-label, поиск — description и og:*, выдача —
+    // JSON-LD: на странице кириллицей они оставались латиницей.
+    $html = UzCyrillic::html('<img src="/shahar.jpg" alt="Shahar" data-x="alt=\'shahar\'">'
+        . '<a href="/shahar" title=\'Shahar\' aria-label=Shahar class="shahar">Shahar</a>'
+        . '<input placeholder="Qidirish">');
+    assert_contains('src="/shahar.jpg" alt="Шаҳар" data-x="alt=\'shahar\'"', $html, 'адрес и данные скрипта не трогаются');
+    assert_contains('href="/shahar" title=\'Шаҳар\' aria-label=Шаҳар class="shahar"', $html);
+    assert_contains('placeholder="Қидириш"', $html);
+
+    $head = UzCyrillic::html('<meta name="description" content="Shahar &quot;choy&quot;">'
+        . '<meta property="og:title" content="Shahar"><meta property="og:url" content="https://x.uz/shahar">');
+    assert_contains('content="Шаҳар &quot;чой&quot;"', $head);
+    assert_contains('<meta property="og:title" content="Шаҳар">', $head);
+    assert_contains('content="https://x.uz/shahar"', $head);
+
+    $json = json_encode(['@type' => 'NewsArticle', 'headline' => 'Shahar <b>', 'url' => 'https://x.uz/shahar'],
+        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG);
+    $ld = UzCyrillic::html('<script type="application/ld+json">' . $json . '</script><script>var shahar;</script>');
+    assert_contains('"headline":"Шаҳар \\u003Cб\\u003E"', $ld, 'экранирование «<» не снимается');
+    assert_contains('"url":"https://x.uz/shahar"', $ld);
+    assert_contains('<script>var shahar;</script>', $ld);
+
+    assert_contains('<div data-no-translit title="Lotin">', UzCyrillic::html('<div data-no-translit title="Lotin">x</div>'));
+    // Иностранные слова — один список на обе письменности.
+    assert_same('chrome shopify Google', UzCyrillic::text('chrome shopify Google'));
+});
+
 test('Кириллица: шрифты поставки объявляют узбекский cyrillic-ext', function () {
     $root = dirname(__DIR__, 2);
 
