@@ -166,13 +166,10 @@ final class UzCyrillic
 
         $lower = mb_strtolower($word);
 
-        // Иностранное слово остаётся как есть: c (не в «ch»), w и буквы с
-        // диакритикой в узбекском алфавите не встречаются (Facebook, Microsoft),
-        // а «YouTube», «iPhone» и «TikTok» выдаёт смена регистра внутри слова.
-        // Аббревиатура с окончанием («AQShda», «ToshDU») этим не считается.
-        if (in_array($lower, UzbekText::FOREIGN_WORDS, true)
-            || preg_match('/[wW]|[cC](?![hH])|[\x{00C0}-\x{024F}]|\p{Ll}\p{Lu}\p{Ll}/u', $word)
-        ) {
+        // Иностранное слово остаётся как есть (признаки — UzbekText::
+        // isForeignWord). Аббревиатура с окончанием («AQShda», «ToshDU»)
+        // иностранной не считается.
+        if (UzbekText::isForeignWord($word)) {
             return $word;
         }
 

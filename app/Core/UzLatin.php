@@ -131,10 +131,7 @@ final class UzLatin
 
     private static function core(string $word): string
     {
-        if ($word === ''
-            || in_array(mb_strtolower($word), UzbekText::FOREIGN_WORDS, true)
-            || preg_match('/[wW]|[cC](?![hH])|\p{Ll}\p{Lu}\p{Ll}/u', $word) === 1
-        ) {
+        if ($word === '' || UzbekText::isForeignWord($word)) {
             return $word;
         }
 
