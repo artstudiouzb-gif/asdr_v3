@@ -134,6 +134,23 @@ test('Кириллица: теги, атрибуты и скрипты не пе
     assert_same('<kbd>Ctrl+K</kbd>', UzCyrillic::html('<kbd>Ctrl+K</kbd>'));
 });
 
+test('Кириллица: иностранные названия остаются латиницей целиком, узбекские — нет', function () {
+    // По отдельности «Development» ничем себя не выдаёт, и название выходило
+    // наполовину кириллицей: «Сустаинабле Девелопмент Солутионс Network, СДСН».
+    assert_same('Агентлик (Sustainable Development Solutions Network, SDSN) билан',
+        UzCyrillic::text('Agentlik (Sustainable Development Solutions Network, SDSN) bilan'));
+    assert_same('SDSN (Sustainable Development Solutions Network) ҳисоботи',
+        UzCyrillic::text('SDSN (Sustainable Development Solutions Network) hisoboti'));
+    assert_same('(World Bank) ва Bank of America', UzCyrillic::text('(World Bank) va Bank of America'));
+    assert_same('United Nations Development Programme (UNDP) лойиҳаси',
+        UzCyrillic::text('United Nations Development Programme (UNDP) loyihasi'));
+    // Узбекское рядом с брендом не поглощается, свои аббревиатуры переводятся.
+    assert_same('Тошкент Facebook саҳифаси', UzCyrillic::text('Toshkent Facebook sahifasi'));
+    assert_same('Тошкент Давлат Иқтисодиёт Университети', UzCyrillic::text('Toshkent Davlat Iqtisodiyot Universiteti'));
+    assert_same('БМТ ва АҚШ, Марказий банк', UzCyrillic::text('BMT va AQSh, Markaziy bank'));
+    assert_same('Harvard Business School', \App\Core\UzLatin::text('Harvard Business School'));
+});
+
 test('Кириллица: читаемые атрибуты, мета-описание и JSON-LD переводятся', function () {
     // Диктор читает alt и aria-label, поиск — description и og:*, выдача —
     // JSON-LD: на странице кириллицей они оставались латиницей.
