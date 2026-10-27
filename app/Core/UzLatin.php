@@ -29,6 +29,19 @@ final class UzLatin
     /** Слова, которые узнаются в лицо, хотя иностранных букв в них нет. */
     private const KEEP = ['chrome', 'sharepoint', 'shopify', 'english', 'washington'];
 
+    /**
+     * Те же буквы другим набором кодов. Составные (буква + знак U+0308/U+0327)
+     * приходят из текстов, вставленных из macOS и Word; «Ș» с запятой снизу
+     * даёт румынская раскладка — на экране её не отличить от «Ş». Без
+     * приведения кириллица печатала «Ӧзбекистон», а поиск не находил слово.
+     * Через таблицу, а не `Normalizer`: intl на хостинге бывает не всегда.
+     */
+    private const VARIANTS = [
+        "O\u{0308}" => 'Ö', "o\u{0308}" => 'ö', "G\u{0306}" => 'Ğ', "g\u{0306}" => 'ğ',
+        "S\u{0327}" => 'Ş', "s\u{0327}" => 'ş', "C\u{0327}" => 'Ç', "c\u{0327}" => 'ç',
+        "S\u{0326}" => 'Ş', "s\u{0326}" => 'ş', 'Ș' => 'Ş', 'ș' => 'ş',
+    ];
+
     /** @var array<string, string> */
     private static array $memo = [];
 
@@ -69,9 +82,10 @@ final class UzLatin
      */
     public static function toOld(string $text): string
     {
-        if (preg_match('/[ÖöĞğŞşÇç]/u', $text) !== 1) {
+        if (preg_match('/[ÖöĞğŞşÇçȘș]|[oOgGsScC][\x{0306}\x{0308}\x{0326}\x{0327}]/u', $text) !== 1) {
             return $text;
         }
+        $text = strtr($text, self::VARIANTS);
 
         // Заглавная перед заглавной — слово набрано капсом: ŞAHAR → SHAHAR.
         $text = preg_replace_callback('/([ŞÇ])(?=\p{Lu})/u', static fn (array $m): string
