@@ -37,9 +37,6 @@ final class UzCyrillic
      */
     private const QUOTES = ['‘', '’', '`', "'"];
 
-    /** Слова, которые узнаются в лицо, хотя иностранных букв в них нет. */
-    private const KEEP = ['google', 'youtube', 'tiktok', 'iphone', 'linkedin', 'zoom', 'apple'];
-
     /**
      * Слово целиком. Месяцы сохраняют «ь» только без окончания: «5 сентябрь»,
      * но «сентябрда» и «7 февралдаги» — так пишет кириллица lex.uz.
@@ -173,7 +170,7 @@ final class UzCyrillic
         // диакритикой в узбекском алфавите не встречаются (Facebook, Microsoft),
         // а «YouTube», «iPhone» и «TikTok» выдаёт смена регистра внутри слова.
         // Аббревиатура с окончанием («AQShda», «ToshDU») этим не считается.
-        if (in_array($lower, self::KEEP, true)
+        if (in_array($lower, UzbekText::FOREIGN_WORDS, true)
             || preg_match('/[wW]|[cC](?![hH])|[\x{00C0}-\x{024F}]|\p{Ll}\p{Lu}\p{Ll}/u', $word)
         ) {
             return $word;

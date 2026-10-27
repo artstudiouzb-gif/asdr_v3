@@ -26,9 +26,6 @@ final class UzLatin
     /** «Языки» → «Новая латиница»; включена по умолчанию. */
     public const SETTING = 'uz_latin_new';
 
-    /** Слова, которые узнаются в лицо, хотя иностранных букв в них нет. */
-    private const KEEP = ['chrome', 'sharepoint', 'shopify', 'english', 'washington'];
-
     /**
      * Те же буквы другим набором кодов. Составные (буква + знак U+0308/U+0327)
      * приходят из текстов, вставленных из macOS и Word; «Ș» с запятой снизу
@@ -64,9 +61,13 @@ final class UzLatin
 
     public static function text(string $text): string
     {
-        if ($text === '' || preg_match('/[sScCoOgG]/', $text) !== 1) {
+        if ($text === '' || preg_match('/[sScCoOgGȘș]/u', $text) !== 1) {
             return $text;
         }
+        // Буквы, набранные составными символами или «Ș», приводятся к одному
+        // коду: на экране разницы нет, но поиск по странице (Ctrl+F) по «Ş»
+        // их не находил.
+        $text = strtr($text, self::VARIANTS);
 
         return UzbekText::plainChunks($text, static fn (string $chunk): string => preg_replace_callback(
             '/[\p{L}\p{M}' . self::apostrophes() . ']+/u',
@@ -131,7 +132,7 @@ final class UzLatin
     private static function core(string $word): string
     {
         if ($word === ''
-            || in_array(mb_strtolower($word), self::KEEP, true)
+            || in_array(mb_strtolower($word), UzbekText::FOREIGN_WORDS, true)
             || preg_match('/[wW]|[cC](?![hH])|\p{Ll}\p{Lu}\p{Ll}/u', $word) === 1
         ) {
             return $word;
