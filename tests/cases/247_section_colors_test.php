@@ -246,3 +246,31 @@ test('Кнопка обложки: цвет текста на заливке а�
         'фиксированного белого у основной кнопки не осталось'
     );
 });
+
+test('Цвет секции: «авто» на тёмной заливке даёт светлый текст, на светлой — ничего', function () {
+    // Тёмная заливка без выбранной схемы оставляла тёмный текст на тёмном
+    // фоне — так пропадали крошки и заголовок обложки.
+    $navy = SectionColors::build(['_bg_mode' => 'color', '_bg_color' => '#0b2545'], 7);
+    assert_contains('--section-title-fg:#fff', $navy, 'тёмный цвет — светлая схема');
+    assert_contains('--section-title-fg:#fff', SectionColors::build(
+        ['_bg_mode' => 'gradient', '_bg_gradient_from' => '#0b2545', '_bg_gradient_to' => '#13315c'],
+        7
+    ), 'градиент с тёмными концами');
+    // Светлую заливку «авто» не трогает: вид собранных страниц не меняется.
+    assert_same('', SectionColors::build(['_bg_mode' => 'color', '_bg_color' => '#f4f6f8'], 7));
+    assert_same('', SectionColors::build(
+        ['_bg_mode' => 'gradient', '_bg_gradient_from' => '#0b2545', '_bg_gradient_to' => '#f4f6f8'],
+        7
+    ), 'один светлый конец — текст темы');
+    // Явный выбор редактора главнее подбора, а форма видит свой «авто».
+    assert_contains('--section-title-fg:var(--gov-title)', SectionColors::build(
+        ['_bg_mode' => 'color', '_bg_color' => '#0b2545', '_bg_text_scheme' => 'dark'],
+        7
+    ));
+    assert_same('auto', SectionColors::textScheme(['_bg_mode' => 'color', '_bg_color' => '#0b2545']));
+});
+
+test('Крошки на обложке без фото берут цвет текста секции', function () {
+    $css = theme_css();
+    assert_contains('.block-hero .content-crumbs--on-hero span { color: var(--section-title-fg); }', $css);
+});
