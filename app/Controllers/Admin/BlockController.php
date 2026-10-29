@@ -962,6 +962,8 @@ final class BlockController
                         // «Правовые акты», в остальных лежат про запас.
                         'number' => trim((string) ($item['number'] ?? '')),
                         'date' => trim((string) ($item['date'] ?? '')),
+                        // Пусто — как в настройке блока.
+                        'open_as' => in_array($item['open_as'] ?? '', \App\Core\PdfViewer::VIEWS, true) ? (string) $item['open_as'] : '',
                     ];
                 }
                 return array_merge(

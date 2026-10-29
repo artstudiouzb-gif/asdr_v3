@@ -8,7 +8,7 @@ use App\Core\Icon;
  * всей карточки — растянутый псевдоэлемент главной кнопки: вложить ссылки
  * переводов в карточку-ссылку нельзя, `<a>` в `<a>` браузер разрывает.
  *
- * @var array{title:string,meta:string,files:list<array{lang:string,label:string,name:string,url:string,meta:string,extension:string,direct_file:bool,viewable:bool,current:bool}>} $presented
+ * @var array{title:string,meta:string,files:list<array{lang:string,label:string,name:string,url:string,href:string,book:bool,meta:string,extension:string,direct_file:bool,viewable:bool,current:bool}>} $presented
  * @var string $filesClass
  */
 $docFiles = $presented['files'];
@@ -25,15 +25,17 @@ $mainMeta = $presented['meta'];
 if ($mainFile['lang'] !== '' && !$mainFile['current']) {
     $mainMeta = trim($mainFile['label'] . ($mainMeta !== '' ? ', ' . $mainMeta : ''));
 }
+// PDF, который редактор выбрал открывать книгой, ведёт на страницу книги
+// (`href`), остальные — на сам файл.
 $fileAttrs = static function (array $file): string {
-    return 'href="' . htmlspecialchars($file['url'], ENT_QUOTES) . '"'
+    return 'href="' . htmlspecialchars($file['href'], ENT_QUOTES) . '"'
         . ($file['viewable'] ? ' target="_blank" rel="noopener"' : ($file['direct_file'] ? ' download' : ''))
         . ($file['lang'] !== '' ? ' hreflang="' . htmlspecialchars($file['lang'], ENT_QUOTES) . '"' : '');
 };
 ?>
 <span class="doc-files<?= isset($filesClass) && $filesClass !== '' ? ' ' . $filesClass : '' ?>">
     <a class="doc-files__main" <?= $fileAttrs($mainFile) ?>>
-        <?= Icon::render($mainFile['direct_file'] && !$mainFile['viewable'] ? 'download' : 'external-link', 18, 'doc-files__icon', 1.8) ?>
+        <?= Icon::render($mainFile['book'] ? 'book' : ($mainFile['direct_file'] && !$mainFile['viewable'] ? 'download' : 'external-link'), 18, 'doc-files__icon', 1.8) ?>
         <span class="doc-files__action"><?= htmlspecialchars($mainFile['name'] !== '' ? $mainFile['name'] : t($mainFile['direct_file'] && !$mainFile['viewable'] ? 'Скачать' : 'Открыть'), ENT_QUOTES) ?></span>
         <span class="visually-hidden"><?= htmlspecialchars(': ' . $presented['title'], ENT_QUOTES) ?></span>
         <?php if ($mainMeta !== ''): ?><span class="doc-files__meta"><?= htmlspecialchars($mainMeta, ENT_QUOTES) ?></span><?php endif; ?>
