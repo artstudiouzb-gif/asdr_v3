@@ -69,9 +69,30 @@ final class DocumentPresenter
     }
 
     /**
+     * Вид, которым открывается PDF документа: свой у документа или, если не
+     * выбран, настройка блока. Пишется в данные документа ключом `open_as`,
+     * его читает prepare().
+     *
+     * @param array<mixed> $items
+     * @return array<mixed>
+     */
+    public static function withOpenAs(array $items, string $blockDefault): array
+    {
+        $default = in_array($blockDefault, PdfViewer::VIEWS, true) ? $blockDefault : PdfViewer::VIEW_DOCUMENT;
+        foreach ($items as $key => $item) {
+            if (is_array($item)) {
+                $own = (string) ($item['open_as'] ?? '');
+                $items[$key]['open_as'] = in_array($own, PdfViewer::VIEWS, true) ? $own : $default;
+            }
+        }
+
+        return $items;
+    }
+
+    /**
      * @param array<string, mixed> $document
      * @param list<array<string, mixed>>|null $languages языки сайта; null — из базы
-     * @return array{title:string,url:string,meta:string,extension:string,icon:string,direct_file:bool,search:string,description:string,cover:string,files:list<array{lang:string,label:string,name:string,url:string,meta:string,extension:string,direct_file:bool,viewable:bool,current:bool}>}
+     * @return array{title:string,url:string,meta:string,extension:string,icon:string,direct_file:bool,search:string,description:string,cover:string,files:list<array{lang:string,label:string,name:string,url:string,href:string,book:bool,meta:string,extension:string,direct_file:bool,viewable:bool,current:bool}>}
      */
     public static function prepare(array $document, ?string $lang = null, ?array $languages = null): array
     {
@@ -83,7 +104,7 @@ final class DocumentPresenter
             $meta = '';
         }
 
-        $files = self::files($document, $lang ?? Locale::current(), $languages);
+        $files = self::files($document, $lang ?? Locale::current(), $languages, ($document['open_as'] ?? '') === PdfViewer::VIEW_BOOK);
         // Главный файл карточки — версия на языке страницы, затем общий файл,
         // затем первая из языковых: посетитель узбекской страницы скачивает
         // узбекский текст, не выбирая его из списка.
@@ -141,9 +162,9 @@ final class DocumentPresenter
      *
      * @param array<string, mixed> $document
      * @param list<array<string, mixed>>|null $languages языки сайта; null — из базы
-     * @return list<array{lang:string,label:string,name:string,url:string,meta:string,extension:string,direct_file:bool,viewable:bool,current:bool}>
+     * @return list<array{lang:string,label:string,name:string,url:string,href:string,book:bool,meta:string,extension:string,direct_file:bool,viewable:bool,current:bool}>
      */
-    public static function files(array $document, string $lang, ?array $languages = null): array
+    public static function files(array $document, string $lang, ?array $languages = null, bool $book = false): array
     {
         $byLang = is_array($document['files'] ?? null) ? $document['files'] : [];
         // Своё название ссылки редактора: «Постановление (PDF)» вместо
@@ -158,7 +179,7 @@ final class DocumentPresenter
         foreach ($labels as $code => $label) {
             $url = trim((string) ($byLang[$code] ?? ''));
             if ($url !== '' && UrlGuard::isSafeLink($url)) {
-                $list[] = self::file($code, $label, $url, $code === $lang, trim((string) ($names[$code] ?? '')));
+                $list[] = self::file($code, $label, $url, $code === $lang, trim((string) ($names[$code] ?? '')), $book, $lang);
             }
         }
 
@@ -167,7 +188,7 @@ final class DocumentPresenter
             // Общий файл без языка: становится главным, если версии на языке
             // страницы нет, и стоит перед остальными переводами.
             $hasCurrent = in_array(true, array_column($list, 'current'), true);
-            $entry = self::file('', '', $common, !$hasCurrent, trim((string) ($document['link_label'] ?? '')));
+            $entry = self::file('', '', $common, !$hasCurrent, trim((string) ($document['link_label'] ?? '')), $book, $lang);
             $hasCurrent ? $list[] = $entry : array_unshift($list, $entry);
         }
 
@@ -176,10 +197,13 @@ final class DocumentPresenter
         return $list;
     }
 
-    /** @return array{lang:string,label:string,name:string,url:string,meta:string,extension:string,direct_file:bool,viewable:bool,current:bool} */
-    private static function file(string $lang, string $label, string $url, bool $current, string $name = ''): array
+    /** @return array{lang:string,label:string,name:string,url:string,href:string,book:bool,meta:string,extension:string,direct_file:bool,viewable:bool,current:bool} */
+    private static function file(string $lang, string $label, string $url, bool $current, string $name = '', bool $book = false, ?string $pageLang = null): array
     {
         $extension = self::extension($url);
+        // Книга открывается только у своего PDF: чужой файл и не-PDF остаются
+        // прямой ссылкой, страница просмотра их не покажет.
+        $bookUrl = $book && in_array($extension, self::VIEWABLE, true) ? PdfViewer::bookUrl($url, $pageLang) : null;
         $parts = [];
         if ($extension !== '') {
             $parts[] = strtoupper($extension);
@@ -194,6 +218,8 @@ final class DocumentPresenter
             'label' => $label,
             'name' => $name,
             'url' => $url,
+            'href' => $bookUrl ?? $url,
+            'book' => $bookUrl !== null,
             'meta' => implode(' · ', $parts),
             'extension' => $extension !== '' ? $extension : 'other',
             'direct_file' => in_array($extension, self::DOWNLOADABLE, true),

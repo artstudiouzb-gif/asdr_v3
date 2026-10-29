@@ -1725,6 +1725,13 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     $html .= '</fieldset>';
                 }
 
+                $openAs = (string) ($item['open_as'] ?? '');
+                $html .= '<div class="form-field"><label>Открывать PDF</label><select name="' . $name('open_as') . '">';
+                foreach (['' => 'Как в настройке блока', 'document' => 'Документом', 'book' => 'Книгой с листанием'] as $value => $optionLabel) {
+                    $html .= '<option value="' . $value . '"' . ($openAs === $value ? ' selected' : '') . '>' . $optionLabel . '</option>';
+                }
+                $html .= '</select><span class="form-hint">Книга — для брошюр и отчётов: страницы листаются, как у печатного издания. Работает у PDF из медиатеки.</span></div>';
+
                 $html .= '<div class="form-field"><label>Номер акта</label><input type="text" name="' . $name('number') . '" value="' . $esc($item['number'] ?? '') . '" placeholder="ПФ-6079"><span class="form-hint">Показывается в варианте «Правовые акты».</span></div>'
                     . '<div class="form-field"><label>Дата акта</label><input type="text" name="' . $name('date') . '" value="' . $esc($item['date'] ?? '') . '" placeholder="12 марта 2026 г."></div>'
                     . '<div class="form-field"><label>Подпись формата (необязательно)</label><input type="text" name="' . $name('meta') . '" value="' . $esc($item['meta'] ?? '') . '" placeholder="PDF · 2,4 МБ">'

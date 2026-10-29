@@ -502,4 +502,14 @@ return [
     // Просмотр PDF на телефонах (/pdf).
     'Загрузка документа…' => 'Loading the document…',
     'Не удалось открыть документ. Скачайте файл, чтобы прочитать его.' => 'The document could not be opened. Download the file to read it.',
+    // PDF книгой с листанием (/pdf?view=book).
+    'Страница %1 из %2' => 'Page %1 of %2',
+    'Страницы %1–%2 из %3' => 'Pages %1–%2 of %3',
+    'Страница %1' => 'Page %1',
+    'Открыть как документ' => 'Open as a document',
+    'Перейти к странице' => 'Go to page',
+    'Лупа' => 'Magnifier',
+    'Во весь экран' => 'Full screen',
+    'Выйти из полного экрана' => 'Exit full screen',
+    'Страницы документа' => 'Document pages',
 ];
