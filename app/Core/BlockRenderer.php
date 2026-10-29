@@ -865,7 +865,7 @@ final class BlockRenderer
         if (!empty($data['form_id'])) {
             $form = FormDef::findById((int) $data['form_id']);
             if ($form !== null) {
-                $data['form'] = $form;
+                $data['form'] = FormDef::localize($form, Locale::current());
             }
         }
         return $data;
