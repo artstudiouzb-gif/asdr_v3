@@ -67,6 +67,21 @@ test('Контакты: телефон и почта становятся ссы
     assert_not_contains('<script>', $unsafe);
 });
 
+test('Контакты: внутренний номер набирается после паузы', function () {
+    // Записи одного номера на трёх языках дают один и тот же адрес звонка.
+    foreach (['71-203-03-08 (içki raq. 123)', '71-203-03-08 (вн. 123)', '71-203-03-08 (ext. 123)',
+        '71-203-03-08 (ichki raqam 123)', '+998 71 203-03-08, 123'] as $phone) {
+        assert_same('tel:+998712030308,,123', ContactLink::telHref($phone), $phone);
+    }
+    assert_same('tel:+998712030308', ContactLink::telHref('(71) 203-03-08'));
+    assert_same('tel:+998712030308', ContactLink::telHref('998712030308'));
+    assert_same(null, ContactLink::telHref('вн. 123'));
+
+    $line = ContactLink::linkify('Приёмная: 71-203-03-08 (вн. 123)');
+    assert_contains('href="tel:+998712030308,,123"', $line);
+    assert_contains('>71-203-03-08 (вн. 123)</a>', $line);
+});
+
 test('Контакты: мини-иконка подбирается по содержимому строки', function () {
     assert_same('phone', ContactLink::iconFor('Приёмная: +998 71 200-00-00'));
     assert_same('mail', ContactLink::iconFor('info@asr.uz'));
