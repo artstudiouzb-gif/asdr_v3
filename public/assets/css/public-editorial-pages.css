@@ -19,7 +19,7 @@
     --editorial-reading: 760px;
     /* Отступ крошек от шапки сайта. Одно число на оба места: полосу над
        контентом и крошки внутри «Колонок» первым блоком. */
-    --editorial-crumbs-top: 14px;
+    --editorial-crumbs-top: var(--crumbs-top, 14px);
     --editorial-line: color-mix(in srgb, var(--gov-border) 92%, transparent);
     --editorial-muted: color-mix(in srgb, var(--gov-muted) 94%, transparent);
     /* Корень страницы — не секция: здесь цвет свой. Внутри блоков правила
