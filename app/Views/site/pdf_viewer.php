@@ -40,7 +40,11 @@ require __DIR__ . '/_header.php';
         </span>
     </div>
     <div class="pdf-viewer__pages" data-pdf-pages>
-        <p class="pdf-viewer__status" data-pdf-status><?= htmlspecialchars(t('Загрузка документа…'), ENT_QUOTES) ?></p>
+        <?php /* Полоса без значения — «идёт загрузка»; проценты ставит скрипт, когда сервер назвал размер файла. */ ?>
+        <p class="pdf-viewer__status" data-pdf-status>
+            <span><?= htmlspecialchars(t('Загрузка документа…'), ENT_QUOTES) ?> <span class="pdf-viewer__percent" data-load-percent></span></span>
+            <progress class="pdf-viewer__progress" data-load-progress max="100" aria-label="<?= htmlspecialchars(t('Загрузка документа…'), ENT_QUOTES) ?>"></progress>
+        </p>
     </div>
 </main>
 <script type="module" src="<?= htmlspecialchars($viewerScript, ENT_QUOTES) ?>"></script>

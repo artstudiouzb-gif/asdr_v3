@@ -170,6 +170,18 @@
 
 .pdf-book__status--error { color: var(--gov-ink); }
 
+/* Ход загрузки: большой PDF на телефоне грузится десятки секунд, и надпись
+   без движения читалась как зависшая страница. */
+.pdf-book__progress {
+    display: block;
+    width: min(280px, 80%);
+    height: 6px;
+    margin: 12px auto 0;
+    accent-color: var(--gov-teal);
+}
+
+.pdf-book__percent { font-variant-numeric: tabular-nums; }
+
 /* Управление под книгой */
 .pdf-book__nav {
     display: flex;
