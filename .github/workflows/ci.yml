@@ -340,18 +340,3 @@ jobs:
             test-results/
             /tmp/asdr-server.log
           if-no-files-found: ignore
-
-  legacy-check-82:
-    name: Lint + Tests (PHP 8.2)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notice
-        run: echo "PHP minimum version is 8.4+. Passing check for legacy branch protection."
-
-  legacy-check-83:
-    name: Lint + Tests (PHP 8.3)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notice
-        run: echo "PHP minimum version is 8.4+. Passing check for legacy branch protection."
-
