@@ -503,4 +503,14 @@ return [
     // Просмотр PDF на телефонах (/pdf).
     'Загрузка документа…' => 'Hujjat yuklanmoqda…',
     'Не удалось открыть документ. Скачайте файл, чтобы прочитать его.' => 'Hujjatni ochib bo‘lmadi. O‘qish uchun faylni yuklab oling.',
+    // PDF книгой с листанием (/pdf?view=book).
+    'Страница %1 из %2' => '%1-sahifa, jami %2',
+    'Страницы %1–%2 из %3' => '%1–%2-sahifalar, jami %3',
+    'Страница %1' => '%1-sahifa',
+    'Открыть как документ' => 'Hujjat sifatida ochish',
+    'Перейти к странице' => 'Sahifaga o‘tish',
+    'Лупа' => 'Lupa',
+    'Во весь экран' => 'To‘liq ekran',
+    'Выйти из полного экрана' => 'To‘liq ekrandan chiqish',
+    'Страницы документа' => 'Hujjat sahifalari',
 ];

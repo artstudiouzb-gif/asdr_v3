@@ -7,7 +7,7 @@ namespace App\Controllers\Site;
 use App\Core\Asset;
 use App\Core\Input;
 use App\Core\Locale;
-use App\Core\Media;
+use App\Core\PdfViewer;
 use App\Core\Redirect;
 use App\Core\View;
 use App\Models\Language;
@@ -24,33 +24,45 @@ use App\Models\Language;
  *
  * Открывается только PDF из своих загрузок: чужой адрес превратил бы страницу
  * в просмотрщик для любого файла в интернете под нашим доменом.
+ *
+ * `view=book` — тот же файл книгой с листанием (см. PdfViewer). Её открывают
+ * на любом устройстве: ссылку ставит сам блок «Документы», когда редактор
+ * выбрал для документа этот вид.
  */
 final class PdfController
 {
-    /** Ссылки на PDF длиннее этого числа знаков не бывает; больше — подделка. */
-    private const MAX_PATH = 500;
-
     public function show(): void
     {
         $query = Input::query();
-        $file = self::filePath($query->str('file', '', self::MAX_PATH));
+        $file = self::filePath($query->str('file', '', PdfViewer::MAX_PATH));
         if ($file === null) {
             http_response_code(404);
             View::render('errors/404');
             return;
         }
 
-        $target = self::languageTarget($query->str('lang', '', 8), $file, Locale::current(), Language::publicCodes());
+        $book = $query->oneOf('view', PdfViewer::VIEWS, PdfViewer::VIEW_DOCUMENT) === PdfViewer::VIEW_BOOK;
+
+        $target = self::languageTarget($query->str('lang', '', 8), $file, Locale::current(), Language::publicCodes(), $book);
         if ($target !== null) {
             Redirect::to($target);
         }
 
         header('X-Robots-Tag: noindex');
-        View::render('site/pdf_viewer', [
+        $vars = [
             'fileUrl' => $file,
             'fileName' => rawurldecode(basename($file)),
             'pdfjsUrl' => self::localAsset('/assets/vendor/pdfjs/pdf.min.js'),
             'workerUrl' => self::localAsset('/assets/vendor/pdfjs/pdf.worker.min.js'),
+        ];
+        if ($book) {
+            View::render('site/pdf_book', $vars + [
+                'flipUrl' => self::localAsset('/assets/vendor/page-flip/page-flip.browser.js'),
+                'bookScript' => self::localAsset('/assets/js/pdf-book.js'),
+            ]);
+            return;
+        }
+        View::render('site/pdf_viewer', $vars + [
             'viewerScript' => self::localAsset('/assets/js/pdf-viewer.js'),
         ]);
     }
@@ -63,28 +75,19 @@ final class PdfController
      *
      * @param list<string> $publicCodes
      */
-    public static function languageTarget(string $lang, string $file, string $current, array $publicCodes): ?string
+    public static function languageTarget(string $lang, string $file, string $current, array $publicCodes, bool $book = false): ?string
     {
         if ($lang === '' || $lang === $current || !in_array($lang, $publicCodes, true)) {
             return null;
         }
 
-        return Locale::url('/pdf', $lang) . '?file=' . rawurlencode($file);
+        return Locale::url('/pdf', $lang) . '?file=' . rawurlencode($file) . ($book ? '&view=' . PdfViewer::VIEW_BOOK : '');
     }
 
-    /**
-     * Путь к своему PDF или null. Принимается путь загрузок, а не адрес:
-     * ссылка на странице бывает переписана на CDN (`Asset::rewriteMedia`), и
-     * скрипт присылает уже её путь.
-     */
+    /** Путь к своему PDF или null (см. PdfViewer::filePath). */
     public static function filePath(string $value): ?string
     {
-        $value = trim($value);
-        if (!preg_match('#^/uploads/public/[^?\#\\\\]+\.pdf$#i', $value)) {
-            return null;
-        }
-
-        return Media::localUploadPath(rawurldecode($value)) !== null ? $value : null;
+        return PdfViewer::filePath($value);
     }
 
     /**

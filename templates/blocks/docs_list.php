@@ -4,6 +4,8 @@ $title = trim((string) ($data['title'] ?? ''));
 $allText = trim((string) ($data['all_text'] ?? ''));
 $allUrl = trim((string) ($data['all_url'] ?? ''));
 $items = $data['items'] ?? [];
+// Вид PDF: свой у документа или настройка блока (книга или документ).
+$items = \App\Core\DocumentPresenter::withOpenAs(is_array($items) ? $items : [], (string) $data['open_as']);
 // Значения проверены схемой полей (BlockFieldSchema) — читаем как есть.
 $cols = (int) $data['columns'];
 $variant = (string) $data['variant'];

@@ -34,6 +34,16 @@ const files = [
         source: 'node_modules/web-vitals/LICENSE',
         target: 'public/assets/vendor/web-vitals/LICENSE',
     },
+    // Листание PDF книгой (страница /pdf?view=book). Подключается только
+    // этой страницей, общий бандл сайта не растёт.
+    {
+        source: 'node_modules/page-flip/dist/js/page-flip.browser.js',
+        target: 'public/assets/vendor/page-flip/page-flip.browser.js',
+    },
+    {
+        source: 'node_modules/page-flip/LICENSE',
+        target: 'public/assets/vendor/page-flip/LICENSE',
+    },
 ];
 
 const checkOnly = process.argv.includes('--check');
