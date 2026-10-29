@@ -18,17 +18,20 @@ use App\Core\PdfViewer;
 /** @return array{dir:string,url:string} */
 function pdf_book_fixture(): array
 {
+    // Загрузки лежат одним каталогом: короткий адрес книги несёт одно имя.
     $dir = APP_ROOT . '/public/uploads/public/_pdf_book_test';
     @mkdir($dir, 0755, true);
-    file_put_contents($dir . '/Отчёт 2025.pdf', '%PDF-1.4');
+    file_put_contents(APP_ROOT . '/public/uploads/public/_pdf_book_test_report.pdf', '%PDF-1.4');
+    file_put_contents($dir . '/nested.pdf', '%PDF-1.4');
     file_put_contents($dir . '/rules.docx', 'x');
 
-    return ['dir' => $dir, 'url' => '/uploads/public/_pdf_book_test/' . rawurlencode('Отчёт 2025.pdf')];
+    return ['dir' => $dir, 'url' => '/uploads/public/_pdf_book_test_report.pdf'];
 }
 
 function pdf_book_cleanup(string $dir): void
 {
-    @unlink($dir . '/Отчёт 2025.pdf');
+    @unlink(APP_ROOT . '/public/uploads/public/_pdf_book_test_report.pdf');
+    @unlink($dir . '/nested.pdf');
     @unlink($dir . '/rules.docx');
     @rmdir($dir);
 }
@@ -53,7 +56,7 @@ test('Книга ведёт только свой PDF на страницу ли
         $book = DocumentPresenter::prepare(['title' => 'Отчёт', 'url' => $fixture['url'], 'open_as' => 'book'], 'ru', $languages);
         $file = $book['files'][0];
         assert_true($file['book']);
-        assert_same('/pdf?file=' . rawurlencode($fixture['url']) . '&view=book', $file['href']);
+        assert_same('/book/_pdf_book_test_report', $file['href']);
         // Адрес самого файла остаётся — по нему считается размер и формат.
         assert_same($fixture['url'], $file['url']);
 
@@ -66,6 +69,8 @@ test('Книга ведёт только свой PDF на страницу ли
             '/uploads/public/_pdf_book_test/rules.docx',
             'https://example.com/uploads/public/report.pdf',
             '/uploads/public/_pdf_book_test/missing.pdf',
+            // во вложенном каталоге короткий адрес не выразить
+            '/uploads/public/_pdf_book_test/nested.pdf',
         ] as $url) {
             $other = DocumentPresenter::prepare(['title' => 'Т', 'url' => $url, 'open_as' => 'book'], 'ru', $languages);
             assert_false($other['files'][0]['book'], $url);
@@ -86,13 +91,15 @@ test('Блок «Документы» выводит ссылку на книг�
         ])['html'];
 
         $book = $render(['open_as' => 'book']);
-        assert_contains('href="/pdf?file=' . htmlspecialchars(rawurlencode($fixture['url']), ENT_QUOTES) . '&amp;view=book"', $book);
+        assert_contains('href="/book/_pdf_book_test_report"', $book);
         assert_contains('#tabler-book"', $book);
+        // Книга — страница сайта со ссылкой «Назад»: открывается в той же вкладке.
+        assert_not_contains('/book/_pdf_book_test_report" target=', $book);
 
         // Умолчание — прежнее поведение: ссылка на сам файл.
         $plain = $render([]);
         assert_contains('href="' . htmlspecialchars($fixture['url'], ENT_QUOTES) . '"', $plain);
-        assert_not_contains('view=book', $plain);
+        assert_not_contains('/book/', $plain);
     } finally {
         pdf_book_cleanup($fixture['dir']);
     }
@@ -105,15 +112,28 @@ test('Настройка «Открывать PDF» объявлена в схе
     assert_same('book', BlockFieldSchema::normalize('docs_list', ['open_as' => 'book'], 'ru')['open_as']);
 });
 
-test('Переход на язык сохраняет вид книги', function (): void {
-    assert_same(
-        '/uz/pdf?file=%2Fuploads%2Fpublic%2Fa.pdf&view=book',
-        PdfController::languageTarget('uz', '/uploads/public/a.pdf', 'ru', ['ru', 'uz'], true)
-    );
-    assert_same(
-        '/uz/pdf?file=%2Fuploads%2Fpublic%2Fa.pdf',
-        PdfController::languageTarget('uz', '/uploads/public/a.pdf', 'ru', ['ru', 'uz'])
-    );
+test('Адрес книги короткий и ведёт только к своему PDF', function (): void {
+    $fixture = pdf_book_fixture();
+    try {
+        assert_same($fixture['url'], PdfViewer::fileFromBookName('_pdf_book_test_report'));
+        assert_same($fixture['url'], PdfViewer::fileFromBookName('_pdf_book_test_report.pdf'));
+        assert_same('/uz/book/_pdf_book_test_report', PdfViewer::bookUrl($fixture['url'], 'uz'));
+        assert_same(null, PdfViewer::fileFromBookName('_pdf_book_test/nested'), 'каталог в имени');
+        assert_same(null, PdfViewer::fileFromBookName('_pdf_book_test%2Fnested'), 'закодированный каталог');
+        assert_same(null, PdfViewer::fileFromBookName('..%2F..%2Fconfig%2Fx'), 'выход из каталога');
+        assert_same(null, PdfViewer::fileFromBookName(''), 'пустое имя');
+        assert_same(null, PdfViewer::fileFromBookName('missing-file'), 'файла нет');
+    } finally {
+        pdf_book_cleanup($fixture['dir']);
+    }
+});
+
+test('Ссылка «Назад» ведёт туда, где посетитель видел страницу', function (): void {
+    assert_same('/', PdfViewer::pageUrl(['slug' => 'home', 'is_home' => 1, 'lang' => 'ru']));
+    assert_same('/uz/tahlil', PdfViewer::pageUrl(['slug' => 'tahlil', 'lang' => 'uz']));
+    // Шапка раздела отвечает 301 на сам раздел — ведём сразу туда.
+    assert_same('/news', PdfViewer::pageUrl(['slug' => 'press', 'section' => 'news', 'lang' => 'ru']));
+    assert_same('/projects/park', PdfViewer::pageUrl(['slug' => 'park', 'entity_type' => 'project', 'lang' => 'ru']));
 });
 
 test('Страница книги подключает листание со своего домена', function (): void {
@@ -125,4 +145,25 @@ test('Страница книги подключает листание со с�
     } finally {
         pdf_book_cleanup($fixture['dir']);
     }
+});
+
+test('Шапка книги берёт название документа и страницу из блока «Документы» (БД)', function (): void {
+    ensure_test_db();
+    $pdo = \App\Core\Database::pdo();
+    $slug = 'book-src-' . bin2hex(random_bytes(3));
+    $pid = \App\Models\Page::create(['title' => 'Исследования', 'slug' => $slug, 'meta_title' => null, 'meta_description' => null, 'status' => 'published', 'is_home' => 0, 'layout_type' => 'no_sidebar']);
+    $lang = (string) $pdo->query('SELECT lang FROM pages WHERE id = ' . (int) $pid)->fetchColumn();
+    $data = json_encode(['items' => [
+        ['title' => 'Другой документ', 'url' => '/uploads/public/other.pdf'],
+        ['title' => 'Годовой отчёт', 'url' => '/uploads/public/_pdf_book_test_report.pdf'],
+    ]], JSON_UNESCAPED_UNICODE);
+    $pdo->prepare('INSERT INTO blocks (page_id,lang,type,data,sort_order) VALUES (?,?,?,?,0)')->execute([$pid, $lang, 'docs_list', $data]);
+
+    $source = PdfViewer::documentSource('/uploads/public/_pdf_book_test_report.pdf', $lang);
+    assert_same('Годовой отчёт', $source['title'] ?? null);
+    assert_same('Исследования', $source['page_title'] ?? null);
+    assert_contains('/' . $slug, $source['page_url'] ?? '');
+
+    // Файла нет ни в одном блоке — шапка остаётся с именем файла и без «Назад».
+    assert_same(null, PdfViewer::documentSource('/uploads/public/_pdf_book_nowhere.pdf', $lang));
 });

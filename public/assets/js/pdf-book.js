@@ -499,6 +499,21 @@ if (root && window.St && window.St.PageFlip) {
         update();
     };
 
+    // Страница с документом не нашлась на сервере — ведём туда, откуда пришли,
+    // если это свой сайт: чужой адрес в шапке книги был бы ссылкой наружу.
+    const back = root.querySelector('[data-book-back]');
+    if (back && back.hidden && document.referrer) {
+        try {
+            const from = new URL(document.referrer);
+            if (from.origin === window.location.origin && from.pathname !== window.location.pathname) {
+                back.href = from.pathname + from.search;
+                back.hidden = false;
+            }
+        } catch (error) {
+            // адрес не разобрался — кнопки нет
+        }
+    }
+
     prevButton.addEventListener('click', () => step(-1));
     nextButton.addEventListener('click', () => step(1));
     slider.addEventListener('input', () => goTo(Number(slider.value) - 1));

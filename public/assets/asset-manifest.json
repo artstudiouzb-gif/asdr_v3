@@ -180,11 +180,11 @@
     },
     "/assets/css/blocks/pdf-book.css": {
       "path": "/assets/css/blocks/pdf-book.min.css",
-      "sourceSha256": "f6bd68a1b78fc78c7cd8b676d919b353bde9433b26013722a2212709a8b1e14d",
-      "sha256": "7469ddccdc64162c741f5c19e0a9767b802395b31e6cfc20c6dc4472cd873050",
-      "raw": 4741,
-      "gzip": 1579,
-      "brotli": 1342
+      "sourceSha256": "6f576374263904d22ca2cf68ef1e67d4dacb692aae4dab270ed5453c6047294b",
+      "sha256": "48943c8297c349f255056685ddc43cbbf9189fb57a27fe6b3c3d7be831e8ad39",
+      "raw": 4785,
+      "gzip": 1601,
+      "brotli": 1355
     },
     "/assets/css/blocks/pdf-viewer.css": {
       "path": "/assets/css/blocks/pdf-viewer.min.css",

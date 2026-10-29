@@ -29,7 +29,9 @@ if ($mainFile['lang'] !== '' && !$mainFile['current']) {
 // (`href`), остальные — на сам файл.
 $fileAttrs = static function (array $file): string {
     return 'href="' . htmlspecialchars($file['href'], ENT_QUOTES) . '"'
-        . ($file['viewable'] ? ' target="_blank" rel="noopener"' : ($file['direct_file'] ? ' download' : ''))
+        // Книга — страница сайта со своей ссылкой «Назад», поэтому она
+        // открывается в той же вкладке; сам PDF — в новой, как и раньше.
+        . ($file['book'] ? '' : ($file['viewable'] ? ' target="_blank" rel="noopener"' : ($file['direct_file'] ? ' download' : '')))
         . ($file['lang'] !== '' ? ' hreflang="' . htmlspecialchars($file['lang'], ENT_QUOTES) . '"' : '');
 };
 ?>
