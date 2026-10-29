@@ -45,7 +45,9 @@ $getFieldIcon = static function (string $fieldType, string $fieldName, string $f
               // шаблон только печатает классы, чтобы редактор и сайт считали
               // раскладку по одним и тем же правилам. ?>
         <?php $formClass = \App\Core\FormLayout::formClass($data); ?>
-        <form method="post" action="/forms/<?= htmlspecialchars($form['slug'], ENT_QUOTES) ?>/submit" class="<?= $formClass ?>"<?= $hasFile ? ' enctype="multipart/form-data"' : '' ?>>
+        <?php // Адрес отправки — с префиксом языка: по нему обработчик узнаёт язык
+              // посетителя и отвечает ему подписями и сообщениями его формы. ?>
+        <form method="post" action="<?= htmlspecialchars(\App\Core\Locale::url('forms/' . $form['slug'] . '/submit'), ENT_QUOTES) ?>" class="<?= $formClass ?>"<?= $hasFile ? ' enctype="multipart/form-data"' : '' ?>>
             <?= Csrf::field() ?>
             <?= Csrf::honeypotField() ?>
             <?php foreach ($form['fields'] as $field): ?>
@@ -96,40 +98,34 @@ $getFieldIcon = static function (string $fieldType, string $fieldName, string $f
                         </div>
                         <span class="form-hint"><?= htmlspecialchars(t('PDF, DOC, DOCX, JPG или PNG; до 20 МБ.'), ENT_QUOTES) ?></span>
                     <?php elseif ($fieldType === 'select'): ?>
-                        <?php $opts = array_map('trim', explode(',', (string) ($field['options'] ?? ''))); ?>
+                        <?php $opts = \App\Models\FormDef::choices($field); ?>
                         <div class="block-form__input-wrapper<?= $iconSvg !== null ? ' has-icon' : '' ?>">
                             <?php if ($iconSvg !== null): ?><span class="block-form__input-icon" aria-hidden="true"><?= $iconSvg ?></span><?php endif; ?>
                             <select id="<?= $inputId ?>" name="<?= $fieldName ?>" <?= $required ?>>
                                 <option value=""><?= htmlspecialchars(t('Выберите...'), ENT_QUOTES) ?></option>
                                 <?php foreach ($opts as $opt): ?>
-                                    <?php if ($opt !== ''): ?>
-                                        <option value="<?= htmlspecialchars($opt, ENT_QUOTES) ?>"><?= htmlspecialchars($opt, ENT_QUOTES) ?></option>
-                                    <?php endif; ?>
+                                    <option value="<?= htmlspecialchars($opt['value'], ENT_QUOTES) ?>"><?= htmlspecialchars($opt['label'], ENT_QUOTES) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                     <?php elseif ($fieldType === 'radio'): ?>
-                        <?php $opts = array_map('trim', explode(',', (string) ($field['options'] ?? ''))); ?>
+                        <?php $opts = \App\Models\FormDef::choices($field); ?>
                         <div class="block-form__radio-group">
                             <?php foreach ($opts as $opt): ?>
-                                <?php if ($opt !== ''): ?>
-                                    <label>
-                                        <input type="radio" name="<?= $fieldName ?>" value="<?= htmlspecialchars($opt, ENT_QUOTES) ?>" <?= $required ?>>
-                                        <?= htmlspecialchars($opt, ENT_QUOTES) ?>
-                                    </label>
-                                <?php endif; ?>
+                                <label>
+                                    <input type="radio" name="<?= $fieldName ?>" value="<?= htmlspecialchars($opt['value'], ENT_QUOTES) ?>" <?= $required ?>>
+                                    <?= htmlspecialchars($opt['label'], ENT_QUOTES) ?>
+                                </label>
                             <?php endforeach; ?>
                         </div>
                     <?php elseif ($fieldType === 'checkbox_group'): ?>
-                        <?php $opts = array_map('trim', explode(',', (string) ($field['options'] ?? ''))); ?>
+                        <?php $opts = \App\Models\FormDef::choices($field); ?>
                         <div class="block-form__checkbox-group">
                             <?php foreach ($opts as $opt): ?>
-                                <?php if ($opt !== ''): ?>
-                                    <label>
-                                        <input type="checkbox" name="<?= $fieldName ?>[]" value="<?= htmlspecialchars($opt, ENT_QUOTES) ?>">
-                                        <?= htmlspecialchars($opt, ENT_QUOTES) ?>
-                                    </label>
-                                <?php endif; ?>
+                                <label>
+                                    <input type="checkbox" name="<?= $fieldName ?>[]" value="<?= htmlspecialchars($opt['value'], ENT_QUOTES) ?>">
+                                    <?= htmlspecialchars($opt['label'], ENT_QUOTES) ?>
+                                </label>
                             <?php endforeach; ?>
                         </div>
                     <?php elseif ($fieldType === 'checkbox'): ?>
