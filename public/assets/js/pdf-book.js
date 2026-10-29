@@ -15,6 +15,8 @@ if (root && window.St && window.St.PageFlip) {
     const shift = $('[data-book-shift]');
     const host = $('[data-book]');
     const statusNode = $('[data-book-status]');
+    const progressNode = $('[data-load-progress]');
+    const percentNode = $('[data-load-percent]');
     const nav = $('[data-book-nav]');
     const countNode = $('[data-book-count]');
     const prevButton = $('[data-book-prev]');
@@ -478,7 +480,7 @@ if (root && window.St && window.St.PageFlip) {
     const start = async () => {
         const pdfjs = await import(root.getAttribute('data-pdfjs'));
         pdfjs.GlobalWorkerOptions.workerSrc = root.getAttribute('data-worker');
-        pdf = await pdfjs.getDocument({
+        const task = pdfjs.getDocument({
             url: fileUrl,
             cMapUrl: vendor + 'cmaps/',
             cMapPacked: true,
@@ -486,7 +488,20 @@ if (root && window.St && window.St.PageFlip) {
             wasmUrl: vendor + 'wasm/',
             iccUrl: vendor + 'iccs/',
             enableXfa: false,
-        }).promise;
+        });
+        // Ход загрузки: размер файла сервер называет не всегда (сжатие,
+        // отдача кусками) — тогда полоса остаётся без значения, «идёт загрузка».
+        task.onProgress = ({ loaded, total }) => {
+            if (!total || !progressNode) {
+                return;
+            }
+            const percent = Math.min(100, Math.round((loaded / total) * 100));
+            progressNode.value = percent;
+            if (percentNode) {
+                percentNode.textContent = percent + '\u00a0%';
+            }
+        };
+        pdf = await task.promise;
         total = pdf.numPages;
         const first = (await pdf.getPage(1)).getViewport({ scale: 1 });
         ratio = first.height / first.width;

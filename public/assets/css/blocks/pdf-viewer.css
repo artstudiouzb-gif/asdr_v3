@@ -112,6 +112,18 @@
 
 .pdf-viewer__status--error { color: var(--gov-ink); }
 
+/* Ход загрузки: большой PDF на телефоне грузится десятки секунд, и надпись
+   без движения читалась как зависшая страница. */
+.pdf-viewer__progress {
+    display: block;
+    width: min(280px, 80%);
+    height: 6px;
+    margin: 12px auto 0;
+    accent-color: var(--gov-teal);
+}
+
+.pdf-viewer__percent { font-variant-numeric: tabular-nums; }
+
 @media (max-width: 560px) {
     .pdf-viewer__pages { gap: 8px; padding-top: 8px; }
 }

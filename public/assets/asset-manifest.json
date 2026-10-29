@@ -180,19 +180,19 @@
     },
     "/assets/css/blocks/pdf-book.css": {
       "path": "/assets/css/blocks/pdf-book.min.css",
-      "sourceSha256": "6f576374263904d22ca2cf68ef1e67d4dacb692aae4dab270ed5453c6047294b",
-      "sha256": "48943c8297c349f255056685ddc43cbbf9189fb57a27fe6b3c3d7be831e8ad39",
-      "raw": 4785,
-      "gzip": 1601,
-      "brotli": 1355
+      "sourceSha256": "6564340e4b984e91b227c18db8e945561f144ae4893b58b0a39ef76db3d02335",
+      "sha256": "174f6e3e92574ce817c8369d3d7647edb2db10fbdb2358580619bf914acc68ac",
+      "raw": 4952,
+      "gzip": 1639,
+      "brotli": 1385
     },
     "/assets/css/blocks/pdf-viewer.css": {
       "path": "/assets/css/blocks/pdf-viewer.min.css",
-      "sourceSha256": "c425a895ede71b759caac05bde7a64320be2a0aa54fb9e2046f36a9ac6648d5b",
-      "sha256": "66aebda22992b400867caa0c2738ab0f7d6b64bc106750f289c70ae4668459f6",
-      "raw": 1724,
-      "gzip": 738,
-      "brotli": 567
+      "sourceSha256": "b8d87d824f8fbf5951c9b226983ff262a3239fb9c0de2835715d49161f74d129",
+      "sha256": "c2e5e5f99711674cf8be73a6b696db5d6b938615793d6cbbf695acad44007ad9",
+      "raw": 1895,
+      "gzip": 787,
+      "brotli": 616
     },
     "/assets/css/blocks/table.css": {
       "path": "/assets/css/blocks/table.min.css",
