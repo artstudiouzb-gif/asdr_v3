@@ -149,7 +149,7 @@ final class MigrationRunner
 
         $dbStmt = $pdo->query('SELECT DATABASE()');
         $database = (string) ($dbStmt ? $dbStmt->fetchColumn() : '');
-        $dbStmt?->closeCursor();
+        $dbStmt->closeCursor();
 
         $lockName = 'asdr_cms_migrations_' . substr(hash('sha256', $database), 0, 24);
         $lockStmt = $pdo->prepare('SELECT GET_LOCK(:name, 30)');

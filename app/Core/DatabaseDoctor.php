@@ -30,14 +30,14 @@ final class DatabaseDoctor
         try {
             $dbStmt = $pdo->query('SELECT DATABASE()');
             $databaseName = (string) ($dbStmt ? $dbStmt->fetchColumn() : '');
-            $dbStmt?->closeCursor();
+            $dbStmt->closeCursor();
         } catch (\Throwable) {
             $databaseName = $driver;
         }
         try {
             $verStmt = $pdo->query('SELECT VERSION()');
             $serverVersion = (string) ($verStmt ? $verStmt->fetchColumn() : '');
-            $verStmt?->closeCursor();
+            $verStmt->closeCursor();
         } catch (\Throwable) {
             $serverVersion = $driver;
         }
@@ -284,7 +284,7 @@ final class DatabaseDoctor
 
         $fkStmt = $pdo->query('SELECT @@SESSION.FOREIGN_KEY_CHECKS');
         $foreignKeyChecks = (int) ($fkStmt ? $fkStmt->fetchColumn() : 0);
-        $fkStmt?->closeCursor();
+        $fkStmt->closeCursor();
 
         if ($foreignKeyChecks === 1) {
             $checks[] = ['type' => 'ok', 'message' => 'Режим проверки внешних ключей (FOREIGN_KEY_CHECKS) активен'];
@@ -297,7 +297,7 @@ final class DatabaseDoctor
             try {
                 $cStmt = $pdo->query($sql);
                 $val = (int) ($cStmt ? $cStmt->fetchColumn() : 0);
-                $cStmt?->closeCursor();
+                $cStmt->closeCursor();
                 return $val;
             } catch (\Throwable) {
                 return 0;

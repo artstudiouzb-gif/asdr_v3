@@ -45,7 +45,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:8.0
+        image: mysql:8.4
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
           MYSQL_DATABASE: asdr_test
@@ -139,7 +139,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '26'
           cache: npm
       - name: Install JavaScript tooling
         run: npm ci
@@ -185,7 +185,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:8.0
+        image: mysql:8.4
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
           MYSQL_DATABASE: asdr_browser
@@ -206,7 +206,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '26'
           cache: npm
 
       - name: Prepare test site

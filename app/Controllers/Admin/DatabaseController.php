@@ -30,11 +30,11 @@ final class DatabaseController
 
         $dbStmt = $pdo->query('SELECT DATABASE()');
         $dbName = (string) ($dbStmt ? $dbStmt->fetchColumn() : '');
-        $dbStmt?->closeCursor();
+        $dbStmt->closeCursor();
 
         $verStmt = $pdo->query('SELECT VERSION()');
         $dbVersion = (string) ($verStmt ? $verStmt->fetchColumn() : '');
-        $verStmt?->closeCursor();
+        $verStmt->closeCursor();
 
         $tables = [];
         $totalSizeMb = 0.0;
@@ -112,7 +112,7 @@ final class DatabaseController
         try {
             $dbStmt = $pdo->query('SELECT DATABASE()');
             $dbName = (string) ($dbStmt ? $dbStmt->fetchColumn() : '');
-            $dbStmt?->closeCursor();
+            $dbStmt->closeCursor();
 
             $stmt = $pdo->prepare("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = :schema AND TABLE_TYPE = 'BASE TABLE'");
             $stmt->execute([':schema' => $dbName]);
