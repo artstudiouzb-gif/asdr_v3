@@ -113,4 +113,19 @@ test('TinyMCE: самохостинг без внешнего CDN', function ():
     assert_true(is_file($root . '/public/assets/js/vendor/tinymce/tinymce.min.js'), 'движок на месте');
     assert_true(is_file($root . '/public/assets/js/vendor/tinymce/langs/ru.js'), 'русский язык на месте');
     assert_true(is_file($root . '/public/assets/js/vendor/tinymce/themes/silver/theme.min.js'), 'тема на месте');
+
+    // Плагин из настроек без своего файла не грузится, и редактор пишет
+    // «Failed to load plugin»: так на шестой версии жили пять плагинов.
+    // Набор файлов собирает scripts/sync-vendor-assets.mjs — новый плагин
+    // в editor.js обязан попасть и туда.
+    preg_match_all("/plugins: (.*?)\\],\\n\\s+toolbar1/s", $editor, $lists);
+    preg_match_all("/'([a-z]+)'/", implode(' ', $lists[1]), $names);
+    $plugins = array_unique($names[1]);
+    assert_true(count($plugins) > 10, 'список плагинов найден');
+    foreach ($plugins as $plugin) {
+        assert_true(
+            is_file($root . '/public/assets/js/vendor/tinymce/plugins/' . $plugin . '/plugin.min.js'),
+            'файл плагина ' . $plugin . ' на месте'
+        );
+    }
 });

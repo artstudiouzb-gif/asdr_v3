@@ -1,4 +1,5 @@
-import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import process from 'node:process';
 
 const files = [
@@ -201,4 +202,91 @@ for (const [source, target] of pdfjsFiles) {
     await writeFile(path, expected);
 }
 
-console.log(`Coloris and Tabler vendor assets ${checkOnly ? 'verified' : 'synced'} (${spriteIndex.length} icons indexed, ${pdfjsFiles.length} PDF.js files).`);
+// Редактор текста админки. Берётся не весь пакет (в нём исходники, типы и
+// три десятка плагинов), а движок, тема, скин, иконки и ровно те плагины,
+// что перечислены в editor.js: плагин из списка без файла не грузится, а
+// редактор показывает «Failed to load plugin» (так жили codesample, emoticons,
+// help, nonbreaking и quickbars на шестой версии — их файлов не было вовсе).
+// Русский язык — из tinymce-i18n, набор строк своей мажорной версии (langs8).
+// Каталог собирается целиком: файл прежней версии, которого в новой нет,
+// удаляется, а проверка считает лишний файл таким же расхождением, как
+// устаревший.
+const tinymceRoot = 'node_modules/tinymce';
+const tinymceTarget = 'public/assets/js/vendor/tinymce';
+const tinymcePlugins = [
+    'advlist', 'anchor', 'autolink', 'charmap', 'code', 'codesample', 'emoticons',
+    'fullscreen', 'help', 'image', 'insertdatetime', 'link', 'lists', 'media',
+    'nonbreaking', 'preview', 'quickbars', 'searchreplace', 'table', 'visualblocks',
+    'wordcount',
+];
+const tinymceFiles = [
+    [`${tinymceRoot}/tinymce.min.js`, 'tinymce.min.js'],
+    [`${tinymceRoot}/license.md`, 'license.md'],
+    [`${tinymceRoot}/notices.txt`, 'notices.txt'],
+    [`${tinymceRoot}/icons/default/icons.min.js`, 'icons/default/icons.min.js'],
+    [`${tinymceRoot}/models/dom/model.min.js`, 'models/dom/model.min.js'],
+    [`${tinymceRoot}/themes/silver/theme.min.js`, 'themes/silver/theme.min.js'],
+    [`${tinymceRoot}/skins/content/default/content.min.css`, 'skins/content/default/content.min.css'],
+    [`${tinymceRoot}/plugins/emoticons/js/emojis.min.js`, 'plugins/emoticons/js/emojis.min.js'],
+    [`${tinymceRoot}/plugins/help/js/i18n/keynav/en.js`, 'plugins/help/js/i18n/keynav/en.js'],
+    [`${tinymceRoot}/plugins/help/js/i18n/keynav/ru.js`, 'plugins/help/js/i18n/keynav/ru.js'],
+    ['node_modules/tinymce-i18n/langs8/ru.js', 'langs/ru.js'],
+];
+for (const name of ['skin.min.css', 'content.min.css', 'content.inline.min.css', 'skin.shadowdom.min.css']) {
+    tinymceFiles.push([`${tinymceRoot}/skins/ui/oxide/${name}`, `skins/ui/oxide/${name}`]);
+}
+for (const plugin of tinymcePlugins) {
+    tinymceFiles.push([`${tinymceRoot}/plugins/${plugin}/plugin.min.js`, `plugins/${plugin}/plugin.min.js`]);
+}
+
+async function listFiles(dir, prefix = '') {
+    let entries;
+    try {
+        entries = await readdir(dir, { withFileTypes: true });
+    } catch {
+        return [];
+    }
+    const found = [];
+    for (const entry of entries) {
+        const rel = prefix + entry.name;
+        if (entry.isDirectory()) {
+            found.push(...await listFiles(`${dir}/${entry.name}`, `${rel}/`));
+        } else {
+            found.push(rel);
+        }
+    }
+    return found;
+}
+
+const tinymceExpected = new Set(tinymceFiles.map(([, target]) => target));
+const tinymceExtra = (await listFiles(tinymceTarget)).filter((rel) => !tinymceExpected.has(rel));
+if (checkOnly && tinymceExtra.length > 0) {
+    throw new Error(`${tinymceTarget}/${tinymceExtra[0]} is not part of TinyMCE ${tinymceVersion()}. Run npm run build:vendor.`);
+}
+if (!checkOnly) {
+    await rm(tinymceTarget, { recursive: true, force: true });
+}
+for (const [source, target] of tinymceFiles) {
+    const expected = await readText(source);
+    const path = `${tinymceTarget}/${target}`;
+    if (checkOnly) {
+        let current;
+        try {
+            current = await readText(path);
+        } catch {
+            throw new Error(`${path} is missing. Run npm run build:vendor.`);
+        }
+        if (current !== expected) {
+            throw new Error(`${path} is stale. Run npm run build:vendor.`);
+        }
+        continue;
+    }
+    await mkdir(path.slice(0, path.lastIndexOf('/')), { recursive: true });
+    await writeFile(path, expected);
+}
+
+function tinymceVersion() {
+    return JSON.parse(readFileSync(`${tinymceRoot}/package.json`, 'utf8')).version;
+}
+
+console.log(`Coloris and Tabler vendor assets ${checkOnly ? 'verified' : 'synced'} (${spriteIndex.length} icons indexed, ${pdfjsFiles.length} PDF.js files, TinyMCE ${tinymceVersion()}: ${tinymceFiles.length} files).`);
