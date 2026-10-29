@@ -144,6 +144,52 @@ final class SectionColors
         return !empty($data['_bg_light_text']) ? 'light' : 'auto';
     }
 
+    /**
+     * Схема, которой секция красится на выводе. «Авто» на тёмной заливке —
+     * светлый текст: иначе заголовок, подпись и крошки обложки оставались
+     * тёмными на тёмном фоне, и прочитать их было нельзя вовсе. Светлую
+     * заливку «авто» не трогает — там текст темы и так читается, а печать
+     * тёмной схемы поменяла бы вид собранных страниц.
+     *
+     * Форма редактора спрашивает `textScheme()`: выбор «авто» остаётся
+     * выбором «авто».
+     *
+     * @param array<string, mixed> $data
+     */
+    public static function effectiveTextScheme(array $data): string
+    {
+        $scheme = self::textScheme($data);
+
+        return $scheme === 'auto' && self::hasDarkFill($data) ? 'light' : $scheme;
+    }
+
+    /**
+     * Своя заливка секции, на которой белый текст проходит 4.5:1. Градиент —
+     * только когда тёмные оба конца. Фотография не в счёт: её тон неизвестен,
+     * для неё есть затемнение и явный выбор схемы.
+     *
+     * @param array<string, mixed> $data
+     */
+    private static function hasDarkFill(array $data): bool
+    {
+        $colors = match ((string) ($data['_bg_mode'] ?? '')) {
+            'color', 'pattern' => [$data['_bg_color'] ?? ''],
+            'gradient' => [$data['_bg_gradient_from'] ?? '', $data['_bg_gradient_to'] ?? ''],
+            default => [],
+        };
+        if ($colors === []) {
+            return false;
+        }
+        foreach ($colors as $color) {
+            if (!is_string($color) || preg_match('/^#[0-9a-f]{6}$/i', $color) !== 1
+                || AccentContrast::ratio('#ffffff', $color) < AccentContrast::AA_NORMAL) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /** @param array<string, mixed> $data */
     public static function cardScheme(array $data): string
     {
@@ -181,7 +227,7 @@ final class SectionColors
      */
     private static function textCss(array $data, string $scope): string
     {
-        $scheme = self::textScheme($data);
+        $scheme = self::effectiveTextScheme($data);
         if ($scheme === 'auto') {
             return '';
         }

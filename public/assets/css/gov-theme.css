@@ -3866,10 +3866,13 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     position: absolute; top: 0; left: 0; right: 0; z-index: 4;
     width: 100%; max-width: var(--container-max); margin: 0 auto;
     padding: clamp(14px, 2vw, 22px) 20px 0; font-size: var(--step--2);
-}/* По умолчанию — тёмные (для hero без фото/видео, светлая секция). */
+}/* Без фото и своего цвета — цвет текста секции, в которой стоит обложка:
+   на обычной странице это --gov-title, на тёмной секции (пресет navy, своя
+   заливка, «Цвет текста секции») — светлый. Числом здесь стоял --gov-title,
+   и на тёмной секции крошки оставались тёмными на тёмном. */
 
 .block-hero .content-crumbs--on-hero a,
-.block-hero .content-crumbs--on-hero span { color: var(--gov-title); }/* На hero с медиа-фоном — светлые. */
+.block-hero .content-crumbs--on-hero span { color: var(--section-title-fg); }/* На hero с медиа-фоном — светлые. */
 
 .block-hero--media .content-crumbs--on-hero a,
 .block-hero--media .content-crumbs--on-hero span { color: rgba(255, 255, 255, .82); }
@@ -3927,6 +3930,7 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
 .cms-block--bg-navy :is(.section-head__description, .block-featband__description, .block-timeline__description) {
     color: var(--section-muted-fg);
 }
+.cms-block--bg-navy .block-hero--plain .block-hero__subtitle { color: var(--hero-text, var(--section-muted-fg)); }
 .section-head__all { color: var(--gov-teal-text); font-family: var(--font-family, 'Noto Sans', sans-serif); font-size: var(--step--2); font-weight: 700; text-decoration: none; white-space: nowrap; }
 /* Стрелка — отдельный элемент (SectionHead::allLink): её скрывает настройка
    «Ссылки «Все …»», а диктору она ничего не сообщает. Отступ заменяет
