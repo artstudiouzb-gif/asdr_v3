@@ -3868,7 +3868,6 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .hero .content-crumbs--on-hero {
     position: absolute; top: 0; left: 0; right: 0; z-index: 4;
     width: 100%; max-width: var(--container-max); margin: 0 auto;
-<<<<<<< HEAD
     /* Одна система с полосой крошек над контентом: тот же отступ от шапки
        сайта (--crumbs-top), тот же кегль и интервал. Сбоку — ровно столько,
        сколько у текста самой обложки: крошки стоят над заголовком, а не
@@ -3887,9 +3886,6 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .block-hero:not(.block-hero--media) { --crumbs-inline: 0px; }
 .block-hero:not(.block-hero--media) > .content-crumbs--on-hero {
     position: relative; top: auto; padding-bottom: var(--section-space-s);
-=======
-    padding: clamp(14px, 2vw, 22px) 20px 0; font-size: var(--step--2);
->>>>>>> origin/claude/gifted-thompson-lt6111
 }/* Без фото и своего цвета — цвет текста секции, в которой стоит обложка:
    на обычной странице это --gov-title, на тёмной секции (пресет navy, своя
    заливка, «Цвет текста секции») — светлый. Числом здесь стоял --gov-title,
