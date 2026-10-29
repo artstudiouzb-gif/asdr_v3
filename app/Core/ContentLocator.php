@@ -67,6 +67,7 @@ final class ContentLocator
         'news_category_translations' => ['news_category', 'category_id'],
         'widgets' => ['widget', 'id'],
         'forms' => ['form', 'id'],
+        'form_translations' => ['form', 'form_id'],
         'menu_items' => ['menu', 'id'],
         'languages' => ['language', 'id'],
         'redirects' => ['redirect', 'id'],

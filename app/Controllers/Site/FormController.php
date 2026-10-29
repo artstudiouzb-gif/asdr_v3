@@ -26,6 +26,11 @@ final class FormController
             View::render('errors/404');
             return;
         }
+        // Подписи — на языке посетителя (сообщения об ошибках называют поле
+        // так, как он его видел), а журнал, письмо и Telegram получают
+        // название основного языка: их читает редакция.
+        $baseName = (string) $form['name'];
+        $form = FormDef::localize($form, \App\Core\Locale::current());
 
         $successMessage = $form['success_message'] ?: t('Спасибо! Ваша заявка отправлена.');
 
@@ -139,18 +144,18 @@ final class FormController
         );
 
         if (!empty($form['notify_email'])) {
-            $this->notify($form, $data);
+            $this->notify(['name' => $baseName] + $form, $data);
         }
 
         // Мгновенное уведомление в Telegram (если настроен бот и получатели).
-        \App\Core\FormNotifier::notifySubmission((string) $form['name'], $data);
+        \App\Core\FormNotifier::notifySubmission($baseName, $data);
 
         // Внутреннее уведомление не содержит поля заявки и персональные данные:
         // они доступны только после авторизации и проверки роли в админке.
         NotificationCenter::roles(
             ['admin', 'editor'],
             'Новая заявка',
-            'Получена новая заявка через форму «' . (string) $form['name'] . '».',
+            'Получена новая заявка через форму «' . $baseName . '».',
             'forms',
             'info',
             '/admin/forms/submissions/' . $submissionId,
@@ -161,7 +166,7 @@ final class FormController
         // Событие для исходящих вебхуков (задача 136).
         \App\Core\WebhookDispatcher::dispatch('form.submitted', [
             'form' => (string) $form['slug'],
-            'form_name' => (string) ($form['name'] ?? ''),
+            'form_name' => $baseName,
             'fields' => $data,
         ]);
 
