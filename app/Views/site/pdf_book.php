@@ -57,7 +57,11 @@ $e = static fn (string $text): string => htmlspecialchars($text, ENT_QUOTES);
     </div>
 
     <div class="pdf-book__desk">
-        <p class="pdf-book__status" data-book-status><?= $e(t('Загрузка документа…')) ?></p>
+        <?php /* Полоса без значения — «идёт загрузка»; проценты ставит скрипт, когда сервер назвал размер файла. */ ?>
+        <p class="pdf-book__status" data-book-status>
+            <span><?= $e(t('Загрузка документа…')) ?> <span class="pdf-book__percent" data-load-percent></span></span>
+            <progress class="pdf-book__progress" data-load-progress max="100" aria-label="<?= $e(t('Загрузка документа…')) ?>"></progress>
+        </p>
         <div class="pdf-book__stage" data-book-stage hidden>
             <div class="pdf-book__shift" data-book-shift>
                 <span class="pdf-book__edge pdf-book__edge--left" data-book-edge="left"></span>
