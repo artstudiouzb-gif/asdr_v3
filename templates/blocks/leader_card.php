@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\ContactLink;
 use App\Core\Icon;
 
 /**
@@ -127,7 +128,8 @@ $renderPanel = static function (string $key) use ($facts, $bio, $duties, $esc): 
                 <?php if ($phone !== ''): ?>
                     <li class="leader-card__contact">
                         <span class="leader-card__contact-icon" aria-hidden="true"><?= Icon::render('phone', 20) ?></span>
-                        <a href="tel:<?= $esc(preg_replace('/[^0-9+]/', '', $phone) ?? '') ?>"><?= $esc($phone) ?></a>
+                        <?php $phoneHref = ContactLink::telHref($phone); ?>
+                        <?php if ($phoneHref !== null): ?><a href="<?= $esc($phoneHref) ?>"><?= $esc($phone) ?></a><?php else: ?><span><?= $esc($phone) ?></span><?php endif; ?>
                     </li>
                 <?php endif; ?>
                 <?php if ($email !== ''): ?>

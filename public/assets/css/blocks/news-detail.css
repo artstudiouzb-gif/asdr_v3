@@ -406,7 +406,8 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero { pad
 .newsdetail-phero .content-crumbs {
     position: absolute; top: 0; left: 0; right: 0; z-index: 4;
     width: 100%; max-width: var(--container-max); margin: 0 auto;
-    padding: clamp(14px, 2vw, 22px) 20px 0; font-size: var(--step--2);
+    padding: var(--crumbs-top, 14px) 20px 0;
+    font-size: var(--font-size-meta, var(--step--4)); line-height: 1.4;
 }
 body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero .content-crumbs { top: clamp(88px, 11vw, 130px); }
 /* На узком экране крошки переносятся на две-три строки, и вынутые из потока

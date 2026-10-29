@@ -35,8 +35,8 @@ if ($contactLinkUrl !== '' && !UrlGuard::isSafeLink($contactLinkUrl)) {
 $contactHref = '';
 if (filter_var($contactValue, FILTER_VALIDATE_EMAIL)) {
     $contactHref = 'mailto:' . $contactValue;
-} elseif (preg_match('/^\+?[\d\s()\-]{5,}$/', $contactValue)) {
-    $contactHref = 'tel:' . preg_replace('/[^\d+]/', '', $contactValue);
+} elseif (preg_match('/^\+?\d[\d\s()\-]{4,}/', $contactValue)) {
+    $contactHref = \App\Core\ContactLink::telHref($contactValue) ?? '';
 }
 $hasContact = $contactValue !== '' || ($contactLinkText !== '' && $contactLinkUrl !== '');
 ?>
