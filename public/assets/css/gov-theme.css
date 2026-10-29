@@ -123,6 +123,9 @@
     --space-l: 2rem;
     --space-xl: 3rem;
     --space-2xl: 4rem;
+    /* Отступ хлебных крошек от шапки сайта — одно число на все места:
+       полоса над контентом, крошки на обложке, в «Колонках», в новости. */
+    --crumbs-top: 14px;
     --space-3xl: 6rem;
 
     /* Радиусы объявлены в tokens.css: их читают и страницы без темы. */
@@ -3865,7 +3868,24 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .hero .content-crumbs--on-hero {
     position: absolute; top: 0; left: 0; right: 0; z-index: 4;
     width: 100%; max-width: var(--container-max); margin: 0 auto;
-    padding: clamp(14px, 2vw, 22px) 20px 0; font-size: var(--step--2);
+    /* Одна система с полосой крошек над контентом: тот же отступ от шапки
+       сайта (--crumbs-top), тот же кегль и интервал. Сбоку — ровно столько,
+       сколько у текста самой обложки: крошки стоят над заголовком, а не
+       своим отступом. Прежние 20px сбоку и 14–22px сверху были третьим
+       набором чисел рядом с полосой и текстом обложки. */
+    padding: var(--crumbs-top) var(--crumbs-inline, 20px) 0;
+    font-size: var(--font-size-meta, var(--step--4)); line-height: 1.4;
+}
+/* Запись типа «Обложки»: текст стоит в .hero__inner с полями --space-m,
+   у полноширинной — с --hero-gutter (как у .site-content). */
+.hero { --crumbs-inline: var(--space-m); }
+.hero--w-full { --crumbs-inline: var(--hero-gutter, 20px); }
+/* Старая обложка без фото: у неё нет внутренних полей, текст стоит вровень с
+   колонкой сайта — крошки тоже. Слоя под ними нет, поэтому они идут в потоке
+   первой строкой (поверх заголовка absolute наехал бы на него). */
+.block-hero:not(.block-hero--media) { --crumbs-inline: 0px; }
+.block-hero:not(.block-hero--media) > .content-crumbs--on-hero {
+    position: relative; top: auto; padding-bottom: var(--section-space-s);
 }/* Без фото и своего цвета — цвет текста секции, в которой стоит обложка:
    на обычной странице это --gov-title, на тёмной секции (пресет navy, своя
    заливка, «Цвет текста секции») — светлый. Числом здесь стоял --gov-title,
@@ -3896,6 +3916,7 @@ body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(
        скрыт — на узком экране крошки уже называют место страницы. */
     .block-hero:has(> .content-crumbs--on-hero) { flex-wrap: wrap; align-content: flex-start; }
     .block-hero > .content-crumbs--on-hero { position: relative; top: auto; flex: 0 0 100%; padding-bottom: 20px; }
+    .hero:not(.hero--w-full) { --crumbs-inline: var(--space-s); }
     .hero:has(> .content-crumbs--on-hero) .hero__inner { padding-top: calc(var(--space-l) + 3.5em); }
     :is(.block-hero, .hero):has(> .content-crumbs--on-hero) :is(.block-hero__eyebrow, .hero__eyebrow) { display: none; }
 }/* Заголовок секции: серифный + ссылка «Все …». */
