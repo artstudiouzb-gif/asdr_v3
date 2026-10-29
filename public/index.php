@@ -566,6 +566,7 @@ $router->get('/indexnow.txt', [\App\Controllers\Site\SitemapController::class, '
 // --- Письменность узбекского текста (латиница ↔ кириллица) ---
 $router->get('/goals/random', [SiteGoalController::class, 'random']);
 $router->get('/pdf', [\App\Controllers\Site\PdfController::class, 'show']);
+$router->get('/book/{name}', [\App\Controllers\Site\PdfController::class, 'book']);
 $router->get('/script/{code}', [\App\Controllers\Site\ScriptController::class, 'switch']);
 
 // --- Публичный сайт ---
