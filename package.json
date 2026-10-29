@@ -26,5 +26,9 @@
     "subset-font": "^2.9.0",
     "terser": "5.51.2",
     "web-vitals": "^6.2.3"
+  },
+  "dependencies": {
+    "tinymce": "8.10.1",
+    "tinymce-i18n": "26.10.26"
   }
 }
