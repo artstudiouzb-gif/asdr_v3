@@ -12,6 +12,8 @@ use App\Core\Slug;
 use App\Core\View;
 use App\Models\FormDef;
 use App\Models\FormSubmission;
+use App\Models\FormTranslation;
+use App\Models\Language;
 
 final class FormController
 {
@@ -70,7 +72,11 @@ final class FormController
             return;
         }
 
-        View::render('admin/forms/form', ['form' => $form, 'error' => null]);
+        View::render('admin/forms/form', [
+            'form' => $form,
+            'error' => null,
+            'translations' => FormTranslation::forForm((int) $form['id']),
+        ]);
     }
 
     /** @param array<string, string> $params */
@@ -90,11 +96,16 @@ final class FormController
         [$data, $error] = $this->collectInput($id, $form);
 
         if ($error !== null) {
-            View::render('admin/forms/form', ['form' => array_merge($form, $data), 'error' => $error]);
+            View::render('admin/forms/form', [
+                'form' => array_merge($form, $data),
+                'error' => $error,
+                'translations' => FormTranslation::forForm($id),
+            ]);
             return;
         }
 
         FormDef::update($id, $data);
+        $this->saveTranslations($id, $data['fields']);
         Flash::success('Форма обновлена.');
         header('Location: /admin/forms');
         exit;
@@ -248,6 +259,49 @@ final class FormController
         }
 
         return http_build_query($params);
+    }
+
+    /**
+     * Переводы для всех не-основных активных языков. Ключ подписи — имя поля:
+     * перевод поля, которого в форме больше нет, не сохраняется, чтобы не
+     * копить подписи удалённых полей. Пустое значение — «как на основном
+     * языке».
+     *
+     * @param list<array<string, mixed>> $fields
+     */
+    private function saveTranslations(int $formId, array $fields): void
+    {
+        $defaultCode = Language::defaultCode();
+        $input = is_array($_POST['translations'] ?? null) ? $_POST['translations'] : [];
+        $clean = static fn (mixed $value, int $max): string => mb_substr(trim(is_string($value) ? $value : ''), 0, $max);
+
+        foreach (Language::active() as $lang) {
+            $code = (string) $lang['code'];
+            if ($code === $defaultCode) {
+                continue;
+            }
+            $row = is_array($input[$code] ?? null) ? $input[$code] : [];
+            $rowFields = is_array($row['fields'] ?? null) ? $row['fields'] : [];
+
+            $translated = [];
+            foreach ($fields as $field) {
+                $name = (string) $field['name'];
+                $own = is_array($rowFields[$name] ?? null) ? $rowFields[$name] : [];
+                $entry = ['label' => $clean($own['label'] ?? '', 190)];
+                if (in_array($field['type'], \App\Core\FormLayout::OPTION_TYPES, true)) {
+                    $entry['options'] = $clean($own['options'] ?? '', 2000);
+                }
+                if (implode('', $entry) !== '') {
+                    $translated[$name] = $entry;
+                }
+            }
+
+            FormTranslation::upsert($formId, $code, [
+                'name' => $clean($row['name'] ?? '', 190),
+                'success_message' => $clean($row['success_message'] ?? '', 500),
+                'fields' => $translated,
+            ]);
+        }
     }
 
     /**
