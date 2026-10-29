@@ -25,16 +25,19 @@
     border-bottom: 1px solid var(--gov-border);
 }
 
+/* Название документа бывает длинным — две строки, а не обрезка в одну. */
 .pdf-book__title {
-    flex: 1 1 200px;
+    display: -webkit-box;
+    flex: 1 1 240px;
     min-width: 0;
     margin: 0;
     overflow: hidden;
     font-size: var(--step-0);
     font-weight: 600;
+    line-height: 1.35;
     color: var(--gov-ink);
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
 }
 
 .pdf-book__tools {

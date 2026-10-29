@@ -25,9 +25,9 @@ use App\Models\Language;
  * Открывается только PDF из своих загрузок: чужой адрес превратил бы страницу
  * в просмотрщик для любого файла в интернете под нашим доменом.
  *
- * `view=book` — тот же файл книгой с листанием (см. PdfViewer). Её открывают
- * на любом устройстве: ссылку ставит сам блок «Документы», когда редактор
- * выбрал для документа этот вид.
+ * Книга с листанием живёт на своём адресе `/book/<имя>` (см. book() и
+ * PdfViewer). Её открывают на любом устройстве: ссылку ставит сам блок
+ * «Документы», когда редактор выбрал для документа этот вид.
  */
 final class PdfController
 {
@@ -41,9 +41,14 @@ final class PdfController
             return;
         }
 
-        $book = $query->oneOf('view', PdfViewer::VIEWS, PdfViewer::VIEW_DOCUMENT) === PdfViewer::VIEW_BOOK;
+        // Книга живёт на коротком адресе /book/<имя>; прежний вид с
+        // параметром уводится туда, чтобы уже разосланные ссылки работали.
+        if ($query->oneOf('view', PdfViewer::VIEWS, PdfViewer::VIEW_DOCUMENT) === PdfViewer::VIEW_BOOK) {
+            $lang = $query->str('lang', '', 8);
+            Redirect::to(PdfViewer::bookUrl($file, in_array($lang, Language::publicCodes(), true) ? $lang : null) ?? $file, 301);
+        }
 
-        $target = self::languageTarget($query->str('lang', '', 8), $file, Locale::current(), Language::publicCodes(), $book);
+        $target = self::languageTarget($query->str('lang', '', 8), $file, Locale::current(), Language::publicCodes());
         if ($target !== null) {
             Redirect::to($target);
         }
@@ -55,15 +60,38 @@ final class PdfController
             'pdfjsUrl' => self::localAsset('/assets/vendor/pdfjs/pdf.min.js'),
             'workerUrl' => self::localAsset('/assets/vendor/pdfjs/pdf.worker.min.js'),
         ];
-        if ($book) {
-            View::render('site/pdf_book', $vars + [
-                'flipUrl' => self::localAsset('/assets/vendor/page-flip/page-flip.browser.js'),
-                'bookScript' => self::localAsset('/assets/js/pdf-book.js'),
-            ]);
-            return;
-        }
         View::render('site/pdf_viewer', $vars + [
             'viewerScript' => self::localAsset('/assets/js/pdf-viewer.js'),
+        ]);
+    }
+
+    /**
+     * PDF книгой с листанием: `/book/<имя файла без .pdf>`. В шапке —
+     * название документа из блока «Документы», а не имя файла, и ссылка
+     * обратно на страницу, где документ стоит.
+     *
+     * @param array<string, string> $params
+     */
+    public function book(array $params): void
+    {
+        $file = PdfViewer::fileFromBookName($params['name'] ?? '');
+        if ($file === null) {
+            http_response_code(404);
+            View::render('errors/404');
+            return;
+        }
+
+        header('X-Robots-Tag: noindex');
+        $source = PdfViewer::documentSource($file, Locale::current());
+        View::render('site/pdf_book', [
+            'fileUrl' => $file,
+            'title' => $source['title'] ?? rawurldecode(basename($file)),
+            'backUrl' => $source['page_url'] ?? '',
+            'backTitle' => $source['page_title'] ?? '',
+            'pdfjsUrl' => self::localAsset('/assets/vendor/pdfjs/pdf.min.js'),
+            'workerUrl' => self::localAsset('/assets/vendor/pdfjs/pdf.worker.min.js'),
+            'flipUrl' => self::localAsset('/assets/vendor/page-flip/page-flip.browser.js'),
+            'bookScript' => self::localAsset('/assets/js/pdf-book.js'),
         ]);
     }
 
@@ -75,13 +103,13 @@ final class PdfController
      *
      * @param list<string> $publicCodes
      */
-    public static function languageTarget(string $lang, string $file, string $current, array $publicCodes, bool $book = false): ?string
+    public static function languageTarget(string $lang, string $file, string $current, array $publicCodes): ?string
     {
         if ($lang === '' || $lang === $current || !in_array($lang, $publicCodes, true)) {
             return null;
         }
 
-        return Locale::url('/pdf', $lang) . '?file=' . rawurlencode($file) . ($book ? '&view=' . PdfViewer::VIEW_BOOK : '');
+        return Locale::url('/pdf', $lang) . '?file=' . rawurlencode($file);
     }
 
     /** Путь к своему PDF или null (см. PdfViewer::filePath). */
