@@ -271,7 +271,7 @@ if (!empty($menuItems)) {
 $a11ySettings = \App\Core\A11ySettings::fromCookie($_COOKIE[\App\Core\A11ySettings::COOKIE] ?? null);
 $a11yActive = \App\Core\A11ySettings::isActive($a11ySettings);
 $a11yToggle = '<button type="button" class="a11y-toggle' . ($a11yActive ? ' is-active' : '') . '" data-a11y-open'
-    . ' aria-label="' . $et('Настройки отображения') . '" title="' . $et('Настройки отображения: размер текста, контраст, интервалы') . '"'
+    . ' title="' . $et('Настройки отображения: размер текста, контраст, интервалы') . '"'
     . ' aria-controls="a11y-panel" aria-expanded="false">'
     . \App\Core\Icon::render('eye', 18)
     . '<span>' . $et('Для слабовидящих') . '</span></button>';
@@ -372,7 +372,10 @@ if (!empty($hcfg['language_switcher']['enabled']) && (count($activeLangs) >= 1 |
         $globeSvg = \App\Core\Icon::render('world', 15, 'site-lang-dropdown__globe');
 
         $langHtml = '<details class="site-lang-dropdown" data-lang-dropdown data-no-translit>';
-        $langHtml .= '<summary class="site-lang-dropdown__trigger" aria-label="' . htmlspecialchars(t('Выбрать язык'), ENT_QUOTES) . '">';
+        // Имя для диктора включает видимую подпись («Рус»): кто управляет
+        // голосом, называет то, что видит, — aria-label без неё это ломал.
+        $langHtml .= '<summary class="site-lang-dropdown__trigger">';
+        $langHtml .= '<span class="visually-hidden">' . htmlspecialchars(t('Выбрать язык'), ENT_QUOTES) . ': </span>';
         $langHtml .= $globeSvg;
         $langHtml .= '<span class="site-lang-dropdown__current">' . htmlspecialchars((string) $triggerLabel, ENT_QUOTES) . '</span>';
         $langHtml .= \App\Core\Icon::render('chevron-down', 12, 'site-lang-dropdown__arrow', 2.5);

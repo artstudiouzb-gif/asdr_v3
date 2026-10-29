@@ -316,6 +316,12 @@
                 selector: '#' + textarea.id,
                 base_url: '/assets/js/vendor/tinymce',
                 suffix: '.min',
+                // Адрес картинки остаётся от корня («/uploads/…»). По умолчанию
+                // редактор пересчитывал его от адреса формы, и в тексте статьи
+                // оседало «../../../uploads/…»: страница открывала снимок лишь
+                // потому, что лишние «..» обрезаются у корня, а подстановка CDN
+                // (Asset::rewriteMedia ищет «/uploads/public») такие пути не видела.
+                relative_urls: false,
                 license_key: 'gpl',
                 promotion: false,
                 branding: false,
@@ -324,7 +330,6 @@
                 height: isMini ? 200 : (isNotice ? 240 : (isLead ? 280 : 520)),
                 menubar: isLead ? false : 'file edit view insert format table tools help',
                 paste_webkit_styles: 'none',
-                paste_retain_style_properties: 'none',
                 paste_remove_styles_if_webkit: true,
                 paste_merge_formats: true,
                 paste_as_text: false,
@@ -358,7 +363,7 @@
                     : isLead
                     ? 'undo redo | bold italic underline strikethrough | link blockquote bullist numlist | removeformat'
                     : 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough subscript superscript | blockquote forecolor backcolor | alignleft aligncenter alignright alignjustify',
-                toolbar2: isLead ? false : 'bullist numlist outdent indent | articlemedia link image media table blockquote hr codesample emoticons | removeformat searchreplace visualblocks code fullscreen preview',
+                toolbar2: isLead ? undefined : 'bullist numlist outdent indent | articlemedia link image media table blockquote hr codesample emoticons | removeformat searchreplace visualblocks code fullscreen preview',
                 image_caption: !isLead,
                 image_title: !isLead,
                 font_size_formats: '12px 14px 16px 18px 20px 24px 28px 32px 40px',
