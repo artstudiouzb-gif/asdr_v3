@@ -57,15 +57,26 @@ final class DocumentPresenter
      * Карусель или сетка. «Авто» листает, когда документы не помещаются в два
      * ряда: витрина изданий на странице читается рядом, а не стеной. Больше
      * CAROUSEL_MAX_AUTO — это архив, его ищут поиском, а не листают.
+     * Заданные страницы (`$perPage`) у «Авто» главнее карусели: редактор
+     * выбрал листание страницами, а не вбок. Явная карусель остаётся ею.
      */
-    public static function carousel(string $layout, int $count, int $columns): bool
+    public static function carousel(string $layout, int $count, int $columns, int $perPage = 0): bool
     {
         if ($count < 2 || $layout === 'grid') {
             return false;
         }
+        if ($layout === 'slider') {
+            return true;
+        }
 
-        return $layout === 'slider'
-            || ($count > max(1, $columns) * 2 && $count <= self::CAROUSEL_MAX_AUTO);
+        return !self::paged($perPage, $count)
+            && $count > max(1, $columns) * 2 && $count <= self::CAROUSEL_MAX_AUTO;
+    }
+
+    /** Нужна ли блоку полоса страниц: документов больше, чем на одной. */
+    public static function paged(int $perPage, int $count): bool
+    {
+        return $perPage > 0 && $count > $perPage;
     }
 
     /**

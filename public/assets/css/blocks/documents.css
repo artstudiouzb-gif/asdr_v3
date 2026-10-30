@@ -275,21 +275,29 @@
     flex: 1 1 auto;
     grid-template-columns: minmax(0, 1fr);
 }
+/* Обложка вписывается в кадр целиком, а не обрезается им. Пропорции
+   обложек разные — книжный титул, квадрат, альбомный кадр, — и при
+   `cover` колонка резала то, ради чего обложку ставят: у альбомного титула
+   пропадали края надписи, у книжного в узкой карточке оставалась верхняя
+   треть. Кадр — тонированная подложка, обложка стоит на ней с отступом и
+   тенью по своим пикселям (`drop-shadow`, а не `box-shadow`: у вписанной
+   картинки рамка больше изображения). */
 .act-card__media {
     position: relative;
     display: block;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 4 / 3;
     overflow: hidden;
-    background: color-mix(in srgb, var(--gov-navy) 8%, var(--gov-surface));
+    background: color-mix(in srgb, var(--gov-navy) 7%, var(--gov-surface));
 }
 .act-card__media picture { display: contents; }
 .act-card__img {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
+    inset: 18px;
+    width: calc(100% - 36px);
+    height: calc(100% - 36px);
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--gov-navy) 24%, transparent));
 }
 .act-card__main {
     position: relative;
@@ -308,6 +316,15 @@
     .act-card__media { aspect-ratio: auto; }
     .act-card__media::before { content: ""; display: block; padding-top: 100%; }
 }
+
+/* --- Поиск и страницы --------------------------------------------------- */
+/* Карточки темы объявляют `display: flex`, и он перебивал атрибут `hidden`:
+   поиск находил документ, а остальные карточки оставались на месте. */
+.block-docslist [data-document-card][hidden] { display: none; }
+.docslist-pager { margin-top: 28px; }
+/* Полосу листает скрипт, поэтому номера — кнопки, а не ссылки: у кнопки
+   свой шрифт браузера, его возвращаем к шрифту полосы. */
+.docslist-pager .listing-pager__item { font: inherit; font-weight: 700; cursor: pointer; }
 
 /* --- Карусель ----------------------------------------------------------- */
 /* Сетку актов и карточек объявляет тема; лента — тот же общий .cards-track,
