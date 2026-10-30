@@ -14,18 +14,24 @@ $searchEnabled = !empty($data['search_enabled']);
 // Фирменный знак на карточке акта. У блоков, сохранённых до появления
 // настройки, ключа нет — умолчание схемы подставляет включённое состояние.
 $showEmblem = !empty($data['emblem']);
-$carousel = $variant !== 'links' && \App\Core\DocumentPresenter::carousel((string) $data['layout'], is_array($items) ? count($items) : 0, $cols);
-$prepared = array_map([\App\Core\DocumentPresenter::class, 'prepare'], is_array($items) ? $items : []);
+$perPage = (int) $data['per_page'];
+$carousel = $variant !== 'links' && \App\Core\DocumentPresenter::carousel((string) $data['layout'], count($items), $cols, $perPage);
+$paged = !$carousel && \App\Core\DocumentPresenter::paged($perPage, count($items));
+$prepared = array_map([\App\Core\DocumentPresenter::class, 'prepare'], $items);
 $kinds = array_values(array_unique(array_filter(array_column($prepared, 'extension'), static fn (string $kind): bool => $kind !== 'other')));
 // Хвост последнего ряда растягивается на всю ширину: пять актов в три
 // колонки иначе оставляют справа пустую ячейку.
 // В карусели колонок нет — есть ширина кадра: столько карточек видно сразу.
+// По страницам хвоста нет: растяжение считается от последних карточек
+// разметки, а видна из них только последняя страница, — поэтому дорожки
+// ровно по колонкам, как у полного ряда.
+$balanceCount = $paged ? $cols : count($prepared);
 $templateCss = $carousel
     ? '#block-' . (int) $blockId . '{--cards-cols:' . max(1, min($cols, 3)) . '}'
-    : \App\Core\GridBalance::css($blockId, '.docslist-grid', '.doc-card', count($prepared), $cols)
-        . \App\Core\GridBalance::css($blockId, '.docslist-acts', '.act-card', count($prepared), $cols);
+    : \App\Core\GridBalance::css($blockId, '.docslist-grid', '.doc-card', $balanceCount, $cols)
+        . \App\Core\GridBalance::css($blockId, '.docslist-acts', '.act-card', $balanceCount, $cols);
 ?>
-<div class="block-docslist block-docslist--<?= $variant ?>" data-document-list<?= $carousel ? ' data-carousel' : '' ?>>
+<div class="block-docslist block-docslist--<?= $variant ?>" data-document-list<?= $carousel ? ' data-carousel' : '' ?><?= $paged ? ' data-document-per-page="' . $perPage . '"' : '' ?>>
     <div class="section-head">
         <?php if ($title !== ''): ?><h2 class="section-head__title"><?= \App\Core\TitleMarkup::html($title) ?></h2><?php endif; ?>
         <?php if ($allText !== '' && $allUrl !== ''): ?><?= \App\Core\SectionHead::allLink($allText, $allUrl) ?><?php endif; ?>
@@ -68,6 +74,14 @@ $templateCss = $carousel
         </div>
         <?php /* Стрелки под лентой, а не в шапке: на телефоне они нужны у пальца. */ ?>
         <?php if ($carousel): ?><div class="carousel-foot"><?php include __DIR__ . '/partials/carousel_nav.php'; ?></div><?php endif; ?>
+        <?php /* Полосу собирает blocks/docs_list.js: без скрипта видны все
+                 документы, и пустая полоса не показывается вовсе. */ ?>
+        <?php if ($paged): ?>
+            <nav class="listing-pager docslist-pager" data-document-pager hidden
+                aria-label="<?= htmlspecialchars(t('Страницы'), ENT_QUOTES) ?>"
+                data-label-prev="<?= htmlspecialchars(t('Предыдущая страница'), ENT_QUOTES) ?>"
+                data-label-next="<?= htmlspecialchars(t('Следующая страница'), ENT_QUOTES) ?>"></nav>
+        <?php endif; ?>
         <p class="block-docslist__empty" data-document-empty hidden><?= htmlspecialchars(t('Ничего не найдено.'), ENT_QUOTES) ?></p>
     <?php endif; ?>
 </div>

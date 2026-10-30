@@ -207,3 +207,29 @@ test('Документы из каталога: роль поля — по ег�
     // Пустое поле перевода уступает основному языку; простой текст — абзацами.
     assert_same('<p>Первый абзац.</p><p>Второй &amp; последний.</p>', $doc['description']);
 });
+
+test('Документ: страницы листает браузер, и тогда карусели нет', function (): void {
+    $items = [];
+    for ($i = 1; $i <= 10; $i++) {
+        $items[] = ['title' => 'Издание ' . $i, 'url' => '/uploads/public/book' . $i . '.pdf'];
+    }
+    $render = static fn (array $data): string => (string) BlockRenderer::render([
+        'id' => 4395, 'type' => 'docs_list',
+        'data' => json_encode($data + ['variant' => 'acts', 'columns' => 4, 'items' => $items], JSON_UNESCAPED_UNICODE),
+    ])['html'];
+
+    $paged = $render(['per_page' => 8]);
+    assert_contains('data-document-per-page="8"', $paged);
+    assert_contains('data-document-pager hidden', $paged, 'без скрипта полоса не видна, видны все документы');
+    assert_not_contains('data-carousel', $paged, '«Авто» с заданными страницами — сетка, а не лента');
+    assert_same(10, substr_count($paged, 'data-document-card'), 'сервер отдаёт все документы: поиск ищет по всем страницам');
+
+    // Помещается на одну страницу — полосы нет вовсе.
+    assert_not_contains('data-document-pager', $render(['per_page' => 12]));
+    // Без настройки — прежнее поведение: десять актов в четыре колонки листаются лентой.
+    assert_contains('data-carousel', $render([]));
+    // Явная карусель остаётся каруселью и без полосы страниц.
+    $slider = $render(['per_page' => 8, 'layout' => 'slider']);
+    assert_contains('data-carousel', $slider);
+    assert_not_contains('data-document-pager', $slider);
+});
