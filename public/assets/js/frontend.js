@@ -2543,33 +2543,6 @@
         });
     });
 
-    // Документы: локальный поиск и фильтр форматов без сетевого запроса.
-    document.querySelectorAll('[data-document-list]').forEach(function (list) {
-        var query = list.querySelector('[data-document-query]');
-        var kind = list.querySelector('[data-document-kind-filter]');
-        var cards = Array.prototype.slice.call(list.querySelectorAll('[data-document-card]'));
-        var empty = list.querySelector('[data-document-empty]');
-        var count = list.querySelector('[data-document-count]');
-        if (!cards.length || (!query && !kind)) { return; }
-
-        var apply = function () {
-            var needle = query ? query.value.trim().toLocaleLowerCase() : '';
-            var selectedKind = kind ? kind.value : '';
-            var visible = 0;
-            cards.forEach(function (card) {
-                var matchesText = needle === '' || (card.getAttribute('data-document-search') || '').indexOf(needle) !== -1;
-                var matchesKind = selectedKind === '' || card.getAttribute('data-document-kind') === selectedKind;
-                card.hidden = !(matchesText && matchesKind);
-                if (!card.hidden) { visible++; }
-            });
-            if (empty) { empty.hidden = visible !== 0; }
-            if (count) { count.textContent = visible + ' / ' + cards.length; }
-        };
-        if (query) { query.addEventListener('input', apply); }
-        if (kind) { kind.addEventListener('change', apply); }
-        apply();
-    });
-
     // FAQ: поиск, категории, одиночный режим и прямые ссылки на ответы.
     document.querySelectorAll('[data-faq-list]').forEach(function (list) {
         var query = list.querySelector('[data-faq-query]');

@@ -28,6 +28,9 @@ final class AssetCollector
         'leader_card' => '/assets/js/blocks/leader_card.js',
         'tabs' => '/assets/js/blocks/tabs.js',
         'org_structure' => '/assets/js/blocks/org_structure.js',
+        // Поиск по документам и полоса страниц: нужны только этому блоку,
+        // поэтому живут не в общем бандле.
+        'docs_list' => '/assets/js/blocks/docs_list.js',
         'hero_slides' => '/assets/js/blocks/hero.js',
         // Нужен только случайному порядку, но файл крошечный, а узнать
         // настройку блока на попадании в кэш страницы было бы негде.
