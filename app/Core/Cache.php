@@ -349,6 +349,8 @@ final class Cache
         // узнают о правке (IndexNow, отправка после ответа).
         if ($cleanPrefix === 'page') {
             Seo\IndexNow::afterResponse();
+            // И поиск по сайту: индекс производный, пересобирается после ответа.
+            SearchIndex::afterResponse();
         }
 
         // Очищаем L1 память для совпавших ключей

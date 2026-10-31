@@ -513,4 +513,8 @@ return [
     'Во весь экран' => 'Full screen',
     'Выйти из полного экрана' => 'Exit full screen',
     'Страницы документа' => 'Document pages',
+    'Сотрудники' => 'Staff',
+    'Каталоги' => 'Catalogs',
+    'Документ' => 'Document',
+    'Вид материала' => 'Content type',
 ];

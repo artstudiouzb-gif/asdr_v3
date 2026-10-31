@@ -334,6 +334,27 @@ final class PageTranslationFile
     }
 
     /**
+     * Тексты блока для читателя (те же поля, что идут в перевод файлом):
+     * их же индексирует поиск по сайту. У блока «HTML» текстов нет.
+     *
+     * @return list<string>
+     */
+    public static function readerTexts(string $type, mixed $data): array
+    {
+        if (in_array($type, self::SKIP_TYPES, true)) {
+            return [];
+        }
+        $out = [];
+        self::mapTexts($data, '', '', static function (string $path, string $value) use (&$out): string {
+            $out[] = $value;
+
+            return $value;
+        });
+
+        return $out;
+    }
+
+    /**
      * Обход данных блока: $fn получает путь и текст каждого поля для
      * читателя и возвращает новое значение.
      *
