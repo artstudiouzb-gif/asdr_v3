@@ -88,8 +88,13 @@ final class Router
                 if (self::requiresCsrf($path)) {
                     Csrf::verifyRequest();
                 }
-                if (self::requiresLogin($path)) {
-                    Auth::requireLogin();
+                // Ответ — редирект без exit: язык панели и прочую подготовку
+                // делает requireLogin() самого действия, а роутер отвечает
+                // только на «вошёл ли», и его можно вызвать из теста.
+                if (self::requiresLogin($path) && !Auth::check()) {
+                    http_response_code(302);
+                    header('Location: /admin/login');
+                    return;
                 }
                 $this->invoke($route['handler'], $params);
                 return;
