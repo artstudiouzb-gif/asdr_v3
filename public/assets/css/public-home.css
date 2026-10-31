@@ -1,7 +1,6 @@
 /* Compact public homepage. Explicit block spacing and CMS colour choices
    remain authoritative; internal pages keep their existing composition. */
 @media screen {
-    .site-home .site-content { --space-premium: 32px; }
     .site-home .section-head {
         margin-bottom: 16px;
         padding-bottom: 0;
@@ -97,7 +96,6 @@
     }
 
     @media (max-width: 560px) {
-        .site-home .site-content { --space-premium: 24px; }
         .site-home .hero__inner { padding-block-start: 28px; }
         .site-home .hero__cta { padding-inline: 16px; }
     }
@@ -108,5 +106,5 @@
    CLAUDE.md — плавные размеры между 721 и 1440px делали текст у посетителей
    мельче, чем видел владелец). */
 @media (max-width: 720px) {
-    .site-home .section-head__title { font-size: var(--font-size-h2, clamp(1.35rem, 2vw, 1.75rem)); }
+    .site-home .section-head__title { font-size: var(--font-size-h2, clamp(var(--step-3), 2vw, var(--step-5))); }
 }

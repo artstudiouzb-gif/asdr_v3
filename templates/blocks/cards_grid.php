@@ -113,19 +113,21 @@ $cardClasses = ($cardBg !== '' ? ' block-cards--custom-bg' : '')
     . ' block-cards--text-align-' . $textAlign;
 
 // Новый вид включается только у выбранного экземпляра cards_grid: базовые
-// .feature-card и остальные карточки сайта остаются нетронутыми.
+// .feature-card и остальные карточки сайта остаются нетронутыми. Цвета —
+// роли темы: прежние --gov-accent/--gov-primary/--gov-text не объявлены
+// нигде, и срабатывал зашитый запасной #17999b при любом акценте из админки.
 if ($variant === 'icon' && $visualStyle === 'new') {
     $cardClasses .= ' block-cards--style-new';
     $resolvedCardGap = $cardGap > 0 ? $cardGap . 'px' : 'clamp(20px,2.4vw,36px)';
     $templateCss .= $scope . ' .block-cards--style-new .cards-grid{gap:' . $resolvedCardGap . ';}';
-    $templateCss .= $scope . ' .block-cards--style-new .feature-card{background:var(--card-bg,transparent);border:0;border-top:1px solid rgba(23,58,99,.16);border-radius:0;box-shadow:none;min-height:0;padding:26px 0 30px;transform:none;overflow:visible;transition:border-color .18s ease,color .18s ease,background-color .18s ease;}';
+    $templateCss .= $scope . ' .block-cards--style-new .feature-card{background:var(--card-bg,transparent);border:0;border-top:1px solid var(--gov-border);border-radius:0;box-shadow:none;min-height:0;padding:26px 0 30px;transform:none;overflow:visible;transition:border-color .18s ease,color .18s ease,background-color .18s ease;}';
     $templateCss .= $scope . ' .block-cards--style-new .feature-card::before{display:none;}';
-    $templateCss .= $scope . ' .block-cards--style-new .feature-card:hover{background:var(--card-bg,transparent);border-top-color:var(--gov-accent,#17999b);box-shadow:none;transform:none;}';
+    $templateCss .= $scope . ' .block-cards--style-new .feature-card:hover{background:var(--card-bg,transparent);border-top-color:var(--gov-teal);box-shadow:none;transform:none;}';
     $templateCss .= $scope . ' .block-cards--style-new .feature-card__top{align-items:flex-start;margin-bottom:clamp(22px,2.3vw,34px);}';
-    $templateCss .= $scope . ' .block-cards--style-new .feature-card__icon{width:' . $iconSize . 'px;height:' . $iconSize . 'px;border:0;border-radius:0;background:transparent;color:var(--gov-accent,#17999b);justify-content:flex-start;}';
-    $templateCss .= $scope . ' .block-cards--style-new .feature-card__num{color:var(--gov-accent,#17999b);font-size:var(--font-size-meta,.75rem);font-weight:700;letter-spacing:var(--meta-letter-spacing,.12em);}';
-    $templateCss .= $scope . ' .block-cards--style-new .feature-card__title{color:var(--cards-text,var(--gov-primary,#173a63));font-size:var(--font-size-h3,clamp(18px,1.35vw,21px));line-height:1.25;margin-bottom:10px;}';
-    $templateCss .= $scope . ' .block-cards--style-new .feature-card__text{color:var(--cards-text,var(--gov-text,#334155));max-width:34ch;}';
+    $templateCss .= $scope . ' .block-cards--style-new .feature-card__icon{width:' . $iconSize . 'px;height:' . $iconSize . 'px;border:0;border-radius:0;background:transparent;color:var(--gov-teal);justify-content:flex-start;}';
+    $templateCss .= $scope . ' .block-cards--style-new .feature-card__num{color:var(--gov-teal-text);font-size:var(--font-size-meta,var(--step--3));font-weight:700;letter-spacing:var(--meta-letter-spacing,.12em);}';
+    $templateCss .= $scope . ' .block-cards--style-new .feature-card__title{color:var(--cards-text,var(--gov-title));font-size:var(--font-size-h3,var(--step-2));line-height:1.25;margin-bottom:10px;}';
+    $templateCss .= $scope . ' .block-cards--style-new .feature-card__text{color:var(--cards-text,var(--gov-ink));max-width:34ch;}';
 }
 ?>
 <?php if ($variant === 'image' || $imageBelow): ?>

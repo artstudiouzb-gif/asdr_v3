@@ -870,7 +870,6 @@ body {
 /* Editorial Eyebrows, Categories and Badges */
 :where(
     .news-card__category,
-    .section-head__eyebrow,
     .content-badge,
     .tag-pill
 ) {
