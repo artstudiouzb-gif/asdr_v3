@@ -514,4 +514,8 @@ return [
     'Во весь экран' => 'To‘liq ekran',
     'Выйти из полного экрана' => 'To‘liq ekrandan chiqish',
     'Страницы документа' => 'Hujjat sahifalari',
+    'Сотрудники' => 'Xodimlar',
+    'Каталоги' => 'Kataloglar',
+    'Документ' => 'Hujjat',
+    'Вид материала' => 'Material turi',
 ];

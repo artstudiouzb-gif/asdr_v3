@@ -57,6 +57,14 @@ try {
         Logger::info('Очистка журналов по срокам хранения', $retention);
     }
 
+    // Индекс поиска — страховка ночью: правка, после которой веб-сервер не
+    // дал пересобрать его после ответа, дождётся этого прохода.
+    try {
+        \App\Core\SearchIndex::rebuild();
+    } catch (\Throwable $e) {
+        Logger::swallowed('search index nightly rebuild', $e);
+    }
+
     $days = (int) Setting::get('pii_retention_days', '0');
     if ($days <= 0) {
         fwrite(STDOUT, 'Срок хранения ПДн не задан (0) — очистка заявок отключена.' . PHP_EOL);
