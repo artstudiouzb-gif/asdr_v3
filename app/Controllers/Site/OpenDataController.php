@@ -73,12 +73,8 @@ final class OpenDataController
             $out = fopen('php://output', 'w');
             if ($out !== false) {
                 fputs($out, "\xEF\xBB\xBF");
-                $items = (array) ($payload['data'] ?? []);
-                if ($items !== []) {
-                    fputcsv($out, array_keys((array) $items[0]), ';');
-                    foreach ($items as $row) {
-                        fputcsv($out, array_values((array) $row), ';');
-                    }
+                foreach (self::csvRows((array) ($payload['items'] ?? [])) as $line) {
+                    fputcsv($out, $line, ';', '"', '');
                 }
                 fclose($out);
             }
@@ -94,6 +90,71 @@ final class OpenDataController
         $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $this->cachePut($slug, (string) $json);
         $this->output((string) $json);
+    }
+
+    /**
+     * Записи набора — строками CSV: первая строка — заголовки. Вложенные
+     * поля записи каталога (`fields`) разворачиваются в свои колонки:
+     * массив в fputcsv — это «Array to string conversion», а ErrorHandler
+     * превращает его в исключение. Прежде здесь читался ключ `data`, которого
+     * в наборе нет, и любой CSV уходил пустым — один BOM.
+     *
+     * @param array<int, mixed> $items
+     * @return list<list<string>>
+     */
+    public static function csvRows(array $items): array
+    {
+        $flat = [];
+        $columns = [];
+        foreach ($items as $item) {
+            $row = [];
+            foreach ((array) $item as $key => $value) {
+                if ($key === 'fields' && (is_array($value) || is_object($value))) {
+                    foreach ((array) $value as $field => $fieldValue) {
+                        $row[(string) $field] = $fieldValue;
+                    }
+                    continue;
+                }
+                $row[(string) $key] = $value;
+            }
+            $columns += array_fill_keys(array_keys($row), true);
+            $flat[] = $row;
+        }
+        if ($flat === []) {
+            return [];
+        }
+
+        $names = array_map('strval', array_keys($columns));
+        $lines = [$names];
+        foreach ($flat as $row) {
+            $line = [];
+            foreach ($names as $name) {
+                $line[] = self::csvCell($row[$name] ?? '');
+            }
+            $lines[] = $line;
+        }
+
+        return $lines;
+    }
+
+    /** Значение ячейки: списки — через «; », формулы табличного редактора — текстом. */
+    private static function csvCell(mixed $value): string
+    {
+        if (is_array($value) || is_object($value)) {
+            $parts = [];
+            foreach ((array) $value as $part) {
+                $parts[] = is_scalar($part) ? (string) $part : (string) json_encode($part, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+            }
+            $value = implode('; ', $parts);
+        }
+        $cell = is_scalar($value) ? (string) $value : '';
+        // Набор открывают в Excel: ячейка с «=», «+», «-», «@» читается
+        // формулой. Апостроф делает её текстом и в данных не виден.
+        if ($cell !== '' && strpbrk($cell[0], "=+-@\t\r") !== false) {
+            $cell = "'" . $cell;
+        }
+
+        return $cell;
     }
 
     /** @return array<string, mixed> */

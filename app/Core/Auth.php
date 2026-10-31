@@ -669,6 +669,55 @@ final class Auth
         return !empty($_SESSION['2fa_setup_required']);
     }
 
+    /**
+     * Пути, доступные сессии, у которой второй фактор ещё не подключён:
+     * только то, что нужно для подключения канала кодов. Префиксы намеренно
+     * не используются — иначе такая сессия получала бы смену пароля, отзыв
+     * сессий и настройки Telegram-канала.
+     */
+    public const TWO_FACTOR_SETUP_PATHS = [
+        '/admin/profile',
+        '/admin/profile/phone',
+        '/admin/profile/telegram/link',
+        // Без этого пункта админ без Telegram не смог бы подключить
+        // приложение-аутентификатор: ограниченная сессия не пускает дальше.
+        '/admin/profile/totp/enable',
+        '/admin/telegram',
+        '/admin/telegram/bot',
+        '/admin/telegram/bot/check',
+        '/admin/telegram/link',
+        '/admin/logout',
+    ];
+
+    /** Пускать ли сессию без второго фактора на этот путь панели. */
+    public static function twoFactorSetupAllows(string $path): bool
+    {
+        return in_array($path, self::TWO_FACTOR_SETUP_PATHS, true);
+    }
+
+    /**
+     * Ограничение сессии без второго фактора. Зовётся в bootstrap ДО ранних
+     * обработчиков (настройка скрытого входа, центр уведомлений): пока оно
+     * стояло в public/index.php, они отрабатывали раньше, и сессия с одним
+     * паролем могла сменить скрытый вход панели и список разрешённых адресов.
+     */
+    public static function enforceTwoFactorSetup(string $path): void
+    {
+        // Путь проверяется первым: проверка входа поднимает сессию, а на
+        // публичной странице она не нужна и сделала бы ответ некешируемым.
+        if (!str_starts_with($path, '/admin')
+            || !Session::hasCookie()
+            || !self::check()
+            || !self::requiresTwoFactorSetup()
+            || (string) Config::get('app.env') === 'development'
+            || self::twoFactorSetupAllows($path)) {
+            return;
+        }
+
+        header('Location: /admin/profile');
+        exit;
+    }
+
     public static function completeTwoFactorSetup(): void
     {
         Session::start();

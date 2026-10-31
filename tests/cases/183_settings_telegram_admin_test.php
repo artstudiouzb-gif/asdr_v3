@@ -38,12 +38,8 @@ test('Telegram: новые действия зарегистрированы и 
     $routes = (string) file_get_contents(dirname(__DIR__, 2) . '/public/index.php');
     assert_contains("'/admin/telegram/extras/check'", $routes);
 
-    $start = strpos($routes, '$allowedSetupPaths');
-    $end = strpos($routes, '];', (int) $start);
-    assert_true($start !== false && $end !== false);
-    $allowed = substr($routes, (int) $start, (int) $end - (int) $start);
-    assert_not_contains("'/admin/telegram/extras/check'", $allowed);
-    assert_not_contains("'/admin/telegram/channel/check'", $allowed);
+    assert_true(!\App\Core\Auth::twoFactorSetupAllows('/admin/telegram/extras/check'));
+    assert_true(!\App\Core\Auth::twoFactorSetupAllows('/admin/telegram/channel/check'));
 });
 
 test('Telegram: локальная иконка бренда доступна через единый алиас', function () {

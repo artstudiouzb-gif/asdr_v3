@@ -75,14 +75,21 @@ test('Публичный GET не поднимает сессию и с её coo
 });
 
 test('Проверка второго фактора не поднимает сессию на публичной странице', function () {
-    $index = (string) file_get_contents(APP_ROOT . '/public/index.php');
-    $start = strpos($index, "\$guardPath = parse_url");
-    assert_true($start !== false);
-    $guard = substr($index, (int) $start, 600);
-    assert_true(
-        strpos($guard, "str_starts_with(\$guardPath, '/admin')") < strpos($guard, 'Auth::check()'),
-        'путь проверяется раньше входа: Auth::check() поднимает сессию'
-    );
+    // Соседний сценарий мог поднять сессию; Session::start() поднимет её
+    // снова, если она кому-то понадобится.
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+    $cookies = $_COOKIE;
+    try {
+        // Cookie сессии пришла (после формы), но путь публичный: путь
+        // проверяется раньше входа, иначе Auth::check() поднял бы сессию.
+        $_COOKIE[(string) \App\Core\Config::get('session.name', 'asc_session')] = 'id-from-form';
+        \App\Core\Auth::enforceTwoFactorSetup('/news');
+        assert_true(session_status() !== PHP_SESSION_ACTIVE, 'публичная страница осталась без сессии');
+    } finally {
+        $_COOKIE = $cookies;
+    }
 });
 
 test('Панель администратора на сайте спрашивает вход только при метке', function () {
