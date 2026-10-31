@@ -25,6 +25,7 @@ require __DIR__ . '/_crumbs.php';
 ?>
 <div class="listing">
     <div class="listing__head">
+        <?php require __DIR__ . '/_page_mark.php'; ?>
         <h1 class="listing__title"><?= htmlspecialchars($sectionTitle !== '' ? $sectionTitle : t('Проекты и инициативы'), ENT_QUOTES) ?></h1>
         <p class="listing__lead"><?= htmlspecialchars($sectionLead !== '' ? $sectionLead : t('Стратегические проекты, которые Агентство реализует для устойчивого развития страны.'), ENT_QUOTES) ?></p>
     </div>

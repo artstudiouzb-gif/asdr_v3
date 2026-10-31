@@ -1093,7 +1093,7 @@ body.design-surface-interactive .block-contact-cards--panel-auto .feature-card.c
    узор «эмблема» выбираются своими настройками и остаются. Режимный класс
    добавляет вес намеренно: правила знака лежат и в частях, которые
    подключаются после бандла. Заглушка карточки без фото остаётся заливкой. */
-.design-emblem-off :is(.content-pagehead__emblem, .act-card__emblem, .block-text__media-emblem) { display: none; }
+.design-emblem-off :is(.content-pagehead__emblem, .page-mark, .act-card__emblem, .block-text__media-emblem) { display: none; }
 .design-emblem-off :is(
     .block-text__quote--card,
     span.imgcard__media,

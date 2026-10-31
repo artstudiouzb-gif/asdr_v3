@@ -29,6 +29,7 @@ $entryUrl = static fn (array $e): string => Locale::url(ContentType::entryPath($
 ?>
 <div class="listing">
     <div class="listing__head">
+        <?php require __DIR__ . '/_page_mark.php'; ?>
         <h1 class="listing__title"><?= htmlspecialchars(t('Календарь мероприятий'), ENT_QUOTES) ?></h1>
         <?php if (!empty($type['description'])): ?>
             <p class="listing__lead"><?= htmlspecialchars((string) $type['description'], ENT_QUOTES) ?></p>
