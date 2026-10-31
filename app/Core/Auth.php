@@ -393,6 +393,7 @@ final class Auth
     public static function establishSession(array $user, string $method = ''): void
     {
         session_regenerate_id(true);
+        Csrf::rotate();
         self::signedInMarker(true);
         $_SESSION['user_id'] = (int) $user['id'];
         $_SESSION['username'] = $user['username'];

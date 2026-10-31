@@ -19,7 +19,11 @@
     RewriteRule \.(css|js|woff2?|ttf|eot|svg|jpe?g|png|gif|webp|ico)$ - [E=ASSET_VERSIONED:1]
 
     # Служебные каталоги недоступны напрямую (403 до проксирования в public/).
-    RewriteRule ^(app|config|database|storage|templates|tests|docs)(/|$) - [F]
+    RewriteRule ^(app|config|database|storage|templates|tests|docs|scripts|vendor|node_modules)(/|$) - [F]
+
+    # Файлы разработки в корне (состав зависимостей, конфиги анализатора и
+    # сборки): по ним видны версии библиотек, посетителю они незачем.
+    RewriteRule ^[^/]+\.(json|lock|neon|mjs|md)$ - [F]
 
     # Скрытые файлы и каталоги (.git, .env и т.п.); .well-known оставлен для ACME.
     RewriteRule (^|/)\.(?!well-known(/|$)) - [F]
