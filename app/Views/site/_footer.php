@@ -144,8 +144,7 @@ $renderFooterWidget = function (array $col) use ($footerLogo, $siteName, $addres
             }
             return '<p class="site-footer__line">' . htmlspecialchars(t('Будьте в курсе наших новостей и аналитических материалов.'), ENT_QUOTES) . '</p>'
                 . '<form class="footer-subscribe" method="post" action="' . htmlspecialchars(\App\Core\Locale::url('subscribe', $footerLang), ENT_QUOTES) . '">'
-                . \App\Core\Csrf::field()
-                . \App\Core\Csrf::honeypotField()
+                . \App\Core\Csrf::honeypotField(true)
                 . '<input type="hidden" name="source" value="footer">'
                 . '<input type="email" name="email" placeholder="' . htmlspecialchars(t('Ваш e-mail'), ENT_QUOTES) . '" aria-label="E-mail" autocomplete="email" required>'
                 . '<button type="submit" aria-label="' . htmlspecialchars(t('Подписаться'), ENT_QUOTES) . '">' . \App\Core\Icon::render('arrow-right', 20) . '</button>'

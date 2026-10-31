@@ -2,6 +2,13 @@
     RewriteEngine On
     RewriteBase /
 
+    # Адрес с отпечатком (?v=…) метится переменной: кэш «навсегда» ниже
+    # получают только такие ответы. Через переменную, а не <If>: <If> в
+    # .htaccess поддерживает не каждый сервер (LiteSpeed хостинга), а
+    # непонятная директива роняет весь сайт в 500.
+    RewriteCond %{QUERY_STRING} (^|&)v= [NC]
+    RewriteRule \.(css|js|woff2?|ttf|eot|svg|jpe?g|png|gif|webp|ico)$ - [E=ASSET_VERSIONED:1]
+
     # Исполняемые .php — только точки входа приложения. Любой другой прямой
     # запрос к .php (например, файл в /uploads) получает 403 ещё до
     # фронт-контроллера. Реализовано rewrite-правилом, а не «Require all
@@ -48,8 +55,16 @@
     # Долгий кэш для версионированных ассетов (задача 127). URL меняется через
     # ?v=<hash> при обновлении файла (App\Core\Asset::url), поэтому CDN отдаёт
     # новую версию без ручной очистки, а старые кэшируются «навсегда».
+    #
+    # «Навсегда» — только адресам с отпечатком (?v=…). Ссылки на загрузки в
+    # контенте его не несут, и файл, перезаписанный по тому же адресу
+    # (эмблема, логотип, пересобранные варианты), браузер не перезапросил бы
+    # год — из-за immutable даже по обычному обновлению страницы. Им — сутки
+    # с перепроверкой (Last-Modified/ETag отдаёт сам Apache).
     <FilesMatch "\.(css|js|woff2?|ttf|eot|svg|jpe?g|png|gif|webp|ico)$">
-        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header set Cache-Control "public, max-age=86400, must-revalidate"
+        Header set Cache-Control "public, max-age=31536000, immutable" env=ASSET_VERSIONED
+        Header set Cache-Control "public, max-age=31536000, immutable" env=REDIRECT_ASSET_VERSIONED
     </FilesMatch>
 
     # SVG — документ, а не картинка: открытый напрямую, он исполняет свои

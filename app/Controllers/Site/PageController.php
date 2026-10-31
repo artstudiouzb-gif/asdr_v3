@@ -24,11 +24,13 @@ final class PageController
             return;
         }
 
-        if (ContentLanguageNotice::renderIfMissing(Page::availableLangs((int) $page['id']), '/')) {
+        // Языки страницы — три запроса; считаем один раз и отдаём дальше.
+        $langs = Page::availableLangs((int) $page['id']);
+        if (ContentLanguageNotice::renderIfMissing($langs, '/')) {
             return;
         }
 
-        $this->renderPage($page, $lang, true);
+        $this->renderPage($page, $lang, true, $langs);
     }
 
     /** @param array<string, string> $params */
@@ -73,18 +75,20 @@ final class PageController
             exit;
         }
 
-        if (ContentLanguageNotice::renderIfMissing(Page::availableLangs((int) $page['id']), '/' . $slug)) {
+        $langs = Page::availableLangs((int) $page['id']);
+        if (ContentLanguageNotice::renderIfMissing($langs, '/' . $slug)) {
             return;
         }
 
-        $this->renderPage($page, $lang);
+        $this->renderPage($page, $lang, false, $langs);
     }
 
-    private function renderPage(array $page, string $lang, bool $isHome = false): void
+    /** @param list<string>|null $langs уже посчитанные языки страницы */
+    private function renderPage(array $page, string $lang, bool $isHome = false, ?array $langs = null): void
     {
         // Переключатель языков и hreflang показывают только языки, на которых
         // страница реально наполнена (перевод или собственный стек блоков).
-        $langs = Page::availableLangs((int) $page['id']);
+        $langs ??= Page::availableLangs((int) $page['id']);
         Locale::setContentLangs($langs);
         // У главной адрес всегда корневой («/» и «/uz»). Пути из группы
         // переводов дали бы «/uz/home»: адрес рабочий, но отвечает редиректом

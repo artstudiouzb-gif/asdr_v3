@@ -16,8 +16,7 @@ $subText = !empty($data['text']) ? (string) $data['text'] : t('Получайт�
     <h3 class="newsdetail-subscribe__title"><?= htmlspecialchars(t($subTitle), ENT_QUOTES) ?></h3>
     <p class="newsdetail-subscribe__text"><?= htmlspecialchars(t($subText), ENT_QUOTES) ?></p>
     <form class="newsdetail-subscribe__form" method="post" action="<?= htmlspecialchars(Locale::url('subscribe', $lang), ENT_QUOTES) ?>">
-        <?= Csrf::field() ?>
-        <?= Csrf::honeypotField() ?>
+        <?= Csrf::honeypotField(true) ?>
         <input type="hidden" name="source" value="widget">
         <div class="newsdetail-subscribe__row">
             <label class="visually-hidden" for="w-sub-email"><?= htmlspecialchars(t('Ваш e-mail'), ENT_QUOTES) ?></label>

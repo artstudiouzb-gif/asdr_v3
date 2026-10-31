@@ -660,12 +660,12 @@ final class News
         $groupId = (int) ($row['translation_group_id'] ?: $row['id']);
         $stmtTrans = Database::pdo()->prepare(
             "SELECT * FROM news
-             WHERE COALESCE(NULLIF(translation_group_id, 0), id) = :group_id
+             WHERE (translation_group_id = :group_id OR (id = :group_id_self AND COALESCE(translation_group_id, 0) = 0))
                AND lang = :lang
                AND status = 'published' AND published_at <= NOW() AND deleted_at IS NULL
              LIMIT 1"
         );
-        $stmtTrans->execute([':group_id' => $groupId, ':lang' => $lang]);
+        $stmtTrans->execute([':group_id' => $groupId, ':group_id_self' => $groupId, ':lang' => $lang]);
         $transRow = $stmtTrans->fetch();
         if ($transRow) {
             return $transRow;
@@ -675,10 +675,10 @@ final class News
         // было бы обойти публичным legacy-контентом.
         $stmtIndependent = Database::pdo()->prepare(
             "SELECT COUNT(*) FROM news
-             WHERE COALESCE(NULLIF(translation_group_id, 0), id) = :group_id
+             WHERE (translation_group_id = :group_id OR (id = :group_id_self AND COALESCE(translation_group_id, 0) = 0))
                AND lang = :lang AND deleted_at IS NULL"
         );
-        $stmtIndependent->execute([':group_id' => $groupId, ':lang' => $lang]);
+        $stmtIndependent->execute([':group_id' => $groupId, ':group_id_self' => $groupId, ':lang' => $lang]);
         if ((int) $stmtIndependent->fetchColumn() > 0) {
             return $row;
         }
@@ -687,12 +687,12 @@ final class News
         $default = Language::defaultCode();
         $stmtBase = Database::pdo()->prepare(
             "SELECT * FROM news
-             WHERE COALESCE(NULLIF(translation_group_id, 0), id) = :group_id
+             WHERE (translation_group_id = :group_id OR (id = :group_id_self AND COALESCE(translation_group_id, 0) = 0))
                AND lang = :default_lang
                AND status = 'published' AND published_at <= NOW() AND deleted_at IS NULL
              LIMIT 1"
         );
-        $stmtBase->execute([':group_id' => $groupId, ':default_lang' => $default]);
+        $stmtBase->execute([':group_id' => $groupId, ':group_id_self' => $groupId, ':default_lang' => $default]);
         $base = $stmtBase->fetch();
         if ($base && $lang !== $default) {
             $legacy = NewsTranslation::find((int) $base['id'], $lang);
@@ -909,10 +909,10 @@ final class News
         $stmtGroup = $pdo->prepare(
             "SELECT id, lang, status, published_at
              FROM news
-             WHERE COALESCE(NULLIF(translation_group_id, 0), id) = :group_id
+             WHERE (translation_group_id = :group_id OR (id = :group_id_self AND COALESCE(translation_group_id, 0) = 0))
                AND deleted_at IS NULL"
         );
-        $stmtGroup->execute([':group_id' => $groupId]);
+        $stmtGroup->execute([':group_id' => $groupId, ':group_id_self' => $groupId]);
         $allIndependentLangs = [];
         $langs = [];
         $baseId = null;
@@ -1155,12 +1155,32 @@ final class News
         self::bustPageCache();
     }
 
+    /**
+     * Упреждающая загрузка (Speculation Rules: префетч по наведению,
+     * пререндер по нажатию) — это ещё не просмотр: браузер помечает такой
+     * запрос заголовком Sec-Purpose. Без проверки наведение мыши на ссылку
+     * засчитывалось прочтением.
+     */
+    public static function isSpeculativeRequest(?string $secPurpose): bool
+    {
+        $purpose = strtolower((string) $secPurpose);
+
+        return str_contains($purpose, 'prefetch') || str_contains($purpose, 'prerender');
+    }
+
     /** Счётчик просмотров детальной страницы (без учёта повторов — простая метрика). */
     public static function incrementViews(int $id): void
     {
+        if (self::isSpeculativeRequest($_SERVER['HTTP_SEC_PURPOSE'] ?? null)) {
+            return;
+        }
         try {
             $pdo = Database::pdo();
-            $pdo->prepare('UPDATE news SET views = views + 1 WHERE id = :id')->execute([':id' => $id]);
+            // updated_at = updated_at: колонка объявлена ON UPDATE
+            // CURRENT_TIMESTAMP, и каждый просмотр сдвигал дату правки —
+            // ложный lastmod в карте сайта и повторная отправка в IndexNow
+            // у каждой прочитанной новости.
+            $pdo->prepare('UPDATE news SET views = views + 1, updated_at = updated_at WHERE id = :id')->execute([':id' => $id]);
             $pdo->prepare(
                 'INSERT INTO news_views (news_id, view_date, views_count) VALUES (:id, CURRENT_DATE(), 1)
                  ON DUPLICATE KEY UPDATE views_count = views_count + 1'
@@ -1188,7 +1208,9 @@ final class News
             $params[':adjacent_published_equal'] = $pub;
             $params[':adjacent_id'] = $id;
             $stmt = Database::pdo()->prepare(
-                "SELECT n.* FROM news n{$parts['join']}
+                // Ссылке «предыдущая/следующая» нужны заголовок, адрес и
+                // обложка — не тело новости (LONGTEXT) дважды на просмотр.
+                "SELECT " . self::listColumns('n') . " FROM news n{$parts['join']}
                  WHERE n.status = 'published' AND n.published_at <= NOW() AND n.deleted_at IS NULL
                    AND {$parts['where']}
                    AND (n.published_at {$op} :adjacent_published

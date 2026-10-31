@@ -307,9 +307,9 @@ final class Project
         $stmt = $pdo->prepare(
             "SELECT DISTINCT lang FROM pages
              WHERE entity_type = 'project' AND deleted_at IS NULL AND status = 'published'
-               AND COALESCE(NULLIF(translation_group_id, 0), id) = :group_id"
+               AND (translation_group_id = :group_id OR (id = :group_id_self AND COALESCE(translation_group_id, 0) = 0))"
         );
-        $stmt->execute([':group_id' => $groupId]);
+        $stmt->execute([':group_id' => $groupId, ':group_id_self' => $groupId]);
 
         $langs = [];
         foreach ($stmt->fetchAll(\PDO::FETCH_COLUMN) as $lang) {
