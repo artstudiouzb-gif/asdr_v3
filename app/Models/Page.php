@@ -323,7 +323,6 @@ final class Page
     public static function forgetMenuTargets(): void
     {
         self::$menuTargetMemo = [];
-        self::$availableLangsMemo = [];
     }
 
     /** @return array<string,mixed>|null */
@@ -1065,22 +1064,6 @@ final class Page
      * @return list<string>
      */
     public static function availableLangs(int $id): array
-    {
-        // Страница спрашивает это дважды за запрос (renderIfMissing и
-        // renderPage) — по три запроса каждый раз. Память сбрасывает любая
-        // запись страниц (forgetMenuTargets).
-        if (isset(self::$availableLangsMemo[$id])) {
-            return self::$availableLangsMemo[$id];
-        }
-
-        return self::$availableLangsMemo[$id] = self::queryAvailableLangs($id);
-    }
-
-    /** @var array<int, list<string>> */
-    private static array $availableLangsMemo = [];
-
-    /** @return list<string> */
-    private static function queryAvailableLangs(int $id): array
     {
         $langs = [Language::defaultCode()];
         $pdo = Database::pdo();
