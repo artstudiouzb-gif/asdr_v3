@@ -69,9 +69,9 @@ final class PageBlocks
             );
         }
 
-        // Совместимость с другими доверенными HTML-фрагментами: если они
-        // содержат script, nonce должен быть одноразовым для текущего запроса.
-        $rendered['html'] = SecurityHeaders::injectScriptNonce((string) $rendered['html']);
+        // Nonce получают только помеченные скрипты доверенных фрагментов
+        // (виджет супер-админа внутри блока): одноразовый на каждый запрос.
+        $rendered['html'] = SecurityHeaders::injectTrustedScriptNonce((string) $rendered['html']);
 
         // Ассеты блоков регистрируются и на попадании в кэш, и при промахе.
         foreach ($rendered['assets'] ?? [] as $assetType) {

@@ -85,7 +85,15 @@ final class NewsPoll
             $stmt = Database::pdo()->prepare("INSERT INTO news_poll_votes (poll_id, option_index, voter_hash) VALUES (?, ?, ?)");
             $stmt->execute([$pollId, $optionIndex, $voterHash]);
         } catch (\PDOException $e) {
-            // Ужé голосовал
+            // Повтор голоса — нарушение уникального ключа (SQLSTATE 23000):
+            // отвечаем результатами, как обычно. Любая другая ошибка базы —
+            // это отказ, а не «уже голосовал»: прежде упавшая база отвечала
+            // посетителю «голос принят», и голос терялся молча.
+            if ((string) $e->getCode() !== '23000') {
+                \App\Core\Logger::error('Голос в опросе не записан: ' . $e->getMessage());
+
+                return ["ok" => false, "error" => "Не удалось сохранить голос"];
+            }
         }
 
         return [

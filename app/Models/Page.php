@@ -1265,8 +1265,15 @@ final class Page
         // Адреса страниц изменились — память целей меню в этом запросе устарела.
         self::forgetMenuTargets();
         // Мягкое удаление: страница отправляется в корзину (блоки сохраняются).
-        $stmt = Database::pdo()->prepare('UPDATE pages SET deleted_at = NOW(), is_home = 0 WHERE id = :id');
+        // Только страница: у проекта тот же id-ряд pages, а удаляет его своя
+        // форма (Project::delete) — эта по id унесла бы проект в корзину.
+        $stmt = Database::pdo()->prepare(
+            "UPDATE pages SET deleted_at = NOW(), is_home = 0 WHERE id = :id AND entity_type = 'page'"
+        );
         $stmt->execute([':id' => $id]);
+        // Страница пропадает из меню, виджетов и ссылок соседей — кэш общий,
+        // как у удаления проекта и новости, а не только её собственный.
+        \App\Core\Cache::forgetPrefix('page:');
     }
 
     public static function slugExists(

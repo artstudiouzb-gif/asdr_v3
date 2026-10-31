@@ -95,7 +95,7 @@ final class WidgetRenderer
 
         return [
             'position' => $position,
-            'html' => SecurityHeaders::injectScriptNonce(Widget::renderSidebar($position, $lang)),
+            'html' => SecurityHeaders::injectTrustedScriptNonce(Widget::renderSidebar($position, $lang)),
         ];
     }
 
@@ -112,7 +112,7 @@ final class WidgetRenderer
             $html .= self::render($widget, $lang);
         }
 
-        return SecurityHeaders::injectScriptNonce($html);
+        return SecurityHeaders::injectTrustedScriptNonce($html);
     }
 
     public static function resolveTitle(array $widget, string $lang): string
