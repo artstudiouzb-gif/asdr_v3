@@ -174,14 +174,57 @@ final class UrlGuard
         return $ips;
     }
 
-    private static function isPublicIp(string $ip): bool
+    public static function isPublicIp(string $ip): bool
     {
+        // IPv6 с вложенным IPv4 проверяется по вложенному адресу. Фильтр PHP
+        // считает `::ffff:127.0.0.1`, `64:ff9b::7f00:1` (NAT64) и
+        // `2002:7f00:1::1` (6to4) публичными, а ядро и шлюз ведут такой адрес
+        // на 127.0.0.1 — то есть проверка пропускала запрос к самому серверу.
+        $embedded = self::embeddedIpv4($ip);
+        if ($embedded !== null) {
+            return self::isPublicIp($embedded);
+        }
+
         // FILTER_FLAG_NO_PRIV_RANGE + NO_RES_RANGE отсекают 10/8, 172.16/12,
         // 192.168/16, 127/8, 169.254/16, ::1, fc00::/7, fe80::/10 и т.п.
-        return filter_var(
-            $ip,
-            FILTER_VALIDATE_IP,
-            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
-        ) !== false;
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            return false;
+        }
+
+        // Мимо фильтра PHP: 100.64/10 (адреса провайдера за NAT, на хостинге
+        // это внутренняя сеть) и 198.18/15 (стенды и служебные сети).
+        $long = ip2long($ip);
+        if ($long !== false) {
+            foreach ([['100.64.0.0', 10], ['198.18.0.0', 15]] as [$net, $bits]) {
+                $mask = -1 << (32 - $bits);
+                if (($long & $mask) === (ip2long($net) & $mask)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /** IPv4 внутри IPv6-адреса (mapped, compat, NAT64, 6to4) или null. */
+    private static function embeddedIpv4(string $ip): ?string
+    {
+        if (!str_contains($ip, ':')) {
+            return null;
+        }
+        $bin = @inet_pton($ip);
+        if ($bin === false || strlen($bin) !== 16) {
+            return null;
+        }
+        $v4 = null;
+        if (str_starts_with($bin, str_repeat("\0", 10) . "\xff\xff")       // ::ffff:a.b.c.d
+            || (str_starts_with($bin, str_repeat("\0", 12)) && substr($bin, 12) !== "\0\0\0\0" && substr($bin, 12) !== "\0\0\0\1") // ::a.b.c.d
+            || str_starts_with($bin, "\0\x64\xff\x9b" . str_repeat("\0", 8))) { // 64:ff9b::/96
+            $v4 = substr($bin, 12, 4);
+        } elseif (str_starts_with($bin, "\x20\x02")) {                          // 2002::/16
+            $v4 = substr($bin, 2, 4);
+        }
+
+        return $v4 !== null ? (string) inet_ntop($v4) : null;
     }
 }

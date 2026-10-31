@@ -252,7 +252,12 @@ final class Uploader
             return false;
         }
         if (in_array($extension, self::LENIENT_MIME, true)) {
-            return true;
+            // finfo у этих типов часто отвечает octet-stream, поэтому тип не
+            // сверяется — сверяется подпись в начале файла. Без неё под
+            // расширением .woff2 или .mp3 проходил любой файл, в том числе
+            // HTML-страница, которую браузер при неверном типе ответа мог бы
+            // и исполнить.
+            return self::signatureMatches($extension, $path);
         }
         if ($extension !== 'mp4') {
             return $detectedMime === self::ALLOWED[$extension];
@@ -264,6 +269,32 @@ final class Uploader
         $header = @file_get_contents($path, false, null, 0, 12);
 
         return is_string($header) && strlen($header) >= 12 && substr($header, 4, 4) === 'ftyp';
+    }
+
+    /** Подпись бинарного файла по расширению; текстовые типы не сверяются. */
+    private static function signatureMatches(string $extension, string $path): bool
+    {
+        $text = ['svg', 'css', 'js'];
+        if (in_array($extension, $text, true)) {
+            return true;
+        }
+        $head = @file_get_contents($path, false, null, 0, 12);
+        if (!is_string($head) || strlen($head) < 4) {
+            return false;
+        }
+
+        return match ($extension) {
+            'woff2' => str_starts_with($head, 'wOF2'),
+            'woff' => str_starts_with($head, 'wOFF'),
+            'ogg' => str_starts_with($head, 'OggS'),
+            'wav' => str_starts_with($head, 'RIFF') && substr($head, 8, 4) === 'WAVE',
+            'm4a' => substr($head, 4, 4) === 'ftyp',
+            // MP3 — тег ID3 или сразу кадр (11 единичных бит синхронизации).
+            'mp3' => str_starts_with($head, 'ID3') || (ord($head[0]) === 0xFF && (ord($head[1]) & 0xE0) === 0xE0),
+            // AAC — ADTS (12 бит синхронизации) или ADIF.
+            'aac' => str_starts_with($head, 'ADIF') || (ord($head[0]) === 0xFF && (ord($head[1]) & 0xF6) === 0xF0),
+            default => false,
+        };
     }
 
     /**

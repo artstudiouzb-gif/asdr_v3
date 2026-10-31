@@ -88,6 +88,14 @@ final class Router
                 if (self::requiresCsrf($path)) {
                     Csrf::verifyRequest();
                 }
+                // Ответ — редирект без exit: язык панели и прочую подготовку
+                // делает requireLogin() самого действия, а роутер отвечает
+                // только на «вошёл ли», и его можно вызвать из теста.
+                if (self::requiresLogin($path) && !Auth::check()) {
+                    http_response_code(302);
+                    header('Location: /admin/login');
+                    return;
+                }
                 $this->invoke($route['handler'], $params);
                 return;
             }
@@ -109,6 +117,41 @@ final class Router
      * анонимный маяк токена не несёт, у форм своя защита (honeypot, капча).
      */
     private const CSRF_PREFIXES = ['/admin', '/repo'];
+
+    /**
+     * Адреса панели, открытые без входа: сам вход, второй фактор, выход и
+     * восстановление пароля. Всё остальное под `/admin` требует входа ещё
+     * до вызова контроллера.
+     *
+     * Прежде доступ проверяло каждое действие само (`requireLogin`,
+     * `requireSuperAdmin`, `RbacGuard::can` — около трёхсот вызовов), и новый
+     * маршрут, в котором эту строку забыли, открывался анониму: страница
+     * работает, ошибки нет. Тот же довод, по которому CSRF проверяет роутер.
+     * Роль и права по-прежнему проверяют действия — роутер отвечает только
+     * на вопрос «вошёл ли», и забытая проверка роли теперь обходится в
+     * редактора, а не в постороннего.
+     */
+    private const ADMIN_PUBLIC = [
+        '/admin/login',
+        '/admin/login/2fa',
+        '/admin/login/2fa/resend',
+        '/admin/logout',
+        '/admin/forgot',
+        '/admin/reset',
+    ];
+
+    public static function requiresLogin(string $path): bool
+    {
+        if ($path !== '/admin' && !str_starts_with($path, '/admin/')) {
+            return false;
+        }
+        if (in_array($path, self::ADMIN_PUBLIC, true)) {
+            return false;
+        }
+
+        // Ссылка из письма: /admin/reset/<токен>.
+        return !str_starts_with($path, '/admin/reset/');
+    }
 
     public static function requiresCsrf(string $path): bool
     {
