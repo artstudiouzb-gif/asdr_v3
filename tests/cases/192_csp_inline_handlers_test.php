@@ -6,7 +6,7 @@ declare(strict_types=1);
  * CSP админки и портала не разрешает inline-скрипты: script-src задаёт
  * 'self' и nonce. Атрибуты вида onclick/onchange браузер отказывается
  * выполнять — элемент выглядит рабочим, но не делает ничего. Так молча
- * ломались выбор файла в медиабиблиотеке, фильтры и загрузка в /repo.
+ * ломались выбор файла в медиабиблиотеке и фильтры.
  */
 
 test('CSP: шаблоны не используют inline-обработчики событий', function () {
@@ -27,46 +27,11 @@ test('CSP: шаблоны не используют inline-обработчик�
     assert_same([], $offenders, 'inline-обработчики не выполняются при действующей CSP');
 });
 
-test('CSP: портал репозитория подключает скрипт файлом, а не инлайном', function () {
-    $bottom = (string) file_get_contents(dirname(__DIR__, 2) . '/app/Views/repo/layout/bottom.php');
-
-    assert_contains('/assets/js/repo.js', $bottom);
-    // Инлайновый блок с логикой портала не должен вернуться.
-    assert_false(
-        (bool) preg_match('/<script(?![^>]*\ssrc=)[^>]*>\s*\S/', $bottom),
-        'исполняемый inline-скрипт в шаблоне портала'
-    );
-});
-
 test('CSP: заменённые действия обслуживаются скриптами', function () {
     $admin = (string) file_get_contents(dirname(__DIR__, 2) . '/public/assets/js/admin.js');
     foreach (['data-file-pick', 'data-autosubmit', 'data-close-target', 'data-remove-closest', 'data-admin-appearance-preview'] as $hook) {
         assert_contains($hook, $admin, "admin.js не обрабатывает {$hook}");
     }
-
-    $repo = (string) file_get_contents(dirname(__DIR__, 2) . '/public/assets/js/repo.js');
-    foreach (['data-open-details', 'data-close-dialog', 'data-autosubmit', 'data-confirm-submit', 'data-view-mode', 'data-copy-link'] as $hook) {
-        assert_contains($hook, $repo, "repo.js не обрабатывает {$hook}");
-    }
-});
-
-/**
- * Сортировка в портале — GET-форма. Скрипт не должен брать адрес перехода
- * из разметки: значение элемента — это текст из DOM, и переход по нему
- * CodeQL справедливо считает открытым редиректом (js/xss-through-dom).
- */
-test('Портал: сортировка отправляет форму, а не переходит по адресу из option', function () {
-    $view = (string) file_get_contents(dirname(__DIR__, 2) . '/app/Views/repo/index.php');
-    $repo = (string) file_get_contents(dirname(__DIR__, 2) . '/public/assets/js/repo.js');
-
-    assert_contains('<form class="rd-sort-group" method="get" action="/repo">', $view);
-    assert_contains('<select class="rd-sort-select" name="sort" data-autosubmit>', $view);
-    // Без JS выбор всё равно применяется кнопкой.
-    assert_contains('<noscript>', $view);
-
-    assert_not_contains('data-nav-select', $repo);
-    assert_not_contains('window.location.assign', $repo);
-    assert_contains('select.form.requestSubmit()', $repo);
 });
 
 test('CSP: разметка медиабиблиотеки использует новые хуки', function () {

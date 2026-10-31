@@ -158,14 +158,8 @@ test('Токены скругления объявлены один раз и р
         assert_contains('tokens.css', $declared[$token][0], "$token объявляется в tokens.css");
     }
 
-    // Портал /repo слоя настроек не получает, и там действуют числа из :root.
-    // Вход в портал не подключает даже темы — поэтому токены в своём файле,
-    // и его обязаны подключать все поверхности, где их читают.
-    foreach (['app/Views/repo/login.php', 'app/Views/repo/login_2fa.php', 'app/Views/repo/layout/top.php'] as $view) {
-        assert_contains('/assets/css/tokens.css', (string) file_get_contents(APP_ROOT . '/' . $view), "$view подключает токены");
-    }
     // Они обязаны совпадать с тем, что «Дизайн» печатает по умолчанию, иначе
-    // портал и сайт скруглены по-разному при одних и тех же настройках.
+    // сайт без слоя настроек скруглён иначе, чем с ним.
     $defaults = DesignSettings::cssVariables([]);
     preg_match('/--radius:([^;]+);/', $defaults, $radius);
     preg_match('/--btn-radius:([^;]+);/', $defaults, $btn);

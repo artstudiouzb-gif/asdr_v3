@@ -94,7 +94,6 @@ if ($navIsSuper) {
         'users' => ['/admin/users', t('Пользователи')],
     ];
     $navTools['subscribers'] = ['/admin/subscribers', t('Подписчики')];
-    $navTools['repository'] = ['/admin/repository', t('Репозиторий')];
     // Замена меняет сотни записей разом, в том числе настройки сайта.
     $navTools['replace'] = ['/admin/replace', t('Найти и заменить')];
 }

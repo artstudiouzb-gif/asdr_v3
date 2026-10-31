@@ -231,7 +231,7 @@ if ($adminCreds !== null) {
             '/admin/footer', '/admin/performance', '/admin/widgets', '/admin/trash',
             '/admin/audit', '/admin/audit/errors', '/admin/subscribers', '/admin/redirects', '/admin/users',
             '/admin/design', '/admin/settings', '/admin/social', '/admin/webhooks',
-            '/admin/files', '/admin/repository', '/admin/profile',
+            '/admin/files', '/admin/profile',
             // Формы создания: именно здесь редактор проводит время, и именно
             // они падают от опечатки во вьюхе — списки такую ошибку не видят.
             '/admin/news/create', '/admin/pages/create', '/admin/projects/create',

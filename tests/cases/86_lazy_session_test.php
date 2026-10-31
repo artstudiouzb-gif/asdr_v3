@@ -66,7 +66,6 @@ test('Публичный GET не поднимает сессию и с её coo
     assert_false(Session::deferrable('POST', '/subscribe'));
     assert_false(Session::deferrable('GET', '/admin'));
     assert_false(Session::deferrable('GET', '/admin/pages'));
-    assert_false(Session::deferrable('GET', '/repo/login'));
     assert_false(Session::deferrable('GET', '/install'));
     assert_false(Session::deferrable('GET', '/uz/search'));
 

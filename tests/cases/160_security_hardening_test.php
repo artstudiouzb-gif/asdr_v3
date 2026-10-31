@@ -35,12 +35,8 @@ test('Все интеграционные пароли и API-ключи счи�
 });
 
 test('Критические действия имеют корректные лимиты и CSRF', function (): void {
-    $portal = (string) file_get_contents(APP_ROOT . '/app/Controllers/Repo/PortalController.php');
-    $repoAuth = (string) file_get_contents(APP_ROOT . '/app/Core/RepoAuth.php');
     $news = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/NewsController.php');
 
-    assert_contains("RateLimiter::throttle('repo_upload', (string) RepoAuth::id(), 10, 10, false)", $portal);
-    assert_contains("RateLimiter::throttle('repo_2fa_resend', \$_SERVER['REMOTE_ADDR'] ?? 'unknown', 3, 5, false)", $repoAuth);
     assert_contains('Csrf::verifyRequest()', $news);
     assert_contains("RateLimiter::throttle('admin_ai_summary'", $news);
 });

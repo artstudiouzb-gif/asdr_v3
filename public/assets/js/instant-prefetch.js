@@ -21,7 +21,7 @@
         var path = parser.pathname;
 
         // Пропускаем админку, репозиторий, служебные URL и скачивание файлов
-        if (path.startsWith('/admin') || path.startsWith('/repo') || path.startsWith('/install') || path === '/logout') {
+        if (path.startsWith('/admin') || path.startsWith('/install') || path === '/logout') {
             return false;
         }
         if (/\.(pdf|zip|docx?|xlsx?|pptx?|jpg|png|webp|svg|mp4)$/i.test(path)) {

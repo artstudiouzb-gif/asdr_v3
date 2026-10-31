@@ -33,7 +33,6 @@ test('Все разделы боковой навигации админки и�
         'users',
         'audit',
         'subscribers',
-        'repository',
         'profile',
     ];
 

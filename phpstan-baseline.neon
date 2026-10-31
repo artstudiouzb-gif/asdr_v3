@@ -175,18 +175,6 @@ parameters:
 			path: app/Controllers/InstallController.php
 
 		-
-			message: '#^Method App\\Controllers\\Repo\\PortalController\:\:telegramViewData\(\) has parameter \$user with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Controllers/Repo/PortalController.php
-
-		-
-			message: '#^Method App\\Controllers\\Repo\\PortalController\:\:telegramViewData\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Controllers/Repo/PortalController.php
-
-		-
 			message: '#^Method App\\Controllers\\Site\\FormController\:\:fieldActive\(\) has parameter \$field with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1027,42 +1015,6 @@ parameters:
 			path: app/Core/QrCode.php
 
 		-
-			message: '#^Method App\\Core\\RepoAuth\:\:establishSession\(\) has parameter \$user with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/RepoAuth.php
-
-		-
-			message: '#^Method App\\Core\\RepoAuth\:\:passwordVersion\(\) has parameter \$user with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/RepoAuth.php
-
-		-
-			message: '#^Method App\\Core\\RepoAuth\:\:pendingChannels\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/RepoAuth.php
-
-		-
-			message: '#^Method App\\Core\\RepoAuth\:\:sendTelegramCode\(\) has parameter \$user with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/RepoAuth.php
-
-		-
-			message: '#^Method App\\Core\\RepoAuth\:\:telegramChannelAvailable\(\) has parameter \$user with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/RepoAuth.php
-
-		-
-			message: '#^Method App\\Core\\RepoAuth\:\:user\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Core/RepoAuth.php
-
-		-
 			message: '#^Method App\\Core\\Router\:\:add\(\) has parameter \$handler with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1657,72 +1609,6 @@ parameters:
 			path: app/Models/Redirect.php
 
 		-
-			message: '#^Method App\\Models\\RepoCategory\:\:findById\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/RepoCategory.php
-
-		-
-			message: '#^Method App\\Models\\RepoFile\:\:all\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/RepoFile.php
-
-		-
-			message: '#^Method App\\Models\\RepoFile\:\:findById\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/RepoFile.php
-
-		-
-			message: '#^Method App\\Models\\RepoFile\:\:findManyByIds\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/RepoFile.php
-
-		-
-			message: '#^Method App\\Models\\RepoFile\:\:pending\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/RepoFile.php
-
-		-
-			message: '#^Method App\\Models\\RepoFile\:\:store\(\) has parameter \$fileInput with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/RepoFile.php
-
-		-
-			message: '#^Method App\\Models\\RepoUser\:\:all\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/RepoUser.php
-
-		-
-			message: '#^Method App\\Models\\RepoUser\:\:decryptSecrets\(\) has parameter \$row with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/RepoUser.php
-
-		-
-			message: '#^Method App\\Models\\RepoUser\:\:decryptSecrets\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/RepoUser.php
-
-		-
-			message: '#^Method App\\Models\\RepoUser\:\:findById\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/RepoUser.php
-
-		-
-			message: '#^Method App\\Models\\RepoUser\:\:findByUsername\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/RepoUser.php
-
-		-
 			message: '#^Method App\\Models\\SearchLog\:\:popular\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1975,12 +1861,6 @@ parameters:
 			path: app/Views/admin/projects/index.php
 
 		-
-			message: '#^PHPDoc tag @var for variable \$pending has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Views/admin/repository/files.php
-
-		-
 			message: '#^PHPDoc tag @var for variable \$settings has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2033,18 +1913,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Views/install/step4.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$latest has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Views/repo/index.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$repoUser has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Views/repo/layout/top.php
 
 		-
 			message: '#^PHPDoc tag @var for variable \$a11ySettings has no value type specified in iterable type array\.$#'

@@ -66,7 +66,6 @@ test('mobile controls meet coarse pointer target size and notices are announced'
     $adminCss = (string) file_get_contents(APP_ROOT . '/public/assets/css/admin.css');
     $siteHeader = (string) file_get_contents(APP_ROOT . '/app/Views/site/_header.php');
     $adminHeader = (string) file_get_contents(APP_ROOT . '/app/Views/admin/layout/header.php');
-    $repoHeader = (string) file_get_contents(APP_ROOT . '/app/Views/repo/layout/top.php');
 
     assert_contains('@media (pointer: coarse)', $publicCss);
     assert_contains('.site-search-toggle', $publicCss);
@@ -75,7 +74,6 @@ test('mobile controls meet coarse pointer target size and notices are announced'
     assert_contains('.art-editor__btn', $adminCss);
     assert_contains("? 'assertive' : 'polite'", $siteHeader);
     assert_contains("? 'assertive' : 'polite'", $adminHeader);
-    assert_contains("? 'polite' : 'assertive'", $repoHeader);
 });
 
 test('release smoke check detects stale production code and critical CSS failures', function (): void {

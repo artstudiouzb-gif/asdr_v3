@@ -51,7 +51,7 @@ final class SitemapController
      * префикс, и «Disallow: /health» закрыло бы заодно страницу /healthcare.
      */
     public const ROBOTS_DISALLOW = [
-        '/admin/', '/api/', '/repo/', '/push/', '/script/',
+        '/admin/', '/api/', '/push/', '/script/',
         '/install', '/search', '/captcha.png', '/unsubscribe', '/goals/random',
         '/health', '/_vitals',
     ];

@@ -105,7 +105,6 @@ if (\App\Models\Setting::get('maintenance_mode', '0') === '1'
     && !\App\Core\UpdateState::maintenanceStuck()
     && !(\App\Core\Session::hasCookie() && \App\Core\Auth::check())
     && !str_starts_with($maintenancePath, '/admin')
-    && !str_starts_with($maintenancePath, '/repo')
     && !str_starts_with($maintenancePath, '/assets')) {
     http_response_code(503);
     header('Retry-After: 3600');
@@ -515,39 +514,7 @@ $router->post('/admin/files/{id}/regenerate-token', [AdminFileController::class,
 $router->post('/admin/files/bulk-delete', [AdminFileController::class, 'bulkDelete']);
 
 // --- Admin: защищённое файловое хранилище (супер-админ) ---
-$router->get('/admin/repository', [\App\Controllers\Admin\RepositoryController::class, 'files']);
-$router->post('/admin/repository/upload', [\App\Controllers\Admin\RepositoryController::class, 'upload']);
-$router->post('/admin/repository/settings', [\App\Controllers\Admin\RepositoryController::class, 'saveSettings']);
-$router->get('/admin/repository/categories', [\App\Controllers\Admin\RepositoryController::class, 'categories']);
-$router->post('/admin/repository/categories/create', [\App\Controllers\Admin\RepositoryController::class, 'storeCategory']);
-$router->post('/admin/repository/categories/{id}/rename', [\App\Controllers\Admin\RepositoryController::class, 'renameCategory']);
-$router->post('/admin/repository/categories/{id}/delete', [\App\Controllers\Admin\RepositoryController::class, 'destroyCategory']);
-$router->post('/admin/repository/{id}/update', [\App\Controllers\Admin\RepositoryController::class, 'updateFile']);
-$router->post('/admin/repository/{id}/approve', [\App\Controllers\Admin\RepositoryController::class, 'approveFile']);
-$router->post('/admin/repository/{id}/delete', [\App\Controllers\Admin\RepositoryController::class, 'destroyFile']);
-$router->get('/admin/repository/users', [\App\Controllers\Admin\RepositoryController::class, 'users']);
-$router->post('/admin/repository/users/create', [\App\Controllers\Admin\RepositoryController::class, 'storeUser']);
-$router->post('/admin/repository/users/{id}/toggle', [\App\Controllers\Admin\RepositoryController::class, 'toggleUser']);
-$router->post('/admin/repository/users/{id}/reset-password', [\App\Controllers\Admin\RepositoryController::class, 'resetUserPassword']);
-$router->post('/admin/repository/users/{id}/delete', [\App\Controllers\Admin\RepositoryController::class, 'destroyUser']);
 
-// --- Портал файлового хранилища (собственная авторизация, /repo) ---
-$router->get('/repo/login', [\App\Controllers\Repo\AuthController::class, 'showLogin']);
-$router->post('/repo/login', [\App\Controllers\Repo\AuthController::class, 'login']);
-$router->get('/repo/login/2fa', [\App\Controllers\Repo\AuthController::class, 'showTwoFactor']);
-$router->post('/repo/login/2fa', [\App\Controllers\Repo\AuthController::class, 'verifyTwoFactor']);
-$router->post('/repo/login/2fa/resend', [\App\Controllers\Repo\AuthController::class, 'resendTelegramCode']);
-$router->post('/repo/logout', [\App\Controllers\Repo\AuthController::class, 'logout']);
-$router->get('/repo', [\App\Controllers\Repo\PortalController::class, 'index']);
-$router->post('/repo/upload', [\App\Controllers\Repo\PortalController::class, 'upload']);
-$router->get('/repo/download/{id}', [\App\Controllers\Repo\PortalController::class, 'download']);
-$router->get('/repo/preview/{id}', [\App\Controllers\Repo\PortalController::class, 'preview']);
-$router->post('/repo/download-zip', [\App\Controllers\Repo\PortalController::class, 'downloadZip']);
-$router->get('/repo/security', [\App\Controllers\Repo\PortalController::class, 'security']);
-$router->post('/repo/security/2fa/enable', [\App\Controllers\Repo\PortalController::class, 'enableTotp']);
-$router->post('/repo/security/2fa/disable', [\App\Controllers\Repo\PortalController::class, 'disableTotp']);
-$router->post('/repo/security/telegram/verify', [\App\Controllers\Repo\PortalController::class, 'telegramVerify']);
-$router->post('/repo/security/telegram/disable', [\App\Controllers\Repo\PortalController::class, 'telegramDisable']);
 
 // --- Health-check (мониторинг) ---
 $router->get('/health', [\App\Controllers\Site\HealthController::class, 'index']);

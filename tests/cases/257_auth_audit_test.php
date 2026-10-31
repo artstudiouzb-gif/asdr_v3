@@ -90,7 +90,7 @@ test('TOTP::matchStep возвращает шаг, verify остаётся бу�
     assert_same(null, TOTP::matchStep($secret, '12345'));
 });
 
-test('Подключение второго фактора требует пароля (админка и портал)', function () {
+test('Подключение второго фактора требует пароля', function () {
     // Иначе угнанная сессия привязывает к аккаунту свой аутентификатор и
     // получает постоянный второй фактор — усиление вместо защиты.
     $profile = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/ProfileController.php');
@@ -100,15 +100,6 @@ test('Подключение второго фактора требует пар
 
     $form = (string) file_get_contents(APP_ROOT . '/app/Views/admin/profile/index.php');
     assert_contains('id="totp_enable_password"', $form, 'в форме подключения нет поля пароля');
-
-    $portal = (string) file_get_contents(APP_ROOT . '/app/Controllers/Repo/PortalController.php');
-    $portalEnable = substr($portal, (int) strpos($portal, 'public function enableTotp'));
-    $portalEnable = substr($portalEnable, 0, (int) strpos($portalEnable, 'private static function totpIssuer'));
-    assert_contains('password_verify', $portalEnable, 'портал включает 2FA без подтверждения паролем');
-    assert_contains(
-        'id="enable_totp_password"',
-        (string) file_get_contents(APP_ROOT . '/app/Views/repo/security.php')
-    );
 });
 
 test('CSRF проверяется у всех небезопасных методов, не только у POST', function () {
@@ -132,10 +123,6 @@ test('Успешный вход не сбрасывает корзину пер�
     $source = (string) file_get_contents(APP_ROOT . '/app/Core/Auth.php');
     assert_contains("CLEAR_ON_SUCCESS = ['pair', 'account']", $source);
     assert_not_contains('array_key_first($identifiers)', $source, 'корзины нельзя выбирать по порядку массива');
-
-    $repo = (string) file_get_contents(APP_ROOT . '/app/Core/RepoAuth.php');
-    assert_contains("CLEAR_ON_SUCCESS = ['pair', 'account']", $repo);
-    assert_not_contains('array_key_last($identifiers)', $repo);
 });
 
 test('Смена пароля меняет идентификатор сессии и перерегистрирует её', function () {
