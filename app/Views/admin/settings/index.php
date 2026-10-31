@@ -593,5 +593,45 @@ require __DIR__ . '/../layout/header.php';
         <?= Csrf::field() ?>
         <button type="submit" class="btn btn--primary"><?= AdminUi::icon('save', 16) ?>Скачать полный бэкап (.zip)</button>
     </form>
+
+    <?php $serverBackups = \App\Core\Backup::listArchives(); ?>
+    <h4 class="admin-mt-24">Копии на сервере</h4>
+    <?php if ($serverBackups === []): ?>
+        <p class="form-hint">Копий на сервере пока нет. Их создаёт ночная задача резервного копирования (cron) и восстановление — перед заменой данных.</p>
+    <?php else: ?>
+        <table class="table table--compact table--striped">
+            <thead><tr><th>Файл</th><th>Создан</th><th>Размер</th><th></th></tr></thead>
+            <tbody>
+            <?php foreach ($serverBackups as $backupItem): ?>
+                <tr>
+                    <td><code><?= htmlspecialchars($backupItem['name'], ENT_QUOTES) ?></code></td>
+                    <td><?= htmlspecialchars(date('d.m.Y H:i', $backupItem['mtime']), ENT_QUOTES) ?></td>
+                    <td><?= htmlspecialchars(\App\Core\Watchdog::formatBytes($backupItem['size']), ENT_QUOTES) ?></td>
+                    <td><a class="btn btn--small" href="/admin/backup/download?file=<?= rawurlencode($backupItem['name']) ?>"><?= AdminUi::icon('download', 16) ?>Скачать</a></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+
+    <h4 class="admin-mt-24">Восстановить из копии</h4>
+    <p class="form-hint">Заменяет базу данных и загруженные файлы содержимым архива. Перед заменой на сервере снимается страховочная копия текущего состояния, сайт на время работы закрывается режимом обслуживания. Предел загрузки на этом хостинге — <?= htmlspecialchars((string) ini_get('upload_max_filesize'), ENT_QUOTES) ?>; архив крупнее восстанавливается из консоли (<code>scripts/site_migrate.php</code>).</p>
+    <form method="post" action="/admin/backup" enctype="multipart/form-data" data-confirm="Все текущие данные сайта будут заменены содержимым архива. Продолжить?">
+        <?= Csrf::field() ?>
+        <input type="hidden" name="backup_action" value="restore">
+        <div class="form-field">
+            <label for="backup_file">ZIP-архив резервной копии</label>
+            <input type="file" id="backup_file" name="backup_file" accept=".zip,application/zip" required>
+        </div>
+        <div class="form-field">
+            <label for="restore_confirm_code">Код подтверждения — введите <code><?= htmlspecialchars(\App\Core\BackupRestore::CONFIRM_CODE, ENT_QUOTES) ?></code></label>
+            <input type="text" id="restore_confirm_code" name="restore_confirm_code" autocomplete="off" required>
+        </div>
+        <label class="form-check">
+            <input type="checkbox" name="restore_ack" value="1" required>
+            Понимаю, что текущие данные будут заменены
+        </label>
+        <button type="submit" class="btn btn--danger admin-mt-16"><?= AdminUi::icon('restore', 16) ?>Восстановить</button>
+    </form>
 </div>
 <?php require __DIR__ . '/../layout/footer.php'; ?>

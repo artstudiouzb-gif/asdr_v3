@@ -124,6 +124,24 @@ final class HtmlSanitizer
         return self::sanitize($html, self::TEXT_TAGS, self::TEXT_ATTRS);
     }
 
+    /**
+     * Профиль тела статьи (новость): общий набор плюс выравнивание и цвет
+     * текста (filterStyle) и врезки iframe — только из источников
+     * EmbedSource. Тело новости пишет и роль editor, а печатается оно на
+     * публичной странице как есть: без этого профиля в него проходили
+     * <iframe> с любого https-адреса, <style> и <meta refresh>.
+     */
+    public static function sanitizeArticle(string $html): string
+    {
+        $attrs = self::ALLOWED_ATTRS;
+        foreach (['p', 'span', 'div', 'li', 'td', 'th', 'h2', 'h3', 'h4', 'figure'] as $tag) {
+            $attrs[$tag] = array_merge($attrs[$tag] ?? [], ['style']);
+        }
+        $attrs['iframe'] = ['src', 'title', 'allow', 'allowfullscreen', 'loading', 'width', 'height', 'frameborder'];
+
+        return self::sanitize($html, array_merge(self::ALLOWED_TAGS, ['iframe']), $attrs);
+    }
+
     /** Безопасная разметка короткого редакционного лида. */
     public static function sanitizeLead(string $html): string
     {
@@ -248,6 +266,18 @@ final class HtmlSanitizer
                         self::unwrap($child);
                     }
                     continue;
+                }
+
+                // Врезка — чужой код на странице, поэтому её адрес сверяется
+                // с закрытым списком источников и заменяется каноническим;
+                // неопознанная удаляется целиком (видимого текста в ней нет).
+                if ($tag === 'iframe') {
+                    $embed = EmbedSource::parse($child->getAttribute('src'));
+                    if ($embed === null) {
+                        $child->parentNode?->removeChild($child);
+                        continue;
+                    }
+                    $child->setAttribute('src', $embed['src']);
                 }
 
                 self::cleanAttributes($child, $tag, $allowedAttrs);

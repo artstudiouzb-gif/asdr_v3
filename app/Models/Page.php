@@ -1277,8 +1277,10 @@ final class Page
     ): bool {
         $lang = $lang ?? Language::defaultCode();
         // Адрес уникален внутри своего типа: /about и /projects/about не спорят.
+        // Корзина держит адрес: уникальный индекс видит и удалённые записи,
+        // и проверка без них пропускала slug, на котором вставка падала 500.
         $sql = 'SELECT COUNT(*) FROM pages WHERE slug = :slug AND lang = :lang
-                AND entity_type = :entity_type AND deleted_at IS NULL';
+                AND entity_type = :entity_type';
         $params = [':slug' => $slug, ':lang' => $lang, ':entity_type' => $entityType];
 
         if ($excludeId !== null) {

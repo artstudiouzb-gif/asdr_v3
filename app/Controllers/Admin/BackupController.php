@@ -9,6 +9,8 @@ use App\Core\Backup;
 use App\Core\BackupRestore;
 use App\Core\Csrf;
 use App\Core\Flash;
+use App\Core\Input;
+use App\Core\Redirect;
 
 final class BackupController
 {
@@ -45,6 +47,29 @@ final class BackupController
         @unlink($path);
         @unlink(Backup::checksumPath($path));
         exit;
+    }
+
+    /** Скачать копию, лежащую на сервере (`storage/backups`). Файл остаётся на месте. */
+    public function download(): void
+    {
+        Auth::requireSuperAdmin();
+
+        $path = Backup::archivePath(Input::query()->str('file', '', 200));
+        if ($path === null) {
+            Flash::error('Копия не найдена: возможно, её уже удалила ротация.');
+            Redirect::to('/admin/settings#backup-section');
+        }
+
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="' . basename($path) . '"');
+        header('Content-Length: ' . (string) filesize($path));
+        header('X-Content-Type-Options: nosniff');
+        header('Cache-Control: private, no-store');
+
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        readfile($path);
     }
 
     private function restore(): void

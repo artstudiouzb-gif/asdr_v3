@@ -520,7 +520,10 @@ function quality_regex_in_files(array $files, string $pattern): array
     foreach ($files as $path) {
         $n = (int) preg_match_all($pattern, (string) file_get_contents($path));
         if ($n > 0) {
-            $perFile[basename($path)] = $n;
+            // Ключ — путь от корня, а не имя файла: в app/Controllers девять
+            // одноимённых пар (Admin/Site/Repo), и по basename() поздний файл
+            // затирал ранний — бюджет не видел Admin/NewsController целиком.
+            $perFile[quality_relative_path($path)] = $n;
         }
     }
     arsort($perFile);
@@ -532,6 +535,14 @@ function quality_regex_in_files(array $files, string $pattern): array
     return ['value' => array_sum($perFile), 'detail' => implode(', ', $top)];
 }
 
+/** Путь файла от корня проекта — уникальный ключ для подсчёта по файлам. */
+function quality_relative_path(string $path): string
+{
+    $root = rtrim(APP_ROOT, '/') . '/';
+
+    return str_starts_with($path, $root) ? substr($path, strlen($root)) : $path;
+}
+
 /** Пять самых частых файлов по числу вхождений — для объяснения при падении. */
 function quality_top_files(array $files, string $needle): string
 {
@@ -539,7 +550,7 @@ function quality_top_files(array $files, string $needle): string
     foreach ($files as $path) {
         $n = substr_count((string) file_get_contents($path), $needle);
         if ($n > 0) {
-            $perFile[basename($path)] = $n;
+            $perFile[quality_relative_path($path)] = $n;
         }
     }
     arsort($perFile);
@@ -1125,7 +1136,9 @@ function quality_budgets(): array
             'why' => 'exit обрывает процесс: действие с ним нельзя вызвать из теста, '
                 . 'не потеряв весь прогон. Редирект — Redirect::to(), он бросает '
                 . 'исключение, которое ловит роутер',
-            'ceiling' => static fn (): int => 269,
+            // 269 до октября 2026 было ошибкой счёта: одноимённые контроллеры
+            // затирали друг друга (quality_relative_path). Факт — 303.
+            'ceiling' => static fn (): int => 303,
             'measure' => static function (): array {
                 return quality_regex_in_files(quality_controller_files(), '/\bexit\b/');
             },
@@ -1137,7 +1150,8 @@ function quality_budgets(): array
             'why' => 'приведение писалось по месту в каждой строке и расходилось: '
                 . 'где-то пробелы обрезали, где-то нет, массив вместо строки давал '
                 . '«Array» или TypeError. Правило одно — InputBag (Input::post/query)',
-            'ceiling' => static fn (): int => 654,
+            // 654 — то же недосчитанное число; факт при полном счёте — 735.
+            'ceiling' => static fn (): int => 735,
             'measure' => static function (): array {
                 return quality_regex_in_files(quality_controller_files(), '/\$_(POST|GET|REQUEST)\b/');
             },

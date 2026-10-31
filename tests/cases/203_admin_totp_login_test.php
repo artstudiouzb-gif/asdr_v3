@@ -106,6 +106,5 @@ test('Настройка приложения открыта ограничен�
 
     assert_contains("'/admin/profile/totp/enable'", $routes);
     // Иначе админ без Telegram не дошёл бы до формы подключения.
-    $guard = substr($routes, (int) strpos($routes, '$allowedSetupPaths'));
-    assert_contains("'/admin/profile/totp/enable'", substr($guard, 0, 800));
+    assert_true(\App\Core\Auth::twoFactorSetupAllows('/admin/profile/totp/enable'));
 });

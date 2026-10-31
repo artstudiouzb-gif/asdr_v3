@@ -167,7 +167,9 @@ $badgeOnMedia = $hasMedia
 
 // Оглавление статьи (премиум): собираем из <h2>/<h3> контента и проставляем id.
 $toc = [];
-$contentHtml = \App\Core\SocialEmbed::transform((string) $news['content']);
+// Очистка на выводе: в базе лежат и записи, сохранённые до очистки при
+// сохранении. Врезки SocialEmbed добавляются уже после неё — это наш код.
+$contentHtml = \App\Core\SocialEmbed::transform(\App\Core\HtmlSanitizer::sanitizeArticle((string) $news['content']));
 if ($isPremium) {
     $n = 0;
     $contentHtml = (string) preg_replace_callback(

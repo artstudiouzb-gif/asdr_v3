@@ -57,17 +57,14 @@ test('Раздел Telegram доступен до настройки второ�
     // пускает только в разрешённые пути, а поле токена бота — то есть сам
     // канал доставки кода — живёт в разделе Telegram. Не будет его в списке —
     // администратор не сможет настроить второй фактор вообще.
-    $routes = (string) file_get_contents(dirname(__DIR__, 2) . '/public/index.php');
-    $pos = strpos($routes, '$allowedSetupPaths');
-    assert_true($pos !== false, 'список разрешённых путей на месте');
-    $line = substr($routes, (int) $pos, 700);
-
-    assert_contains("'/admin/telegram'", $line);
-    assert_contains("'/admin/profile'", $line);
-    assert_contains("'/admin/logout'", $line);
+    $allows = [\App\Core\Auth::class, 'twoFactorSetupAllows'];
+    assert_true($allows('/admin/telegram'));
+    assert_true($allows('/admin/profile'));
+    assert_true($allows('/admin/logout'));
     // Остальная админка при этом обязана оставаться закрытой.
-    assert_not_contains("'/admin/news'", $line);
-    assert_not_contains("'/admin/social'", $line);
+    assert_true(!$allows('/admin/news'));
+    assert_true(!$allows('/admin/social'));
+    assert_true(!$allows('/admin/security/admin-entry'));
 });
 
 test('Раздел Telegram: все шаги подключения на одной странице', function () {

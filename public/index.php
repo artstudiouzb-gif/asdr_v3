@@ -497,6 +497,7 @@ $router->get('/admin/security', [\App\Controllers\Admin\SecurityController::clas
 
 // --- Admin: резервное копирование ---
 $router->post('/admin/backup', [\App\Controllers\Admin\BackupController::class, 'create']);
+$router->get('/admin/backup/download', [\App\Controllers\Admin\BackupController::class, 'download']);
 
 // --- Admin: файловый менеджер ---
 $router->get('/admin/files', [AdminFileController::class, 'index']);
@@ -613,39 +614,8 @@ if (\App\Core\Session::hasCookie()) {
 // Cloudflare. Shutdown-регистрация срабатывает и при redirect/exit контроллера.
 \App\Core\PublicResponseCache::registerContentInvalidation();
 
-// Onboarding второго фактора: после корректного пароля пользователь без
-// Telegram получает ограниченную сессию и может открыть только профиль,
-// настройки доставки кода и выход. Остальная админка остаётся закрытой.
-$guardPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
-// Путь проверяется первым: проверка входа поднимает сессию, а на публичной
-// странице она не нужна и сделала бы ответ некешируемым.
-if (str_starts_with($guardPath, '/admin')
-    && \App\Core\Session::hasCookie()
-    && \App\Core\Auth::check()
-    && \App\Core\Auth::requiresTwoFactorSetup()
-    && (string) \App\Core\Config::get('app.env') !== 'development') {
-    // Разрешены только операции, необходимые для подключения канала кодов.
-    // Префиксы намеренно не используются: иначе onboarding-сессия получала
-    // доступ к смене пароля, отзыву сессий и настройкам Telegram-канала.
-    $allowedSetupPaths = [
-        '/admin/profile',
-        '/admin/profile/phone',
-        '/admin/profile/telegram/link',
-        // Без этого пункта админ без Telegram не смог бы подключить
-        // приложение-аутентификатор: ограниченная сессия не пускает дальше.
-        '/admin/profile/totp/enable',
-        '/admin/telegram',
-        '/admin/telegram/bot',
-        '/admin/telegram/bot/check',
-        '/admin/telegram/link',
-        '/admin/logout',
-    ];
-    $allowed = in_array($guardPath, $allowedSetupPaths, true);
-    if (!$allowed) {
-        header('Location: /admin/profile');
-        exit;
-    }
-}
+// Ограничение сессии без второго фактора — в bootstrap
+// (Auth::enforceTwoFactorSetup), до ранних обработчиков панели.
 
 // Ранняя подсказка о критических ресурсах. Печатается ДО маршрутизации: пока
 // собирается страница, браузер (или прокси, умеющий 103 Early Hints) уже
