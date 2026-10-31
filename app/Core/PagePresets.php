@@ -88,8 +88,11 @@ final class PagePresets
             // первого экрана: карточки проявляются по очереди, остальные
             // секции стоят. Появление каждой секции — признак шаблонной
             // страницы (навык frontend-design, DESIGN_PLAN 4.3).
+            // Показатели сразу за обложкой тема надвигает на её низ (margin-top
+            // с минусом) — это ещё первый экран, а там анимации не бывает.
+            $inFirstScreen = $index === 1 && $type === 'counters' && (array_values($types)[0] ?? '') === 'hero';
             $reveal = '';
-            if (!$revealUsed && in_array($type, $cardTypes, true)) {
+            if (!$revealUsed && !$inFirstScreen && in_array($type, $cardTypes, true)) {
                 $reveal = 'stagger';
                 $revealUsed = true;
             }

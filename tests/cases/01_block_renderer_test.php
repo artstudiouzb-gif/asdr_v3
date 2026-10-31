@@ -116,9 +116,10 @@ test('BlockRenderer: cards_grid применяет размер и отключ�
     assert_contains('feature-card__content', $result['html']);
     assert_contains('--feature-card-icon-size:38px', $result['css']);
     assert_contains('.block-cards--style-new .cards-grid{gap:44px;}', $result['css']);
-    assert_contains('font-size:var(--font-size-meta,.75rem)', $result['css']);
+    assert_contains('font-size:var(--font-size-meta,var(--step--3))', $result['css']);
     assert_contains('letter-spacing:var(--meta-letter-spacing,.12em)', $result['css']);
-    assert_contains('font-size:var(--font-size-h3,clamp(18px,1.35vw,21px))', $result['css']);
+    assert_contains('font-size:var(--font-size-h3,var(--step-2))', $result['css']);
+    assert_not_contains('#17999b', $result['css'], 'акцент — из админки, а не зашитый');
     assert_not_contains('.feature-card__icon svg{width:38px', $result['css']);
 
     $theme = theme_css();

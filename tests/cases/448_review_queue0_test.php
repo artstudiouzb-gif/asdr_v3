@@ -266,3 +266,21 @@ test('Форма: группа вариантов подписана legend, о�
     assert_contains('block-form__required', $html);
     assert_contains('block-form__note', $html);
 });
+
+test('Одно появление на страницу не попадает на показатели, надвинутые на обложку', function (): void {
+    $looks = \App\Core\PagePresets::rhythmFor(['hero', 'counters', 'cards_grid']);
+    assert_false($looks[1]['_reveal']['enabled'], 'показатели за обложкой — ещё первый экран');
+    assert_true($looks[2]['_reveal']['enabled'], 'появление уходит первой сетке ниже');
+});
+
+test('«Редакционные» карточки берут цвета из ролей темы, а не зашитый бирюзовый', function (): void {
+    $source = '';
+    foreach (glob(APP_ROOT . '/templates/blocks/*.php') ?: [] as $file) {
+        $source .= (string) file_get_contents($file);
+    }
+    // Переменных --gov-accent/--gov-primary/--gov-text в теме нет: их
+    // запасное значение срабатывало всегда, мимо акцента из админки.
+    foreach (['var(--gov-accent', 'var(--gov-primary', 'var(--gov-text,'] as $ghost) {
+        assert_not_contains($ghost, $source, 'шаблоны блоков не ссылаются на ' . $ghost);
+    }
+});
