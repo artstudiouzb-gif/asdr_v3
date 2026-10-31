@@ -342,7 +342,7 @@ final class Search
     }
 
     /**
-     * @param list<array{type:string,title:string,url:string,excerpt:string,_score:int,_date:string}> $results
+     * @param list<array{type:string,entity:string,title:string,url:string,excerpt:string,_score:int,_date:string}> $results
      * @param array<string,mixed> $row
      */
     private static function append(array &$results, string $term, string $type, array $row, string $url): void
