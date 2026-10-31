@@ -2373,7 +2373,11 @@ final class DemoSeeder
         // navy-фоне «авто» даёт тот же светлый текст, поэтому остальные слайды
         // не меняются, а светлый получает тёмный.
         $settings['content_scheme'] = 'auto';
-        $settings['autoplay'] = true;
+        // Активен один слайд, поэтому автопрокрутка выключена: на телефоне
+        // слайды 2–4 без свайпа не видел никто, а смена кадра раз в семь
+        // секунд уводила заголовок из-под глаз. Остальные слайды лежат
+        // черновиками — редактор видит, как устроена карусель, и включает их.
+        $settings['autoplay'] = false;
         $settings['autoplay_interval'] = 7;
         $settings['height'] = 'tall';
 
@@ -2391,22 +2395,24 @@ final class DemoSeeder
         $slides = [
             [
                 'ru' => [
-                    'eyebrow' => 'Цель. Действие. Результат.',
-                    'title' => 'От стратегической цели — к измеримому результату',
+                    'eyebrow' => '',
+                    'title' => 'От стратегической цели — к *измеримому* результату',
                     'subtitle' => 'Агентство формирует единую систему стратегического планирования: от анализа и подготовки инициатив до координации, мониторинга и оценки достигнутых результатов.',
                     'cta_text' => 'Об Агентстве',
                     'cta2_text' => 'Узбекистан — 2030',
                 ],
                 'uz' => [
-                    'eyebrow' => 'Maqsad. Harakat. Natija.',
-                    'title' => 'Strategik maqsaddan — o‘lchanadigan natijaga',
+                    'eyebrow' => '',
+                    'title' => 'Strategik maqsaddan — *o‘lchanadigan* natijaga',
                     'subtitle' => 'Agentlik strategik rejalashtirishning yagona tizimini shakllantiradi: tahlil va tashabbuslarni tayyorlashdan tortib muvofiqlashtirish, monitoring va erishilgan natijalarni baholashgacha.',
                     'cta_text' => 'Agentlik haqida',
                     'cta2_text' => 'O‘zbekiston — 2030',
                 ],
+                // Фон — цвет обложки, без фотографии: первый экран госсайта
+                // держит заголовок, а не снимок, и выделенное слово на ровной
+                // заливке даёт 7.8:1.
                 'data' => [
-                    'media_type' => 'image',
-                    'image' => '/uploads/public/demo-agency-hero.jpg',
+                    'media_type' => 'none',
                     'cta_enabled' => '1', 'cta_url' => '/o-nas', 'cta_icon' => 'arrow-right',
                     'cta2_enabled' => '1', 'cta2_url' => '/strategiya-2030', 'cta2_style' => 'ghost',
                 ],
@@ -2486,7 +2492,7 @@ final class DemoSeeder
 
         $insertSlide = $pdo->prepare(
             'INSERT INTO hero_slides (hero_id, title, sort_order, is_active, data, created_at)
-             VALUES (:hero, :title, :sort, 1, :data, NOW())'
+             VALUES (:hero, :title, :sort, :active, :data, NOW())'
         );
         $insertTranslation = $pdo->prepare(
             'INSERT INTO hero_slide_translations (slide_id, lang, eyebrow, title, subtitle, cta_text, cta2_text)
@@ -2505,6 +2511,7 @@ final class DemoSeeder
                 ':hero' => $heroId,
                 ':title' => $data['title'],
                 ':sort' => $order,
+                ':active' => $order === 0 ? 1 : 0,
                 ':data' => json_encode($data, JSON_UNESCAPED_UNICODE),
             ]);
             $insertTranslation->execute([
