@@ -86,7 +86,7 @@ final class LocalePreference
     /** Языковое предпочтение применяется только к страницам публичного сайта. */
     public static function managesPath(string $path): bool
     {
-        foreach (['/admin', '/repo', '/install', '/assets', '/uploads', '/health',
+        foreach (['/admin', '/install', '/assets', '/uploads', '/health',
             '/manifest.webmanifest', '/sitemap.xml', '/robots.txt', '/indexnow.txt'] as $excluded) {
             if ($path === $excluded || str_starts_with($path, $excluded . '/')) {
                 return false;

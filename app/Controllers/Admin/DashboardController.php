@@ -30,18 +30,8 @@ final class DashboardController
                 ? (int) Database::pdo()->query('SELECT COUNT(*) FROM form_submissions WHERE is_read = 0')->fetchColumn()
                 : 0,
             'files' => (int) Database::pdo()->query('SELECT COUNT(*) FROM files')->fetchColumn(),
-            'repo_files' => (int) Database::pdo()->query("SELECT COUNT(*) FROM repo_files WHERE status = 'approved'")->fetchColumn(),
-            'repo_downloads' => (int) Database::pdo()->query("SELECT COALESCE(SUM(download_count), 0) FROM repo_files WHERE status = 'approved'")->fetchColumn(),
         ];
 
-        $topRepoDownloads = [];
-        try {
-            $topRepoDownloads = Database::pdo()->query(
-                "SELECT id, title, original_name, download_count, created_at FROM repo_files WHERE status = 'approved' ORDER BY download_count DESC, created_at DESC LIMIT 5"
-            )->fetchAll();
-        } catch (\Throwable $e) {
-            // Игнорируем если таблица пуста
-        }
 
         // Получаем последние 5 действий из журнала аудита
         $recentLogs = $canManageAudit
@@ -119,7 +109,6 @@ final class DashboardController
             'brokenLinks' => $brokenLinks,
             'popularSearches' => $popularSearches,
             'topReadNews' => $topReadNews,
-            'topRepoDownloads' => $topRepoDownloads,
             'canManageSubmissions' => $canManageSubmissions,
             'canManageAudit' => $canManageAudit,
         ]);

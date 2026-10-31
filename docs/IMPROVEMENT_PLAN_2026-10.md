@@ -179,6 +179,8 @@ CSS-2/B3 (межфайловые дубли и `!important`).
 IPv4 и 100.64/10, 198.18/15 в `UrlGuard`, запрет `scripts/`, `vendor/`,
 `node_modules/` и корневых `*.json|lock|neon|mjs|md`, новый CSRF-токен после
 входа. Осталось: одноразовый токен установщика и п. 5 (второй круг аудита).
+Портал `/repo` удалён целиком — владелец от него отказался, аудит ему не
+нужен.
 
 1. **Доступ — атрибутом маршрута, а не вызовом в действии.** Сейчас
    `requireLogin`/`requireSuperAdmin`/`RbacGuard::can` вызываются вручную в ~300
@@ -195,8 +197,8 @@ IPv4 и 100.64/10, 198.18/15 в `UrlGuard`, запрет `scripts/`, `vendor/`,
    `node_modules/`, `*.json|neon|lock|mjs` в корневом `.htaccess`; одноразовый
    токен установщика; ротация CSRF-токена после входа.
 5. **Второй круг аудита** — не просмотрены: Updater, SiteMigration,
-   BackupRestore, LegacyDocumentImporter, Xlsx-импорт, PageTemplateFile, портал
-   `/repo`, SecretBox, журналы, вебхуки, Instagram/YouTube/LinkChecker, push,
+   BackupRestore, LegacyDocumentImporter, Xlsx-импорт, PageTemplateFile,
+   SecretBox, журналы, вебхуки, Instagram/YouTube/LinkChecker, push,
    GeneratedCss/Js, часть админ-контроллеров.
 
 ## Очередь 6. Функциональность

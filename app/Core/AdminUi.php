@@ -187,7 +187,6 @@ final class AdminUi
             'files' => 'folder',
             'videos' => 'movie',
             'subscribers' => 'mail',
-            'repository' => 'archive',
             'design' => 'palette',
             'goals' => 'target',
             'widgets' => 'layout-grid',

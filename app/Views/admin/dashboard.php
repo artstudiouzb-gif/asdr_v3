@@ -109,12 +109,6 @@ $attentionRow = static function (array $check) use ($esc): string {
         ) ?>
     <?php endif; ?>
     <?= $statCard('/admin/files', 'photo', 'info', (int) $counts['files'], t('Медиафайлы')) ?>
-    <?php if ((int) ($counts['repo_files'] ?? 0) > 0): ?>
-        <?php /* Портал файлов включён не везде: пустая плитка «0 скачиваний
-                 из 0 файлов» сообщает только о том, что раздел не используют. */ ?>
-        <?= $statCard('/admin/repository', 'download', 'success', (int) ($counts['repo_downloads'] ?? 0), t('Скачиваний репозитория'),
-            (int) ($counts['repo_files'] ?? 0) . ' ' . t('файлов')) ?>
-    <?php endif; ?>
 </div>
 
 <div class="dashboard-grid">
@@ -296,35 +290,6 @@ $attentionRow = static function (array $check) use ($esc): string {
 </div>
 <?php endif; ?>
 
-<?php if (!empty($topRepoDownloads)): ?>
-<div class="form-card">
-    <?= AdminUi::cardHeader(
-        t('Популярные файлы репозитория'),
-        'download',
-        'var(--admin-success)',
-        '<a href="/admin/repository" class="btn btn--small">' . $esc(t('Перейти в репозиторий')) . ' →</a>'
-    ) ?>
-    <div class="dash-list">
-        <?php foreach ($topRepoDownloads as $doc): ?>
-            <a class="dash-list__item" href="/repo/download/<?= (int) $doc['id'] ?>" target="_blank" rel="noopener">
-                <span class="dash-list__main">
-                    <span class="dash-list__text">
-                        <span class="dash-list__title"><?= $esc($doc['title']) ?></span>
-                        <span class="dash-list__meta"><?= $esc($doc['original_name']) ?></span>
-                    </span>
-                </span>
-                <span class="dash-list__side">
-                    <span class="badge badge--published badge--small"
-                          aria-label="<?= $esc((int) $doc['download_count'] . ' ' . t('скачиваний')) ?>">
-                        <?= AdminUi::icon('download', 13) ?> <?= (int) $doc['download_count'] ?>
-                    </span>
-                    <span class="dash-list__time"><?= DateFormatter::format((string) $doc['created_at'], 'd.m.Y') ?></span>
-                </span>
-            </a>
-        <?php endforeach; ?>
-    </div>
-</div>
-<?php endif; ?>
 
 </div>
 
