@@ -67,7 +67,7 @@ test('Главная объявляет корневые адреса, а не s
 
     // Признак главной приходит от маршрута: у языковой версии-записи своего
     // флага is_home может не быть, а живёт она всё равно в корне языка.
-    assert_contains('$this->renderPage($page, $lang, true)', $controller);
+    assert_contains('$this->renderPage($page, $lang, true, $langs)', $controller);
     assert_contains("\$isHome || !empty(\$page['is_home'])", $controller);
     assert_contains("array_fill_keys(\$langs, '/')", $controller);
 

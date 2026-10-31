@@ -383,6 +383,31 @@ final class Cache
      * Очищает кэш текущей страницы и всех связанных страниц из той же группы
      * переводов (RU, UZ, EN), гарантируя немедленный сброс на всех языках.
      */
+    /**
+     * Удаляет файлы кэша под префиксом, не тронутые дольше $maxAgeSeconds.
+     * Истечение срока файл не удаляет (getFresh просто считает его промахом),
+     * а у поиска ключ — каждый запрос посетителя или бота: без уборки
+     * storage/cache/search рос бы без предела, и на shared-хостинге первыми
+     * кончаются inode. Страницы сюда не относятся — они живут до правки.
+     */
+    public static function purgeStale(string $prefix, int $maxAgeSeconds): int
+    {
+        $root = self::dir() . '/' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $prefix);
+        if ($maxAgeSeconds <= 0 || !is_dir($root)) {
+            return 0;
+        }
+        $cutoff = time() - $maxAgeSeconds;
+        $removed = 0;
+        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
+        foreach ($files as $file) {
+            if ($file instanceof \SplFileInfo && $file->isFile() && $file->getMTime() < $cutoff && @unlink($file->getPathname())) {
+                $removed++;
+            }
+        }
+
+        return $removed;
+    }
+
     public static function clearPageCache(int $pageId): void
     {
         self::forgetPrefix('page:' . $pageId);

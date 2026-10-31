@@ -55,8 +55,12 @@ test('Сервер безопасно отдаёт статические бан
     assert_contains('AddType text/css .css', $htaccess);
     assert_contains('AddType application/javascript .js', $htaccess);
 
-    // Долговечное кэширование для версионированных ассетов
-    assert_contains('Cache-Control "public, max-age=31536000, immutable"', $htaccess);
+    // «Навсегда» — только адресам с отпечатком ?v=, остальное перепроверяется:
+    // файл, перезаписанный по тому же адресу, иначе не обновлялся бы год.
+    assert_contains('Cache-Control "public, max-age=31536000, immutable" env=ASSET_VERSIONED', $htaccess);
+    assert_contains('Cache-Control "public, max-age=86400, must-revalidate"', $htaccess);
+    assert_contains('[E=ASSET_VERSIONED:1]', $htaccess);
+    assert_not_contains('<If ', $htaccess, '<If> поддерживает не каждый сервер');
 
     // Динамическое сжатие сервером
     assert_contains('BROTLI_COMPRESS', $htaccess);

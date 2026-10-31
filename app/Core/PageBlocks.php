@@ -62,12 +62,8 @@ final class PageBlocks
                 '${1}' . htmlspecialchars(Csrf::token(), ENT_QUOTES) . '${2}',
                 (string) $rendered['html']
             );
-            $rendered['html'] = preg_replace(
-                '/(name="hp_ts" value=")[^"]*(")/',
-                '${1}' . time() . '${2}',
-                (string) $rendered['html']
-            );
         }
+        $rendered['html'] = Csrf::refreshHoneypot((string) ($rendered['html'] ?? ''));
 
         // Nonce получают только помеченные скрипты доверенных фрагментов
         // (виджет супер-админа внутри блока): одноразовый на каждый запрос.

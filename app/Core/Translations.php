@@ -470,11 +470,11 @@ final class Translations
 
         $stmtGroup = $pdo->prepare(
             "SELECT * FROM {$source}
-             WHERE COALESCE(NULLIF(translation_group_id, 0), id) = :group_id
+             WHERE (translation_group_id = :group_id OR (id = :group_id_self AND COALESCE(translation_group_id, 0) = 0))
                AND deleted_at IS NULL{$typeWhere}
              ORDER BY id"
         );
-        $stmtGroup->execute([':group_id' => $groupId]);
+        $stmtGroup->execute([':group_id' => $groupId, ':group_id_self' => $groupId]);
 
         $rows = [];
         foreach ($stmtGroup->fetchAll() as $row) {

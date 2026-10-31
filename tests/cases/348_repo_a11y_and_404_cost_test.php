@@ -55,7 +55,7 @@ test('Персонализированный ответ не уходит в о�
     $src = (string) file_get_contents(dirname(__DIR__, 2) . '/app/Core/PublicResponseCache.php');
 
     assert_contains('A11ySettings::isActive', $src, 'сервер печатает data-a11y-* — ответ отличается от обычного');
-    assert_contains("Cache-Control: private, max-age=%d", $src, 'такому ответу место только в кеше браузера');
+    assert_same('private, no-cache', \App\Core\PublicResponseCache::cacheControl(false, 300), 'такому ответу место только в кеше браузера');
 
     // Vary: Cookie фрагментирует общий кеш по любой cookie, включая метки
     // аналитики: попадания стали бы единичными. Он остаётся только там, где

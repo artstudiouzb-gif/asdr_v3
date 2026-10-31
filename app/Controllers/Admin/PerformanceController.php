@@ -115,12 +115,10 @@ final class PerformanceController
             31536000,
             0
         );
-        $publicTtl = SettingsValidator::boundedInt(
-            (string) ($_POST['perf_public_cache_ttl'] ?? ''),
-            0,
-            3600,
-            60
-        );
+        // Браузер перепроверяет копию на каждом переходе (PublicResponseCache::
+        // cacheControl), поэтому срок не нужен — только «хранить или нет».
+        // Число остаётся в настройке ради совместимости: 0 — не хранить.
+        $publicTtl = !empty($_POST['perf_public_cache_ttl']) ? 60 : 0;
         $sharedTtl = SettingsValidator::boundedInt(
             (string) ($_POST['perf_shared_cache_ttl'] ?? ''),
             0,
@@ -154,9 +152,6 @@ final class PerformanceController
         $errors = [];
         if ($cacheTtl === null) {
             $errors[] = 'TTL файлового кэша должен быть от 0 до 31536000 секунд.';
-        }
-        if ($publicTtl === null) {
-            $errors[] = 'TTL браузера должен быть от 0 до 3600 секунд.';
         }
         if ($sharedTtl === null) {
             $errors[] = 'TTL CDN должен быть от 0 до 86400 секунд.';
@@ -436,6 +431,13 @@ final class PerformanceController
         $parts[] = $opcacheOk === true
             ? 'OPcache сброшен'
             : ($opcacheOk === false ? 'OPcache: сброс недоступен' : 'OPcache отключен');
+        // Браузер того, кто нажал кнопку, забывает свои копии сайта —
+        // страницы и картинки (домен у панели и сайта общий). Чужие браузеры
+        // сервер стереть не может: им страницы отдаются с перепроверкой
+        // (PublicResponseCache::cacheControl). Заголовок работает только по
+        // HTTPS, на HTTP браузер его молча игнорирует.
+        header('Clear-Site-Data: "cache"');
+        $parts[] = 'кеш вашего браузера очищен';
         $message = implode(' · ', $parts) . '.';
         $cfOk === false ? Flash::error($message) : Flash::success($message);
 
