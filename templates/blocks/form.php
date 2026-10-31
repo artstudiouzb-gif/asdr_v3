@@ -41,6 +41,10 @@ $getFieldIcon = static function (string $fieldType, string $fieldName, string $f
     <?php else: ?>
         <?php if (!empty($form['name'])): ?><h2><?= htmlspecialchars($form['name'], ENT_QUOTES) ?></h2><?php endif; ?>
         <?php $hasFile = false; foreach ($form['fields'] as $f) { if (($f['type'] ?? '') === 'file') { $hasFile = true; break; } } ?>
+        <?php // Обязательность видна заранее, а не после ошибки (WCAG 3.3.2):
+              // звёздочка у подписи и одна строка расшифровки над формой. ?>
+        <?php $hasRequired = false; foreach ($form['fields'] as $f) { if (!empty($f['required'])) { $hasRequired = true; break; } } ?>
+        <?php if ($hasRequired): ?><p class="block-form__note"><?= htmlspecialchars(t('Поля, отмеченные *, обязательны для заполнения.'), ENT_QUOTES) ?></p><?php endif; ?>
         <?php // Сетка формы и ширина поля объявлены один раз — в FormLayout:
               // шаблон только печатает классы, чтобы редактор и сайт считали
               // раскладку по одним и тем же правилам. ?>
@@ -71,9 +75,16 @@ $getFieldIcon = static function (string $fieldType, string $fieldName, string $f
 
                 $fieldClass = \App\Core\FormLayout::fieldClass($field);
                 ?>
+                <?php $requiredMark = $required !== '' ? '<span class="block-form__required" aria-hidden="true">*</span>' : ''; ?>
+                <?php // Группа вариантов подписывается legend, а не label: label
+                      // указывал на id, которого у вариантов нет, и диктор читал
+                      // «Да / Нет», не называя вопроса. ?>
+                <?php $isGroup = in_array($fieldType, ['radio', 'checkbox_group'], true); ?>
                 <div class="<?= $fieldClass ?>"<?= $condAttrs ?><?= $hiddenAttr ?>>
-                    <?php if ($fieldType !== 'checkbox'): ?>
-                        <label for="<?= $inputId ?>"><?= $fieldLabel ?></label>
+                    <?php if ($isGroup): ?>
+                        <fieldset class="block-form__group"><legend><?= $fieldLabel ?><?= $requiredMark ?></legend>
+                    <?php elseif ($fieldType !== 'checkbox'): ?>
+                        <label for="<?= $inputId ?>"><?= $fieldLabel ?><?= $requiredMark ?></label>
                     <?php endif; ?>
 
                     <?php 
@@ -118,6 +129,7 @@ $getFieldIcon = static function (string $fieldType, string $fieldName, string $f
                                 </label>
                             <?php endforeach; ?>
                         </div>
+                        </fieldset>
                     <?php elseif ($fieldType === 'checkbox_group'): ?>
                         <?php $opts = \App\Models\FormDef::choices($field); ?>
                         <div class="block-form__checkbox-group">
@@ -128,10 +140,11 @@ $getFieldIcon = static function (string $fieldType, string $fieldName, string $f
                                 </label>
                             <?php endforeach; ?>
                         </div>
+                        </fieldset>
                     <?php elseif ($fieldType === 'checkbox'): ?>
                         <div class="block-form__checkbox-single">
                             <input type="checkbox" id="<?= $inputId ?>" name="<?= $fieldName ?>" value="1" <?= $required ?>>
-                            <label for="<?= $inputId ?>"><?= $fieldLabel ?></label>
+                            <label for="<?= $inputId ?>"><?= $fieldLabel ?><?= $requiredMark ?></label>
                         </div>
                     <?php elseif ($fieldType === 'date'): ?>
                         <div class="block-form__input-wrapper<?= $iconSvg !== null ? ' has-icon' : '' ?>">

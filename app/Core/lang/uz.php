@@ -129,6 +129,7 @@ return [
     'Запланирован' => 'Rejalashtirilgan',
     'Форма не найдена или ещё не выбрана в настройках блока.' => 'Shakl topilmadi yoki blok sozlamalarida hali tanlanmagan.',
     'PDF, DOC, DOCX, JPG или PNG; до 20 МБ.' => 'PDF, DOC, DOCX, JPG yoki PNG; 20 MB gacha.',
+    'Поля, отмеченные *, обязательны для заполнения.' => 'Belgisi * qo‘yilgan maydonlar to‘ldirilishi shart.',
     'Выберите...' => 'Tanlang...',
     'Я согласен на обработку персональных данных' => 'Shaxsiy ma’lumotlarim qayta ishlanishiga roziman',
     'Карта' => 'Xarita',

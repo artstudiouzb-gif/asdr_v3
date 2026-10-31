@@ -170,7 +170,7 @@ summary:focus-visible {
     text-decoration: none; font-weight: 600; font-size: var(--step--2);
 }
 .site-cta--filled { background: var(--gov-teal); color: #fff; }
-.site-cta--outline { border: 2px solid var(--gov-teal); color: var(--gov-teal); }
+.site-cta--outline { border: 2px solid var(--gov-teal); color: var(--gov-teal-text); }
 
 .site-theme-toggle {
     background: transparent; border: 1px solid var(--border-color); color: var(--text-main);
@@ -197,7 +197,7 @@ summary:focus-visible {
 .widget-team span { font-size: var(--step--3); color: var(--text-muted); }
 .widget-contacts__line { margin: 6px 0; }
 .widget-contacts__social { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-.widget-social-link { font-size: var(--step--3); text-decoration: none; color: var(--gov-teal); font-weight: 600; }
+.widget-social-link { font-size: var(--step--3); text-decoration: none; color: var(--gov-teal-text); font-weight: 600; }
 .widget-empty { color: var(--text-muted); font-size: var(--step--2); }/* --- Виджет «Меню раздела» ---
    Текущая страница отмечена и цветом, и жирностью, и полосой слева: одного
    цвета мало — в чёрно-белом режиме отличия не осталось бы. */
@@ -450,7 +450,7 @@ summary:focus-visible {
 
 .block-form__consent { display: flex; align-items: flex-start; gap: 8px; margin: 4px 0 16px; font-size: var(--step--1); color: var(--text-muted); }
 .block-form__consent input { margin-top: 3px; flex-shrink: 0; }
-.block-form__consent a { color: var(--gov-teal); }
+.block-form__consent a { color: var(--gov-teal-text); }
 .block-form__field { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
 
 /* Сетка формы: шесть дорожек — делятся и на две колонки, и на три, поэтому
@@ -538,11 +538,6 @@ summary:focus-visible {
     flex: none;
     padding: 0;
 }
-.block-form__field input:focus, .block-form__field textarea:focus, .block-form__field select:focus {
-    outline: none;
-    border-color: var(--gov-navy);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--gov-navy) 12%, transparent);
-}
 .block-form__submit {
     padding: 12px 24px;
     background: var(--gov-navy);
@@ -554,9 +549,12 @@ summary:focus-visible {
 }
 .block-form__submit.is-loading { opacity: .7; cursor: progress; }/* AJAX-состояния публичной формы (задача 67.1) */
 
-.block-form__field.is-error input,
-.block-form__field.is-error textarea { border-color: var(--gov-teal); }
-.block-form__error { color: var(--gov-teal); font-size: var(--step--3); }
+.block-form__field.is-error :is(input, textarea, select) { border-color: var(--gov-danger); }
+.block-form__error { color: var(--gov-danger); font-size: var(--step--3); }
+.block-form__required { color: var(--gov-danger); margin-inline-start: 2px; }
+.block-form__note { margin: 0 0 12px; color: var(--gov-muted); font-size: var(--step--2); }
+fieldset.block-form__group { border: 0; margin: 0; padding: 0; min-width: 0; }
+fieldset.block-form__group > legend { padding: 0; }
 .block-form__message { padding: 10px 14px; border-radius: var(--radius); margin-bottom: 14px; font-size: var(--step--1); }
 .block-form__message--error { background: #fdecea; color: #c0392b; }
 .block-form__thanks {
@@ -686,11 +684,11 @@ summary:focus-visible {
     box-shadow: 0 -6px 20px rgba(0,0,0,.08); font-size: var(--step--2);
 }
 .cookie-banner__text { flex: 1; min-width: 220px; color: var(--text-main); }
-.cookie-banner__text a { color: var(--gov-teal); }
+.cookie-banner__text a { color: var(--gov-teal-text); }
 .cookie-banner__accept, .cookie-banner__decline {
     padding: 9px 18px; border-radius: var(--btn-radius); cursor: pointer; font-weight: 600; border: 1px solid var(--border-color);
 }
-.cookie-banner__accept { background: var(--gov-teal); color: #fff; border-color: transparent; }
+.cookie-banner__accept { background: var(--accent-fill-strong); color: #fff; border-color: transparent; }
 .cookie-banner__decline { background: transparent; color: var(--text-main); }/* Лайтбокс для блоков галереи */
 
 .cms-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.88); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
@@ -926,13 +924,13 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .team-card__photo { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: var(--radius-sm); margin-bottom: 12px; transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); }
 .team-card:hover .team-card__photo { transform: scale(1.04); }
 .team-card__name { font-weight: 700; transition: color 0.3s ease; }
-.team-card:hover .team-card__name { color: var(--gov-teal); }
+.team-card:hover .team-card__name { color: var(--gov-teal-text); }
 .team-card__position { color: var(--text-muted); font-size: var(--step--2); }
 .project-card { display: block; text-decoration: none; color: inherit; background: var(--bg-surface); border-radius: var(--radius); overflow: hidden; }
 .project-card__cover { width: 100%; aspect-ratio: 16/10; object-fit: cover; transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); }
 .project-card:hover .project-card__cover { transform: scale(1.05); }
 .project-card__title { font-weight: 700; padding: 12px 14px 0; transition: color 0.3s ease; }
-.project-card:hover .project-card__title { color: var(--gov-teal); }
+.project-card:hover .project-card__title { color: var(--gov-teal-text); }
 .project-card__desc { padding: 6px 14px 14px; margin: 0; color: var(--text-muted); font-size: var(--step--2); }/* Список: фото слева, текст справа. Место под длинный анонс — ради него
    вариант и нужен. */
 
@@ -988,7 +986,7 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 
 .block-team__group + .block-team__group { margin-top: 40px; }
 .block-team__group-title { margin: 0 0 18px; font-size: var(--step-2); }
-.block-team__group:target .block-team__group-title { color: var(--gov-teal); }
+.block-team__group:target .block-team__group-title { color: var(--gov-teal-text); }
 .block-team__unit { margin-top: 26px; }
 .block-team__unit-title { margin: 0 0 14px; font-size: var(--step-0); font-weight: 700; color: var(--text-muted); }/* SVG-иконка в блоке преимуществ (группа 4.3) */
 
@@ -1030,17 +1028,17 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 }
 .content-card__title { margin: 0 0 10px; font-size: var(--step-2); }
 .content-card__title a { color: var(--gov-navy); text-decoration: none; }
-.content-card__title a:hover { color: var(--gov-teal); }
+.content-card__title a:hover { color: var(--gov-teal-text); }
 .content-card__meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--text-muted); font-size: var(--step--1); margin-bottom: 10px; }
 .content-card__meta-item b { font-weight: 600; color: var(--gov-navy); }
 .content-card__excerpt { margin: 0 0 14px; color: var(--text-muted); line-height: var(--base-line-height, 1.5); }
 .content-card__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
-.content-card__file a { color: var(--gov-teal); text-decoration: none; }
-.content-card__more { margin-left: auto; color: var(--gov-teal); text-decoration: none; font-weight: 600; }
+.content-card__file a { color: var(--gov-teal-text); text-decoration: none; }
+.content-card__more { margin-left: auto; color: var(--gov-teal-text); text-decoration: none; font-weight: 600; }
 
 .content-detail { max-width: 820px; margin: 0 auto; padding: 24px 16px 56px; }
 .content-detail__crumbs { margin-bottom: 14px; }
-.content-detail__crumbs a { color: var(--gov-teal); text-decoration: none; }
+.content-detail__crumbs a { color: var(--gov-teal-text); text-decoration: none; }
 .content-detail__title { margin: 0 0 6px; }
 .content-detail__date { color: var(--text-muted); font-size: var(--step--1); }
 .content-detail__fields { margin: 24px 0 0; display: grid; gap: 2px; }
@@ -1090,18 +1088,18 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .site-search-page { max-width: 780px; margin: 0 auto; padding: 24px 16px 56px; }
 .site-search-page__form { display: flex; gap: 10px; margin: 16px 0 24px; }
 .site-search-page__form input { flex: 1; padding: 12px 16px; border: 1px solid var(--border-color, #d5d9de); border-radius: var(--radius-sm); font: inherit; }
-.site-search-page__form button { padding: 12px 24px; border: 0; border-radius: var(--btn-radius); background: var(--gov-teal); color: #fff; font-weight: 600; cursor: pointer; }
+.site-search-page__form button { padding: 12px 24px; border: 0; border-radius: var(--btn-radius); background: var(--accent-fill-strong); color: #fff; font-weight: 600; cursor: pointer; }
 .site-search-page__count { color: var(--text-muted); margin-bottom: 16px; }
 .site-search-results { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
 .site-search-results__item { padding: 14px 16px; border: 1px solid var(--border-color, #eee); border-radius: var(--radius); }
 .site-search-results__type { display: inline-block; font-size: var(--step--4); text-transform: uppercase; letter-spacing: .04em; color: var(--gov-teal-text); font-weight: 700; margin-bottom: 4px; }
 .site-search-results__link { display: block; font-size: var(--step-1); font-weight: 600; text-decoration: none; color: var(--gov-navy); }
-.site-search-results__link:hover { color: var(--gov-teal); }
+.site-search-results__link:hover { color: var(--gov-teal-text); }
 .site-search-results__excerpt { margin: 6px 0 0; color: var(--text-muted); font-size: var(--step--1); }
 @media (max-width: 640px) { .site-search { display: none; } }/* --- Каталог: хлебные крошки, тулбар, статусы, пагинация --- */
 
 .content-crumbs { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--step--2); color: var(--text-muted); margin-bottom: 16px; }
-.content-crumbs a { color: var(--gov-teal); text-decoration: none; }
+.content-crumbs a { color: var(--gov-teal-text); text-decoration: none; }
 .content-crumbs span { color: var(--text-muted); }
 .content-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; align-items: center; }
 .content-toolbar input[type="search"] { flex: 1 1 220px; padding: 9px 12px; border: 1px solid var(--border-color, #d5d9de); border-radius: var(--radius-sm); font: inherit; }
@@ -1116,7 +1114,7 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .content-card--archived { opacity: .72; }/* --- Блок «Последние новости» (для главной и любых страниц) --- */
 
 .block-news__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-.block-news__all { color: var(--gov-teal); text-decoration: none; font-weight: 600; white-space: nowrap; }
+.block-news__all { color: var(--gov-teal-text); text-decoration: none; font-weight: 600; white-space: nowrap; }
 .block-news__empty { color: var(--text-muted); }/* Число колонок и растяжка последнего ряда приходят из GridBalance:
    три новости в сетке auto-fill расползались по ширине неравномерно. */
 
@@ -1133,7 +1131,7 @@ body.is-preview { outline: 3px solid #b45309; outline-offset: -3px; }/* Блок
 .news-card:hover .news-card__cover img { transform: scale(1.05); }
 .news-card__body { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; }
 .news-card__title { font-weight: 600; font-size: var(--step-1); color: var(--gov-navy); line-height: 1.35; }
-.news-card:hover .news-card__title { color: var(--gov-teal); }
+.news-card:hover .news-card__title { color: var(--gov-teal-text); }
 .news-card__excerpt { color: var(--text-muted); font-size: var(--font-size-news-text, var(--font-size-card-text, var(--step--1))); line-height: var(--base-line-height, 1.5); }/* ============================================================================
    Тема-билдер: применение переменных дизайна + современная отделка фронтенда.
    Переменные --container-max/--radius/--card-gap/--section-pad/--btn-radius
@@ -1328,7 +1326,7 @@ h1, h2 { letter-spacing: -.015em; }/* --- Блок «Партнёры» (лог�
 }
 .block-banner__button:hover { 
     transform: translateY(-2px) scale(1.02); 
-    box-shadow: 0 8px 20px rgba(230, 57, 70, 0.25); 
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--gov-teal) 25%, transparent); 
 }/* --- Стиль карточек и положение сайдбара (настройки дизайна) --- */
 
 .content-card, .news-card, .site-search-results__item, .block-partners__item {
@@ -1671,14 +1669,14 @@ body.mobile-menu-open .site-burger span:nth-child(3) { transform: translateY(-7p
 .subscribe-block__form input[type=email]:focus {
     border-color: var(--gov-teal);
     outline: none;
-    box-shadow: 0 0 10px rgba(230, 57, 70, 0.25);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--gov-teal) 25%, transparent);
 }
 .subscribe-block__form button[type=submit] {
     transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.3s ease, background-color 0.3s;
 }
 .subscribe-block__form button[type=submit]:hover {
     transform: translateY(-1px) scale(1.02);
-    box-shadow: 0 6px 16px rgba(230, 57, 70, 0.2);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--gov-teal) 20%, transparent);
 }
 .subscribe-block__consent {
     display: flex;

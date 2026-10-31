@@ -1,4 +1,5 @@
-/* Public reading and print modes loaded after the generated site theme. */
+/* Public reading and print modes. Подключается после бандла темы, но ДО
+   сгенерированного CSS «Дизайна» (порядок задаёт _header.php). */
 
 /* Reader mode is wider than the former 740px shell, while text keeps a
    comfortable editorial measure. Images and tables may use the full panel. */
@@ -15,7 +16,7 @@
 .reader-mode__headline,
 .reader-mode__lead,
 .reader-mode__body {
-    max-width: 82ch;
+    max-width: var(--editorial-reading, 760px);
     margin-inline: auto;
 }
 .reader-mode__cover,
@@ -35,6 +36,19 @@
    and therefore never enter the printable document. */
 @media print {
     @page { size: auto; margin: 16mm 14mm 18mm; }
+
+    /* Текст тёмной секции и обложки берёт цвет из переменных (--section-*,
+       --hero-fg), а фон браузер по умолчанию не печатает — и абзацы выходили
+       белыми на белом листе. Переопределяем сами переменные у потомков: вес
+       (0,2,1) выше классов, которыми их объявляют карточки, без флага приоритета. */
+    main.site-content .cms-block *,
+    main.site-content .hero * {
+        --section-fg: #000;
+        --section-title-fg: #000;
+        --section-muted-fg: #333;
+        --section-link-fg: #000;
+        --hero-fg: #000;
+    }
 
     html,
     body {
