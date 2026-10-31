@@ -44,6 +44,7 @@ $baseUrl = Locale::url(ContentType::path($type));
 ?>
 <div class="listing" data-listing>
     <div class="listing__head">
+        <?php require __DIR__ . '/_page_mark.php'; ?>
         <h1 class="listing__title"><?= htmlspecialchars(t((string) $type['name']), ENT_QUOTES) ?></h1>
         <?php if (!empty($type['description'])): ?>
             <p class="listing__lead"><?= htmlspecialchars(t((string) $type['description']), ENT_QUOTES) ?></p>

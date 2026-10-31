@@ -123,7 +123,8 @@
     line-height: 1.55;
 }
 
-.content-pagehead__emblem {
+.content-pagehead__emblem,
+.page-mark {
     position: absolute;
     z-index: 0;
     top: 50%;
@@ -139,6 +140,12 @@
     transform: translateY(-50%);
     pointer-events: none;
 }
+
+/* Шапка списка раздела: знак крупнее и срезан краем — лента это вход в
+   раздел, а не документ; заголовок и рубрикатор стоят поверх знака. */
+.listing__head { position: relative; isolation: isolate; overflow-x: clip; }
+.listing__head > :not(.page-mark) { position: relative; z-index: 1; }
+.page-mark { width: 220px; right: -64px; }
 
 /* Content canvas --------------------------------------------------------- */
 .editorial-page__content {
@@ -1131,7 +1138,7 @@
 /* Footer on inner pages: compact like the approved concept. */
 
 /* Dark mode -------------------------------------------------------------- */
-html[data-theme="dark"] .content-pagehead__emblem { opacity: .07; }
+html[data-theme="dark"] :is(.content-pagehead__emblem, .page-mark) { opacity: .07; }
 
 /* Responsive ------------------------------------------------------------- */
 @media (max-width: 1000px) {
@@ -1172,6 +1179,12 @@ html[data-theme="dark"] .content-pagehead__emblem { opacity: .07; }
     .content-pagehead__emblem {
         right: -24px;
         width: 132px;
+        opacity: .045;
+    }
+
+    .page-mark {
+        right: -44px;
+        width: 150px;
         opacity: .045;
     }
 
