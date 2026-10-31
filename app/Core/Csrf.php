@@ -19,6 +19,17 @@ final class Csrf
         return $_SESSION['csrf_token'];
     }
 
+    /**
+     * Новый токен после входа. Токен, выданный анонимной сессии до входа,
+     * мог быть подсмотрен или навязан (фиксация сессии): смены id сессии
+     * мало, если в ней остаётся прежний токен.
+     */
+    public static function rotate(): void
+    {
+        Session::start();
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
     public static function field(): string
     {
         return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(self::token(), ENT_QUOTES) . '">';

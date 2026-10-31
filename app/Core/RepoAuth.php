@@ -256,6 +256,7 @@ final class RepoAuth
     private static function establishSession(array $user): void
     {
         session_regenerate_id(true);
+        Csrf::rotate();
         $_SESSION['repo_user_id'] = (int) $user['id'];
         $_SESSION['repo_username'] = $user['username'];
         $_SESSION['repo_authenticated_at'] = time();
