@@ -36,7 +36,7 @@ require __DIR__ . '/_crumbs.php';
                 <?php $cover = trim((string) ($item['cover_image'] ?? '')); ?>
                 <a class="imgcard imgcard--project imgcard--below" href="<?= htmlspecialchars(Locale::url('projects/' . $item['slug']), ENT_QUOTES) ?>">
                     <?php if ($cover !== ''): ?>
-                        <?= \App\Core\Media::picture($cover, (string) $item['title'], null, null, 'imgcard__media', true, '(max-width: 700px) 100vw, 50vw') ?>
+                        <?= \App\Core\Media::picture($cover, '', null, null, 'imgcard__media', true, '(max-width: 700px) 100vw, 50vw') ?>
                     <?php else: ?>
                         <span class="imgcard__media" aria-hidden="true"></span>
                     <?php endif; ?>

@@ -706,7 +706,7 @@ $hasSidebar = $sidebar !== null && trim((string) ($sidebar['html'] ?? '')) !== '
                     ?>
                     <a class="relnews-card" href="<?= htmlspecialchars(Locale::url('news/' . $item['slug'], $lang), ENT_QUOTES) ?>">
                         <?php if ($rc !== null): ?>
-                            <?= \App\Core\Media::picture($rc, (string) $item['title'], null, null, 'relnews-card__img', true, '(max-width: 700px) 100vw, 33vw', false, 'relnews-card__media') ?>
+                            <?= \App\Core\Media::picture($rc, '', null, null, 'relnews-card__img', true, '(max-width: 700px) 100vw, 33vw', false, 'relnews-card__media') ?>
                         <?php else: ?>
                             <span class="relnews-card__media relnews-card__media--empty" aria-hidden="true"></span>
                         <?php endif; ?>
@@ -740,7 +740,7 @@ $hasSidebar = $sidebar !== null && trim((string) ($sidebar['html'] ?? '')) !== '
                 <a class="adjnews adjnews--prev" href="<?= htmlspecialchars(Locale::url('news/' . $prevNews['slug'], $lang), ENT_QUOTES) ?>">
                     <span class="adjnews__arrow">←</span>
                     <?php if ($pc !== null): ?>
-                        <?= \App\Core\Media::picture($pc, (string) $prevNews['title'], null, null, 'adjnews__media', true, '112px') ?>
+                        <?= \App\Core\Media::picture($pc, '', null, null, 'adjnews__media', true, '112px') ?>
                     <?php else: ?>
                         <span class="adjnews__media adjnews__media--empty" aria-hidden="true"></span>
                     <?php endif; ?>
@@ -766,7 +766,7 @@ $hasSidebar = $sidebar !== null && trim((string) ($sidebar['html'] ?? '')) !== '
                         <h3 class="adjnews__title"><?= htmlspecialchars((string) $nextNews['title'], ENT_QUOTES) ?></h3>
                     </span>
                     <?php if ($nc !== null): ?>
-                        <?= \App\Core\Media::picture($nc, (string) $nextNews['title'], null, null, 'adjnews__media', true, '112px') ?>
+                        <?= \App\Core\Media::picture($nc, '', null, null, 'adjnews__media', true, '112px') ?>
                     <?php else: ?>
                         <span class="adjnews__media adjnews__media--empty" aria-hidden="true"></span>
                     <?php endif; ?>

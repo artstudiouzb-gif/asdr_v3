@@ -129,6 +129,7 @@ return [
     'Запланирован' => 'Planned',
     'Форма не найдена или ещё не выбрана в настройках блока.' => 'The form was not found or has not yet been selected in the block settings.',
     'PDF, DOC, DOCX, JPG или PNG; до 20 МБ.' => 'PDF, DOC, DOCX, JPG or PNG; up to 20 MB.',
+    'Поля, отмеченные *, обязательны для заполнения.' => 'Fields marked * are required.',
     'Выберите...' => 'Select...',
     'Я согласен на обработку персональных данных' => 'I consent to the processing of my personal data',
     'Карта' => 'Map',

@@ -89,7 +89,7 @@ $others = array_values(array_filter(
                     <?php $c = trim((string) ($item['cover_image'] ?? '')); ?>
                     <a class="imgcard" href="<?= htmlspecialchars(Locale::url('projects/' . $item['slug']), ENT_QUOTES) ?>">
                         <?php if ($c !== ''): ?>
-                            <?= \App\Core\Media::picture($c, (string) $item['title'], null, null, 'imgcard__media', true, '(max-width: 700px) 100vw, 25vw') ?>
+                            <?= \App\Core\Media::picture($c, '', null, null, 'imgcard__media', true, '(max-width: 700px) 100vw, 25vw') ?>
                         <?php else: ?>
                             <span class="imgcard__media" aria-hidden="true"></span>
                         <?php endif; ?>

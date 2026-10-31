@@ -94,7 +94,7 @@ $mediaTrack = count($items) > 1 && empty($data['paginate']);
                 ?>
                 <<?= $tag ?> class="mediacard mediacard--<?= $kind ?>" data-media-kind="<?= $kind ?>"<?= $mediaTrack ? ' data-carousel-item' : '' ?><?= $url !== '' ? ' href="' . htmlspecialchars($url, ENT_QUOTES) . '"' : '' ?>>
                     <span class="mediacard__media">
-                        <?php if ($img !== ''): ?><?= \App\Core\Media::picture($img, (string) $item['title'], null, null, 'mediacard__img', true, '(max-width: 560px) 100vw, (max-width: 1000px) 50vw, 25vw') ?><?php endif; ?>
+                        <?php if ($img !== ''): ?><?= \App\Core\Media::picture($img, '', null, null, 'mediacard__img', true, '(max-width: 560px) 100vw, (max-width: 1000px) 50vw, 25vw') ?><?php endif; ?>
                         <span class="mediacard__play mediacard__play--<?= $kind ?>" aria-hidden="true">
                             <?php if ($kind === 'photo'): ?>
                                 <?= \App\Core\Icon::render('photo', 24) ?>

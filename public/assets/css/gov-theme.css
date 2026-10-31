@@ -40,6 +40,12 @@
     --gov-teal: var(--color-accent, #17999b);
     --gov-ink: #0f172a;
     --gov-muted: #475569; /* WCAG AAA: 7.1:1 контрастность на белом и светлом фоне */
+    /* Ошибка формы — свой цвет, а не акцент: ошибка цветом фокуса не
+       отличалась от фокуса, а текст акцентом давал 3.46:1. 6.57:1 на белом. */
+    --gov-danger: #b42318;
+    /* Граница поля ввода — не декоративная граница карточки: --gov-border
+       даёт 1.23:1, а поле обязано различаться (WCAG 1.4.11, 3:1). 3.64:1. */
+    --gov-field-border: #7a879b;
     /* Цвет заголовков: тёмно-синий на светлой теме, светлый на тёмной
        (чтобы навигационные заголовки карточек не пропадали). */
     --gov-title: var(--gov-navy);
@@ -74,7 +80,8 @@
 
        Единицы — rem, поэтому шкала сама подчиняется настройке «Размер
        базового шрифта» в админке: DesignSettings печатает
-       --base-font-size, а html { font-size: var(--base-font-size,16px) }.
+       --base-font-scale (процент от шрифта браузера), а html { font-size:
+       var(--base-font-scale,100%) } — настройка шрифта браузера действует.
        Токены НЕ дублируют админские переменные (--radius, --card-gap,
        --section-pad, --card-shadow) и не переопределяют их.
 
@@ -152,13 +159,15 @@
     --gov-title: #f2f6fa;
     --gov-teal-text: var(--gov-teal-on-dark);
     --gov-teal-on-tint: var(--gov-teal-on-dark);
+    --gov-danger: #ff9b8f;       /* 6.43:1 на поверхности карточки */
+    --gov-field-border: #8794ab; /* 4.27:1 на поверхности карточки */
 }
 
 body {
     background: var(--gov-bg);
     color: var(--gov-ink);
     font-family: var(--font-family, 'Noto Sans', 'Noto Sans Fallback', system-ui, sans-serif);
-    font-size: var(--base-font-size, 16px);
+    font-size: var(--step-0);
     line-height: var(--base-line-height, 1.6);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -205,7 +214,7 @@ input, select, textarea,
    (Windows) дают горизонтальную прокрутку. overflow-x:clip на корне обрезает
    этот выступ, НЕ создавая scroll-контейнер — sticky-шапка продолжает работать. */
 
-html { font-size: var(--base-font-size, 16px); overflow-x: clip; }/* Заголовки, карточки, блоки и акцентные подписи (управляются из раздела «Дизайн») */
+html { font-size: var(--base-font-scale, 100%); overflow-x: clip; }/* Заголовки, карточки, блоки и акцентные подписи (управляются из раздела «Дизайн») */
 
 h1, h2, h3, h4, h5, h6,
 .section-title, .block-title, .card__title,
@@ -660,8 +669,8 @@ body .site-header--container-floating.site-header--sticky-full.is-scrolled {
 }
 .site-submenu__link .site-menu__badge::after { display: none; }
 .site-lang-switcher__item { color: var(--gov-title); font-weight: 700; font-size: var(--step--3); transition: color 0.25s ease, opacity 0.25s ease; }
-.site-lang-switcher__item.is-active { color: var(--gov-teal); }
-.site-lang-switcher__item:not(.is-active):hover { color: var(--gov-teal); opacity: 0.85; }/* === Премиальный выпадающий переключатель языков (Dropdown) === */
+.site-lang-switcher__item.is-active { color: var(--gov-teal-text); }
+.site-lang-switcher__item:not(.is-active):hover { color: var(--gov-teal-text); }/* === Премиальный выпадающий переключатель языков (Dropdown) === */
 
 .site-lang-dropdown { position: relative; display: inline-block; user-select: none; }
 .site-lang-dropdown summary::-webkit-details-marker,
@@ -5204,7 +5213,7 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
 .gcal__cell--today .gcal__day { color: var(--gov-teal-text); }
 .gcal__day { display: block; font-weight: 700; color: var(--gov-title); margin-bottom: 6px; }
 .gcal__event { display: block; margin-top: 4px; padding: 5px 8px; border-radius: var(--radius-sm); background: rgba(23, 153, 155, .12); color: var(--gov-teal-text); font-size: var(--step--4); font-weight: 600; line-height: 1.35; text-decoration: none; }
-.gcal__event:hover { background: var(--gov-teal); color: #fff; }
+.gcal__event:hover { background: var(--accent-fill-strong); color: #fff; }
 .gcal-list { display: flex; flex-direction: column; gap: 14px; }
 .gcal-list__title { margin: 0; font-size: var(--step-2); color: var(--section-title-fg); }
 .gcal-list__items { display: flex; flex-direction: column; gap: 0; margin: 0; padding: 0; list-style: none; border: 1px solid var(--gov-border); border-radius: var(--radius); background: var(--gov-surface); overflow: hidden; }
@@ -5353,7 +5362,7 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
 }/* ===== Публичные формы (плавная анимация фокуса) ===== */
 
 .block-form__field input, .block-form__field textarea, .block-form__field select {
-    border: 1px solid var(--gov-border);
+    border: 1px solid var(--gov-field-border);
     background: var(--gov-surface);
     color: var(--gov-title, inherit);
     outline: none;
@@ -5361,9 +5370,12 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
 }
 .block-form__field input:focus, .block-form__field textarea:focus, .block-form__field select:focus,
 .block-form__field input:focus-visible, .block-form__field textarea:focus-visible, .block-form__field select:focus-visible {
+    /* Кольцо фокуса — сплошное акцентом-текстом (5.34:1): полупрозрачная
+       тень в 15 % давала 1.18:1 и на белом не читалась вовсе. */
     border-color: var(--gov-teal);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--gov-teal) 15%, transparent);
-    outline: none;
+    box-shadow: none;
+    outline: 2px solid var(--gov-teal-text);
+    outline-offset: 1px;
 }
 
 /* --- Зона нажатия на сенсорных экранах ---
