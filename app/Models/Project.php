@@ -393,20 +393,8 @@ final class Project
 
     public static function slugExists(string $slug, ?int $excludeId = null, ?string $lang = null): bool
     {
-        $lang = $lang ?? Language::defaultCode();
-        $sql = "SELECT COUNT(*) FROM pages
-                WHERE entity_type = 'project' AND slug = :slug AND lang = :lang AND deleted_at IS NULL";
-        $params = [':slug' => $slug, ':lang' => $lang];
-
-        if ($excludeId !== null) {
-            $sql .= ' AND id <> :id';
-            $params[':id'] = $excludeId;
-        }
-
-        $stmt = Database::pdo()->prepare($sql);
-        $stmt->execute($params);
-
-        return (int) $stmt->fetchColumn() > 0;
+        // Проект — строка pages, правило адреса у них одно (с учётом корзины).
+        return Page::slugExists($slug, $excludeId, $lang, 'project');
     }
 
     /** @return array<string, int> */

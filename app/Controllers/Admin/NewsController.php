@@ -558,7 +558,7 @@ final class NewsController
                 'badge' => trim((string) ($t['badge'] ?? '')),
                 'excerpt' => $lead['text'],
                 'lead_html' => $lead['html'],
-                'content' => TextProcessor::process((string) ($t['content'] ?? ''), $activeLang),
+                'content' => \App\Core\HtmlSanitizer::sanitizeArticle(TextProcessor::process((string) ($t['content'] ?? ''), $activeLang)),
                 'hashtags' => trim((string) ($t['hashtags'] ?? '')),
                 'key_points' => trim((string) ($t['key_points'] ?? '')),
                 'event_meta' => trim((string) ($t['event_meta'] ?? '')),
@@ -596,7 +596,7 @@ final class NewsController
                 'badge' => trim((string) ($t['badge'] ?? '')),
                 'excerpt' => $lead['text'],
                 'lead_html' => $lead['html'],
-                'content' => TextProcessor::process((string) ($t['content'] ?? ''), $code),
+                'content' => \App\Core\HtmlSanitizer::sanitizeArticle(TextProcessor::process((string) ($t['content'] ?? ''), $code)),
                 'hashtags' => trim((string) ($t['hashtags'] ?? '')),
                 'key_points' => trim((string) ($t['key_points'] ?? '')),
                 'event_meta' => trim((string) ($t['event_meta'] ?? '')),
@@ -669,7 +669,7 @@ final class NewsController
         $excerpt = $lead['text'];
         $leadHtml = $lead['html'];
         // WYSIWYG-контент прогоняем через типограф/санитайзер (задача 75).
-        $content = TextProcessor::process((string) ($_POST['content'] ?? ''), $lang);
+        $content = \App\Core\HtmlSanitizer::sanitizeArticle(TextProcessor::process((string) ($_POST['content'] ?? ''), $lang));
         $metaTitle = trim((string) ($_POST['meta_title'] ?? ''));
         $metaDescription = trim((string) ($_POST['meta_description'] ?? ''));
         $status = (isset($_POST['publish_action']) || ($_POST['status'] ?? 'draft') === 'published') ? 'published' : 'draft';

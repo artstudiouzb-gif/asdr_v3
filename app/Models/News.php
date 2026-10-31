@@ -960,7 +960,9 @@ final class News
     public static function slugExists(string $slug, ?int $excludeId = null, ?string $lang = null): bool
     {
         $lang = $lang ?? Language::defaultCode();
-        $sql = 'SELECT COUNT(*) FROM news WHERE slug = :slug AND lang = :lang AND deleted_at IS NULL';
+        // Корзина держит адрес: уникальный индекс видит и удалённые записи,
+        // и проверка без них пропускала slug, на котором вставка падала 500.
+        $sql = 'SELECT COUNT(*) FROM news WHERE slug = :slug AND lang = :lang';
         $params = [':slug' => $slug, ':lang' => $lang];
 
         if ($excludeId !== null) {

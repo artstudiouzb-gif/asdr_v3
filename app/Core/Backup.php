@@ -218,6 +218,40 @@ final class Backup
     }
 
     /** Путь к sidecar-файлу с контрольной суммой архива. */
+    /**
+     * Копии на сервере (ночные и страховочные), свежие первыми. Без списка
+     * в панели их можно было забрать только по FTP — на shared-хостинге
+     * владелец до него не доходит, а в аварии это первое, что нужно.
+     *
+     * @return list<array{name: string, size: int, mtime: int}>
+     */
+    public static function listArchives(): array
+    {
+        $items = [];
+        foreach (glob(self::backupDir() . '/backup_*.zip') ?: [] as $file) {
+            if (is_file($file)) {
+                $items[] = ['name' => basename($file), 'size' => (int) filesize($file), 'mtime' => (int) filemtime($file)];
+            }
+        }
+        usort($items, static fn (array $a, array $b): int => $b['mtime'] <=> $a['mtime']);
+
+        return $items;
+    }
+
+    /**
+     * Путь к копии по имени из адреса — только `backup_*.zip` прямо в
+     * каталоге копий: имя приходит из запроса, и путь из него собирать нельзя.
+     */
+    public static function archivePath(string $name): ?string
+    {
+        if (preg_match('/^backup_[A-Za-z0-9._-]+\.zip$/', $name) !== 1 || str_contains($name, '..')) {
+            return null;
+        }
+        $path = self::backupDir() . '/' . $name;
+
+        return is_file($path) ? $path : null;
+    }
+
     public static function checksumPath(string $zipPath): string
     {
         return $zipPath . '.sha256';

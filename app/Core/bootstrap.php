@@ -209,6 +209,10 @@ if (PHP_SAPI !== 'cli') {
     $bootstrapPath = (string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/');
     $bootstrapMethod = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 
+    if (APP_INSTALLED) {
+        \App\Core\Auth::enforceTwoFactorSetup($bootstrapPath);
+    }
+
     // Настройка шлюза обслуживается до общего Router, чтобы механизм оставался
     // автономным и не раскрывал отдельный маршрут неавторизованному сканеру.
     if ($bootstrapPath === '/admin/security/admin-entry' && $bootstrapMethod === 'POST') {
