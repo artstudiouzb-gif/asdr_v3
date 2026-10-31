@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Models\ContentType;
 use App\Models\Language;
 
 /**
@@ -31,6 +32,8 @@ use App\Models\Language;
  * сохранение, пересборка идёт после ответа), ночью и командой
  * `php app/Console/search_index.php`. Пустой или недоступный индекс поиск
  * не ломает: `Search` откатывается на прямой запрос к таблицам.
+ *
+ * @phpstan-type IndexRow array{entity:string,entity_id:int,lang:string,type:string,title:string,slug:string,url:string,excerpt:string,body:string,sort_date:?string,visible_from:?string}
  */
 final class SearchIndex
 {
@@ -105,7 +108,7 @@ final class SearchIndex
      * Все строки индекса. Публичен ради теста: что попадает в поиск, видно
      * без записи в базу.
      *
-     * @return list<array{entity:string,entity_id:int,lang:string,type:string,title:string,slug:string,url:string,excerpt:string,body:string,sort_date:?string,visible_from:?string}>
+     * @return list<IndexRow>
      */
     public static function collect(): array
     {
@@ -131,7 +134,10 @@ final class SearchIndex
         return $out;
     }
 
-    /** @param list<string> $langs @return list<array<string, mixed>> */
+    /**
+     * @param list<string> $langs
+     * @return list<IndexRow>
+     */
     private static function pages(array $langs): array
     {
         $pdo = Database::pdo();
@@ -201,7 +207,7 @@ final class SearchIndex
      * сам документ, а не страницу, на которой он стоит.
      *
      * @param array<string, mixed> $data
-     * @return list<array<string, mixed>>
+     * @return list<IndexRow>
      */
     private static function documents(array $data, int $pageId, string $lang): array
     {
@@ -238,7 +244,10 @@ final class SearchIndex
         return $out;
     }
 
-    /** @param list<string> $langs @return list<array<string, mixed>> */
+    /**
+     * @param list<string> $langs
+     * @return list<IndexRow>
+     */
     private static function news(array $langs): array
     {
         $pdo = Database::pdo();
@@ -282,7 +291,10 @@ final class SearchIndex
         return $out;
     }
 
-    /** @param list<string> $langs @return list<array<string, mixed>> */
+    /**
+     * @param list<string> $langs
+     * @return list<IndexRow>
+     */
     private static function team(array $langs): array
     {
         $pdo = Database::pdo();
@@ -320,7 +332,10 @@ final class SearchIndex
         return $out;
     }
 
-    /** @param list<string> $langs @return list<array<string, mixed>> */
+    /**
+     * @param list<string> $langs
+     * @return list<IndexRow>
+     */
     private static function entries(array $langs): array
     {
         $pdo = Database::pdo();
@@ -352,7 +367,10 @@ final class SearchIndex
         return $out;
     }
 
-    /** @param list<string> $langs @return list<array<string, mixed>> */
+    /**
+     * @param list<string> $langs
+     * @return list<IndexRow>
+     */
     private static function albums(array $langs): array
     {
         $pdo = Database::pdo();
@@ -421,7 +439,7 @@ final class SearchIndex
 
     /**
      * @param list<string> $parts
-     * @return array{entity:string,entity_id:int,lang:string,type:string,title:string,slug:string,url:string,excerpt:string,body:string,sort_date:?string,visible_from:?string}
+     * @return IndexRow
      */
     private static function row(
         string $entity,
