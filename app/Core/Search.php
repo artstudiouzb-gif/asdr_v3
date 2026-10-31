@@ -114,6 +114,83 @@ final class Search
     /** @return array<int,array{type:string,title:string,url:string,excerpt:string}> */
     public static function site(string $term, int $limit = 40): array
     {
+        return array_map(static function (array $row): array {
+            unset($row['entity']);
+            return $row;
+        }, array_slice(self::all($term), 0, $limit));
+    }
+
+    /** Сколько результатов поиск может показать на одну фразу. */
+    public const MAX_RESULTS = 300;
+
+    /**
+     * Все результаты по фразе, лучшие первыми, с видом материала (`entity`)
+     * для фильтра. По индексу (`SearchIndex`), а пока он пуст — прямым
+     * запросом к таблицам, как раньше.
+     *
+     * @return list<array{type:string,title:string,url:string,excerpt:string,entity:string}>
+     */
+    public static function all(string $term): array
+    {
+        $groups = SearchQuery::groups($term);
+        if (mb_strlen(trim($term)) < 2 || $groups === []) {
+            return [];
+        }
+        if (!SearchIndex::ready()) {
+            return self::legacy($term, self::MAX_RESULTS);
+        }
+
+        $lang = Locale::current();
+        [$condition, $params] = self::condition("CONCAT_WS(' ', title, slug, body)", $groups);
+        $results = [];
+        try {
+            $stmt = Database::pdo()->prepare(
+                "SELECT entity, type_label, title, slug, url, excerpt, body, sort_date
+                 FROM search_index
+                 WHERE lang = ? AND (visible_from IS NULL OR visible_from <= NOW()) AND {$condition}
+                 ORDER BY sort_date DESC LIMIT ?"
+            );
+            self::bindSeq($stmt, [$lang, ...$params, self::MAX_RESULTS]);
+            $stmt->execute();
+            foreach ($stmt->fetchAll() as $row) {
+                $body = (string) $row['body'];
+                $excerpt = (string) $row['excerpt'];
+                $results[] = [
+                    'type' => (string) $row['type_label'],
+                    'title' => (string) $row['title'],
+                    'url' => (string) $row['url'],
+                    'excerpt' => SearchQuery::snippet($term, $body, $excerpt),
+                    'entity' => (string) $row['entity'],
+                    // Условие запроса уже гарантирует, что каждое слово есть в
+                    // тексте: оценка проверяет только заголовок и адрес, а не
+                    // нормализует полный текст материала заново (замерено:
+                    // 67 мс на 300 результатов — дороже самого запроса).
+                    '_score' => SearchQuery::score($term, (string) $row['title'], '', (string) $row['slug']) + 6 * count($groups),
+                    '_date' => (string) ($row['sort_date'] ?? ''),
+                ];
+            }
+        } catch (\Throwable $e) {
+            Logger::error('Site search (index) failed: ' . $e->getMessage());
+
+            return self::legacy($term, self::MAX_RESULTS);
+        }
+
+        usort($results, static fn (array $a, array $b): int => ($b['_score'] <=> $a['_score']) ?: strcmp((string) $b['_date'], (string) $a['_date']));
+
+        return array_map(static function (array $row): array {
+            unset($row['_score'], $row['_date']);
+            return $row;
+        }, array_slice($results, 0, self::MAX_RESULTS));
+    }
+
+    /**
+     * Прежний поиск прямо по таблицам контента: запасной путь, пока индекс
+     * не собран (свежая установка, неприменённая миграция).
+     *
+     * @return list<array{type:string,title:string,url:string,excerpt:string,entity:string}>
+     */
+    private static function legacy(string $term, int $limit): array
+    {
         $groups = SearchQuery::groups($term);
         if (mb_strlen(trim($term)) < 2 || $groups === []) {
             return [];
@@ -274,6 +351,7 @@ final class Search
         $body = (string) ($row['body'] ?? $row['excerpt'] ?? '');
         $results[] = [
             'type' => $type,
+            'entity' => '',
             'title' => $title,
             'url' => $url,
             'excerpt' => mb_substr(trim(strip_tags((string) ($row['excerpt'] ?? $body))), 0, 160),

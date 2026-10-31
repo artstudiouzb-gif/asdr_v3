@@ -76,6 +76,46 @@ final class SearchQuery
         return $score;
     }
 
+    /**
+     * Строка выдачи: кусок текста вокруг первого совпадения. Анонс
+     * показывается, только если совпадение в нём или в тексте его нет —
+     * иначе посетитель не видит, почему документ найден.
+     */
+    public static function snippet(string $query, string $body, string $excerpt = '', int $length = 160): string
+    {
+        $excerpt = trim($excerpt);
+        $pos = null;
+        foreach (self::groups($query) as $group) {
+            foreach ($group as $variant) {
+                if ($excerpt !== '' && mb_stripos(self::apostrophes($excerpt), $variant) !== false) {
+                    return mb_substr($excerpt, 0, $length);
+                }
+                $found = mb_stripos($body, $variant);
+                if ($found !== false && ($pos === null || $found < $pos)) {
+                    $pos = $found;
+                }
+            }
+        }
+        if ($pos === null) {
+            return mb_substr($excerpt !== '' ? $excerpt : $body, 0, $length);
+        }
+        $start = max(0, $pos - intdiv($length, 3));
+        if ($start > 0) {
+            // С начала слова, а не с середины.
+            $space = mb_strpos($body, ' ', $start);
+            $start = $space !== false && $space < $pos ? $space + 1 : $start;
+        }
+        $piece = mb_substr($body, $start, $length);
+
+        return ($start > 0 ? '… ' : '') . $piece . ($start + $length < mb_strlen($body) ? ' …' : '');
+    }
+
+    /** Апострофы узбекского письма к одному знаку — как в запросе. */
+    public static function apostrophes(string $text): string
+    {
+        return str_replace(['’', '‘', '`', 'ʻ', 'ʼ', 'ʹ', '´'], "'", $text);
+    }
+
     private static function latinToCyrillic(string $value): string
     {
         // Один источник правил для видимого текста и поиска. normalize()
