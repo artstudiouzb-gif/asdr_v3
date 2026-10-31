@@ -63,6 +63,7 @@ final class FormController
         $data = [];
         $errors = [];
 
+        $fileFields = [];
         foreach ($form['fields'] as $field) {
             $name = $field['name'];
 
@@ -88,6 +89,7 @@ final class FormController
                             ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png']
                         );
                         $data[$name] = \App\Models\FileEntry::protectedUrl($stored);
+                        $fileFields[] = $name;
                     } catch (\Throwable $e) {
                         $errors[$name] = $e->getMessage();
                     }
@@ -143,12 +145,25 @@ final class FormController
             $_SERVER['HTTP_USER_AGENT'] ?? null
         );
 
+        // Ссылка на вложение несёт постоянный токен доступа к файлу с
+        // персональными данными. Наружу (письмо, Telegram, вебхуки третьим
+        // лицам) уходит ссылка на заявку в панели — файл открывает только
+        // вошедший администратор.
+        $outbound = $data;
+        if ($fileFields !== []) {
+            $submissionUrl = rtrim((string) \App\Core\Config::get('app.url', ''), '/')
+                . '/admin/forms/submissions/' . $submissionId;
+            foreach ($fileFields as $fileField) {
+                $outbound[$fileField] = 'Файл приложен — открыть в панели: ' . $submissionUrl;
+            }
+        }
+
         if (!empty($form['notify_email'])) {
-            $this->notify(['name' => $baseName] + $form, $data);
+            $this->notify(['name' => $baseName] + $form, $outbound);
         }
 
         // Мгновенное уведомление в Telegram (если настроен бот и получатели).
-        \App\Core\FormNotifier::notifySubmission($baseName, $data);
+        \App\Core\FormNotifier::notifySubmission($baseName, $outbound);
 
         // Внутреннее уведомление не содержит поля заявки и персональные данные:
         // они доступны только после авторизации и проверки роли в админке.
@@ -167,7 +182,7 @@ final class FormController
         \App\Core\WebhookDispatcher::dispatch('form.submitted', [
             'form' => (string) $form['slug'],
             'form_name' => $baseName,
-            'fields' => $data,
+            'fields' => $outbound,
         ]);
 
         $this->success($successMessage);

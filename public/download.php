@@ -78,13 +78,18 @@ $update->execute([':id' => $fileId]);
 $mimeType = $file['mime_type'] !== '' ? $file['mime_type'] : 'application/octet-stream';
 
 header('Content-Type: ' . $mimeType);
+// Имя файла присылает загрузивший (в том числе аноним через форму): кавычка
+// в нём ломала бы заголовок. ASCII-запасное — без кавычек и обратной черты,
+// настоящее имя — в filename* (RFC 6266), так кириллица не теряется.
+$downloadName = basename((string) $file['original_name']);
+$dispositionName = 'filename="' . str_replace(['"', '\\'], '_', $downloadName) . '"; filename*=UTF-8\'\'' . rawurlencode($downloadName);
 // SVG исполняется браузером как документ — отдаём его как вложение и с жёстким
 // CSP, запрещающим любой активный контент (defense-in-depth к санитизации).
 if ($mimeType === 'image/svg+xml') {
-    header('Content-Disposition: attachment; filename="' . basename($file['original_name']) . '"');
+    header('Content-Disposition: attachment; ' . $dispositionName);
     header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; sandbox");
 } else {
-    header('Content-Disposition: inline; filename="' . basename($file['original_name']) . '"');
+    header('Content-Disposition: inline; ' . $dispositionName);
 }
 header('Content-Length: ' . (string) filesize($fullPath));
 header('X-Content-Type-Options: nosniff');
