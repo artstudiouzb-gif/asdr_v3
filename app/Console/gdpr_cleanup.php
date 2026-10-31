@@ -11,7 +11,8 @@ declare(strict_types=1);
  *
  * Удаляет form_submissions старше настройки «Срок хранения ПДн» (дней).
  * pii_retention_days = 0 → очистка отключена (хранить бессрочно).
- * Дополнительно чистит журнал действий администраторов старше 180 дней.
+ * Дополнительно чистит журнал действий администраторов старше 180 дней и
+ * журналы/очереди по срокам App\Core\Retention.
  */
 
 require __DIR__ . '/../Core/Cli.php';
@@ -47,6 +48,13 @@ try {
     $rlRemoved = \App\Core\RateLimiter::purgeExpired(24);
     if ($rlRemoved > 0) {
         Logger::info('Очистка rate-limiter: удалены устаревшие попытки входа', ['removed' => $rlRemoved]);
+    }
+
+    // Журналы и очереди без предела роста: поиск, просмотры, отправленные
+    // письма и вебхуки, файловый кэш поиска (App\Core\Retention::RULES).
+    $retention = array_filter(\App\Core\Retention::run());
+    if ($retention !== []) {
+        Logger::info('Очистка журналов по срокам хранения', $retention);
     }
 
     $days = (int) Setting::get('pii_retention_days', '0');

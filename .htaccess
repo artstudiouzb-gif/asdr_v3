@@ -11,6 +11,13 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Адрес с отпечатком (?v=…) метится переменной: кэш «навсегда» ниже
+    # получают только такие ответы. Через переменную, а не <If>: <If> в
+    # .htaccess поддерживает не каждый сервер (LiteSpeed хостинга), а
+    # непонятная директива роняет весь сайт в 500.
+    RewriteCond %{QUERY_STRING} (^|&)v= [NC]
+    RewriteRule \.(css|js|woff2?|ttf|eot|svg|jpe?g|png|gif|webp|ico)$ - [E=ASSET_VERSIONED:1]
+
     # Служебные каталоги недоступны напрямую (403 до проксирования в public/).
     RewriteRule ^(app|config|database|storage|templates|tests|docs)(/|$) - [F]
 
@@ -54,8 +61,12 @@ Options -Indexes -MultiViews
     Header set X-Frame-Options "SAMEORIGIN"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
 
+    # «Навсегда» — только адресам с отпечатком; остальное (загрузки в
+    # контенте, перезаписанные по тому же адресу) — сутки с перепроверкой.
     <FilesMatch "\.(css|js|woff2?|ttf|eot|svg|jpe?g|png|gif|webp|ico)$">
-        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header set Cache-Control "public, max-age=86400, must-revalidate"
+        Header set Cache-Control "public, max-age=31536000, immutable" env=ASSET_VERSIONED
+        Header set Cache-Control "public, max-age=31536000, immutable" env=REDIRECT_ASSET_VERSIONED
     </FilesMatch>
 
     # SVG — документ, а не картинка: открытый напрямую, он исполняет свои

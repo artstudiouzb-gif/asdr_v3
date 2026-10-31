@@ -88,10 +88,10 @@ $size = static function (mixed $bytes): string {
                 <input type="number" id="perf_cache_ttl" name="perf_cache_ttl" min="0" max="31536000" value="<?= $val('perf_cache_ttl', '0') ?>">
                 <span class="form-hint">Например, 3600 — пересобирать страницы не чаще раза в час.</span>
             </div>
-            <div class="form-field">
-                <label for="perf_public_cache_ttl">Кеш браузера для публичных страниц, секунд</label>
-                <input type="number" id="perf_public_cache_ttl" name="perf_public_cache_ttl" min="0" max="3600" value="<?= $val('perf_public_cache_ttl', '60') ?>">
-                <span class="form-hint">Рекомендуется 60. Применяется только к ответам без пользовательской сессии.</span>
+            <div class="form-field form-field--checkbox">
+                <input type="checkbox" id="perf_public_cache_ttl" name="perf_public_cache_ttl" value="1" <?= (int) $val('perf_public_cache_ttl', '60') > 0 ? 'checked' : '' ?>>
+                <label for="perf_public_cache_ttl">Хранить публичные страницы в кеше браузера</label>
+                <span class="form-hint">Браузер держит копию, но проверяет её при каждом переходе: неизменившаяся страница приходит пустым ответом 304, а после правки или «Сброса кэша» посетитель сразу видит новую.</span>
             </div>
             <div class="form-field">
                 <label for="perf_shared_cache_ttl">Кеш CDN/reverse proxy, секунд</label>

@@ -36,8 +36,7 @@ if ($variant === 'image') {
             <p class="subscribe-block__text"><?= htmlspecialchars((string) $data['text'], ENT_QUOTES) ?></p>
         <?php endif; ?>
         <form class="subscribe-block__form" method="post" action="<?= htmlspecialchars(Locale::url('subscribe'), ENT_QUOTES) ?>">
-            <?= Csrf::field() ?>
-            <?= Csrf::honeypotField() ?>
+            <?= Csrf::honeypotField(true) ?>
             <input type="hidden" name="source" value="block">
             <label class="visually-hidden" for="subscribe-email-<?= (int) $blockId ?>">Email</label>
             <input type="email" id="subscribe-email-<?= (int) $blockId ?>" name="email" placeholder="<?= htmlspecialchars($placeholder, ENT_QUOTES) ?>" autocomplete="email" required>

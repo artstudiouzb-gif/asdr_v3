@@ -79,7 +79,10 @@ test('Подписка: все публичные формы использую�
     ];
     foreach ($files as $path => $source) {
         $template = (string) file_get_contents(APP_ROOT . '/' . $path);
-        assert_contains('honeypotField()', $template, $path);
+        // Метка, стабильная для кэша, и без сессионного токена: форма стоит
+        // почти на каждой странице, и токен поднимал сессию каждому читателю.
+        assert_contains('honeypotField(true)', $template, $path);
+        assert_not_contains('Csrf::field()', $template, $path);
         assert_contains('name="source" value="' . $source . '"', $template, $path);
     }
 

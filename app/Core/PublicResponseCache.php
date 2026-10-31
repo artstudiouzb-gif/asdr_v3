@@ -104,7 +104,7 @@ final class PublicResponseCache
             )) {
                 $rootTtl = max(0, min(3600, (int) Setting::get('perf_public_cache_ttl', '60')));
                 if ($rootTtl > 0) {
-                    header(sprintf('Cache-Control: private, max-age=%d', $rootTtl));
+                    header('Cache-Control: ' . self::cacheControl(false, 0));
                     // Ответ корня и правда зависит от cookie (языка), а в
                     // общий кеш он не идёт — дробить там нечего.
                     self::sendVary(true);
@@ -147,15 +147,10 @@ final class PublicResponseCache
         // мимо кеша), а следующий переход снова приносил латиницу. Узбекский
         // ответ хранит только браузер, а он Vary по cookie соблюдает.
         $scriptDependent = Locale::current() === 'uz';
-        if (!self::sharedCacheable($personalized, Locale::current())) {
-            header(sprintf('Cache-Control: private, max-age=%d', $browserTtl));
-        } else {
-            header(sprintf(
-                'Cache-Control: public, max-age=%d, s-maxage=%d, stale-while-revalidate=30',
-                $browserTtl,
-                $sharedTtl
-            ));
-        }
+        header('Cache-Control: ' . self::cacheControl(
+            self::sharedCacheable($personalized, Locale::current()),
+            $sharedTtl
+        ));
         // Раньше здесь всегда стоял «Vary: Accept-Encoding, Cookie», потому что
         // Router::resolveLocale() редиректил по сохранённому языку на любом
         // адресе: закешированная копия увела бы посетителя мимо редиректа.
@@ -171,6 +166,25 @@ final class PublicResponseCache
         self::$cacheable = true;
         self::$snapshotable = !$personalized
             && ((string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_QUERY) ?? '')) === '';
+    }
+
+    /**
+     * Cache-Control публичной страницы. Браузер хранит копию, но
+     * перепроверяет её на каждом переходе (`max-age=0` / `no-cache` плюс
+     * ETag): неизменившаяся страница приходит пустым 304, а после правки или
+     * «Сброса кэша» — сразу новая. Прежде здесь стоял `max-age` из настроек
+     * (до часа), и в течение срока браузер сервер не спрашивал вовсе — сброс
+     * кэша до посетителя не доходил, стереть чужую копию сервер не может.
+     * Общий кеш (CDN) держит свою копию `s-maxage` секунд — его чистит
+     * интеграция Cloudflare.
+     */
+    public static function cacheControl(bool $sharedCacheable, int $sharedTtl): string
+    {
+        if (!$sharedCacheable || $sharedTtl <= 0) {
+            return 'private, no-cache';
+        }
+
+        return sprintf('public, max-age=0, must-revalidate, s-maxage=%d, stale-while-revalidate=30', $sharedTtl);
     }
 
     /**

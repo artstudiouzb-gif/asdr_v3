@@ -164,6 +164,7 @@ CREATE TABLE IF NOT EXISTS news (
     KEY idx_news_listing (status, deleted_at, published_at),
     KEY idx_news_category_listing (category_id, status, deleted_at, published_at),
     KEY idx_news_lang_group (translation_group_id, lang),
+    KEY idx_news_lang_listing (lang, status, deleted_at, published_at, translation_group_id),
     CONSTRAINT fk_news_author FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT fk_news_category FOREIGN KEY (category_id) REFERENCES news_categories(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -303,6 +304,7 @@ CREATE TABLE IF NOT EXISTS pages (
     KEY idx_pages_lang_group (translation_group_id, lang),
     KEY idx_pages_parent (parent_id),
     KEY idx_pages_projects (entity_type, status, deleted_at, is_featured, sort_order),
+    KEY idx_pages_projects_lang (entity_type, lang, status, deleted_at, is_featured, sort_order),
     KEY idx_pages_section (section, lang, status),
     CONSTRAINT fk_pages_parent FOREIGN KEY (parent_id) REFERENCES pages(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -511,6 +513,8 @@ CREATE TABLE IF NOT EXISTS files (
     uploaded_by     INT UNSIGNED NULL,
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     KEY idx_files_access_type (access_type),
+    KEY idx_files_stored_name (stored_name),
+    KEY idx_files_access_created (access_type, created_at),
     CONSTRAINT fk_files_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1330,7 +1334,8 @@ INSERT INTO migrations (filename) VALUES
     ('2026_10_14_pages_hide_title.sql'),
     ('2026_10_14_pages_hide_crumbs.sql'),
     ('2026_10_21_languages_is_public.sql'),
-    ('2026_10_29_form_translations.sql')
+    ('2026_10_29_form_translations.sql'),
+    ('2026_10_31_review_indexes.sql')
 ON DUPLICATE KEY UPDATE filename = filename;
 
 CREATE TABLE IF NOT EXISTS search_log (

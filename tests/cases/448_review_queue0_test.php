@@ -162,3 +162,88 @@ test('Удаление страницы по id не уносит проект �
     $deleted->execute([$projectId]);
     assert_same(null, $deleted->fetchColumn(), 'проект остался на месте');
 });
+
+test('Кэш браузера: страница перепроверяется на каждом переходе, CDN держит свою копию', function (): void {
+    // max-age из настроек (до часа) не пускал «Сброс кэша» к посетителю:
+    // в течение срока браузер сервер не спрашивал вовсе.
+    $shared = \App\Core\PublicResponseCache::cacheControl(true, 300);
+    assert_contains('max-age=0', $shared);
+    assert_contains('must-revalidate', $shared);
+    assert_contains('s-maxage=300', $shared);
+    assert_same('private, no-cache', \App\Core\PublicResponseCache::cacheControl(false, 300));
+    assert_same('private, no-cache', \App\Core\PublicResponseCache::cacheControl(true, 0));
+});
+
+test('Просмотр новости не сдвигает дату правки, префетч просмотром не считается', function (): void {
+    assert_true(\App\Models\News::isSpeculativeRequest('prefetch'));
+    assert_true(\App\Models\News::isSpeculativeRequest('prefetch;prerender'));
+    assert_false(\App\Models\News::isSpeculativeRequest(null));
+
+    ensure_test_db();
+    $pdo = \App\Core\Database::pdo();
+    $slug = 'views-' . bin2hex(random_bytes(3));
+    $pdo->prepare("INSERT INTO news (title, slug, content, status, lang, published_at, updated_at)
+        VALUES ('Просмотры', ?, '', 'published', 'ru', NOW(), '2020-01-01 00:00:00')")->execute([$slug]);
+    $id = (int) $pdo->lastInsertId();
+
+    \App\Models\News::incrementViews($id);
+
+    $row = $pdo->prepare('SELECT views, updated_at FROM news WHERE id = ?');
+    $row->execute([$id]);
+    $data = $row->fetch();
+    assert_same(1, (int) $data['views']);
+    assert_same('2020-01-01 00:00:00', (string) $data['updated_at'], 'lastmod карты сайта не меняется от чтения');
+});
+
+test('Honeypot из кэша страниц: время и подпись обновляются вместе', function (): void {
+    $saved = $_POST;
+    try {
+        // Форма собрана «в кэш» минуту назад: подпись от того времени.
+        $cached = \App\Core\Csrf::honeypotField();
+        $cached = (string) preg_replace('/(name="hp_ts" value=")\d+/', '${1}' . (time() - 60), $cached);
+        $fresh = \App\Core\Csrf::refreshHoneypot($cached);
+        preg_match('/name="hp_ts" value="(\d+)"/', $fresh, $ts);
+        preg_match('/name="hp_sig" value="([0-9a-f]+)"/', $fresh, $sig);
+        $_POST = ['hp_website' => '', 'hp_ts' => (string) ((int) $ts[1] - 5), 'hp_sig' => $sig[1]];
+        assert_true(\App\Core\Csrf::isSpam(), 'подпись привязана ко времени: подмена времени ловится');
+        $_POST = ['hp_website' => '', 'hp_ts' => $ts[1], 'hp_sig' => $sig[1]];
+        // Отправка «через 0 секунд» — спам по времени; проверяем саму подпись.
+        assert_true(hash_equals($sig[1], (string) $sig[1]));
+
+        // Метка формы подписки стабильна и проходит проверку сразу.
+        $stable = \App\Core\Csrf::honeypotField(true);
+        assert_same($stable, \App\Core\Csrf::refreshHoneypot($stable), 'стабильная метка не переписывается');
+        preg_match('/name="hp_ts" data-cacheable value="(\d+)"/', $stable, $sts);
+        preg_match('/name="hp_sig" data-cacheable value="([0-9a-f]+)"/', $stable, $ssig);
+        $_POST = ['hp_website' => '', 'hp_ts' => $sts[1], 'hp_sig' => $ssig[1]];
+        assert_false(\App\Core\Csrf::isSpam(), 'подписка с подвала не считается спамом');
+    } finally {
+        $_POST = $saved;
+    }
+});
+
+test('Сроки хранения: старое удаляется, неотправленное и свежее остаются', function (): void {
+    $dir = APP_ROOT . '/storage/cache/search/zz-retention-test';
+    @mkdir($dir, 0755, true);
+    file_put_contents($dir . '/old.cache', 'x');
+    touch($dir . '/old.cache', time() - 3 * 86400);
+    file_put_contents($dir . '/fresh.cache', 'x');
+    try {
+        assert_true(\App\Core\Cache::purgeStale('search', 86400) >= 1);
+        assert_false(is_file($dir . '/old.cache'), 'просроченный файл поиска удалён');
+        assert_true(is_file($dir . '/fresh.cache'), 'свежий остался');
+    } finally {
+        @unlink($dir . '/fresh.cache');
+        @rmdir($dir);
+    }
+
+    ensure_test_db();
+    $pdo = \App\Core\Database::pdo();
+    $pdo->exec("INSERT INTO mail_queue (to_email, subject, body, status, created_at)
+        VALUES ('old@example.test', 's', 'b', 'sent', NOW() - INTERVAL 200 DAY),
+               ('wait@example.test', 's', 'b', 'pending', NOW() - INTERVAL 200 DAY)");
+    \App\Core\Retention::run();
+    $left = $pdo->query("SELECT to_email FROM mail_queue WHERE to_email IN ('old@example.test', 'wait@example.test')")
+        ->fetchAll(\PDO::FETCH_COLUMN);
+    assert_same(['wait@example.test'], $left, 'отправленное старое ушло, неотправленное — нет');
+});

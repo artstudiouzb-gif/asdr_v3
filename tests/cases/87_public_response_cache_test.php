@@ -144,7 +144,7 @@ test('Главная хранится в кеше браузера, но не в
     );
 
     $source = (string) file_get_contents(APP_ROOT . '/app/Core/PublicResponseCache.php');
-    assert_contains("Cache-Control: private, max-age=%d", $source);
+    assert_same('private, no-cache', \App\Core\PublicResponseCache::cacheControl(false, 300), 'корень — только браузеру, с перепроверкой');
     assert_contains('self::sendVary(true)', $source, 'ответ корня зависит от cookie языка');
 });
 

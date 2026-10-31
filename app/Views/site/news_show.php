@@ -628,8 +628,7 @@ $hasSidebar = $sidebar !== null && trim((string) ($sidebar['html'] ?? '')) !== '
                     <h3 class="newsdetail-subscribe__title"><?= htmlspecialchars(t('Подпишитесь на новости Агентства'), ENT_QUOTES) ?></h3>
                     <p class="newsdetail-subscribe__text"><?= htmlspecialchars(t('Получайте главные новости и аналитику на почту.'), ENT_QUOTES) ?></p>
                     <form class="newsdetail-subscribe__form" method="post" action="<?= htmlspecialchars(Locale::url('subscribe', $lang), ENT_QUOTES) ?>">
-                        <?= \App\Core\Csrf::field() ?>
-                        <?= \App\Core\Csrf::honeypotField() ?>
+                        <?= \App\Core\Csrf::honeypotField(true) ?>
                         <input type="hidden" name="source" value="news">
                         <div class="newsdetail-subscribe__row">
                             <label class="visually-hidden" for="nd-sub-email"><?= htmlspecialchars(t('Ваш e-mail'), ENT_QUOTES) ?></label>

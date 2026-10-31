@@ -57,16 +57,46 @@ final class Csrf
      * Honeypot-поля для публичных форм: невидимое текстовое поле, которое
      * заполняют боты, и подписанная HMAC метка времени рендера формы.
      */
-    public static function honeypotField(): string
+    public static function honeypotField(bool $cacheable = false): string
     {
-        $ts = (string) time();
+        // Форма подписки стоит в подвале и сайдбаре новости, то есть почти
+        // на каждой странице. Метка с точностью до секунды меняла тело
+        // ответа на каждом запросе — ETag не совпадал, и 304 не случался
+        // никогда. Ей метка — начало прошлого десятиминутного окна: тело
+        // стабильно, а проверка подписи остаётся (порог «слишком быстро»
+        // такой форме не нужен — её держит ограничение частоты).
+        $ts = (string) ($cacheable ? intdiv(time(), 600) * 600 - 600 : time());
         $sig = self::honeypotSignature($ts);
 
         return '<div class="csrf-honeypot" aria-hidden="true">'
             . '<label>Не заполняйте это поле<input type="text" name="hp_website" tabindex="-1" autocomplete="off" value=""></label>'
             . '</div>'
-            . '<input type="hidden" name="hp_ts" value="' . htmlspecialchars($ts, ENT_QUOTES) . '">'
-            . '<input type="hidden" name="hp_sig" value="' . htmlspecialchars($sig, ENT_QUOTES) . '">';
+            // data-cacheable стоит между name и value намеренно: PageBlocks
+            // подставляет свежее время только в разметку name="hp_ts" value=.
+            . '<input type="hidden" name="hp_ts"' . ($cacheable ? ' data-cacheable' : '') . ' value="' . htmlspecialchars($ts, ENT_QUOTES) . '">'
+            . '<input type="hidden" name="hp_sig"' . ($cacheable ? ' data-cacheable' : '') . ' value="' . htmlspecialchars($sig, ENT_QUOTES) . '">';
+    }
+
+    /**
+     * Свежая метка honeypot в HTML из общего кэша страниц. Подставлять надо
+     * и время, и его подпись: прежде PageBlocks менял только hp_ts, подпись
+     * оставалась от времени сборки кэша, isSpam() видел несовпадение и молча
+     * отвечал «успех» — заявки форм на кэшированных страницах терялись.
+     * Поля с data-cacheable не трогаются: их метка стабильна намеренно.
+     */
+    public static function refreshHoneypot(string $html): string
+    {
+        if (!str_contains($html, 'name="hp_ts" value="')) {
+            return $html;
+        }
+        $ts = (string) time();
+        $html = (string) preg_replace('/(name="hp_ts" value=")[^"]*(")/', '${1}' . $ts . '${2}', $html);
+
+        return (string) preg_replace(
+            '/(name="hp_sig" value=")[^"]*(")/',
+            '${1}' . self::honeypotSignature($ts) . '${2}',
+            $html
+        );
     }
 
     private static function honeypotSignature(string $timestamp): string
