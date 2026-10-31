@@ -36,7 +36,7 @@ test('Корни языков не кешируются: на них ещё ра
 });
 
 test('Чувствительные публичные и служебные маршруты исключены из кеша', function () {
-    foreach (['/admin', '/repo/login', '/search', '/uz/search', '/captcha.png', '/push/key', '/unsubscribe', '/health'] as $path) {
+    foreach (['/admin', '/search', '/uz/search', '/captcha.png', '/push/key', '/unsubscribe', '/health'] as $path) {
         assert_false(PublicResponseCache::isCacheableRequest($path, 'GET', false, 200), $path);
     }
 });

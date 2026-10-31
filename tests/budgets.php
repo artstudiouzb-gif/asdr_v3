@@ -785,7 +785,7 @@ function template_tell_sources(): array
     }
     $out = [];
     $files = [];
-    foreach (['app/Views/site', 'app/Views/repo', 'templates'] as $dir) {
+    foreach (['app/Views/site', 'templates'] as $dir) {
         /** @var SplFileInfo $file */
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(APP_ROOT . '/' . $dir)) as $file) {
             if (str_ends_with($file->getPathname(), '.php')) {
@@ -986,10 +986,11 @@ function quality_budgets(): array
             'guard' => 'tests/cases/293_phpstan_baseline_budget_test.php',
             'why' => 'новый код проверяется целиком, старый долг посчитан и виден; '
                 . 'дописать находку в эталон вместо починки нельзя',
-            // 724 -> 578 -> 577 -> 570 -> 565 -> 480 -> 427 -> 360 -> 359: каждая закрытая находка
+            // 724 -> 578 -> 577 -> 570 -> 565 -> 480 -> 427 -> 360 -> 359 -> 337: каждая закрытая находка
             // оказывалась настоящим отказом под strict_types (см. коммиты). В
             // эталоне остались только «нет типа значений массива».
-            'ceiling' => static fn (): int => 359,
+            // 337: вместе с порталом /repo ушли и его записи эталона.
+            'ceiling' => static fn (): int => 337,
             'measure' => static function (): array {
                 $baseline = APP_ROOT . '/phpstan-baseline.neon';
                 if (!is_file($baseline)) {
@@ -1138,7 +1139,7 @@ function quality_budgets(): array
                 . 'исключение, которое ловит роутер',
             // 269 до октября 2026 было ошибкой счёта: одноимённые контроллеры
             // затирали друг друга (quality_relative_path). Факт — 303.
-            'ceiling' => static fn (): int => 303,
+            'ceiling' => static fn (): int => 263,
             'measure' => static function (): array {
                 return quality_regex_in_files(quality_controller_files(), '/\bexit\b/');
             },
@@ -1151,7 +1152,7 @@ function quality_budgets(): array
                 . 'где-то пробелы обрезали, где-то нет, массив вместо строки давал '
                 . '«Array» или TypeError. Правило одно — InputBag (Input::post/query)',
             // 654 — то же недосчитанное число; факт при полном счёте — 735.
-            'ceiling' => static fn (): int => 735,
+            'ceiling' => static fn (): int => 703,
             'measure' => static function (): array {
                 return quality_regex_in_files(quality_controller_files(), '/\$_(POST|GET|REQUEST)\b/');
             },
@@ -1165,7 +1166,7 @@ function quality_budgets(): array
                 . 'Проверяется поведение: render_view() для вьюх и шаблонов, вызов '
                 . 'метода, запись в тестовой базе. Обход всех шаблонов на запрещённый '
                 . 'приём (glob) сюда не считается — это правило, а не подглядывание',
-            'ceiling' => static fn (): int => 638,
+            'ceiling' => static fn (): int => 625,
             'measure' => static function (): array {
                 return quality_regex_in_files(
                     glob(APP_ROOT . '/tests/cases/*.php') ?: [],

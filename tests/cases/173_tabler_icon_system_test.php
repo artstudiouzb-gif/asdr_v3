@@ -42,7 +42,6 @@ test('Локальный каталог Tabler синхронизирован и
 test('UI-шаблоны не содержат собственную геометрию иконок и emoji', function (): void {
     $roots = [
         APP_ROOT . '/app/Views/install',
-        APP_ROOT . '/app/Views/repo',
         APP_ROOT . '/app/Views/site',
         APP_ROOT . '/templates/blocks',
         APP_ROOT . '/templates/widgets',

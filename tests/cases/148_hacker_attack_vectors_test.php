@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Core\Csrf;
 use App\Core\Database;
-use App\Core\RepoFile;
 use App\Core\Router;
 use App\Core\Search;
 use App\Core\SecurityHeaders;
@@ -97,11 +96,13 @@ test('Hacker Attack Vectors Test: эмуляция реальных атак SQL
         "../../config/config.php\0.jpg",
     ];
 
-    // Проверка удаления файлов репозитория с защитой от Path Traversal
-    $basePath = \App\Models\RepoFile::basePath();
+    // Путь, собранный из защищённого каталога загрузок, не выходит за его пределы
+    $basePath = (string) \App\Core\Config::get('paths.protected_uploads');
     foreach ($traversalPaths as $path) {
         $expectedBase = realpath($basePath);
-        if ($expectedBase !== false) {
+        // Нулевой байт realpath() не принимает вовсе — такой путь не дойдёт
+        // до файловой системы ни при каком обходе.
+        if ($expectedBase !== false && !str_contains($path, "\0")) {
             $full = realpath($expectedBase . '/' . $path);
             // Файл не должен выйти за пределы базовой директории
             if ($full !== false) {

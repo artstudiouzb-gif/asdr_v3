@@ -48,7 +48,6 @@ test('CSRF: роутер не пускает POST в панель без ток�
     // Остальная панель требует входа (Router::requiresLogin), поэтому
     // пропуск с токеном проверяется на открытом адресе панели.
     assert_contains('HANDLER', csrf_router_probe('/admin/logout', true), 'с верным токеном действие выполняется');
-    assert_not_contains('HANDLER', csrf_router_probe('/repo/csrf-probe', false), 'портал репозитория тоже под защитой');
 });
 
 test('CSRF: публичные приёмники и похожие адреса роутер не трогает', function (): void {

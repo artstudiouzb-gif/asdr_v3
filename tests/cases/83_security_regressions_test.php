@@ -8,18 +8,6 @@ test('WP CLI использует канонический ключ db', functio
     assert_not_contains("Config::get('database')", $source);
 });
 
-test('Файловый портал останавливает скачивание при rate limit', function () {
-    $source = (string) file_get_contents(APP_ROOT . '/app/Controllers/Repo/PortalController.php');
-    assert_contains("if (!RateLimiter::throttle('repo_download'", $source);
-    assert_contains("http_response_code(429)", $source);
-});
-
-test('RepoFile сверяет реальный MIME с ожидаемым', function () {
-    $source = (string) file_get_contents(APP_ROOT . '/app/Models/RepoFile.php');
-    assert_contains('$expectedMime = self::ALLOWED[$extension]', $source);
-    assert_contains('Содержимое файла не соответствует расширению.', $source);
-});
-
 test('Чанки изолированы по пользователю и проверяются по порядку', function () {
     $source = (string) file_get_contents(APP_ROOT . '/app/Controllers/Admin/ChunkedUploadController.php');
     assert_contains("APP_ROOT . '/storage/cache/chunks'", $source);

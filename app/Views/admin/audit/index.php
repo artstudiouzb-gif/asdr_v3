@@ -40,7 +40,6 @@ $sectionLabels = [
     '/admin/settings' => 'Настройки',
     '/admin/users' => 'Пользователи',
     '/admin/profile' => 'Профиль',
-    '/admin/repository' => 'Хранилище',
     '/admin/backup' => 'Бэкапы',
     '/admin/migration' => 'Переезд',
     '/admin/logout' => 'Выход',

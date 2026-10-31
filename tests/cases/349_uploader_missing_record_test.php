@@ -29,15 +29,12 @@ test('Uploader объясняет несозданную запись, а не �
     assert_not_contains('unlink($destination)', $src, 'удаление файла здесь опаснее, чем неучтённый файл');
 });
 
-test('Портал и админка одинаково переживают сбой БД в проверке сессии', function (): void {
-    $repo = (string) file_get_contents(dirname(__DIR__, 2) . '/app/Core/RepoAuth.php');
+test('Панель переживает сбой БД в проверке сессии', function (): void {
     $admin = (string) file_get_contents(dirname(__DIR__, 2) . '/app/Core/Auth.php');
 
     // Осознанное решение: фингерпринт проверен выше, поэтому транзиентная
     // ошибка БД логируется и пропускается, а не выбрасывает всех на вход.
-    // Два разных поведения в одинаковой ситуации разъехались бы при первой
-    // правке, поэтому проверяются вместе.
-    foreach (['RepoAuth' => $repo, 'Auth' => $admin] as $name => $src) {
+    foreach (['Auth' => $admin] as $name => $src) {
         assert_contains(
             'Транзиентная ошибка БД не должна разлогинивать всех',
             $src,

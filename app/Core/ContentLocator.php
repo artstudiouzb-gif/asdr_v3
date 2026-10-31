@@ -32,7 +32,7 @@ final class ContentLocator
         'subscribers', 'mail_queue', 'social_posts', 'webhooks', 'webhook_deliveries',
         'notifications', 'notification_recipients', 'notification_preferences',
         'notification_deliveries', 'webpush_subscriptions', 'webpush_queue',
-        'repo_users', 'repo_categories', 'repo_files', 'link_checks',
+        'link_checks',
         // Производная копия текстов контента: файл в ней не «используется».
         'search_index',
     ];

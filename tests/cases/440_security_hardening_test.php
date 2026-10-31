@@ -61,7 +61,3 @@ test('Привязка Telegram без пароля не проходит', func
     assert_same(['userId', 'password'], $params);
 });
 
-test('Портал: попытки кода второго фактора ограничены и сессией, и аккаунтом', function (): void {
-    assert_same(5, \App\Core\RepoAuth::MAX_CODE_ATTEMPTS);
-    assert_true(\App\Core\RepoAuth::ACCOUNT_CODE_ATTEMPTS > \App\Core\RepoAuth::MAX_CODE_ATTEMPTS);
-});

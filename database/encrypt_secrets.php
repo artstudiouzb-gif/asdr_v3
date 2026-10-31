@@ -44,7 +44,6 @@ $rotateColumn = static function (string $table, string $column, string $context)
 try {
     $pdo->beginTransaction();
     $rotateColumn('users', 'totp_secret', 'users.totp_secret');
-    $rotateColumn('repo_users', 'totp_secret', 'repo_users.totp_secret');
     $rotateColumn('webhooks', 'secret', 'webhooks.secret');
 
     $rows = $pdo->query('SELECT `key`, `value` FROM settings')->fetchAll();

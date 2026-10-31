@@ -12,7 +12,7 @@ final class PublicResponseCache
 {
     /** @var list<string> */
     private const PRIVATE_PATHS = [
-        '/admin', '/repo', '/install', '/search', '/captcha.png', '/push',
+        '/admin', '/install', '/search', '/captcha.png', '/push',
         '/unsubscribe', '/health', '/opendata', '/download.php', '/_vitals',
     ];
 

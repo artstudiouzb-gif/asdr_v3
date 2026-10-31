@@ -20,7 +20,7 @@ test('После переключения служебный параметр у
 });
 
 test('Языковое cookie не вмешивается в технические маршруты', function (): void {
-    foreach (['/admin', '/repo/login', '/assets/app.css', '/health', '/sitemap.xml', '/robots.txt'] as $path) {
+    foreach (['/admin', '/install', '/assets/app.css', '/health', '/sitemap.xml', '/robots.txt'] as $path) {
         assert_false(LocalePreference::managesPath($path), $path);
     }
     assert_true(LocalePreference::managesPath('/projects'));

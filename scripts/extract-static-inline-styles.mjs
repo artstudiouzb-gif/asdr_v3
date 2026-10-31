@@ -23,11 +23,6 @@ const groups = [
     extractStyleBlocks: true,
   },
   {
-    roots: ['app/Views/repo'],
-    files: [],
-    css: 'public/assets/css/repo.css',
-  },
-  {
     roots: ['app/Views/errors'],
     files: [],
     css: 'public/assets/css/system.css',

@@ -75,7 +75,6 @@ final class Icon
         'projects' => 'briefcase',
         'profile' => 'user-circle',
         'redirects' => 'route-alt-right',
-        'repository' => 'database',
         'reset' => 'refresh',
         'save' => 'device-floppy',
         'send' => 'send',
