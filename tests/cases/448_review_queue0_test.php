@@ -116,3 +116,49 @@ test('Бэкапы: скачать можно только backup_*.zip из к�
         }
     }
 });
+
+test('CSP: nonce получают только помеченные доверенные скрипты', function (): void {
+    $SH = \App\Core\SecurityHeaders::class;
+    // Скрипт, попавший в HTML блока ошибкой экранирования, nonce не получает —
+    // в том числе с подделанной меткой без секретного значения.
+    $leak = '<p><script>alert(1)</script><script data-trusted-script="x">alert(2)</script></p>';
+    assert_not_contains('nonce=', $SH::injectTrustedScriptNonce($leak, 'n1'));
+
+    $trusted = $SH::markTrustedScripts('<script src="/counter.js"></script>');
+    $out = $SH::injectTrustedScriptNonce('<div>' . $trusted . '</div>', 'n1');
+    assert_contains('<script nonce="n1" src="/counter.js">', $out);
+    assert_not_contains('data-trusted-script', $out, 'секрет метки в разметку не уходит');
+});
+
+test('Удаление пользователя отзывает его сессии', function (): void {
+    ensure_test_db();
+
+    $suffix = bin2hex(random_bytes(3));
+    $id = \App\Models\User::create('gone_' . $suffix, 'gone_' . $suffix . '@example.test', 'Secret-pass-1', 'editor');
+    \App\Models\SessionRegistry::register($id, 'sid-' . $suffix, '127.0.0.1', 'test');
+    assert_true(\App\Models\SessionRegistry::exists($id, 'sid-' . $suffix));
+
+    \App\Models\User::delete($id);
+
+    // Auth::check() сверяется с реестром: строки нет — входа нет.
+    assert_false(\App\Models\SessionRegistry::exists($id, 'sid-' . $suffix), 'FK ON DELETE CASCADE снимает сессии');
+});
+
+test('Удаление страницы по id не уносит проект в корзину', function (): void {
+    ensure_test_db();
+
+    $slug = 'not-a-page-' . bin2hex(random_bytes(2));
+    $projectId = \App\Models\Project::create([
+        'title' => 'Проект',
+        'slug' => $slug,
+        'description' => '',
+        'cover_image' => '',
+        'status' => 'published',
+        'lang' => 'ru',
+    ]);
+    \App\Models\Page::delete($projectId);
+
+    $deleted = \App\Core\Database::pdo()->prepare('SELECT deleted_at FROM pages WHERE id = ?');
+    $deleted->execute([$projectId]);
+    assert_same(null, $deleted->fetchColumn(), 'проект остался на месте');
+});

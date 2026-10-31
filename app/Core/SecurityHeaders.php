@@ -304,6 +304,60 @@ final class SecurityHeaders
      * Нужен для закэшированных виджетов и legacy-фрагментов: HTML в кэше
      * общий, а nonce — на запрос. Обычные блоки script не пропускают.
      */
+    /** Метка скрипта, которому разрешён nonce: код супер-админа (виджет «Произвольный HTML»). */
+    public const TRUSTED_SCRIPT_ATTR = 'data-trusted-script';
+
+    /**
+     * Помечает скрипты доверенного фрагмента. Метка ставится там, где
+     * фрагмент создаётся (шаблон виджета супер-админа), а nonce — на каждом
+     * запросе (`injectTrustedScriptNonce`): HTML блоков лежит в кэше, и
+     * одноразовый nonce в нём протух бы. Значение метки выведено из секрета
+     * сервера и при выдаче заменяется nonce, поэтому в разметке его не видно
+     * и подделать метку ошибкой экранирования нельзя.
+     */
+    public static function markTrustedScripts(string $html): string
+    {
+        if (stripos($html, '<script') === false) {
+            return $html;
+        }
+
+        return (string) preg_replace(
+            '/<script\b(?![^>]*\bnonce=)/i',
+            '<script ' . self::TRUSTED_SCRIPT_ATTR . '="' . self::trustToken() . '"',
+            $html
+        );
+    }
+
+    /**
+     * Nonce — только помеченным скриптам. Прежде HTML блоков страницы
+     * получал nonce во все <script> подряд, и любая ошибка экранирования в
+     * шаблоне блока становилась исполнением кода в обход CSP.
+     */
+    public static function injectTrustedScriptNonce(string $html, ?string $nonce = null): string
+    {
+        if (!str_contains($html, self::TRUSTED_SCRIPT_ATTR)) {
+            return $html;
+        }
+        $nonce ??= self::nonce();
+
+        return str_replace(
+            self::TRUSTED_SCRIPT_ATTR . '="' . self::trustToken() . '"',
+            'nonce="' . $nonce . '"',
+            $html
+        );
+    }
+
+    private static function trustToken(): string
+    {
+        $secret = (string) Config::get('crypto.encryption_key', '');
+        if ($secret === '') {
+            // Без ключа шифрования — то, чего нет в публичной разметке.
+            $secret = (string) Config::get('db.password', '') . '|' . __DIR__;
+        }
+
+        return substr(hash_hmac('sha256', 'trusted-script', $secret), 0, 24);
+    }
+
     public static function injectScriptNonce(string $html, ?string $nonce = null): string
     {
         if (stripos($html, '<script') === false) {
