@@ -247,3 +247,22 @@ test('Сроки хранения: старое удаляется, неотпр
         ->fetchAll(\PDO::FETCH_COLUMN);
     assert_same(['wait@example.test'], $left, 'отправленное старое ушло, неотправленное — нет');
 });
+
+test('Форма: группа вариантов подписана legend, обязательные поля помечены заранее', function (): void {
+    $html = render_view('templates/blocks/form.php', [
+        'blockId' => 7,
+        'data' => ['form' => [
+            'name' => '',
+            'slug' => 'appeal',
+            'fields' => [
+                ['name' => 'fio', 'label' => 'ФИО', 'type' => 'text', 'required' => 1],
+                ['name' => 'topic', 'label' => 'Тема', 'type' => 'radio', 'options' => "Да\nНет", 'required' => 1],
+            ],
+        ]],
+    ]);
+
+    assert_contains('<fieldset class="block-form__group"><legend>Тема', $html);
+    assert_not_contains('<label for="field-topic-7">', $html, 'label без поля с таким id не печатается');
+    assert_contains('block-form__required', $html);
+    assert_contains('block-form__note', $html);
+});

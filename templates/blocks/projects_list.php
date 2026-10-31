@@ -62,7 +62,7 @@ $sizes = match ($variant) {
                 ?>
                 <<?= $projectTag ?> class="project-card"<?= $projectUrl !== '' ? ' href="' . htmlspecialchars($projectUrl, ENT_QUOTES) . '"' : '' ?><?= $carousel ? ' data-carousel-item' : '' ?>>
                     <?php if (!empty($p['cover_image'])): ?>
-                        <?= \App\Core\Media::picture((string) $p['cover_image'], (string) ($p['title'] ?? ''), null, null, 'project-card__cover', true, $sizes) ?>
+                        <?= \App\Core\Media::picture((string) $p['cover_image'], '', null, null, 'project-card__cover', true, $sizes) ?>
                     <?php endif; ?>
                     <div class="project-card__body">
                         <div class="project-card__title"><?= htmlspecialchars($p['title'] ?? '', ENT_QUOTES) ?></div>

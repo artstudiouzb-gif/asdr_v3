@@ -187,7 +187,7 @@ if ($variant === 'icon' && $visualStyle === 'new') {
                     <div class="imgcard<?= $imageBelow ? ' imgcard--below' : '' ?>"<?= $carousel ? ' data-carousel-item' : '' ?>>
                     <?php endif; ?>
                         <?php if ($image !== ''): ?>
-                            <?= Media::picture($image, (string) ($item['title'] ?? ''), null, null, 'imgcard__media ' . $mediaClasses, true, '(max-width: 700px) 100vw, ' . (int) round(100 / max(1, $columns)) . 'vw') ?>
+                            <?= Media::picture($image, '', null, null, 'imgcard__media ' . $mediaClasses, true, '(max-width: 700px) 100vw, ' . (int) round(100 / max(1, $columns)) . 'vw') ?>
                         <?php else: ?>
                             <span class="imgcard__media" aria-hidden="true"></span>
                         <?php endif; ?>

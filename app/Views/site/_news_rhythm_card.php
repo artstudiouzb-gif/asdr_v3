@@ -59,7 +59,9 @@ $cardCategory = trim((string) ($card['category'] ?? ''));
 <a class="relnews-card relnews-card--<?= $slot ?>" href="<?= htmlspecialchars((string) $card['url'], ENT_QUOTES) ?>">
     <span class="news-cover">
         <?php if ($cardCover !== ''): ?>
-            <?= Media::picture($cardCover, (string) $card['title'], null, null, 'relnews-card__img', $cardLazy, $cardSizes, $isHero, 'relnews-card__media') ?>
+            <?php // alt пустой: заголовок — текст этой же ссылки, и диктор
+                  // прочёл бы его дважды на каждой из четырнадцати карточек. ?>
+            <?= Media::picture($cardCover, '', null, null, 'relnews-card__img', $cardLazy, $cardSizes, $isHero, 'relnews-card__media') ?>
         <?php else: ?>
             <span class="relnews-card__media relnews-card__media--empty" aria-hidden="true"></span>
         <?php endif; ?>
@@ -68,7 +70,7 @@ $cardCategory = trim((string) ($card['category'] ?? ''));
     <span class="relnews-card__body">
         <span class="news-meta">
             <?php if (!empty($card['published_at'])): ?>
-                <time class="relnews-card__date"><?= Icon::render('calendar', 15, 'ui-icon', 1.7) ?><?= htmlspecialchars($cardDate((string) $card['published_at']), ENT_QUOTES) ?></time>
+                <time class="relnews-card__date" datetime="<?= htmlspecialchars(\App\Core\DateFormatter::format((string) $card['published_at'], 'Y-m-d'), ENT_QUOTES) ?>"><?= Icon::render('calendar', 15, 'ui-icon', 1.7) ?><?= htmlspecialchars($cardDate((string) $card['published_at']), ENT_QUOTES) ?></time>
             <?php endif; ?>
             <?php if ($cardCategory !== ''): ?><span class="news-category"><?= htmlspecialchars($cardCategory, ENT_QUOTES) ?></span><?php endif; ?>
         </span>

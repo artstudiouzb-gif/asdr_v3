@@ -1,6 +1,35 @@
 (function () {
     'use strict';
 
+    // Ошибка поля сообщается не только цветом: aria-invalid у элемента и
+    // aria-describedby на текст ошибки — иначе диктор её не связывает с полем.
+    function setFieldError(field, text) {
+        clearFieldError(field);
+        field.classList.add('is-error');
+        var controls = field.querySelectorAll('input, textarea, select');
+        var first = controls[0];
+        var em = document.createElement('span');
+        em.className = 'block-form__error';
+        em.id = ((first && (first.id || first.name)) || 'field').replace(/[^\w-]/g, '') + '-error';
+        em.textContent = text;
+        field.appendChild(em);
+        controls.forEach(function (c) {
+            c.setAttribute('aria-invalid', 'true');
+            c.setAttribute('aria-describedby', em.id);
+        });
+    }
+
+    function clearFieldError(field) {
+        field.classList.remove('is-error');
+        var old = field.querySelector('.block-form__error');
+        if (old) { old.remove(); }
+        field.querySelectorAll('[aria-invalid]').forEach(function (c) {
+            c.removeAttribute('aria-invalid');
+            c.removeAttribute('aria-describedby');
+        });
+    }
+
+
     var publicLabels = {};
     var publicLabelsNode = document.getElementById('frontend-labels');
     if (publicLabelsNode) {
@@ -53,16 +82,10 @@
                 var field = inp.closest('.block-form__field');
                 if (!field) { return; }
 
-                field.classList.remove('is-error');
-                var oldErr = field.querySelector('.block-form__error');
-                if (oldErr) { oldErr.remove(); }
+                clearFieldError(field);
 
                 if (val !== '' && digits.length < 7) {
-                    field.classList.add('is-error');
-                    var em = document.createElement('span');
-                    em.className = 'block-form__error';
-                    em.textContent = publicLabel('formInvalidPhone', 'Invalid phone number');
-                    field.appendChild(em);
+                    setFieldError(field, publicLabel('formInvalidPhone', 'Invalid phone number'));
                 }
             });
         });
@@ -93,11 +116,7 @@
             e.preventDefault();
 
             // Снимаем прошлые ошибки.
-            form.querySelectorAll('.block-form__field.is-error').forEach(function (f) {
-                f.classList.remove('is-error');
-                var msg = f.querySelector('.block-form__error');
-                if (msg) { msg.remove(); }
-            });
+            form.querySelectorAll('.block-form__field.is-error').forEach(clearFieldError);
             var topMsg = form.querySelector('.block-form__message');
             if (topMsg) { topMsg.remove(); }
 
@@ -127,17 +146,19 @@
 
                     // Ошибки валидации по полям.
                     if (res.errors) {
+                        var firstInvalid = null;
                         Object.keys(res.errors).forEach(function (name) {
-                            var input = form.querySelector('[name="' + name + '"]');
+                            // У группы флажков имя с «[]»: без него поле не находилось.
+                            var input = form.querySelector('[name="' + name + '"]') || form.querySelector('[name="' + name + '[]"]');
                             var field = input ? input.closest('.block-form__field') : null;
                             if (field) {
-                                field.classList.add('is-error');
-                                var em = document.createElement('span');
-                                em.className = 'block-form__error';
-                                em.textContent = res.errors[name];
-                                field.appendChild(em);
+                                setFieldError(field, res.errors[name]);
+                                firstInvalid = firstInvalid || input;
                             }
                         });
+                        // Фокус — на первое поле с ошибкой: иначе посетитель с
+                        // клавиатурой или диктором не узнаёт, куда идти.
+                        if (firstInvalid) { firstInvalid.focus(); }
                     }
                     showTopMessage(form, res.message || publicLabel('formCheck', 'Please check the form.'), 'error');
                 })
