@@ -431,6 +431,9 @@ $router->post('/admin/redirects/404/{id}/delete', [\App\Controllers\Admin\Redire
 $router->get('/admin/users', [\App\Controllers\Admin\UserController::class, 'index']);
 $router->post('/admin/users/create', [\App\Controllers\Admin\UserController::class, 'store']);
 $router->post('/admin/users/{id}/delete', [\App\Controllers\Admin\UserController::class, 'destroy']);
+$router->post('/admin/users/{id}/update', [\App\Controllers\Admin\UserController::class, 'update']);
+$router->post('/admin/users/{id}/active', [\App\Controllers\Admin\UserController::class, 'toggleActive']);
+$router->post('/admin/users/{id}/reset-2fa', [\App\Controllers\Admin\UserController::class, 'resetTwoFactor']);
 
 // --- Admin: конструктор типов контента (супер-админ) ---
 $router->get('/admin/content-types', [\App\Controllers\Admin\ContentTypeController::class, 'index']);
