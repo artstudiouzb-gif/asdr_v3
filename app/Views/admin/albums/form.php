@@ -91,47 +91,54 @@ $translationLangs = array_values(array_filter(
     </form>
 </div>
 
-<div class="form-card u-inline-7dde5e56b3">
-    <h2 class="u-inline-291b7bbb01">Добавить фото</h2>
-    <form method="post" action="/admin/albums/<?= (int) $album['id'] ?>/images/add" class="form-grid">
+<div class="form-card u-inline-7dde5e56b3" id="album-photos">
+    <h2 class="u-inline-291b7bbb01">Фотографии (<?= count($images) ?>)</h2>
+    <form method="post" action="/admin/albums/<?= (int) $album['id'] ?>/images/save" enctype="multipart/form-data">
         <?= Csrf::field() ?>
-        <div class="form-field">
-            <label for="image_url">Изображение (URL)</label>
-            <input type="text" id="image_url" name="image_url" required>
-            <button type="button" class="btn btn--small" data-media-pick data-media-target="[name='image_url']">Из медиатеки</button>
+        <div class="form-field" data-media-gallery>
+            <div class="file-preview" data-media-gallery-selection hidden></div>
+            <div data-file-preview>
+                <button type="button" class="btn btn--small btn--secondary" data-media-gallery-pick>
+                    <?= \App\Core\AdminUi::icon('photo-plus', 16) ?>Из медиатеки
+                </button>
+                <input type="file" name="album_gallery[]" accept="image/*" multiple data-file-preview-input aria-label="Загрузить фото с компьютера">
+                <span class="form-hint">Можно выбрать сразу несколько фото — из медиатеки или с компьютера. Новые снимки встанут в конец альбома, файлы сжимаются в WebP.</span>
+                <div class="file-preview" data-file-preview-list hidden></div>
+            </div>
         </div>
-        <div class="form-field">
-            <label for="caption">Подпись (необязательно)</label>
-            <input type="text" id="caption" name="caption" maxlength="255">
-        </div>
-        <div class="form-field">
-            <label for="credit">Автор/источник (необязательно)</label>
-            <input type="text" id="credit" name="credit" maxlength="255" placeholder="Пресс-служба Агентства">
-            <span class="form-hint">Выводится под фото как «Фото: …» и уходит в подпись снимка при публикации в Telegram.</span>
-        </div>
+
+        <?php if (empty($images)): ?>
+            <p class="form-hint">В альбоме пока нет фотографий.</p>
+        <?php else: ?>
+            <p class="form-hint">Порядок — число: меньшее стоит раньше. Подпись выводится под фото, автор — как «Фото: …» и уходит в подпись снимка в Telegram.</p>
+            <div class="u-inline-34f05f7385">
+                <?php foreach ($images as $img):
+                    $imgId = (int) $img['id'];
+                ?>
+                    <div class="form-card u-inline-481ed7e754">
+                        <img class="u-inline-0021310c98" src="<?= htmlspecialchars((string) $img['image_url'], ENT_QUOTES) ?>" alt="" loading="lazy">
+                        <div class="form-field">
+                            <label for="caption-<?= $imgId ?>">Подпись</label>
+                            <input type="text" id="caption-<?= $imgId ?>" name="caption[<?= $imgId ?>]" maxlength="255" value="<?= htmlspecialchars((string) $img['caption'], ENT_QUOTES) ?>">
+                        </div>
+                        <div class="form-field">
+                            <label for="credit-<?= $imgId ?>">Автор/источник</label>
+                            <input type="text" id="credit-<?= $imgId ?>" name="credit[<?= $imgId ?>]" maxlength="255" placeholder="Пресс-служба Агентства" value="<?= htmlspecialchars((string) $img['credit'], ENT_QUOTES) ?>">
+                        </div>
+                        <div class="form-field">
+                            <label for="sort-<?= $imgId ?>">Порядок</label>
+                            <input type="number" id="sort-<?= $imgId ?>" name="sort[<?= $imgId ?>]" value="<?= (int) $img['sort_order'] ?>">
+                        </div>
+                        <label class="form-field--checkbox">
+                            <input type="checkbox" name="delete[]" value="<?= $imgId ?>"> Убрать из альбома
+                        </label>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
         <div class="form-actions">
-            <button type="submit" class="btn btn--primary">Добавить фото</button>
+            <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить фото</button>
         </div>
     </form>
 </div>
-
-<h2>Фотографии (<?= count($images) ?>)</h2>
-<?php if (empty($images)): ?>
-    <p class="form-hint">В альбоме пока нет фотографий.</p>
-<?php else: ?>
-    <div class="u-inline-34f05f7385">
-        <?php foreach ($images as $img): ?>
-            <div class="form-card u-inline-481ed7e754">
-                <img class="u-inline-0021310c98" src="<?= htmlspecialchars((string) $img['image_url'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars((string) $img['caption'], ENT_QUOTES) ?>" loading="lazy">
-                <?php if ($img['caption'] !== ''): ?>
-                    <p class="form-hint u-inline-41724d9228"><?= htmlspecialchars((string) $img['caption'], ENT_QUOTES) ?></p>
-                <?php endif; ?>
-                <form class="u-inline-b1ecc496e0" method="post" action="/admin/albums/<?= (int) $album['id'] ?>/images/<?= (int) $img['id'] ?>/delete">
-                    <?= Csrf::field() ?>
-                    <button type="submit" class="btn btn--small btn--danger"><?= \App\Core\AdminUi::icon('trash') ?>Убрать</button>
-                </form>
-            </div>
-        <?php endforeach; ?>
-    </div>
-<?php endif; ?>
 <?php require __DIR__ . '/../layout/footer.php'; ?>

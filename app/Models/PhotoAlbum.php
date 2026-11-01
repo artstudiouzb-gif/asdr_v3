@@ -304,6 +304,51 @@ final class PhotoAlbum
         return $id;
     }
 
+    /**
+     * Правка фото альбома одной формой: подписи, авторы, порядок и удаление.
+     * Каждый запрос ограничен своим альбомом — id фото из чужого альбома
+     * ничего не меняет.
+     *
+     * @param array<int, string> $captions
+     * @param array<int, string> $credits
+     * @param array<int, string> $orders
+     * @param list<int> $delete
+     */
+    public static function saveImages(int $albumId, array $captions, array $credits, array $orders, array $delete): int
+    {
+        $changed = 0;
+        $pdo = Database::pdo();
+        $update = $pdo->prepare(
+            'UPDATE photo_album_images SET caption = :c, credit = :cr, sort_order = :o WHERE id = :id AND album_id = :a'
+        );
+        foreach (self::images($albumId) as $image) {
+            $id = (int) $image['id'];
+            if (in_array($id, $delete, true)) {
+                continue;
+            }
+            $caption = $captions[$id] ?? (string) $image['caption'];
+            $credit = $credits[$id] ?? (string) $image['credit'];
+            $order = isset($orders[$id]) && preg_match('/^-?\d+$/', $orders[$id]) === 1 ? (int) $orders[$id] : (int) $image['sort_order'];
+            if ($caption === (string) $image['caption'] && $credit === (string) $image['credit'] && $order === (int) $image['sort_order']) {
+                continue;
+            }
+            $update->execute([':c' => $caption, ':cr' => $credit, ':o' => $order, ':id' => $id, ':a' => $albumId]);
+            $changed++;
+        }
+        if ($delete !== []) {
+            $remove = $pdo->prepare('DELETE FROM photo_album_images WHERE id = :id AND album_id = :a');
+            foreach ($delete as $id) {
+                $remove->execute([':id' => $id, ':a' => $albumId]);
+                $changed += $remove->rowCount();
+            }
+        }
+        if ($changed > 0) {
+            self::bustPageCache();
+        }
+
+        return $changed;
+    }
+
     public static function deleteImage(int $imageId): void
     {
         Database::pdo()->prepare('DELETE FROM photo_album_images WHERE id = :id')->execute([':id' => $imageId]);
