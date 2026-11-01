@@ -68,6 +68,11 @@ final class InstallToken
         }
     }
 
+    /**
+     * Читает диск: соседний запрос мог создать файл между двумя вызовами.
+     *
+     * @phpstan-impure
+     */
     private static function read(string $path): ?string
     {
         if (!is_file($path)) {
