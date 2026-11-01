@@ -96,8 +96,13 @@ test('Формы админки: поля подписи и автора на м
     assert_contains('[caption]', $news);
     assert_contains('[credit]', $news);
 
-    $album = (string) file_get_contents(APP_ROOT . '/app/Views/admin/albums/form.php');
-    assert_contains('name="credit"', $album);
+    $album = render_view('app/Views/admin/albums/form.php', [
+        'album' => ['id' => 7, 'title' => 'Альбом', 'slug' => 'album', 'description' => '', 'cover_url' => '', 'status' => 'published', 'is_featured' => 0],
+        'images' => [['id' => 31, 'image_url' => '/uploads/public/a.jpg', 'caption' => 'Подпись', 'credit' => 'Пресс-служба', 'sort_order' => 1]],
+        'translations' => [],
+    ]);
+    assert_contains('name="credit[31]"', $album);
+    assert_contains('name="caption[31]"', $album);
 });
 
 test('«Фото:» переведено — подпись не выйдет по-русски на UZ-версии', function () {

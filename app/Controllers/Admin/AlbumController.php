@@ -140,32 +140,95 @@ final class AlbumController
         exit;
     }
 
-    /** @param array<string, string> $params */
-    public function addImage(array $params): void
+    /**
+     * Фото альбома одной формой: подписи, авторы, порядок, удаление и новые
+     * снимки. Новые приходят двумя путями: со скриптом файл сразу уходит в
+     * медиатеку и в форму попадает ссылка (`gallery_library[]`, общий мост
+     * галереи новостей), без скрипта — сами файлы (`album_gallery[]`).
+     *
+     * @param array<string, string> $params
+     */
+    public function saveImages(array $params): void
     {
         Auth::requireLogin();
         Csrf::verifyRequest();
-
         $id = (int) $params['id'];
-        $ok = PhotoAlbum::addImage($id, (string) ($_POST['image_url'] ?? ''), (string) ($_POST['caption'] ?? ''), (string) ($_POST['credit'] ?? ''));
-        if ($ok === null) {
-            Flash::error('Выберите изображение (URL пуст).');
-        } else {
-            Flash::success('Фото добавлено в альбом.');
+        if (PhotoAlbum::findById($id) === null) {
+            Flash::error('Альбом не найден.');
+            Redirect::to('/admin/albums');
         }
-        header('Location: /admin/albums/' . $id . '/edit');
-        exit;
+
+        $in = \App\Core\Input::post();
+        $changed = PhotoAlbum::saveImages(
+            $id,
+            $in->map('caption'),
+            $in->map('credit'),
+            $in->map('sort', 11),
+            $in->ids('delete')
+        );
+
+        $known = array_fill_keys(array_map(
+            static fn (array $image): string => (string) $image['image_url'],
+            PhotoAlbum::images($id)
+        ), true);
+        $added = 0;
+        foreach ($in->strings('gallery_library') as $url) {
+            if ($url === '' || str_starts_with($url, '//') || !\App\Core\UrlGuard::isSafeMedia($url) || isset($known[$url])) {
+                continue;
+            }
+            if (PhotoAlbum::addImage($id, $url) !== null) {
+                $known[$url] = true;
+                $added++;
+            }
+        }
+        $failed = 0;
+        foreach (self::uploadedFiles('album_gallery') as $file) {
+            try {
+                $stored = \App\Core\Uploader::store($file, 'public', Auth::id());
+                if (PhotoAlbum::addImage($id, \App\Models\FileEntry::publicUrl($stored)) !== null) {
+                    $added++;
+                }
+            } catch (\Throwable $e) {
+                $failed++;
+                \App\Core\Logger::swallowed('Альбом: фото не загружено', $e);
+            }
+        }
+
+        if ($failed > 0) {
+            Flash::error('Не удалось загрузить фото: ' . $failed . '. Проверьте формат и размер файла.');
+        } elseif ($added > 0 || $changed > 0) {
+            Flash::success($added > 0 ? 'Добавлено фото: ' . $added . '.' : 'Фото альбома сохранены.');
+        } else {
+            Flash::success('Изменений нет.');
+        }
+        Redirect::to('/admin/albums/' . $id . '/edit#album-photos');
     }
 
-    /** @param array<string, string> $params */
-    public function deleteImage(array $params): void
+    /**
+     * Множественное поле файлов в виде списка одиночных загрузок.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private static function uploadedFiles(string $field): array
     {
-        Auth::requireLogin();
-        Csrf::verifyRequest();
+        $raw = $_FILES[$field] ?? null;
+        if (!is_array($raw) || !is_array($raw['name'] ?? null)) {
+            return [];
+        }
+        $out = [];
+        foreach (array_keys($raw['name']) as $i) {
+            if (($raw['error'][$i] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+                continue;
+            }
+            $out[] = [
+                'name' => $raw['name'][$i],
+                'type' => $raw['type'][$i] ?? '',
+                'tmp_name' => $raw['tmp_name'][$i] ?? '',
+                'error' => UPLOAD_ERR_OK,
+                'size' => $raw['size'][$i] ?? 0,
+            ];
+        }
 
-        PhotoAlbum::deleteImage((int) $params['imageId']);
-        Flash::success('Фото убрано из альбома.');
-        header('Location: /admin/albums/' . (int) $params['id'] . '/edit');
-        exit;
+        return $out;
     }
 }
