@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS users (
     totp_enabled    TINYINT(1)   NOT NULL DEFAULT 0,
     totp_last_step  BIGINT       NULL DEFAULT NULL COMMENT 'последний принятый шаг TOTP (защита от повтора кода)',
     role            ENUM('admin', 'editor') NOT NULL DEFAULT 'admin',
+    is_active       TINYINT(1)   NOT NULL DEFAULT 1 COMMENT '0 — заблокирован: войти нельзя, авторство и журналы сохраняются',
     admin_lang      VARCHAR(8) NULL COMMENT 'предпочитаемый язык интерфейса админки (ru, uz, en)',
     last_login_at   DATETIME NULL,
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1304,7 +1305,8 @@ INSERT INTO migrations (filename) VALUES
     ('2026_10_29_form_translations.sql'),
     ('2026_10_31_review_indexes.sql'),
     ('2026_11_01_search_index.sql'),
-    ('2026_11_01_drop_repo_portal.sql')
+    ('2026_11_01_drop_repo_portal.sql'),
+    ('2026_11_02_users_is_active.sql')
 ON DUPLICATE KEY UPDATE filename = filename;
 
 CREATE TABLE IF NOT EXISTS search_log (
