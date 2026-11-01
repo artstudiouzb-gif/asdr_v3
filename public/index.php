@@ -591,4 +591,6 @@ if (\App\Core\Session::hasCookie()) {
 // разметка, — иначе preload не засчитывается и файл качается дважды.
 \App\Core\EarlyHints::send();
 
+// Импорт YouTube и Instagram без cron: раз в час, после ответа посетителю.
+\App\Core\BackgroundTasks::afterResponse((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

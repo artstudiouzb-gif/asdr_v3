@@ -99,12 +99,11 @@ $langMap = \App\Models\Video::availableLangsForIds(array_map(static fn ($i): int
             <p class="form-hint">Пока обновление выключено, правки редактора (в том числе переводы) импорт не трогает.</p>
             <div class="form-field form-field--checkbox">
                 <input type="checkbox" id="youtube_import_enabled" name="youtube_import_enabled" value="1" <?= $youtube['enabled'] ? 'checked' : '' ?>>
-                <label for="youtube_import_enabled">Загружать автоматически по расписанию (Cron)</label>
+                <label for="youtube_import_enabled">Загружать новые ролики автоматически, раз в час</label>
             </div>
             <p class="form-hint">
-                Расписание задаётся на хостинге — например, раз в час:<br>
+                Сайт проверяет канал сам раз в час, после ответа посетителю, — настраивать на хостинге ничего не обязательно. Задание cron надёжнее (не ждёт посетителей), если хотите его завести:<br>
                 <code>0 * * * * php <?= htmlspecialchars($appRoot, ENT_QUOTES) ?>/app/Console/youtube_worker.php &gt;&gt; <?= htmlspecialchars($appRoot, ENT_QUOTES) ?>/storage/logs/youtube_worker.log 2&gt;&amp;1</code><br>
-                Пока задания нет — пользуйтесь кнопкой «Загрузить сейчас».
             </p>
             <div class="form-actions">
                 <button type="submit" class="btn btn--primary"><?= AdminUi::icon('save') ?>Сохранить настройки</button>
