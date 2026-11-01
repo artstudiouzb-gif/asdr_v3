@@ -217,8 +217,9 @@ $igPosts = $instagramPosts ?? [];
         <?= Csrf::field() ?>
         <div class="form-field form-field--checkbox">
             <input type="checkbox" id="instagram_feed_enabled" name="instagram_feed_enabled" value="1" <?= $igFeed['enabled'] ? 'checked' : '' ?>>
-            <label for="instagram_feed_enabled">Обновлять ленту автоматически (cron)</label>
+            <label for="instagram_feed_enabled">Обновлять ленту автоматически, раз в час</label>
         </div>
+        <p class="form-hint">Сайт обновляет ленту сам после ответа посетителю, задание cron на хостинге не обязательно.</p>
         <div class="form-field">
             <label for="instagram_feed_username">Имя аккаунта</label>
             <input type="text" id="instagram_feed_username" name="instagram_feed_username" maxlength="31" autocomplete="off"

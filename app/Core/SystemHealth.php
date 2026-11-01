@@ -97,6 +97,7 @@ final class SystemHealth
                 'social' => ['social_worker.php', '*/5 * * * *'],
                 'backup' => ['backup_worker.php', '0 3 * * *'],
                 'youtube' => ['youtube_worker.php', '0 * * * *'],
+                'instagram' => ['instagram_worker.php', '0 * * * *'],
             ];
             [$script, $schedule] = $workers[$name] ?? [$name . '_worker.php', 'по расписанию задачи'];
 

@@ -43,7 +43,7 @@ final class YoutubeImport
             'channel_id' => trim(Setting::get('youtube_channel_id', '')),
             'api_key' => trim(Setting::get('youtube_api_key', '')),
             'limit' => max(1, min(YoutubeChannel::MAX_ITEMS, $limit > 0 ? $limit : 15)),
-            'status' => Setting::get('youtube_import_status', 'draft') === 'published' ? 'published' : 'draft',
+            'status' => Setting::get('youtube_import_status', 'published') === 'draft' ? 'draft' : 'published',
             'featured' => Setting::get('youtube_import_featured', '0') === '1',
             'update' => Setting::get('youtube_import_update', '0') === '1',
             'thumbs' => Setting::get('youtube_import_thumbs', 'local') === 'remote' ? 'remote' : 'local',
