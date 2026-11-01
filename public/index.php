@@ -73,6 +73,7 @@ if (!APP_INSTALLED && !str_starts_with($requestPath, '/install')) {
 if (str_starts_with($requestPath, '/install')) {
     $installRouter = new Router();
     $installRouter->get('/install', [InstallController::class, 'step1']);
+    $installRouter->post('/install', [InstallController::class, 'unlock']);
     $installRouter->get('/install/step2', [InstallController::class, 'step2']);
     $installRouter->post('/install/step2', [InstallController::class, 'step2Submit']);
     $installRouter->get('/install/step3', [InstallController::class, 'step3']);

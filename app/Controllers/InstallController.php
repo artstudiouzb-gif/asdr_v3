@@ -33,10 +33,55 @@ final class InstallController
         }
     }
 
+    /**
+     * Установщик без токена не пускает дальше первого экрана: см. InstallToken.
+     * Флаг живёт в сессии, поэтому токен вводят один раз на установку.
+     */
+    private static function isAuthorized(): bool
+    {
+        \App\Core\Session::start();
+
+        return ($_SESSION['install_authorized'] ?? false) === true;
+    }
+
+    private function requireAuthorized(): void
+    {
+        if (!self::isAuthorized()) {
+            \App\Core\Redirect::to('/install');
+        }
+    }
+
+    private function renderUnlock(?string $error): void
+    {
+        View::render('install/unlock', [
+            'tokenReady' => \App\Core\InstallToken::ensure(),
+            'error' => $error,
+        ]);
+    }
+
+    public function unlock(): void
+    {
+        $this->guardInstalled();
+        Csrf::verifyRequest();
+        $token = \App\Core\Input::post()->str('install_token', '', 64);
+        if (!\App\Core\InstallToken::verify($token)) {
+            usleep(500000);
+            $this->renderUnlock('Токен не подошёл. Скопируйте его из файла storage/install.token целиком.');
+            return;
+        }
+        session_regenerate_id(true);
+        $_SESSION['install_authorized'] = true;
+        \App\Core\Redirect::to('/install');
+    }
+
     // --- Шаг 1: проверка окружения ---
     public function step1(): void
     {
         $this->guardInstalled();
+        if (!self::isAuthorized()) {
+            $this->renderUnlock(null);
+            return;
+        }
         View::render('install/step1', [
             'requirements' => EnvironmentCheck::requirements(),
             'permissions' => EnvironmentCheck::permissions(),
@@ -48,12 +93,14 @@ final class InstallController
     public function step2(): void
     {
         $this->guardInstalled();
+        $this->requireAuthorized();
         View::render('install/step2', ['error' => null, 'data' => []]);
     }
 
     public function step2Submit(): void
     {
         $this->guardInstalled();
+        $this->requireAuthorized();
         Csrf::verifyRequest();
 
         $data = [
@@ -142,6 +189,7 @@ final class InstallController
     public function step3(): void
     {
         $this->guardInstalled();
+        $this->requireAuthorized();
         $this->requireConfig();
         View::render('install/step3', [
             'error' => null,
@@ -153,6 +201,7 @@ final class InstallController
     public function step3Submit(): void
     {
         $this->guardInstalled();
+        $this->requireAuthorized();
         $this->requireConfig();
         Csrf::verifyRequest();
 
@@ -197,6 +246,7 @@ final class InstallController
     public function step4(): void
     {
         $this->guardInstalled();
+        $this->requireAuthorized();
         $this->requireConfig();
         View::render('install/step4', ['error' => null, 'data' => []]);
     }
@@ -204,6 +254,7 @@ final class InstallController
     public function step4Submit(): void
     {
         $this->guardInstalled();
+        $this->requireAuthorized();
         $this->requireConfig();
         Csrf::verifyRequest();
 
@@ -308,7 +359,8 @@ final class InstallController
                 \App\Core\Logger::swallowed('InstallController: не удалось записать в журнал завершение установки', $e);
             }
 
-            unset($_SESSION['install_db'], $_SESSION['install_site']);
+            unset($_SESSION['install_db'], $_SESSION['install_site'], $_SESSION['install_authorized']);
+            \App\Core\InstallToken::remove();
 
             View::render('install/done', [
                 'email' => $email,
