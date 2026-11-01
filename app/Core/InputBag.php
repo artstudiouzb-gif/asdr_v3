@@ -164,7 +164,7 @@ final class InputBag
         }
         $out = [];
         foreach ($value as $id => $item) {
-            if ((is_int($id) || (is_string($id) && preg_match('/^\d+$/', $id) === 1)) && (int) $id > 0
+            if ((is_int($id) || preg_match('/^\d+$/', $id) === 1) && (int) $id > 0
                 && (is_string($item) || is_int($item))) {
                 $out[(int) $id] = mb_substr(trim((string) $item), 0, $maxLength);
             }
