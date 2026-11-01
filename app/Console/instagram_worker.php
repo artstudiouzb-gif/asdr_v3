@@ -19,37 +19,16 @@ require __DIR__ . '/../Core/Cli.php';
 
 require __DIR__ . '/../Core/bootstrap.php';
 
-use App\Core\InstagramFeed;
-use App\Core\Logger;
-use App\Core\ProcessLock;
+use App\Core\BackgroundTasks;
 
-$force = in_array('--force', $argv, true);
-
-if (!$force && !InstagramFeed::settings()['enabled']) {
-    fwrite(STDOUT, 'Лента Instagram выключена в админке — пропуск.' . PHP_EOL);
+$result = BackgroundTasks::run('instagram', in_array('--force', $argv, true));
+if (!$result['ran']) {
+    fwrite(STDOUT, 'Пропуск: ' . $result['message'] . '.' . PHP_EOL);
     exit(0);
 }
-if (!InstagramFeed::isConfigured()) {
-    fwrite(STDERR, 'Не задан токен Instagram — пропуск.' . PHP_EOL);
-    exit(0);
+if (!$result['ok']) {
+    fwrite(STDERR, 'Не удалось: ' . $result['message'] . PHP_EOL);
+    exit(1);
 }
-
-$lock = ProcessLock::acquire('instagram_worker');
-if ($lock === null) {
-    fwrite(STDERR, 'instagram_worker уже выполняется — пропуск запуска.' . PHP_EOL);
-    exit(0);
-}
-
-try {
-    $result = InstagramFeed::sync(null);
-    if (!$result['ok']) {
-        Logger::error('Лента Instagram не обновлена: ' . $result['error']);
-        fwrite(STDERR, 'Лента не обновлена: ' . $result['error'] . PHP_EOL);
-        exit(1);
-    }
-    fwrite(STDOUT, 'Лента Instagram: ' . $result['summary'] . '.' . PHP_EOL);
-} finally {
-    ProcessLock::release($lock);
-}
-
+fwrite(STDOUT, 'Лента Instagram: ' . $result['message'] . '.' . PHP_EOL);
 exit(0);

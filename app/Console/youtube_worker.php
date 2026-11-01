@@ -20,40 +20,16 @@ require __DIR__ . '/../Core/Cli.php';
 
 require __DIR__ . '/../Core/bootstrap.php';
 
-use App\Core\Heartbeat;
-use App\Core\Logger;
-use App\Core\ProcessLock;
-use App\Core\YoutubeImport;
+use App\Core\BackgroundTasks;
 
-$force = in_array('--force', $argv, true);
-$cfg = YoutubeImport::settings();
-
-if (!$force && !$cfg['enabled']) {
-    fwrite(STDOUT, 'Автозагрузка с YouTube выключена в админке — пропуск.' . PHP_EOL);
+$result = BackgroundTasks::run('youtube', in_array('--force', $argv, true));
+if (!$result['ran']) {
+    fwrite(STDOUT, 'Пропуск: ' . $result['message'] . '.' . PHP_EOL);
     exit(0);
 }
-if (!YoutubeImport::isConfigured()) {
-    fwrite(STDERR, 'Канал YouTube не указан или адрес не разобран — пропуск.' . PHP_EOL);
-    exit(0);
+if (!$result['ok']) {
+    fwrite(STDERR, 'Не удалось: ' . $result['message'] . PHP_EOL);
+    exit(1);
 }
-
-$lock = ProcessLock::acquire('youtube_worker');
-if ($lock === null) {
-    fwrite(STDERR, 'youtube_worker уже выполняется — пропуск запуска.' . PHP_EOL);
-    exit(0);
-}
-Heartbeat::touch('youtube');
-
-try {
-    $result = YoutubeImport::sync(null);
-    if (!$result['ok']) {
-        Logger::error('YouTube-импорт не удался: ' . $result['error']);
-        fwrite(STDERR, 'Импорт не удался: ' . $result['error'] . PHP_EOL);
-        exit(1);
-    }
-    fwrite(STDOUT, 'YouTube-импорт: ' . $result['summary'] . '.' . PHP_EOL);
-} finally {
-    ProcessLock::release($lock);
-}
-
+fwrite(STDOUT, 'YouTube-импорт: ' . $result['message'] . '.' . PHP_EOL);
 exit(0);
