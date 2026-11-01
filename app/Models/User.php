@@ -12,7 +12,7 @@ final class User
 {
     public static function all(): array
     {
-        $stmt = Database::pdo()->query('SELECT id, username, email, phone, role, admin_lang, last_login_at, created_at FROM users ORDER BY id ASC');
+        $stmt = Database::pdo()->query('SELECT id, username, email, phone, role, is_active, totp_enabled, telegram_chat_id, admin_lang, last_login_at, created_at FROM users ORDER BY id ASC');
 
         return $stmt->fetchAll();
     }
@@ -20,6 +20,59 @@ final class User
     public static function count(): int
     {
         return (int) Database::pdo()->query('SELECT COUNT(*) FROM users')->fetchColumn();
+    }
+
+    /**
+     * Заблокированный не входит; строка без колонки (до миграции) — активна.
+     *
+     * @param array<string, mixed>|null $user
+     */
+    public static function isActive(?array $user): bool
+    {
+        return $user !== null && (int) ($user['is_active'] ?? 1) === 1;
+    }
+
+    /** Сколько активных супер-администраторов, кроме указанного. */
+    public static function otherActiveAdmins(int $exceptId): int
+    {
+        $stmt = Database::pdo()->prepare(
+            "SELECT COUNT(*) FROM users WHERE role = 'admin' AND is_active = 1 AND id <> :id"
+        );
+        $stmt->execute([':id' => $exceptId]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    public static function setActive(int $id, bool $active): void
+    {
+        self::forgetCache();
+        $stmt = Database::pdo()->prepare('UPDATE users SET is_active = :a WHERE id = :id');
+        $stmt->execute([':a' => $active ? 1 : 0, ':id' => $id]);
+    }
+
+    public static function updateProfile(int $id, string $email, string $role, ?string $phone): void
+    {
+        self::forgetCache();
+        $stmt = Database::pdo()->prepare('UPDATE users SET email = :email, role = :role, phone = :phone WHERE id = :id');
+        $stmt->execute([':email' => $email, ':role' => $role, ':phone' => $phone, ':id' => $id]);
+    }
+
+    /** Снимает оба вторых фактора: приложение и привязку Telegram. */
+    public static function resetSecondFactor(int $id): void
+    {
+        self::forgetCache();
+        $stmt = Database::pdo()->prepare(
+            'UPDATE users SET totp_secret = NULL, totp_enabled = 0, totp_last_step = NULL, telegram_chat_id = NULL WHERE id = :id'
+        );
+        $stmt->execute([':id' => $id]);
+    }
+
+    public static function emailTakenByOther(string $email, int $id): bool
+    {
+        $stmt = Database::pdo()->prepare('SELECT COUNT(*) FROM users WHERE email = :email AND id <> :id');
+        $stmt->execute([':email' => $email, ':id' => $id]);
+
+        return (int) $stmt->fetchColumn() > 0;
     }
 
     public static function delete(int $id): void

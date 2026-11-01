@@ -12,35 +12,84 @@ require __DIR__ . '/../layout/header.php';
 
 $roleLabels = ['admin' => 'Супер-администратор', 'editor' => 'Редактор'];
 ?>
-<p class="form-hint">Редактор управляет только контентом (страницы, новости, проекты, команда, формы, файлы). Системные разделы доступны супер-администратору.</p>
+<p class="form-hint">Редактор управляет только контентом (страницы, новости, проекты, команда, формы, файлы). Системные разделы доступны супер-администратору. Ушедшего сотрудника лучше заблокировать, чем удалять: авторство его материалов и журналы сохранятся.</p>
 
 <table class="data-table u-inline-5370cbf1a7">
     <thead>
-        <tr><th>Логин</th><th>Email</th><th>Роль</th><th>Язык админки</th><th>Телефон (код входа)</th><th>Последний вход</th><th></th></tr>
+        <tr><th>Логин</th><th>Email</th><th>Роль</th><th>Статус</th><th>Второй фактор</th><th>Последний вход</th><th></th></tr>
     </thead>
     <tbody>
-        <?php foreach ($items as $item): ?>
+        <?php foreach ($items as $item):
+            $uid = (int) $item['id'];
+            $isSelf = $uid === Auth::id();
+            $active = (int) ($item['is_active'] ?? 1) === 1;
+            $factors = array_filter([
+                !empty($item['totp_enabled']) ? 'приложение' : '',
+                !empty($item['telegram_chat_id']) ? 'Telegram' : '',
+            ]);
+            $name = htmlspecialchars((string) $item['username'], ENT_QUOTES);
+        ?>
             <tr>
-                <td><?= htmlspecialchars($item['username'], ENT_QUOTES) ?></td>
-                <td><?= htmlspecialchars($item['email'], ENT_QUOTES) ?></td>
+                <td><?= $name ?></td>
+                <td><?= htmlspecialchars((string) $item['email'], ENT_QUOTES) ?></td>
                 <td><?= htmlspecialchars($roleLabels[$item['role']] ?? $item['role'], ENT_QUOTES) ?></td>
-                <td><?= !empty($item['admin_lang']) ? strtoupper(htmlspecialchars((string) $item['admin_lang'], ENT_QUOTES)) : '—' ?></td>
-                <td><?= !empty($item['phone']) ? htmlspecialchars((string) $item['phone'], ENT_QUOTES) : '—' ?></td>
+                <td><span class="badge badge--<?= $active ? 'success' : 'danger' ?>"><?= $active ? 'Активен' : 'Заблокирован' ?></span></td>
+                <td><?= $factors !== [] ? htmlspecialchars(implode(', ', $factors), ENT_QUOTES) : '—' ?></td>
                 <td><?= htmlspecialchars((string) ($item['last_login_at'] ?? '—'), ENT_QUOTES) ?></td>
                 <td class="data-table__actions">
-                    <?php if ((int) $item['id'] !== Auth::id()): ?>
-                        <form method="post" action="/admin/users/<?= (int) $item['id'] ?>/delete" data-confirm="Удалить пользователя «<?= htmlspecialchars($item['username'], ENT_QUOTES) ?>»?">
+                    <?php if ($isSelf): ?>
+                        <span class="form-hint">это вы</span>
+                    <?php else: ?>
+                        <form method="post" action="/admin/users/<?= $uid ?>/active"<?= $active ? ' data-confirm="Заблокировать «' . $name . '»? Его открытые сессии завершатся."' : '' ?>>
+                            <?= Csrf::field() ?>
+                            <button type="submit" class="btn btn--small btn--secondary"><?= \App\Core\AdminUi::icon($active ? 'lock' : 'lock-open') ?><?= $active ? 'Заблокировать' : 'Разблокировать' ?></button>
+                        </form>
+                        <?php if ($factors !== []): ?>
+                            <form method="post" action="/admin/users/<?= $uid ?>/reset-2fa" data-confirm="Сбросить второй фактор «<?= $name ?>»? При следующем входе он подключит его заново.">
+                                <?= Csrf::field() ?>
+                                <button type="submit" class="btn btn--small btn--secondary"><?= \App\Core\AdminUi::icon('shield-off') ?>Сбросить 2FA</button>
+                            </form>
+                        <?php endif; ?>
+                        <form method="post" action="/admin/users/<?= $uid ?>/delete" data-confirm="Удалить «<?= $name ?>» навсегда? Его новости останутся без автора — обычно достаточно заблокировать.">
                             <?= Csrf::field() ?>
                             <button type="submit" class="btn btn--small btn--danger"><?= \App\Core\AdminUi::icon('trash') ?>Удалить</button>
                         </form>
-                    <?php else: ?>
-                        <span class="form-hint">это вы</span>
                     <?php endif; ?>
                 </td>
             </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
+
+<h2 class="u-inline-291b7bbb01">Изменить данные</h2>
+<?php foreach ($items as $item):
+    $uid = (int) $item['id'];
+?>
+    <details class="form-card">
+        <summary><?= htmlspecialchars((string) $item['username'], ENT_QUOTES) ?></summary>
+        <form method="post" action="/admin/users/<?= $uid ?>/update" class="form-grid">
+            <?= Csrf::field() ?>
+            <div class="form-field">
+                <label for="email-<?= $uid ?>">Email</label>
+                <input type="email" id="email-<?= $uid ?>" name="email" required value="<?= htmlspecialchars((string) $item['email'], ENT_QUOTES) ?>">
+            </div>
+            <div class="form-field">
+                <label for="role-<?= $uid ?>">Роль</label>
+                <select id="role-<?= $uid ?>" name="role">
+                    <option value="editor"<?= $item['role'] === 'editor' ? ' selected' : '' ?>>Редактор (только контент)</option>
+                    <option value="admin"<?= $item['role'] === 'admin' ? ' selected' : '' ?>>Супер-администратор (полный доступ)</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="phone-<?= $uid ?>">Телефон для кода входа</label>
+                <input type="tel" id="phone-<?= $uid ?>" name="phone" placeholder="+998901234567" autocomplete="off" value="<?= htmlspecialchars((string) ($item['phone'] ?? ''), ENT_QUOTES) ?>">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn--primary"><?= \App\Core\AdminUi::icon('save') ?>Сохранить</button>
+            </div>
+        </form>
+    </details>
+<?php endforeach; ?>
 
 <div class="form-card">
     <h2 class="u-inline-291b7bbb01">Добавить пользователя</h2>

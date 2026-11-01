@@ -78,7 +78,9 @@ final class Auth
 
         $user = User::findByUsername($username);
         $hash = $user ? (string) $user['password_hash'] : self::DUMMY_HASH;
-        $passwordOk = password_verify($password, $hash);
+        // Хэш проверяется и у заблокированного: иначе по времени ответа
+        // было бы видно, что учётка есть, но закрыта.
+        $passwordOk = password_verify($password, $hash) && User::isActive($user);
 
         if (!$user || !$passwordOk) {
             foreach (array_keys($identifiers) as $identifier) {
@@ -287,7 +289,8 @@ final class Auth
         }
 
         $user = User::findById((int) $userId);
-        if (!$user) {
+        // Заблокирован между паролем и кодом — вход не завершается.
+        if (!$user || !User::isActive($user)) {
             self::clearPending();
             return false;
         }
