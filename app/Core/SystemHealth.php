@@ -92,6 +92,7 @@ final class SystemHealth
         if (str_starts_with($id, 'worker:')) {
             $name = substr($id, strlen('worker:'));
             $workers = [
+                'scheduler' => ['scheduler.php', '* * * * *'],
                 'mail' => ['mail_worker.php', '* * * * *'],
                 'webhook' => ['webhook_worker.php', '* * * * *'],
                 'social' => ['social_worker.php', '*/5 * * * *'],
