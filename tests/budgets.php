@@ -1139,7 +1139,7 @@ function quality_budgets(): array
                 . 'исключение, которое ловит роутер',
             // 269 до октября 2026 было ошибкой счёта: одноимённые контроллеры
             // затирали друг друга (quality_relative_path). Факт — 303.
-            'ceiling' => static fn (): int => 263,
+            'ceiling' => static fn (): int => 261,
             'measure' => static function (): array {
                 return quality_regex_in_files(quality_controller_files(), '/\bexit\b/');
             },
@@ -1166,7 +1166,7 @@ function quality_budgets(): array
                 . 'Проверяется поведение: render_view() для вьюх и шаблонов, вызов '
                 . 'метода, запись в тестовой базе. Обход всех шаблонов на запрещённый '
                 . 'приём (glob) сюда не считается — это правило, а не подглядывание',
-            'ceiling' => static fn (): int => 625,
+            'ceiling' => static fn (): int => 624,
             'measure' => static function (): array {
                 return quality_regex_in_files(
                     glob(APP_ROOT . '/tests/cases/*.php') ?: [],

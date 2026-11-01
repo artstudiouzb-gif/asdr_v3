@@ -412,8 +412,7 @@ $router->post('/admin/albums/from-news', [\App\Controllers\Admin\AlbumController
 $router->get('/admin/albums/{id}/edit', [\App\Controllers\Admin\AlbumController::class, 'edit']);
 $router->post('/admin/albums/{id}/update', [\App\Controllers\Admin\AlbumController::class, 'update']);
 $router->post('/admin/albums/{id}/delete', [\App\Controllers\Admin\AlbumController::class, 'destroy']);
-$router->post('/admin/albums/{id}/images/add', [\App\Controllers\Admin\AlbumController::class, 'addImage']);
-$router->post('/admin/albums/{id}/images/{imageId}/delete', [\App\Controllers\Admin\AlbumController::class, 'deleteImage']);
+$router->post('/admin/albums/{id}/images/save', [\App\Controllers\Admin\AlbumController::class, 'saveImages']);
 $router->get('/admin/videos', [\App\Controllers\Admin\VideoController::class, 'index']);
 $router->post('/admin/videos/create', [\App\Controllers\Admin\VideoController::class, 'store']);
 $router->post('/admin/videos/bulk', [\App\Controllers\Admin\VideoController::class, 'bulk']);

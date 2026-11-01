@@ -148,4 +148,28 @@ final class InputBag
 
         return array_keys($ids);
     }
+
+    /**
+     * Словарь «id → строка» (`caption[12]`): поля строк таблицы, которые
+     * правятся одной формой. Ключ — только положительное целое, значение —
+     * строка с пределом в символах; остальное выпадает.
+     *
+     * @return array<int, string>
+     */
+    public function map(string $key, int $maxLength = 255): array
+    {
+        $value = $this->data[$key] ?? [];
+        if (!is_array($value)) {
+            return [];
+        }
+        $out = [];
+        foreach ($value as $id => $item) {
+            if ((is_int($id) || (is_string($id) && preg_match('/^\d+$/', $id) === 1)) && (int) $id > 0
+                && (is_string($item) || is_int($item))) {
+                $out[(int) $id] = mb_substr(trim((string) $item), 0, $maxLength);
+            }
+        }
+
+        return $out;
+    }
 }
