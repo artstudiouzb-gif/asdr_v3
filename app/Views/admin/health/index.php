@@ -9,6 +9,9 @@ require __DIR__ . '/../layout/header.php';
 
 /** @var list<array{title:string, checks:list<array{id:string,title:string,state:string,value:string,hint:string,at:?int}>}> $groups */
 /** @var string $worst */
+/** @var list<array{task:string,label:string,cron:string,last:?int}> $schedule */
+/** @var ?int $schedulerLast */
+/** @var bool $canSpawn */
 
 $stateLabel = [
     SystemHealth::OK => 'в порядке',
@@ -87,5 +90,42 @@ $summary = [
         </div>
     </section>
 <?php endforeach; ?>
+
+<section class="form-card" id="health-schedule">
+    <?= AdminUi::cardHeader('Расписание фоновых задач', 'clock') ?>
+    <p class="form-hint">
+        Все задачи запускает одна строка cron — заведите её в панели хостинга (Cron Jobs), каждую минуту:
+    </p>
+    <p><code><?= htmlspecialchars('* * * * * php ' . APP_ROOT . '/app/Console/scheduler.php >> ' . APP_ROOT . '/storage/logs/scheduler.log 2>&1', ENT_QUOTES) ?></code></p>
+    <p class="form-hint">
+        <?php if ($schedulerLast !== null): ?>
+            Планировщик последний раз работал <?= htmlspecialchars(date('d.m.Y H:i', $schedulerLast), ENT_QUOTES) ?>.
+        <?php else: ?>
+            Планировщик ещё ни разу не запускался — задачи идут, только если для них заведены отдельные строки cron.
+        <?php endif; ?>
+        <?php if (!$canSpawn): ?>
+            Хостинг запрещает запуск процессов из веба, поэтому кнопка «Запустить» здесь не сработает — по расписанию задачи всё равно выполнятся.
+        <?php endif; ?>
+    </p>
+    <table class="data-table">
+        <thead><tr><th>Задача</th><th>Расписание (cron)</th><th>Последний запуск</th><th></th></tr></thead>
+        <tbody>
+            <?php foreach ($schedule as $row): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['label'], ENT_QUOTES) ?></td>
+                    <td><code><?= htmlspecialchars($row['cron'], ENT_QUOTES) ?></code></td>
+                    <td><?= $row['last'] !== null ? htmlspecialchars(date('d.m.Y H:i', $row['last']), ENT_QUOTES) : '—' ?></td>
+                    <td class="data-table__actions">
+                        <form method="post" action="/admin/health/run">
+                            <?= \App\Core\Csrf::field() ?>
+                            <input type="hidden" name="task" value="<?= htmlspecialchars($row['task'], ENT_QUOTES) ?>">
+                            <button type="submit" class="btn btn--small btn--secondary"><?= AdminUi::icon('player-play', 14) ?>Запустить</button>
+                        </form>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</section>
 
 <?php require __DIR__ . '/../layout/footer.php'; ?>

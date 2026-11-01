@@ -183,6 +183,7 @@ $router->get('/admin/search', [\App\Controllers\Admin\SearchController::class, '
 
 // --- Admin: история версий страниц, новостей и проектов ---
 $router->get('/admin/health', [AdminHealthController::class, 'index']);
+$router->post('/admin/health/run', [AdminHealthController::class, 'run']);
 $router->get('/admin/logs', [AdminLogController::class, 'index']);
 $router->get('/admin/logs/download', [AdminLogController::class, 'download']);
 $router->post('/admin/logs/purge', [AdminLogController::class, 'purge']);
