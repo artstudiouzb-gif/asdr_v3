@@ -1,6 +1,7 @@
 # Конфигурация и установщик
 /config/config.php
 /storage/installed.lock
+/storage/install.token
 
 # Временные файлы и хранилище данных
 /storage/logs/*
