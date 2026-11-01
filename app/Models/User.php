@@ -22,7 +22,11 @@ final class User
         return (int) Database::pdo()->query('SELECT COUNT(*) FROM users')->fetchColumn();
     }
 
-    /** Заблокированный не входит; строка без колонки (до миграции) — активна. */
+    /**
+     * Заблокированный не входит; строка без колонки (до миграции) — активна.
+     *
+     * @param array<string, mixed>|null $user
+     */
     public static function isActive(?array $user): bool
     {
         return $user !== null && (int) ($user['is_active'] ?? 1) === 1;
