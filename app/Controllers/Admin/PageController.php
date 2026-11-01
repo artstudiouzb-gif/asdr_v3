@@ -245,6 +245,7 @@ final class PageController
             'content' => $rendered['html'],
             'blockCss' => $rendered['css'],
             'preloadImages' => $rendered['preload_images'] ?? [],
+            'preloadMobile' => $rendered['preload_mobile'] ?? null,
             'layoutType' => $layoutType,
             'sidebar' => $sidebar,
             'robotsNoindex' => true,

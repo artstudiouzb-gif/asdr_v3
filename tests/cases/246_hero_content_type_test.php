@@ -261,7 +261,10 @@ test('Видео и YouTube: кадр-замена всегда лежит по�
     $html = $video['html'];
 
     assert_true(strpos($html, 'hero__fallback') !== false, 'кадр-замена в разметке есть всегда');
-    assert_true(strpos($html, 'poster="/uploads/public/poster.jpg"') !== false, 'постер задан у самого видео');
+    // Постера у видео нет: тот же кадр уже лежит под ним картинкой с webp,
+    // а постер браузер качал сразу, оригинальным JPG и у скрытого слайда.
+    assert_true(strpos($html, 'poster=') === false, 'кадр не качается второй раз постером');
+    assert_true(strpos($html, '/uploads/public/poster.jpg') !== false, 'кадр-замена — та же картинка');
     assert_true(strpos($html, 'data-hero-video') !== false, 'видео помечено для скрипта');
     assert_true(strpos($html, '<video') !== false && strpos($html, 'hidden>') !== false,
         'видео скрыто до решения скрипта — пока виден кадр-замена');

@@ -48,6 +48,7 @@ final class ProjectController
             'content' => $rendered['html'],
             'blockCss' => $rendered['css'],
             'preloadImages' => $rendered['preload_images'],
+            'preloadMobile' => $rendered['preload_mobile'] ?? null,
         ]);
     }
 }

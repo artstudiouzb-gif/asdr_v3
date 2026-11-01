@@ -14,8 +14,9 @@
 
     /* Обложка-hero: на бумаге белый текст на фото нечитаем, поэтому печатаем
        заголовок и мету обычным чёрным по белому, без подложки. */
-    .newsdetail-phero { background-image: none !important; min-height: 0 !important; padding: 0 !important; }
-    .newsdetail-phero__overlay { display: none !important; }
+    .newsdetail-phero { min-height: 0 !important; padding: 0 !important; }
+    .newsdetail-phero__overlay,
+    .newsdetail-phero__media { display: none !important; }
 
     /* Колонки статьи на A4 не нужны — один поток. */
     .newsdetail-body, .newsdetail-head { display: block !important; }
@@ -27,7 +28,7 @@
 
 /* из public/assets/css/gov-theme.css */
 
-body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero { padding-top: 120px; }
+body.has-transparent-header .newsdetail--premium .newsdetail-phero { padding-top: 120px; }
 
 /* ==========================================================================
    Режим чтения для новостей (Reader Mode)
@@ -301,7 +302,13 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero { pad
 
 /* Премиум-новость: полноэкранный тёмный hero, галерея сбоку, оглавление. */
 .newsdetail--premium { margin-top: -1px; }
-.newsdetail-phero { position: relative; left: calc(50% - 50vw); width: 100vw; min-height: 480px; display: flex; align-items: center; background: var(--news-cover-image, var(--gov-navy)) center/cover no-repeat; color: #fff; }
+.newsdetail-phero { position: relative; left: calc(50% - 50vw); width: 100vw; min-height: 480px; display: flex; align-items: center; background: var(--gov-navy); color: #fff; }
+/* Кадр — настоящая картинка, а не фон из переменной: у фона не было ни webp,
+   ни уменьшенных копий (телефон качал JPG 1600px), а сканер предзагрузки его
+   не видел — это и был LCP страницы. Замерено на телефоне: 3,2 → 1,6 с. */
+.newsdetail-phero__media,
+.newsdetail-phero__img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.newsdetail-phero__img { object-fit: cover; object-position: center; }
 .newsdetail-phero__overlay { position: absolute; inset: 0; background: linear-gradient(100deg, rgba(9,22,42,.93) 20%, rgba(9,22,42,.55) 55%, rgba(9,22,42,.25) 100%); }
 /* Вариант «Карточка»: тот же фото-hero, но текст собран в стеклянную панель.
    Смысл приёма — снимок остаётся виден целиком, а читаемость даёт панель, а не
@@ -409,7 +416,7 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero { pad
     padding: var(--crumbs-top, 14px) 20px 0;
     font-size: var(--font-size-meta, var(--step--4)); line-height: 1.4;
 }
-body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero .content-crumbs { top: clamp(88px, 11vw, 130px); }
+body.has-transparent-header .newsdetail--premium .newsdetail-phero .content-crumbs { top: clamp(88px, 11vw, 130px); }
 /* На узком экране крошки переносятся на две-три строки, и вынутые из потока
    они ложатся поверх метки и плашек: замерено 30px перекрытия на 640px и ниже
    (дефект был и до макета «Карточка», на «Премиуме»). Возвращаем их в поток —
@@ -421,7 +428,7 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero .cont
         padding-inline: 0;
         padding-bottom: 6px;
     }
-    body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero .content-crumbs { top: auto; }
+    body.has-transparent-header .newsdetail--premium .newsdetail-phero .content-crumbs { top: auto; }
 }
 .newsdetail-phero .content-crumbs a { color: rgba(255, 255, 255, .82); }
 .newsdetail-phero .content-crumbs a:hover { color: #fff; }
@@ -473,7 +480,7 @@ body:has(.site-header--transparent) .newsdetail--premium .newsdetail-phero .cont
 .relnews-card__excerpt { color: var(--gov-muted); font-size: var(--font-size-news-text, var(--font-size-card-text, var(--step--2))); line-height: 1.5; }
 /* Премиум-hero новости — полноширинный тёмный экран; прижимаем к шапке,
    убирая верхний отступ контента (иначе светлая полоса-зазор). */
-.site-content:has(> .newsdetail--premium) { padding-top: 0; }
+.site-content.has-newsdetail-premium { padding-top: 0; }
 
 /* --- Hero: сплит 40/60 --- */
 .newsdetail-head { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: clamp(28px, 4vw, 56px); align-items: start; margin-top: 8px; }

@@ -61,7 +61,7 @@ test('Печать новости: печатные стили знают тек
         assert_contains($selector, $printBlock, "не скрыт {$selector}");
     }
     // Белый текст обложки на бумаге нечитаем — печатаем чёрным без подложки.
-    assert_contains('.newsdetail-phero { background-image: none', $printBlock);
+    assert_contains('.newsdetail-phero__media { display: none', $printBlock);
     assert_contains('.newsdetail-phero__title', $printBlock);
     // Колонки статьи на A4 разворачиваются в один поток.
     assert_contains('.newsdetail-body, .newsdetail-head { display: block', $printBlock);
