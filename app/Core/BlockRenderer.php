@@ -164,7 +164,7 @@ final class BlockRenderer
 
     /**
      * @param array<string, mixed> $block
-     * @return array{html: string, css: string, hidden?: bool, preload_image?: string|null}
+     * @return array{html: string, css: string, hidden?: bool, preload_image?: string|null, preload_mobile?: string|null}
      */
     public static function render(array $block): array
     {
@@ -362,14 +362,18 @@ final class BlockRenderer
             . "\n</section>";
 
         $preloadImage = null;
+        $preloadMobile = null;
         if ($type === 'hero') {
             if (!empty($data['_hero_slides'])) {
                 // Кандидат в LCP — первый кадр обложки: у слайда это может быть
                 // и постер видео, поэтому спрашиваем не поле, а помощник.
-                $first = \App\Core\Hero\HeroSlideData::fallbackImage(
-                    (array) (($data['_hero_slides'][0]['data'] ?? []))
-                );
+                $firstData = (array) ($data['_hero_slides'][0]['data'] ?? []);
+                $first = \App\Core\Hero\HeroSlideData::fallbackImage($firstData);
                 $preloadImage = $first !== '' ? $first : null;
+                // Свой кадр для телефона: без него preload тянул на телефоне
+                // кадр компьютера рядом с мобильным — замерено 77 КБ впустую.
+                $mobile = trim((string) ($firstData['image_mobile'] ?? ''));
+                $preloadMobile = $preloadImage !== null && $mobile !== '' ? $mobile : null;
             } else {
                 $heroImage = trim((string) ($data['image'] ?? ''));
                 $heroBgType = (string) ($data['bg_type'] ?? 'none');
@@ -379,7 +383,7 @@ final class BlockRenderer
             }
         }
 
-        return ['html' => $wrapped, 'css' => $scopedCss, 'preload_image' => $preloadImage];
+        return ['html' => $wrapped, 'css' => $scopedCss, 'preload_image' => $preloadImage, 'preload_mobile' => $preloadMobile];
     }
 
     /**
@@ -409,7 +413,7 @@ final class BlockRenderer
 
     /**
      * @param array<int, array<string, mixed>> $blocks
-     * @return array{html: string, css: string, assets: array<int, string>, preload_images: array<int, string>, expires_at: int|null}
+     * @return array{html: string, css: string, assets: array<int, string>, preload_images: array<int, string>, preload_mobile: string|null, expires_at: int|null}
      */
     public static function renderPage(array $blocks): array
     {
@@ -417,6 +421,7 @@ final class BlockRenderer
         $cssParts = [];
         $assets = [];
         $preloadImages = [];
+        $preloadMobile = null;
         self::$nextBoundary = null;
         self::$h1Used = false;
         self::$nestedAssets = [];
@@ -476,6 +481,7 @@ final class BlockRenderer
                 // Одного LCP-кандидата достаточно: дополнительные high-priority
                 // preload конкурировали бы с CSS и шрифтами первого экрана.
                 $preloadImages[] = (string) $rendered['preload_image'];
+                $preloadMobile = $rendered['preload_mobile'] ?? null;
             }
         }
 
@@ -488,6 +494,7 @@ final class BlockRenderer
             'css' => implode("\n\n", $cssParts),
             'assets' => array_keys($assets),
             'preload_images' => $preloadImages,
+            'preload_mobile' => $preloadMobile,
             'expires_at' => self::$nextBoundary,
         ];
     }

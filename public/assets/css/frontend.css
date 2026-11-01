@@ -1707,7 +1707,7 @@ body.mobile-menu-open .site-burger span:nth-child(3) { transform: translateY(-7p
    прямо за шапкой и выглядит как промах. Высоту меряет frontend.js (макетов
    шапки четыре, константой их не покрыть), 5rem — запас, когда JS отключён. */
 
-html:has(.site-header--sticky) { scroll-padding-top: calc(var(--scroll-offset, 5rem) + 24px); }
+html.has-sticky-header { scroll-padding-top: calc(var(--scroll-offset, 5rem) + 24px); }
 
 /* Бесшовный переход между страницами (View Transitions).
    Сайт серверный: каждая ссылка — новый документ, и шапка перерисовывалась
@@ -3053,7 +3053,7 @@ body.has-admin-bar .a11y-panel,
 body.has-admin-bar .preview-bar {
     top: 38px !important;
 }
-body.has-admin-bar:has(.site-header--transparent) .site-topbar {
+body.has-admin-bar.has-transparent-header .site-topbar {
     top: 38px !important;
 }
 .app-admin-bar__left, .app-admin-bar__right {

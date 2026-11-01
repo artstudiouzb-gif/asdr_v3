@@ -620,6 +620,16 @@
     border-radius: var(--radius-pill);
 }
 
+/* Ход автопрокрутки — анимацией, а не переменной из скрипта на каждом кадре
+   (см. startAuto в hero.js). Длительность приходит из слайда. */
+.hero__progress-bar.is-running {
+    animation: hero-progress var(--hero-progress-duration, 7000ms) linear both;
+}
+@keyframes hero-progress {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
 .hero__dots { display: inline-flex; gap: 8px; flex-wrap: wrap; }
 
 .hero__dot {
@@ -765,6 +775,7 @@
     .hero__cta::after { content: none; animation: none; }
     @keyframes hero-cta-shimmer { to { --motion-still: 1; } }
     @keyframes hero-kenburns { to { --motion-still: 1; } }
+    @keyframes hero-progress { to { --motion-still: 1; } }
 }
 
 /* Тумблер «остановка анимаций» из панели настроек отображения и уровень
@@ -784,6 +795,11 @@
 .hero:not([data-hero-ready]) .hero__slides { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
 .hero:not([data-hero-ready]) .hero__slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
 .hero:not([data-hero-ready]) .hero__nav { display: none; }
-.hero:not([data-hero-ready]) { --hero-nav-space: 0px; --hero-kenburns: none; }
+/* Резерв под навигацию держится и до готовности скрипта: навигация лежит
+   поверх кадра (position: absolute), а снятый резерв двигал текст обложки
+   вверх, и после загрузки скрипта он прыгал обратно — замерено 84px на
+   компьютере и 54px высоты на телефоне, CLS 0,04 (единственный сдвиг на
+   главной). Пустая полоса внизу без скриптов дешевле этого прыжка. */
+.hero:not([data-hero-ready]) { --hero-kenburns: none; }
 .hero[data-hero-paused="true"] .hero__image,
 .hero[data-hero-paused="true"] .hero__video { animation-play-state: paused; }

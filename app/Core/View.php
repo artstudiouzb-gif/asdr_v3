@@ -43,6 +43,9 @@ final class View
         if (str_starts_with($template, 'site/') && Asset::cdnBase() !== '') {
             $html = Asset::rewriteMedia($html);
         }
+        if (str_starts_with($template, 'site/')) {
+            $html = self::markSiteContent($html);
+        }
         // Геометрия иконок встраивается в готовую страницу: так браузер не
         // тянет двухмегабайтный спрайт Tabler ради десятка символов.
         $html = Icon::injectSprite($html);
@@ -73,11 +76,40 @@ final class View
         echo $html;
     }
 
-    /** Публичные страницы: сайт и портал репозитория (в админке — только русский). */
+    /**
+     * Признаки содержимого — классом на `.site-content`, а не `:has()`.
+     *
+     * Обложка страницы (`cms-block--page-hero`) и премиум-новость решаются во
+     * вьюхе уже после того, как шапка напечатала `<main>`, поэтому флаг
+     * ставится здесь, по готовой разметке, — одно место на все вьюхи.
+     * `.site-content:has(…)` заставлял браузер пересчитывать стили всей
+     * страницы при любом изменении внутри неё (см. `_header.php`).
+     */
+    public static function markSiteContent(string $html): string
+    {
+        $flags = [];
+        if (str_contains($html, 'cms-block--page-hero')) {
+            $flags[] = 'has-page-hero';
+        }
+        if (str_contains($html, 'newsdetail--premium')) {
+            $flags[] = 'has-newsdetail-premium';
+        }
+        if ($flags === []) {
+            return $html;
+        }
+
+        return (string) preg_replace(
+            '/<main class="site-content"/',
+            '<main class="site-content ' . implode(' ', $flags) . '"',
+            $html,
+            1
+        );
+    }
+
+    /** Публичные страницы сайта (в админке — только русский). */
     private static function isPublic(string $template): bool
     {
         return str_starts_with($template, 'site/')
-            || str_starts_with($template, 'repo/')
             || str_starts_with($template, 'errors/');
     }
 

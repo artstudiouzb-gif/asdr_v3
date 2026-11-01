@@ -103,7 +103,7 @@ test('Крошки поверх обложки-записи разложены C
     assert_contains('.hero .content-crumbs--on-hero', $css, 'обложка-запись знает про крошки');
     // Обложка-шапка на странице проекта лежит не прямым ребёнком .site-content,
     // поэтому отступ снимается по потомку, а не по прямому ребёнку.
-    assert_contains('.site-content:has(.cms-block--page-hero)', $css, 'отступ снят и у вложенной обложки');
+    assert_contains('.site-content.has-page-hero', $css, 'отступ снят и у вложенной обложки');
     assert_contains('.projdetail--hero', $css, 'у страницы проекта свой верхний отступ');
 });
 

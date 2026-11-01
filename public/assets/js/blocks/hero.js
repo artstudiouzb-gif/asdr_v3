@@ -214,9 +214,7 @@
             pageHidden: document.hidden
         };
         var timer = null;
-        var frame = null;
         var leaving = new Map();
-        var startedAt = 0;
         var pointerIntent = null;
 
         function autoplayAllowed() {
@@ -233,26 +231,28 @@
             return own > 0 ? own : interval;
         }
 
-        function tick() {
-            if (!autoplayAllowed()) { return; }
-            setProgress(Math.min(1, (performance.now() - startedAt) / slideInterval()));
-            frame = window.requestAnimationFrame(tick);
-        }
-
+        // Полоса прогресса идёт CSS-анимацией, а не покадровым rAF: тот
+        // перерисовывал её каждый кадр все семь секунд показа — замерено
+        // 7,8 % главного потока, пока обложка на экране, против нуля.
+        // Анимация компонуется вне главного потока, а перезапуск — одна
+        // смена класса на слайд.
         function stopAuto() {
             window.clearTimeout(timer);
-            window.cancelAnimationFrame(frame);
-            timer = frame = null;
+            timer = null;
+            if (progress) { progress.classList.remove('is-running'); }
             setProgress((current + 1) / slides.length);
         }
 
         function startAuto() {
             stopAuto();
             if (!autoplayAllowed()) { return; }
-            startedAt = performance.now();
-            setProgress(0);
             timer = window.setTimeout(function () { go(current + 1, false); }, slideInterval());
-            if (progress) { frame = window.requestAnimationFrame(tick); }
+            if (progress) {
+                progress.style.setProperty('--hero-progress-duration', slideInterval() + 'ms');
+                setProgress(0);
+                void progress.offsetWidth; // перезапуск анимации с начала
+                progress.classList.add('is-running');
+            }
         }
 
         // All environmental changes pass through the same reconciliation.

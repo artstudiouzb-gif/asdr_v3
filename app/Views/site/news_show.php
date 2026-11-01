@@ -45,6 +45,14 @@ if (!empty($news['category_id'])) {
 
 AssetCollector::requireJs('news');
 
+// Обложка премиум-новости — кадр первого экрана: заранее загружаем её через
+// preload, как первый кадр обложки страницы. Макет известен уже здесь, до
+// шапки: премиум и карточка не зависят от числа фотографий.
+$premiumCover = trim((string) ($news['image'] ?? ''));
+if ($premiumCover !== '' && in_array(News::normalizeLayout($news['layout_type'] ?? 'standard'), ['premium', 'card'], true)) {
+    $preloadImages = [$premiumCover];
+}
+
 require __DIR__ . '/_header.php';
 
 // Крошки: у премиум-макета рендерятся внутри hero (см. ниже), у остальных —
@@ -217,7 +225,10 @@ $hasSidebar = $sidebar !== null && trim((string) ($sidebar['html'] ?? '')) !== '
         </nav>
     <?php endif; ?>
     <?php if ($isPremium): ?>
-    <div class="newsdetail-phero<?= $isCard ? ' newsdetail-phero--card' : '' ?>"<?= $cover !== '' ? ' style="--news-cover-image:url(\'' . htmlspecialchars($cover, ENT_QUOTES) . '\')"' : '' ?>>
+    <div class="newsdetail-phero<?= $isCard ? ' newsdetail-phero--card' : '' ?>">
+        <?php if ($cover !== ''): ?>
+            <?= \App\Core\Media::picture($cover, '', null, null, 'newsdetail-phero__img', false, '100vw', true, 'newsdetail-phero__media') ?>
+        <?php endif; ?>
         <span class="newsdetail-phero__overlay"></span>
         <div class="newsdetail-phero__body">
             <?php require __DIR__ . '/_crumbs.php'; ?>

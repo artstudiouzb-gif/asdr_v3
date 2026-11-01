@@ -134,44 +134,6 @@
     ) img { filter: none; }
 }
 
-/* Page heading and vertical rhythm */
-.site-content:has(> .content-pagehead) .content-pagehead {
-    padding-top: clamp(28px, 3.8vw, 52px);
-    padding-bottom: clamp(20px, 2.6vw, 34px);
-}
-
-.site-content:has(> .content-pagehead) .content-pagehead__inner {
-    max-width: var(--container-max);
-}
-
-.site-content:has(> .content-pagehead) .content-pagehead__title {
-    margin: 0 0 12px;
-    font-size: var(--font-size-h1, var(--step-9));
-    line-height: 1.08;
-    letter-spacing: -.035em;
-}
-
-.site-content:has(> .content-pagehead) .content-pagehead__lead {
-    max-width: 760px;
-    font-size: var(--font-size-lead, var(--step-1));
-    line-height: 1.6;
-}
-@media (max-width: 720px) {
-    .site-content:has(> .content-pagehead) .content-pagehead__lead { font-size: var(--font-size-lead, clamp(var(--step-0), 1.35vw, var(--step-1))); }
-}
-
-.site-content:has(> .content-pagehead) > .cms-block,
-.site-content:has(> .content-pagehead) > .page-blocks > .cms-block {
-    padding-block: var(--page-section-gap);
-}
-
-.site-content:has(> .content-pagehead) > .cms-block:not(.cms-block--bg):not(.cms-block--surface-card)
-    + .cms-block:not(.cms-block--bg):not(.cms-block--surface-card),
-.site-content:has(> .content-pagehead) > .page-blocks > .cms-block:not(.cms-block--bg):not(.cms-block--surface-card)
-    + .cms-block:not(.cms-block--bg):not(.cms-block--surface-card) {
-    padding-top: 0;
-}
-
 /* Явно выбранный редактором верхний/нижний отступ сильнее автоматического
    ритма страницы и локальных пресетов конкретного типа блока. Маркеры
    добавляет BlockRenderer только для значений, отличных от «По умолчанию».
@@ -196,43 +158,6 @@
     border-radius: var(--page-card-radius);
     background: var(--gov-surface);
     box-shadow: var(--page-soft-shadow);
-}
-
-/* Editorial text blocks */
-.site-content:has(> .content-pagehead) .block-text {
-    max-width: var(--page-reading-width);
-}
-
-.site-content:has(> .content-pagehead) .block-text__title {
-    margin: 0 0 18px;
-    font-size: var(--font-size-h2, var(--step-6));
-    line-height: 1.18;
-    letter-spacing: -.025em;
-}
-@media (max-width: 720px) {
-    .site-content:has(> .content-pagehead) .block-text__title { font-size: var(--font-size-h2, clamp(var(--step-4), 2.5vw, var(--step-6))); }
-}
-
-.site-content:has(> .content-pagehead) .block-text__content,
-.site-content:has(> .content-pagehead) .block-text__content p,
-.site-content:has(> .content-pagehead) .block-text__content li {
-    font-size: var(--font-size-body, var(--step-0));
-    line-height: 1.72;
-}
-
-.site-content:has(> .content-pagehead) .block-text__content p {
-    margin-block: 0 14px;
-}
-
-.site-content:has(> .content-pagehead) .block-text__content ul,
-.site-content:has(> .content-pagehead) .block-text__content ol {
-    display: grid;
-    gap: 7px;
-    padding-left: 22px;
-}
-
-.site-content:has(> .content-pagehead) .block-text__content strong {
-    color: var(--gov-title);
 }
 
 /* About page / advantages */
@@ -398,9 +323,6 @@
 }
 
 @media (max-width: 900px) {
-    .site-content:has(> .content-pagehead) .content-pagehead {
-        padding-top: 24px;
-    }
 
     .block-bio {
         grid-template-columns: 1fr;
@@ -416,10 +338,6 @@
 @media (max-width: 720px) {
     :root {
         --page-section-gap: clamp(30px, 8vw, 44px);
-    }
-
-    .site-content:has(> .content-pagehead) .content-pagehead__title {
-        font-size: var(--font-size-h1, clamp(var(--step-5), 9vw, var(--step-7)));
     }
 
     .bio-career__item {
@@ -448,9 +366,6 @@
         grid-template-columns: 1fr;
     }
 
-    .site-content:has(> .content-pagehead) .block-text__content,
-    .site-content:has(> .content-pagehead) .block-text__content p,
-    .site-content:has(> .content-pagehead) .block-text__content li,
     .bio__text {
         font-size: var(--font-size-body, var(--step-0));
     }
@@ -761,7 +676,7 @@
     --editorial-eyebrow-tracking: 0.06em;
     --editorial-smooth-transition: 240ms cubic-bezier(0.16, 1, 0.3, 1);
     --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
-    
+
     /* Layered atmospheric elevation tokens (Apple / Pentagram optical standard) */
     --elevation-flat: 0 0 0 1px color-mix(in srgb, var(--gov-navy) 8%, transparent);
     --elevation-resting: 
@@ -790,7 +705,7 @@
     --gov-ink: #f8fafc;
     --gov-muted: #cbd5e1;
     --gov-title: #ffffff;
-    
+
     --elevation-flat: 0 0 0 1px rgba(255, 255, 255, 0.08);
     --elevation-resting: 
         0 1px 2px rgba(0, 0, 0, 0.25),
@@ -939,7 +854,6 @@ body {
         min-width: 44px;
     }
 }
-
 
 /* ==========================================================================
    Подложка по роли («Дизайн» → «Подложки блоков»)

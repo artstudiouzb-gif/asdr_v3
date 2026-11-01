@@ -862,7 +862,7 @@ body .site-header.site-header--transparent { position: absolute; left: 0; right:
    становится прозрачной (свой фон/границы убраны, текст и иконки белые) —
    чтобы hero был виден и под ней, а не только под средней/нижней шапкой. */
 
-body:has(.site-header--transparent) .site-topbar {
+body.has-transparent-header .site-topbar {
     position: absolute; left: 0; right: 0; top: var(--hdr-panel-height, 0px);
     /* Продолжение подложки шапки вверх: на стыке плотность совпадает. */
     background: linear-gradient(
@@ -875,18 +875,18 @@ body:has(.site-header--transparent) .site-topbar {
     transition-duration: .3s, .25s;
     transition-timing-function: ease;
 }
-body:has(.site-header--transparent) .site-topbar a,
-body:has(.site-header--transparent) .site-topbar .site-lang-switcher__item,
-body:has(.site-header--transparent) .site-topbar .hdr-contact { color: var(--hdr-fg, #fff); }
-body:has(.site-header--transparent) .site-topbar .site-search-toggle,
-body:has(.site-header--transparent) .site-topbar .site-theme-toggle,
-body:has(.site-header--transparent) .site-topbar .a11y-toggle {
+body.has-transparent-header .site-topbar a,
+body.has-transparent-header .site-topbar .site-lang-switcher__item,
+body.has-transparent-header .site-topbar .hdr-contact { color: var(--hdr-fg, #fff); }
+body.has-transparent-header .site-topbar .site-search-toggle,
+body.has-transparent-header .site-topbar .site-theme-toggle,
+body.has-transparent-header .site-topbar .a11y-toggle {
     border-color: var(--hdr-icon-border, rgba(255,255,255,.4)); color: var(--hdr-fg, #fff);
 }
 body .site-header.site-header--transparent.site-header--sticky.is-scrolled { position: fixed; top: var(--hdr-panel-height, 0px) !important; animation: hdr-slide-down .25s ease; }
 @keyframes hdr-slide-down { from { transform: translateY(-100%); } to { transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { body .site-header.site-header--transparent.site-header--sticky.is-scrolled { animation: none; } }
-body:has(.site-header--transparent) .site-content { margin-top: 0; }
+body.has-transparent-header .site-content { margin-top: 0; }
 body .site-header--transparent.is-scrolled { background: var(--gov-surface); }
 body .site-header--transparent:not(.is-scrolled) .site-header__logo,
 body .site-header--transparent:not(.is-scrolled) .site-header__logo span,
@@ -935,7 +935,7 @@ body .site-header--transparent:not(.is-scrolled) .site-header__logo:has(.site-he
    тем, что выбран в «Дизайне». */
 
 body.is-hero-light .site-header--transparent:not(.is-scrolled),
-body.is-hero-light:has(.site-header--transparent) .site-topbar {
+body.is-hero-light.has-transparent-header .site-topbar {
     --hdr-scrim: 0;
     --hdr-fg: #0f172a;
     --hdr-border: rgba(15, 23, 42, .16);
@@ -1122,7 +1122,7 @@ body .site-header--sticky.is-scrolled {
 body .site-header--transparent:not(.is-scrolled) { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }/* Компенсация под прозрачной шапкой: контент первого full-bleed hero
    опускается ниже высоты шапки, чтобы не подлезать под меню. */
 
-body:has(.site-header--transparent) .cms-block--hero .block-hero--media .block-hero__inner { padding-top: clamp(120px, 14vw, 170px); }/* --- Компактные утилиты шапки: только иконки --- *//* Безрамочный чистый анимированный переключатель темы (без фона и без рамок) */
+body.has-transparent-header .cms-block--hero .block-hero--media .block-hero__inner { padding-top: clamp(120px, 14vw, 170px); }/* --- Компактные утилиты шапки: только иконки --- *//* Безрамочный чистый анимированный переключатель темы (без фона и без рамок) */
 
 body .site-header .site-theme-toggle,
 .site-topbar .site-theme-toggle {
@@ -1165,7 +1165,7 @@ body .site-header .site-theme-toggle:active,
 }
 
 body .site-header--transparent:not(.is-scrolled) .site-theme-toggle,
-body:has(.site-header--transparent) .site-topbar .site-theme-toggle {
+body.has-transparent-header .site-topbar .site-theme-toggle {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -1173,7 +1173,7 @@ body:has(.site-header--transparent) .site-topbar .site-theme-toggle {
 }
 
 body .site-header--transparent:not(.is-scrolled) .site-theme-toggle:hover,
-body:has(.site-header--transparent) .site-topbar .site-theme-toggle:hover {
+body.has-transparent-header .site-topbar .site-theme-toggle:hover {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -1386,7 +1386,7 @@ body .site-header--transparent:not(.is-scrolled) .site-search-wrap .site-search_
 body.design-search-inline .site-header .site-search { display: inline-flex; }
 body.design-search-overlay .site-header .site-search-toggle { display: grid; }/* Убираем светлую полосу после topbar в прозрачном режиме: контент стартует без верхнего паддинга. */
 
-body:has(.site-header--transparent) .site-content { padding-top: 0; }/* --- Высоты секций шапки --- */
+body.has-transparent-header .site-content { padding-top: 0; }/* --- Высоты секций шапки --- */
 
 .site-topbar--h-slim .site-topbar__inner { padding-block: 3px; }
 .site-topbar--h-normal .site-topbar__inner { padding-block: 7px; }
@@ -1414,7 +1414,7 @@ body .site-header--transparent.site-header--mid-bg:not(.is-scrolled) { backgroun
 body .site-header--transparent.site-header--nav-bg:not(.is-scrolled) .site-nav { background: transparent !important; }
 
 body .site-header--borders-none, body .site-header--borders-none .site-nav { border-top: 0; border-bottom: 0; }
-body:has(.site-header--borders-none) .site-topbar--light { border-bottom: 0; }
+body.has-header-borders-none .site-topbar--light { border-bottom: 0; }
 body .site-header--borders-container { border-bottom: 0; }
 body .site-header--borders-container .site-nav { border-top: 0; }
 body .site-header--borders-container .site-header__inner { border-bottom: 1px solid var(--gov-border); }
@@ -3869,7 +3869,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .block-hero--pos-center .block-hero__text--panel { display: inline-block; }/* Hero как шапка страницы: убираем верхний отступ контента, чтобы hero стоял
    вплотную под шапкой сайта (без зазора). */
 
-.site-content:has(.cms-block--page-hero) { padding-top: 0; }
+.site-content.has-page-hero { padding-top: 0; }
 .projdetail--hero { padding-top: 0; }/* Хлебные крошки как часть hero (шапка-герой): поверх фона, вверху секции,
    вместо отдельной серой полосы над hero. */
 
@@ -3910,8 +3910,8 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .hero .content-crumbs--on-hero span { color: color-mix(in srgb, var(--hero-fg) 82%, transparent); }
 .hero .content-crumbs--on-hero a:hover { color: var(--hero-fg); }/* На страницах с прозрачной шапкой крошки опускаем ниже неё. */
 
-body:has(.site-header--transparent) .block-hero .content-crumbs--on-hero,
-body:has(.site-header--transparent) .hero .content-crumbs--on-hero { top: clamp(88px, 11vw, 130px); }
+body.has-transparent-header .block-hero .content-crumbs--on-hero,
+body.has-transparent-header .hero .content-crumbs--on-hero { top: clamp(88px, 11vw, 130px); }
 @media (max-width: 720px) {/* Своя ширина текста (--hero-text-width) на телефонах игнорируется,
        иначе 50vw и подобные значения сжимают текст в узкий столбик. */
     
@@ -4896,7 +4896,7 @@ a.newsdetail__badge:hover { background: color-mix(in srgb, var(--gov-teal) 22%, 
 
 .block-hero--w-standard.block-hero--media { left: auto; width: auto; max-width: var(--container-max); margin-inline: auto; border-radius: var(--radius); overflow: hidden; }
 .block-hero--h-full.block-hero--media { min-height: calc(100dvh - 180px); display: flex; align-items: center; }
-body:has(.site-header--transparent) .cms-block--hero:first-child .block-hero--h-full { min-height: 100dvh; }
+body.has-transparent-header .cms-block--hero:first-child .block-hero--h-full { min-height: 100dvh; }
 .block-hero--h-custom { min-height: var(--hero-custom-height, 720px); }
 
 .block-hero--h-custom.block-hero--media { display: flex; align-items: center; }/* ============================================================================

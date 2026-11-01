@@ -61,7 +61,11 @@ final class HeroMediaRenderer
      */
     private static function video(array $d, string $positions): string
     {
-        $poster = HeroSlideData::fallbackImage($d);
+        // Атрибута poster нет намеренно: кадр-замена уже лежит под видео
+        // (`<picture>` с webp и уменьшенными копиями, см. render()), а постер
+        // браузер качал сразу — оригинальным JPG и даже у скрытого слайда,
+        // то есть тот же кадр приходил дважды. Видео без постера до первого
+        // кадра прозрачно, и сквозь него виден тот же кадр-замена.
         $sources = '<source data-hero-src="' . htmlspecialchars((string) $d['video_url'], ENT_QUOTES) . '" type="video/mp4">';
 
         // Ролик не стартует по атрибуту autoplay: старт даёт скрипт, когда слайд
@@ -73,7 +77,6 @@ final class HeroMediaRenderer
                 ? ' data-hero-video-mobile="' . htmlspecialchars((string) $d['video_mobile_url'], ENT_QUOTES) . '"'
                 : '')
             . ' preload="none"'
-            . ($poster !== '' ? ' poster="' . htmlspecialchars($poster, ENT_QUOTES) . '"' : '')
             . ' muted loop playsinline webkit-playsinline'
             . ' disablepictureinpicture disableremoteplayback'
             . ' controlslist="nodownload nofullscreen noremoteplayback noplaybackrate"'
