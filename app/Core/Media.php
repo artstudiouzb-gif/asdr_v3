@@ -205,7 +205,7 @@ final class Media
             . $original . ' type("image/jpeg"))';
     }
 
-    public static function preloadLink(string $url, string $sizes = '100vw'): string
+    public static function preloadLink(string $url, string $sizes = '100vw', ?string $media = null): string
     {
         $url = trim($url);
         if ($url === '' || !UrlGuard::isSafeMedia($url)) {
@@ -225,7 +225,9 @@ final class Media
         }
 
         return '<link rel="preload" as="image" href="' . htmlspecialchars($href, ENT_QUOTES) . '"'
-            . $responsive . ' fetchpriority="high">';
+            . $responsive
+            . ($media !== null ? ' media="' . htmlspecialchars($media, ENT_QUOTES) . '"' : '')
+            . ' fetchpriority="high">';
     }
 
     /**

@@ -20,7 +20,7 @@ use App\Models\Setting;
 final class PageBlocks
 {
     /**
-     * @return array{html: string, css: string, preload_images: array<int, string>, assets: array<int, string>}
+     * @return array{html: string, css: string, preload_images: array<int, string>, preload_mobile: string|null, assets: array<int, string>}
      */
     public static function compile(int $pageId, string $lang): array
     {
@@ -78,6 +78,7 @@ final class PageBlocks
             'html' => (string) $rendered['html'],
             'css' => (string) ($rendered['css'] ?? ''),
             'preload_images' => (array) ($rendered['preload_images'] ?? []),
+            'preload_mobile' => isset($rendered['preload_mobile']) ? (string) $rendered['preload_mobile'] : null,
             'assets' => (array) ($rendered['assets'] ?? []),
         ];
     }

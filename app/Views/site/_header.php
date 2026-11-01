@@ -13,6 +13,7 @@ use App\Models\Setting;
 /** @var string $ogImage */
 /** @var string $ogType */
 /** @var array<int, string> $preloadImages */
+/** @var string|null $preloadMobile */
 
 $siteName = Setting::getLocalized('site_name', \App\Core\Locale::current(), 'ASDR');
 // Логотип: переопределение на текущий язык (Шапка → логотип для языка),
@@ -635,9 +636,23 @@ if ($extraHeadCss !== '') {
     }
 }
 ?>
+<?php
+// Признаки шапки печатает сервер, а не выводит браузер через `:has()`.
+// Правило вида `body:has(.site-header--transparent)` помечало корень страницы
+// зависимым от всего дерева: любая смена текста или класса (отсчёт чисел,
+// слайд обложки, карусель) пересчитывала стили всей страницы — замерено
+// 7–9 мс против 0,3 мс на одно изменение и −500 мс блокировки на мобильной
+// главной. Вес селектора `body.has-x` тот же, что у `body:has(.x)`.
+$chromeShown = empty($hideChrome);
+$htmlShellClass = $chromeShown && !empty($hcfg['sticky']) ? 'has-sticky-header' : '';
+$shellBodyClass = trim(
+    ($chromeShown && $transparentOn ? ' has-transparent-header' : '')
+    . ($chromeShown && ($hcfg['borders'] ?? 'full') === 'none' ? ' has-header-borders-none' : '')
+);
+?>
 <!DOCTYPE html>
 <html
-    lang="<?= htmlspecialchars($currentLang, ENT_QUOTES) ?>"
+    lang="<?= htmlspecialchars($currentLang, ENT_QUOTES) ?>"<?= $htmlShellClass !== '' ? ' class="' . $htmlShellClass . '"' : '' ?>
     data-theme="<?= htmlspecialchars($defaultTheme, ENT_QUOTES) ?>"
     <?= \App\Core\A11ySettings::htmlAttributes($a11ySettings) ?>
     <?= \App\Core\DesignSettings::motionAttribute($designVals) ?>
@@ -728,7 +743,12 @@ foreach ($hrefLangs as $hrefLangRow) {
 <?php // Первый Hero уже отрендерен/закэширован до header, поэтому его LCP-кандидат
       // можно начать загружать до блокирующих stylesheet. ?>
 <?php foreach (array_slice(array_values(array_unique($preloadImages ?? [])), 0, 1) as $preloadImage): ?>
+<?php if (!empty($preloadMobile)): // разные кадры — каждому свой медиазапрос, как у <source> ?>
+<?= \App\Core\Media::preloadLink((string) $preloadImage, '100vw', '(min-width: 721px)') ?>
+<?= \App\Core\Media::preloadLink((string) $preloadMobile, '100vw', '(max-width: 720px)') ?>
+<?php else: ?>
 <?= \App\Core\Media::preloadLink((string) $preloadImage, '100vw') ?>
+<?php endif; ?>
 <?php endforeach; ?>
 <?php
 $cdnBase = \App\Core\Asset::cdnBase();
@@ -794,7 +814,8 @@ $pageCssUrls = \App\Core\CustomAssetHelper::resolveCssUrls((string) $page['custo
 $bodyClass = trim($designBodyClass
     . (!empty($isHome) && empty($hideChrome) ? ' site-home' : '')
     . (!empty($previewNotice) ? ' is-preview' : '')
-    . (\App\Core\AppToolbar::isVisible() ? ' has-admin-bar' : ''));
+    . (\App\Core\AppToolbar::isVisible() ? ' has-admin-bar' : '')
+    . ($shellBodyClass !== '' ? ' ' . $shellBodyClass : ''));
 ?>
 <body class="<?= htmlspecialchars($bodyClass, ENT_QUOTES) ?>">
 <?= \App\Core\AppToolbar::renderHtml(get_defined_vars()) ?>
