@@ -55,7 +55,7 @@ final class HealthController
             $last = max($runs[$task] ?? 0, Heartbeat::lastRun($task) ?? 0);
             $out[] = [
                 'task' => $task,
-                'label' => Scheduler::LABELS[$task] ?? $task,
+                'label' => Scheduler::LABELS[$task],
                 'cron' => $cron,
                 'last' => $last > 0 ? $last : null,
             ];

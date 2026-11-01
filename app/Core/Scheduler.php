@@ -265,7 +265,7 @@ final class Scheduler
     private static function phpBinary(): string
     {
         $binary = PHP_BINARY;
-        if (PHP_SAPI === 'cli' && $binary !== '') {
+        if (PHP_SAPI === 'cli') {
             return $binary;
         }
         foreach ([dirname($binary) . '/php', PHP_BINDIR . '/php', '/usr/bin/php', '/usr/local/bin/php'] as $candidate) {
