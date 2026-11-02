@@ -3593,15 +3593,28 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .listing-filter__icon { display: inline-flex; color: var(--gov-teal); }
 .listing-filter__item.is-active .listing-filter__icon { color: currentColor; }
 .listing-filter__item.is-active { background: var(--gov-navy); border-color: var(--gov-title); color: #fff; }
-/* Архив ленты по годам и месяцам — навигация второго уровня под рубриками:
-   тише рубрик (без подложки и рамки), выбранное значение отмечено цветом
-   акцентного текста и чертой снизу, а не заливкой — заливка у рубрики. */
-.listing-archive { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin-top: 14px; }
-.listing-archive--months { margin-top: 4px; }
-.listing-archive__label { margin-right: 6px; color: var(--gov-muted); font-size: var(--step--2); font-weight: 600; }
-.listing-archive__item { display: inline-flex; align-items: center; min-height: 32px; padding: 0 10px; border-bottom: 2px solid transparent; color: var(--gov-ink); font-size: var(--step--2); text-decoration: none; }
+/* Архив ленты по годам и месяцам — одна панель под рубриками: ряд годов и
+   под ним, через тонкую черту, месяцы выбранного года. Подпись ряда стоит
+   колонкой фиксированной ширины, поэтому месяцы начинаются ровно под годами,
+   а подпись второго ряда — сам год: видно, чьи это месяцы. Выбранное
+   значение — белая «клавиша» на приглушённой дорожке (сегментный
+   переключатель), а не заливка: заливка navy принадлежит рубрике, и два
+   одинаковых признака выбора рядом спорили бы. Акцентный текст на
+   поверхности держит 4.5:1, на тонированной подложке он бы его не держал. */
+.listing-archive { display: grid; margin-top: calc(-1 * clamp(10px, 1.6vw, 22px)); border: 1px solid var(--gov-border); border-radius: var(--radius); background: var(--gov-surface); }
+.listing-archive__row { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); align-items: center; gap: 12px; padding: 10px 14px; }
+.listing-archive__row--months { border-top: 1px solid var(--gov-border); }
+.listing-archive__label { color: var(--gov-muted); font-size: var(--step--2); font-weight: 600; font-variant-numeric: tabular-nums; }
+.listing-archive__list { display: flex; flex-wrap: wrap; justify-self: start; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--gov-ink) 5%, var(--gov-surface)); }
+.listing-archive__item { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: var(--radius-xs); color: var(--gov-ink); font-size: var(--step--2); font-variant-numeric: tabular-nums; text-decoration: none; white-space: nowrap; transition: background-color .15s ease, color .15s ease; }
 .listing-archive__item:hover { color: var(--gov-teal-text); }
-.listing-archive__item.is-active { border-bottom-color: var(--gov-teal-text); color: var(--gov-teal-text); font-weight: 600; }/* AJAX-фильтрация: пока грузится новый список, старый приглушается. Клики по
+.listing-archive__item.is-active { background: var(--gov-surface); box-shadow: var(--shadow-control); color: var(--gov-teal-text); font-weight: 600; }
+/* На телефоне подпись встаёт над рядом, а ряд листается вбок: двенадцать
+   месяцев в три строки занимали полэкрана до первой новости. */
+@media (max-width: 560px) {
+    .listing-archive__row { grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 10px 12px; }
+    .listing-archive__list { flex-wrap: nowrap; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+}/* AJAX-фильтрация: пока грузится новый список, старый приглушается. Клики по
    нему в это время не нужны — ответ всё равно перерисует область. *//* Блоки страницы-раздела идут под списком и отделяются от него линией:
    иначе первая же секция читается как продолжение ленты. */
 

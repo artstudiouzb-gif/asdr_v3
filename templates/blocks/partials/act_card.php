@@ -23,6 +23,14 @@ $date = trim((string) ($doc['date'] ?? ''));
 $editorialAct = !empty($editorialAct);
 $showEmblem = !isset($showEmblem) || (bool) $showEmblem;
 $hasMedia = $presented['cover'] !== '';
+// Составное слово через дефис не рвётся на дефисе: «chora-» в конце строки и
+// «tadbirlari» в начале следующей читаются как ошибка набора. Склеиваются
+// только короткие пары — длинная цепочка в узкой карточке вылезла бы за край.
+$actTitle = (string) preg_replace_callback(
+    '/[\p{L}\p{N}ʻʼ\'‘’]+(?:-[\p{L}\p{N}ʻʼ\'‘’]+)+/u',
+    static fn (array $m): string => mb_strlen($m[0]) <= 24 ? '<span class="act-card__nobr">' . $m[0] . '</span>' : $m[0],
+    htmlspecialchars($presented['title'], ENT_QUOTES)
+);
 ?>
 <article
     class="feature-card act-card<?= $number === '' ? ' act-card--no-number' : '' ?><?= $hasMedia ? ' act-card--media' : '' ?>"
@@ -52,7 +60,7 @@ $hasMedia = $presented['cover'] !== '';
             <?php endif; ?>
             <?php /* Без номера акта название и есть заголовок карточки: у изданий и
                      отчётов реквизитов нет, и обычным текстом оно терялось. */ ?>
-            <p class="feature-card__text act-card__desc"><?= htmlspecialchars($presented['title'], ENT_QUOTES) ?></p>
+            <p class="feature-card__text act-card__desc"><?= $actTitle ?></p>
         </div>
     </div>
     <?php $summaryClass = 'act-card__summary'; $summaryCover = !$hasMedia; include __DIR__ . '/document_summary.php'; ?>

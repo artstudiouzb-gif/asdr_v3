@@ -122,7 +122,7 @@ test('Документ: своя подпись формата главнее а
         ]]], JSON_UNESCAPED_UNICODE),
     ]);
 
-    assert_contains('<span class="doc-files__meta">PDF · 2.4 МБ</span>', (string) $rendered['html']);
+    assert_contains('<span class="doc-files__meta" title="PDF · 2.4 МБ">PDF · 2.4 МБ</span>', (string) $rendered['html']);
 });
 
 test('Документ: своё название ссылки вместо «Скачать» и названия языка', function (): void {
