@@ -740,6 +740,19 @@
        управления всей обложкой. */
     .hero__nav { justify-content: center; padding: var(--space-xs) var(--space-s); }
     .hero__thumbs { display: none; }
+    /* «Показать целиком» — настройка широкого экрана. На телефоне обложка
+       портретная, и альбомный ролик, вписанный по ширине, оставлял сверху и
+       снизу полосы фона обложки: видео не доходило до низа секции. Здесь фон
+       всегда заполняет обложку, а кадр выбирает «Положение на телефоне».
+       Переменная `--hero-fit` для этого не годится — её печатает scoped CSS
+       с весом id, — поэтому снимается само свойство. */
+    .hero__image,
+    .hero__video { object-fit: cover; }
+    .hero__yt--contain {
+        --yt-w: max(100cqw, 177.78cqh);
+        --yt-h: max(56.25cqw, 100cqh);
+        background: none;
+    }
     .hero__art--hide-mobile { display: none; }
     .hero--no-arrows-mobile .hero__arrow { display: none; }
     /* Положение текста на телефоне — своя настройка (`text_position_mobile`).
