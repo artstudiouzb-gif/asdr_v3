@@ -183,7 +183,7 @@ $customDuration = (int) $data['duration'];
                 <?= $select('image_fit', 'Масштабирование изображения', [
                     'cover' => 'Заполнить область — края могут обрезаться',
                     'contain' => 'Показать целиком — без обрезки',
-                ], (string) $data['image_fit'], '', 'col-6') ?>
+                ], (string) $data['image_fit'], 'Действует на компьютере. На телефоне обложка вытянута вверх, поэтому фон всегда заполняет её целиком.', 'col-6') ?>
 
                 <div class="col-12">
                     <?= AdminUi::imageField('image', (string) $data['image'], [
