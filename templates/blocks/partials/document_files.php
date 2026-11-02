@@ -40,7 +40,7 @@ $fileAttrs = static function (array $file): string {
         <?= Icon::render($mainFile['book'] ? 'book' : ($mainFile['direct_file'] && !$mainFile['viewable'] ? 'download' : 'external-link'), 18, 'doc-files__icon', 1.8) ?>
         <span class="doc-files__action"><?= htmlspecialchars($mainFile['name'] !== '' ? $mainFile['name'] : t($mainFile['direct_file'] && !$mainFile['viewable'] ? 'Скачать' : 'Открыть'), ENT_QUOTES) ?></span>
         <span class="visually-hidden"><?= htmlspecialchars(': ' . $presented['title'], ENT_QUOTES) ?></span>
-        <?php if ($mainMeta !== ''): ?><span class="doc-files__meta"><?= htmlspecialchars($mainMeta, ENT_QUOTES) ?></span><?php endif; ?>
+        <?php if ($mainMeta !== ''): ?><span class="doc-files__meta" title="<?= htmlspecialchars($mainMeta, ENT_QUOTES) ?>"><?= htmlspecialchars($mainMeta, ENT_QUOTES) ?></span><?php endif; ?>
     </a>
     <?php if ($otherFiles !== []): ?>
         <span class="doc-files__langs" role="group" aria-label="<?= htmlspecialchars(t('Другие языки'), ENT_QUOTES) ?>">
