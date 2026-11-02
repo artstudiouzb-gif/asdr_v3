@@ -203,7 +203,7 @@ final class SeoHelper
      *  - `token`, `to`, `format` — служебные, к содержимому страницы отношения
      *    не имеют.
      */
-    private const CANONICAL_PARAMS = ['category', 'page', 'mtab', 'mpage', 'm'];
+    private const CANONICAL_PARAMS = ['category', 'year', 'month', 'page', 'mtab', 'mpage', 'm'];
 
     /**
      * Первые страницы списков: значение по умолчанию из адреса убираем.

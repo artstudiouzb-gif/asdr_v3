@@ -37,7 +37,13 @@ final class NewsController
             $categorySlug = '';
         }
 
-        $total = News::publishedCount($categoryId > 0 ? $categoryId : null, $lang);
+        // Архив по году и месяцу: значение из адреса сверяется с месяцами,
+        // где новости есть, — чужое молча сбрасывается к ленте.
+        $archive = News::publishedMonths($lang);
+        ['year' => $year, 'month' => $month] = \App\Core\NewsArchive::selected(\App\Core\Input::query(), $archive);
+        $period = \App\Core\NewsArchive::period($year, $month);
+
+        $total = News::publishedCount($categoryId > 0 ? $categoryId : null, $lang, $period);
 
         // Композиция страницы одна и та же везде — и на первой, и в рубрике:
         // лента идёт группами «крупная плюс две компактные». Отдельной крупной
@@ -50,11 +56,14 @@ final class NewsController
         $offset = ($page - 1) * $gridPageSize;
 
         $vars = [
-            'items' => News::published($perPage, $offset, $lang, $categoryId > 0 ? $categoryId : null),
+            'items' => News::published($perPage, $offset, $lang, $categoryId > 0 ? $categoryId : null, $period),
             'page' => $page,
             'pages' => $pages,
             'categories' => $categories,
             'category' => $categorySlug,
+            'archive' => $archive,
+            'year' => $year,
+            'month' => $month,
             // Заголовок, лид, SEO и блоки под лентой берутся из страницы,
             // назначенной шапкой раздела в админке (может не быть вовсе).
             'sectionPage' => \App\Core\SectionPage::render('news', $lang),
