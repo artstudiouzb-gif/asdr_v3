@@ -75,21 +75,31 @@ require __DIR__ . '/_crumbs.php';
           // скриптом: список месяцев меняется вместе с выбранным годом.
           // Года одного — архив не нужен, его заменяет сама лента. ?>
     <?php if (count($archive) > 1 || ($archive !== [] && count(reset($archive)) > 1)): ?>
-        <nav class="listing-archive" aria-label="<?= htmlspecialchars(t('Архив новостей'), ENT_QUOTES) ?>">
-            <span class="listing-archive__label"><?= htmlspecialchars(t('Архив'), ENT_QUOTES) ?></span>
-            <a class="listing-archive__item<?= $year === 0 ? ' is-active' : '' ?>" href="<?= htmlspecialchars(\App\Core\NewsArchive::url($category), ENT_QUOTES) ?>"<?= $year === 0 ? ' aria-current="page"' : '' ?>><?= htmlspecialchars(t('За все годы'), ENT_QUOTES) ?></a>
-            <?php foreach (array_keys($archive) as $y): ?>
-                <a class="listing-archive__item<?= $y === $year ? ' is-active' : '' ?>" href="<?= htmlspecialchars(\App\Core\NewsArchive::url($category, $y), ENT_QUOTES) ?>"<?= $y === $year && $month === 0 ? ' aria-current="page"' : '' ?>><?= $y ?></a>
-            <?php endforeach; ?>
-        </nav>
-        <?php if ($year > 0): ?>
-            <nav class="listing-archive listing-archive--months" aria-label="<?= htmlspecialchars(t('Архив новостей') . ' ' . $year, ENT_QUOTES) ?>">
-                <a class="listing-archive__item<?= $month === 0 ? ' is-active' : '' ?>" href="<?= htmlspecialchars(\App\Core\NewsArchive::url($category, $year), ENT_QUOTES) ?>"><?= htmlspecialchars(t('Весь год'), ENT_QUOTES) ?></a>
-                <?php foreach (array_reverse($archive[$year] ?? []) as $m): ?>
-                    <a class="listing-archive__item<?= $m === $month ? ' is-active' : '' ?>" href="<?= htmlspecialchars(\App\Core\NewsArchive::url($category, $year, $m), ENT_QUOTES) ?>"<?= $m === $month ? ' aria-current="page"' : '' ?>><?= htmlspecialchars(\App\Core\NewsArchive::monthName($m), ENT_QUOTES) ?></a>
-                <?php endforeach; ?>
+        <?php // Годы и месяцы — одна панель из двух рядов: порознь каждый ряд
+              // получал полный промежуток секций ленты (до 44px), и месяцы
+              // висели отдельной полосой, не связанной с выбранным годом. ?>
+        <div class="listing-archive">
+            <nav class="listing-archive__row" aria-label="<?= htmlspecialchars(t('Архив новостей'), ENT_QUOTES) ?>">
+                <span class="listing-archive__label"><?= htmlspecialchars(t('Архив'), ENT_QUOTES) ?></span>
+                <span class="listing-archive__list">
+                    <a class="listing-archive__item<?= $year === 0 ? ' is-active' : '' ?>" href="<?= htmlspecialchars(\App\Core\NewsArchive::url($category), ENT_QUOTES) ?>"<?= $year === 0 ? ' aria-current="page"' : '' ?>><?= htmlspecialchars(t('За все годы'), ENT_QUOTES) ?></a>
+                    <?php foreach (array_keys($archive) as $y): ?>
+                        <a class="listing-archive__item<?= $y === $year ? ' is-active' : '' ?>" href="<?= htmlspecialchars(\App\Core\NewsArchive::url($category, $y), ENT_QUOTES) ?>"<?= $y === $year && $month === 0 ? ' aria-current="page"' : '' ?>><?= $y ?></a>
+                    <?php endforeach; ?>
+                </span>
             </nav>
-        <?php endif; ?>
+            <?php if ($year > 0): ?>
+                <nav class="listing-archive__row listing-archive__row--months" aria-label="<?= htmlspecialchars(t('Архив новостей') . ' ' . $year, ENT_QUOTES) ?>">
+                    <span class="listing-archive__label"><?= $year ?></span>
+                    <span class="listing-archive__list">
+                        <a class="listing-archive__item<?= $month === 0 ? ' is-active' : '' ?>" href="<?= htmlspecialchars(\App\Core\NewsArchive::url($category, $year), ENT_QUOTES) ?>"<?= $month === 0 ? ' aria-current="page"' : '' ?>><?= htmlspecialchars(t('Весь год'), ENT_QUOTES) ?></a>
+                        <?php foreach (array_reverse($archive[$year] ?? []) as $m): ?>
+                            <a class="listing-archive__item<?= $m === $month ? ' is-active' : '' ?>" href="<?= htmlspecialchars(\App\Core\NewsArchive::url($category, $year, $m), ENT_QUOTES) ?>"<?= $m === $month ? ' aria-current="page"' : '' ?>><?= htmlspecialchars(\App\Core\NewsArchive::monthName($m), ENT_QUOTES) ?></a>
+                        <?php endforeach; ?>
+                    </span>
+                </nav>
+            <?php endif; ?>
+        </div>
     <?php endif; ?>
 
     <?php // Область результатов: её же отдаёт контроллер как фрагмент при

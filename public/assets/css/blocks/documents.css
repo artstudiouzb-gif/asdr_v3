@@ -165,7 +165,16 @@
     z-index: 1;
 }
 .doc-files__icon { flex: none; color: var(--gov-teal-text); }
+/* Главная кнопка не шире карточки: своя подпись файла бывает длиной в
+   полное название ведомства, и с `nowrap` она уходила за край карточки,
+   обрезанная посередине буквы. Подпись сокращается многоточием, полный
+   текст — в `title`. */
+.doc-files__main { max-width: 100%; min-width: 0; }
+.doc-files__action { flex: none; }
 .doc-files__meta {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     padding-inline-start: 8px;
     border-inline-start: 1px solid color-mix(in srgb, currentColor 25%, transparent);
     color: var(--gov-muted);
@@ -220,17 +229,18 @@
    оно замыкало бы растянутую ссылку в полосе подвала, и карточка
    открывалась бы только по нижней строке. */
 .doc-files.act-card__foot { position: static; justify-content: flex-start; margin-top: auto; }
-/* Шапка акта: лист формата и рядом реквизиты с названием. Название
-   выравнивается по центру листа, а длинное (три строки и больше) растёт вниз
-   от его верха — так короткое не висит над пустотой, а длинное не съезжает
-   выше значка. Зазор 16px — тот же, что между листом и текстом у карточки
+/* Шапка акта: лист формата сверху, под ним реквизиты и название. Рядом с
+   листом названию оставалась половина узкой карточки (в ряду из пяти —
+   около 180px), и оно ломалось на каждом втором слове; колонкой текст
+   получает всю ширину карточки, а лист стоит в начале, как у раскрытого
    документа. */
 .act-card .act-card__editorial-head {
     position: relative;
     z-index: 1;
     display: flex;
-    align-items: center;
-    gap: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
     margin: 0;
 }
 .act-card__heading {
@@ -241,7 +251,13 @@
     gap: 6px;
     min-width: 0;
 }
-.act-card .act-card__heading .act-card__desc { margin: 0; overflow-wrap: anywhere; }
+/* Перенос — по словам: `anywhere` резал слово посреди строки, где оно
+   помещалось целиком на следующей. Длинное слово без пробелов (номер,
+   адрес) всё равно переносится — `break-word`. Составное слово через
+   дефис («chora-tadbirlar») шаблон склеивает неразрывным пробелом-обёрткой
+   (`.act-card__nobr`): обрыв на дефисе читался как ошибка набора. */
+.act-card .act-card__heading .act-card__desc { width: 100%; margin: 0; overflow-wrap: break-word; hyphens: manual; }
+.act-card__nobr { white-space: nowrap; }
 /* Название и описание не тянутся по высоте. У `.feature-card__text` из темы
    `flex: 1`, и в ряду, где соседняя карточка выше, свободная высота уходила
    под название: описание и кнопка уезжали вниз, а тексты соседей стояли на
