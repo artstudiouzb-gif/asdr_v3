@@ -516,10 +516,8 @@ final class News
      * одна на все языковые версии новости, переводится только её название.
      * Прежний фильтр по бейджу сравнивал строки и требовал разбора перевода
      * прямо в SQL.
-     * @return list<array<string, mixed>>
-     */
-    /**
      * @param array{0:string, 1:string}|null $period `[начало, конец)` по дате публикации (архив ленты)
+     * @return list<array<string, mixed>>
      */
     public static function published(int $limit = 20, int $offset = 0, ?string $lang = null, ?int $categoryId = null, ?array $period = null): array
     {
@@ -561,8 +559,11 @@ final class News
         return self::$publishedRequestCache[$cacheKey] = self::localizePublicRows(Database::rows($stmt), $lang);
     }
 
-    /** Количество опубликованных новостей одного языка, опционально по категории. */
-    /** @param array{0:string, 1:string}|null $period `[начало, конец)` по дате публикации */
+    /**
+     * Количество опубликованных новостей одного языка, опционально по категории.
+     *
+     * @param array{0:string, 1:string}|null $period `[начало, конец)` по дате публикации
+     */
     public static function publishedCount(?int $categoryId = null, ?string $lang = null, ?array $period = null): int
     {
         $lang = $lang ?? Language::defaultCode();
