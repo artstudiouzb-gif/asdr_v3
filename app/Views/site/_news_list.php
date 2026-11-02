@@ -18,12 +18,13 @@ use App\Models\News;
 $page = $page ?? 1;
 $pages = $pages ?? 1;
 $category = $category ?? '';
+$year = (int) ($year ?? 0);
+$month = (int) ($month ?? 0);
 
 $lang = Locale::current();
 // Дата — единым числовым форматом на всех языках: 19.07.2026.
 $fmt = static fn (string $d): string => DateFormatter::short($d);
-$pageUrl = static fn (int $p): string => Locale::url('news')
-    . (($p > 1 || $category !== '') ? '?' . http_build_query(array_filter(['category' => $category, 'page' => $p > 1 ? $p : null])) : '');
+$pageUrl = static fn (int $p): string => \App\Core\NewsArchive::url($category, $year, $month, $p);
 
 // Названия рубрик для всех карточек одним запросом.
 $categoryNames = \App\Models\NewsCategory::namesForIds(
@@ -37,7 +38,7 @@ $categoryOf = static function (array $item) use ($categoryNames): string {
 };
 ?>
 <?php if (empty($items)): ?>
-    <p class="listing__empty"><?= htmlspecialchars(t('Пока нет опубликованных новостей.'), ENT_QUOTES) ?></p>
+    <p class="listing__empty"><?= htmlspecialchars($year > 0 ? t('За этот период новостей нет.') : t('Пока нет опубликованных новостей.'), ENT_QUOTES) ?></p>
 <?php else: ?>
     <div class="newslist-grid">
         <?php foreach (array_values($items) as $index => $item): ?>

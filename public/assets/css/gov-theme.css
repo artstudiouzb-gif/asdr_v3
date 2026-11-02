@@ -3592,7 +3592,16 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
 .listing-filter__item--icon { gap: 8px; padding-left: 14px; }
 .listing-filter__icon { display: inline-flex; color: var(--gov-teal); }
 .listing-filter__item.is-active .listing-filter__icon { color: currentColor; }
-.listing-filter__item.is-active { background: var(--gov-navy); border-color: var(--gov-title); color: #fff; }/* AJAX-фильтрация: пока грузится новый список, старый приглушается. Клики по
+.listing-filter__item.is-active { background: var(--gov-navy); border-color: var(--gov-title); color: #fff; }
+/* Архив ленты по годам и месяцам — навигация второго уровня под рубриками:
+   тише рубрик (без подложки и рамки), выбранное значение отмечено цветом
+   акцентного текста и чертой снизу, а не заливкой — заливка у рубрики. */
+.listing-archive { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin-top: 14px; }
+.listing-archive--months { margin-top: 4px; }
+.listing-archive__label { margin-right: 6px; color: var(--gov-muted); font-size: var(--step--2); font-weight: 600; }
+.listing-archive__item { display: inline-flex; align-items: center; min-height: 32px; padding: 0 10px; border-bottom: 2px solid transparent; color: var(--gov-ink); font-size: var(--step--2); text-decoration: none; }
+.listing-archive__item:hover { color: var(--gov-teal-text); }
+.listing-archive__item.is-active { border-bottom-color: var(--gov-teal-text); color: var(--gov-teal-text); font-weight: 600; }/* AJAX-фильтрация: пока грузится новый список, старый приглушается. Клики по
    нему в это время не нужны — ответ всё равно перерисует область. *//* Блоки страницы-раздела идут под списком и отделяются от него линией:
    иначе первая же секция читается как продолжение ленты. */
 

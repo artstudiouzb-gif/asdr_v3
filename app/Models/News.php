@@ -518,10 +518,13 @@ final class News
      * прямо в SQL.
      * @return list<array<string, mixed>>
      */
-    public static function published(int $limit = 20, int $offset = 0, ?string $lang = null, ?int $categoryId = null): array
+    /**
+     * @param array{0:string, 1:string}|null $period `[начало, конец)` по дате публикации (архив ленты)
+     */
+    public static function published(int $limit = 20, int $offset = 0, ?string $lang = null, ?int $categoryId = null, ?array $period = null): array
     {
         $lang = $lang ?? Language::defaultCode();
-        $cacheKey = implode('|', [$limit, $offset, $lang, $categoryId ?? 0]);
+        $cacheKey = implode('|', [$limit, $offset, $lang, $categoryId ?? 0, $period[0] ?? '', $period[1] ?? '']);
         if (isset(self::$publishedRequestCache[$cacheKey])) {
             return self::$publishedRequestCache[$cacheKey];
         }
@@ -533,6 +536,11 @@ final class News
         if ($categoryId !== null && $categoryId > 0) {
             $where .= ' AND n.category_id = :category';
             $params['category'] = $categoryId;
+        }
+        if ($period !== null) {
+            $where .= ' AND n.published_at >= :period_from AND n.published_at < :period_to';
+            $params['period_from'] = $period[0];
+            $params['period_to'] = $period[1];
         }
         $stmt = Database::pdo()->prepare(
             "SELECT " . self::listColumns('n') . ",
@@ -554,7 +562,8 @@ final class News
     }
 
     /** Количество опубликованных новостей одного языка, опционально по категории. */
-    public static function publishedCount(?int $categoryId = null, ?string $lang = null): int
+    /** @param array{0:string, 1:string}|null $period `[начало, конец)` по дате публикации */
+    public static function publishedCount(?int $categoryId = null, ?string $lang = null, ?array $period = null): int
     {
         $lang = $lang ?? Language::defaultCode();
         $parts = self::publicLanguageParts($lang, 'n', 'counted');
@@ -565,6 +574,11 @@ final class News
             $where .= ' AND n.category_id = :category';
             $params[':category'] = $categoryId;
         }
+        if ($period !== null) {
+            $where .= ' AND n.published_at >= :period_from AND n.published_at < :period_to';
+            $params[':period_from'] = $period[0];
+            $params[':period_to'] = $period[1];
+        }
 
         $stmt = Database::pdo()->prepare(
             "SELECT COUNT(*) FROM news n{$parts['join']} WHERE {$where}"
@@ -572,6 +586,32 @@ final class News
         $stmt->execute($params);
 
         return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Годы и месяцы, в которых есть опубликованные новости этого языка —
+     * архив ленты. Свежие сверху; пустых месяцев в списке нет.
+     *
+     * @return array<int, list<int>> год → месяцы по убыванию
+     */
+    public static function publishedMonths(?string $lang = null): array
+    {
+        $lang = $lang ?? Language::defaultCode();
+        $parts = self::publicLanguageParts($lang, 'n', 'months');
+        $stmt = Database::pdo()->prepare(
+            "SELECT DISTINCT YEAR(n.published_at) AS y, MONTH(n.published_at) AS m
+             FROM news n{$parts['join']}
+             WHERE n.status = 'published' AND n.published_at <= NOW() AND n.deleted_at IS NULL
+               AND {$parts['where']}
+             ORDER BY y DESC, m DESC"
+        );
+        $stmt->execute($parts['params']);
+        $out = [];
+        foreach (Database::rows($stmt) as $row) {
+            $out[(int) $row['y']][] = (int) $row['m'];
+        }
+
+        return $out;
     }
 
     /**
