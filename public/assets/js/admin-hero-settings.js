@@ -90,7 +90,7 @@
                 show('image', media === 'image');
                 show('image_fit,image_position,image_mobile,image_position_mobile', media !== 'none');
                 show('video_url', media === 'video');
-                show('youtube_url', media === 'youtube');
+                show('youtube_url,youtube_frame', media === 'youtube');
                 show('poster,mobile_media', video);
                 // A mobile MP4 is meaningful only for a native video, not YouTube.
                 var mobile = field('mobile_media');

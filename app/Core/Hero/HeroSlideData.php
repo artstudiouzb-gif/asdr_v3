@@ -25,6 +25,15 @@ final class HeroSlideData
     /** Что делать с видео на телефоне. */
     public const MOBILE_MEDIA = ['desktop', 'mobile_video', 'image'];
 
+    /**
+     * Формат кадра ролика YouTube — доля ширины к высоте самого изображения.
+     * Плеер YouTube всегда 16:9, и широкоэкранный ролик он вписывает с
+     * чёрными полосами сверху и снизу. «Заполнить» тянуло на обложку плеер, а
+     * не кадр, поэтому полосы оставались на ней: видео не доходило до низа.
+     * Узнать формат по ссылке нечем, поэтому его называет редактор.
+     */
+    public const YOUTUBE_FRAMES = ['16-9' => '1.7778', '2-1' => '2', '2-39' => '2.4'];
+
     public const CTA_STYLES = ['primary', 'secondary', 'ghost', 'link'];
 
     /** Как отображать свою SVG/PNG-картинку внутри CTA. */
@@ -82,6 +91,7 @@ final class HeroSlideData
             // замена, когда автовоспроизведение заблокировано браузером.
             'poster' => '',
             'mobile_media' => 'image',
+            'youtube_frame' => '16-9',
 
             // --- Ссылка со всего слайда ---
             'link_url' => '',
@@ -217,6 +227,7 @@ final class HeroSlideData
             'youtube_id' => $youtubeId ?? '',
             'poster' => BlockDataInput::safeMedia($input['poster'] ?? ''),
             'mobile_media' => BlockDataInput::enum($input, 'mobile_media', self::MOBILE_MEDIA, 'image'),
+            'youtube_frame' => BlockDataInput::enum($input, 'youtube_frame', array_keys(self::YOUTUBE_FRAMES), '16-9'),
 
             'link_url' => BlockDataInput::safeLink($input['link_url'] ?? ''),
             'link_new_tab' => !empty($input['link_new_tab']),
@@ -353,6 +364,7 @@ final class HeroSlideData
         // версии или быть поправлен руками, и рассинхрон дал бы чужой ролик.
         $d['youtube_id'] = Video::youtubeId((string) $d['youtube_url']) ?? '';
         $d['mobile_media'] = $enum($d['mobile_media'] ?? '', self::MOBILE_MEDIA, 'image');
+        $d['youtube_frame'] = $enum($d['youtube_frame'] ?? '', array_keys(self::YOUTUBE_FRAMES), '16-9');
 
         $d['link_url'] = BlockDataInput::safeLink($d['link_url'] ?? '');
         $d['link_new_tab'] = !empty($d['link_new_tab']);
