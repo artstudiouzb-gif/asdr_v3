@@ -479,6 +479,9 @@ final class HeroRenderer
         if ($d['image_fit'] === 'contain') {
             $vars['--hero-fit'] = 'contain';
         }
+        if ($d['media_type'] === 'youtube' && $d['youtube_frame'] !== '16-9') {
+            $vars['--yt-ratio'] = HeroSlideData::YOUTUBE_FRAMES[$d['youtube_frame']];
+        }
         // Цвет кнопки и ссылки — свой у кадра. Надпись на заливке по-прежнему
         // считается по контрасту, а не выбирается: --on-accent объявлен от
         // акцента сайта, и без пересчёта на светлой кнопке остался бы белый
