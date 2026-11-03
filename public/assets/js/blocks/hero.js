@@ -8,6 +8,9 @@
     'use strict';
 
     var MOBILE_QUERY = '(max-width: 720px)';
+    // Сколько YouTube держит свои кнопки поверх только что запущенного
+    // ролика: плеер показывается после них.
+    var YT_REVEAL_DELAY = 3500;
     var instances = new WeakMap();
     var videoSessions = new WeakMap();
     var youtubeSessions = new WeakMap();
@@ -90,7 +93,8 @@
         frame.setAttribute('allow', 'autoplay; encrypted-media');
         frame.referrerPolicy = 'strict-origin-when-cross-origin';
         var timeout = window.setTimeout(function () { stopYoutube(box); }, 4000);
-        youtubeSessions.set(box, { session: session, frame: frame, timeout: timeout });
+        var state = { session: session, frame: frame, timeout: timeout, reveal: 0 };
+        youtubeSessions.set(box, state);
         window.addEventListener('message', function (event) {
             if (event.source !== frame.contentWindow || event.origin !== origin) { return; }
             var message;
@@ -100,9 +104,15 @@
             if (message.event === 'onError') { stopYoutube(box); return; }
             var playing = message.event === 'onStateChange' && message.info === 1
                 || message.event === 'infoDelivery' && message.info && message.info.playerState === 1;
-            if (playing) {
+            // Первые секунды YouTube рисует поверх ролика свои кнопки
+            // (назад, пауза, вперёд) и убирает их сам. Параметрами встраивания
+            // их не отключить, поэтому плеер проявляется, когда они ушли, а
+            // до тех пор виден кадр-замена.
+            if (playing && !state.reveal) {
                 window.clearTimeout(timeout);
-                box.classList.add('is-ready');
+                state.reveal = window.setTimeout(function () {
+                    box.classList.add('is-ready');
+                }, YT_REVEAL_DELAY);
             }
         }, { signal: session.signal });
         frame.addEventListener('load', function () {
@@ -117,6 +127,7 @@
         if (active) {
             active.session.abort();
             window.clearTimeout(active.timeout);
+            window.clearTimeout(active.reveal);
             active.frame.remove();
             youtubeSessions.delete(box);
         }
