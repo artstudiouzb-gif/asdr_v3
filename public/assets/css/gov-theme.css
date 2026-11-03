@@ -504,7 +504,7 @@ body.design-scrolltop .scroll-top:focus-visible { outline: 2px solid var(--gov-t
     border-radius: 50%;
     background: var(--menu-active-color, var(--gov-teal));
     box-shadow: 0 0 10px var(--menu-active-color, var(--gov-teal));
-    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
     opacity: 0;
 }
 .site-menu--style-dot .site-menu__link:hover::after,
@@ -1140,7 +1140,7 @@ body .site-header .site-theme-toggle,
     color: currentColor !important;
     cursor: pointer;
     overflow: visible;
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
 }
 
 body .site-header .site-theme-toggle:hover,
@@ -1189,7 +1189,7 @@ body.has-transparent-header .site-topbar .site-theme-toggle:hover {
     inset: 0;
     width: 100%;
     height: 100%;
-    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
 }
 
 .site-theme-toggle__icon--sun {
@@ -2868,7 +2868,7 @@ h6, .h6 { font-size: var(--font-size-h6, var(--step-0)); }
     position: absolute; z-index: 2; top: 0; left: 0; width: 12px; height: 12px; border-radius: 50%;
     background: var(--gov-surface); border: 2px solid var(--gov-border);
     box-shadow: 0 0 0 3px var(--gov-bg);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
 }
 .stage:hover .stage__dot {
     transform: scale(1.35);
@@ -4451,7 +4451,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
     border-radius: 50%; 
     background: rgba(255,255,255,.9); 
     color: var(--gov-navy); 
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s, color 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s, color 0.3s, box-shadow 0.3s;
 }
 .mediacard__play svg { width: 22px; height: 22px; margin-left: 2px; }
 .mediacard:hover .mediacard__play { 
@@ -4817,7 +4817,7 @@ h4.section-head__title { font-size: var(--font-size-card-title, var(--step-2)); 
 .ctaband__icon { 
     display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; 
     border: 1px solid rgba(255,255,255,.35); color: #fff; flex: 0 0 auto; 
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease, background 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, background 0.3s ease;
 }
 .ctaband__icon svg { width: 30px; height: 30px; }
 .block-ctaband:hover .ctaband__icon {
@@ -5467,7 +5467,7 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
 }
 .site-theme-toggle:hover {
     transform: scale(1.12);
@@ -5492,7 +5492,7 @@ body.design-sidebar-fixed .content-sidebar { position: static; }/* Анимац�
     inset: 0;
     width: 100%;
     height: 100%;
-    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }/* Светлая тема: Солнце активно */
 
 .site-theme-toggle__sun {
@@ -5554,7 +5554,7 @@ body .site-header--transparent:not(.is-scrolled) .site-theme-toggle__moon {
 }/* --- Кнопки поиска (Search Toggle / Submit) --- */
 
 .site-search-toggle, .site-search button {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
 }
 .site-search-toggle:hover, .site-search button:hover {
     transform: scale(1.15) rotate(-8deg);
@@ -5568,7 +5568,7 @@ body .site-header--transparent:not(.is-scrolled) .site-theme-toggle__moon {
 }/* --- Кнопка «Версия для слабовидящих» --- */
 
 .a11y-toggle {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 .a11y-toggle:hover {
     transform: translateY(-2px) scale(1.03);
@@ -5613,7 +5613,7 @@ body .site-header--transparent:not(.is-scrolled) .site-theme-toggle__moon {
     height: 2px;
     background: currentColor;
     border-radius: var(--radius-pill);
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease, width 0.25s ease;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, width 0.25s ease;
 }
 .site-burger:hover span:nth-child(2) {
     width: 14px;
@@ -5655,7 +5655,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow.is-open .s
 }/* --- Иконки социальных сетей --- */
 
 .site-social__link, .widget-social-link {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease, box-shadow 0.25s ease;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease, box-shadow 0.25s ease;
 }
 .site-social__link:hover, .widget-social-link:hover {
     transform: translateY(-3px) scale(1.15);
@@ -5727,7 +5727,7 @@ body .site-header--transparent:not(.is-scrolled) .site-menu__overflow.is-open .s
     font-size: var(--step--2);
     font-weight: 600;
     pointer-events: auto;
-    animation: toast-slide-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: toast-slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .site-toast--info svg { color: var(--gov-teal); }
 .site-toast--error svg { color: #e74c3c; }
@@ -5783,7 +5783,7 @@ body.quick-search-active { overflow: hidden; }
     box-shadow: var(--shadow-overlay);
     overflow: hidden;
     transform: translateY(-12px) scale(0.97);
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .site-quick-search.is-open .site-quick-search__container {
     transform: translateY(0) scale(1);
