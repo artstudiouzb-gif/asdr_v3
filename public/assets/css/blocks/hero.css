@@ -178,9 +178,17 @@
     display: block;
 }
 
+/* «Показать целиком» — настройка широкого экрана. На телефоне обложка
+   портретная, и вписанный по ширине кадр оставлял бы сверху и снизу полосы
+   фона обложки. Поэтому выбор действует только шире 720px, а на телефоне фон всегда
+   заполняет обложку и кадр выбирает «Положение на телефоне». */
 .hero__image,
 .hero__video {
-    object-fit: var(--hero-fit);
+    object-fit: cover;
+}
+@media (min-width: 721px) {
+    .hero__image,
+    .hero__video { object-fit: var(--hero-fit); }
 }
 
 /* Видео и YouTube показываются только после того, как скрипт убедился, что
@@ -194,32 +202,56 @@
 .hero__yt { overflow: hidden; pointer-events: none; opacity: 0; transition: opacity .4s ease; }
 .hero__yt.is-ready { opacity: 1; }
 
-/* Ролик 16:9 масштабируется сам: iframe не умеет object-fit. Размер
-   считается от самого слоя (единицы контейнера), а не от окна: прежние
-   100vw/177.78vh давали «заполнить» при любой настройке и не знали высоты
-   обложки. «Заполнить» — больший из двух размеров, «показать целиком» —
-   меньший; кадр сдвигает остаток по осям долями --yt-x/--yt-y, которые
-   выставляют те же классы положения, что у фотографии. */
+/* Ролик масштабируется сам: iframe не умеет object-fit. Размер считается от
+   самого слоя (единицы контейнера), а не от окна: прежние 100vw/177.78vh
+   давали «заполнить» при любой настройке и не знали высоты обложки.
+
+   Плеер YouTube всегда 16:9, а кадр ролика бывает шире (`--yt-ratio`,
+   «Формат кадра ролика» у слайда): такой ролик плеер вписывает с чёрными
+   полосами сверху и снизу. Поэтому обложку обязана покрыть полоса самого
+   изображения (`--yt-ch`), а не плеер целиком: иначе полосы ложились на
+   обложку, и видео не доходило до её низа.
+
+   Сверх того полоса изображения выходит за края слоя на `--yt-crop`: YouTube
+   рисует поверх кадра название ролика сверху и свои значки снизу, и
+   параметрами встраивания их не убрать — только срезать краем обложки.
+   Кадр сдвигает остаток по осям долями --yt-x/--yt-y (те же классы
+   положения, что у фотографии), но не дальше этого запаса.
+
+   Переменные объявлены токенами: единицы контейнера в них разрешаются у
+   iframe, то есть от размеров слоя. */
 .hero__yt {
     container-type: size;
-    --yt-w: max(100cqw, 177.78cqh);
-    --yt-h: max(56.25cqw, 100cqh);
+    --yt-r: var(--yt-ratio, 1.7778);
+    --yt-crop: 120px;
+    --yt-w: max(100cqw, calc(var(--yt-r) * (100cqh + var(--yt-crop))));
+    --yt-ch: calc(var(--yt-w) / var(--yt-r));
+    --yt-h: calc(var(--yt-w) * .5625);
     --yt-x: .5;
     --yt-y: .5;
-}
-.hero__yt--contain {
-    --yt-w: min(100cqw, 177.78cqh);
-    --yt-h: min(56.25cqw, 100cqh);
-    background: var(--hero-bg);
+    --yt-top: clamp(calc(100cqh - var(--yt-ch) + var(--yt-crop) / 2), calc((100cqh - var(--yt-ch)) * var(--yt-y)), calc(var(--yt-crop) / -2));
 }
 .hero__yt iframe {
     position: absolute;
-    top: calc((100cqh - var(--yt-h)) * var(--yt-y));
+    top: calc(var(--yt-top) - (var(--yt-h) - var(--yt-ch)) / 2);
     left: calc((100cqw - var(--yt-w)) * var(--yt-x));
     width: var(--yt-w);
     height: var(--yt-h);
     border: 0;
     pointer-events: none;
+}
+/* «Показать целиком» у ролика — тоже только шире 720px. Правило стоит после
+   общего: вес у них одинаковый, и выше по файлу его затёрло бы. */
+@media (min-width: 721px) {
+    /* Целиком — без запаса на срез и по центру по вертикали: срезать здесь
+       нечего, плеер вписан в слой. Название ролика при этом видно — это цена
+       выбора «без обрезки». */
+    .hero__yt--contain {
+        --yt-crop: 0px;
+        --yt-w: min(100cqw, calc(var(--yt-r) * 100cqh));
+        --yt-top: calc((100cqh - var(--yt-ch)) * var(--yt-y));
+        background: var(--hero-bg);
+    }
 }
 .hero__yt.media-position--left-top, .hero__yt.media-position--left-center, .hero__yt.media-position--left-bottom { --yt-x: 0; }
 .hero__yt.media-position--right-top, .hero__yt.media-position--right-center, .hero__yt.media-position--right-bottom { --yt-x: 1; }
@@ -740,19 +772,6 @@
        управления всей обложкой. */
     .hero__nav { justify-content: center; padding: var(--space-xs) var(--space-s); }
     .hero__thumbs { display: none; }
-    /* «Показать целиком» — настройка широкого экрана. На телефоне обложка
-       портретная, и альбомный ролик, вписанный по ширине, оставлял сверху и
-       снизу полосы фона обложки: видео не доходило до низа секции. Здесь фон
-       всегда заполняет обложку, а кадр выбирает «Положение на телефоне».
-       Переменная `--hero-fit` для этого не годится — её печатает scoped CSS
-       с весом id, — поэтому снимается само свойство. */
-    .hero__image,
-    .hero__video { object-fit: cover; }
-    .hero__yt--contain {
-        --yt-w: max(100cqw, 177.78cqh);
-        --yt-h: max(56.25cqw, 100cqh);
-        background: none;
-    }
     .hero__art--hide-mobile { display: none; }
     .hero--no-arrows-mobile .hero__arrow { display: none; }
     /* Положение текста на телефоне — своя настройка (`text_position_mobile`).

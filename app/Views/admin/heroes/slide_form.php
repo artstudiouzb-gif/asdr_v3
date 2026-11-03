@@ -183,7 +183,7 @@ $customDuration = (int) $data['duration'];
                 <?= $select('image_fit', 'Масштабирование изображения', [
                     'cover' => 'Заполнить область — края могут обрезаться',
                     'contain' => 'Показать целиком — без обрезки',
-                ], (string) $data['image_fit'], 'Действует на компьютере. На телефоне обложка вытянута вверх, поэтому фон всегда заполняет её целиком.', 'col-6') ?>
+                ], (string) $data['image_fit'], 'Действует шире 720px. На телефоне обложка вытянута вверх, поэтому фон всегда заполняет её целиком.', 'col-6') ?>
 
                 <div class="col-12">
                     <?= AdminUi::imageField('image', (string) $data['image'], [
@@ -207,6 +207,12 @@ $customDuration = (int) $data['duration'];
                         <span class="form-hint">Распознан ID видео: <code><?= $esc($data['youtube_id']) ?></code></span>
                     <?php endif; ?>
                 </div>
+
+                <?= $select('youtube_frame', 'Формат кадра ролика', [
+                    '16-9' => 'Обычный 16:9',
+                    '2-1' => 'Широкий 2:1',
+                    '2-39' => 'Киноформат 2.39:1',
+                ], (string) $data['youtube_frame'], 'Если на ролике сверху и снизу чёрные полосы, выберите формат шире: обложка срежет их вместе с полосами.', 'col-6') ?>
 
                 <div class="col-12">
                     <?= AdminUi::imageField('poster', (string) $data['poster'], [
