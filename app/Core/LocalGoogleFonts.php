@@ -32,6 +32,10 @@ final class LocalGoogleFonts
     private const BUNDLED = [
         'noto-sans' => 'noto-sans',
         'noto-serif' => 'noto-serif',
+        // Medeo — не из Google Fonts (github.com/DNFDEVS/medeo-font, OFL):
+        // скачать его установщику неоткуда, поэтому только поставкой.
+        'medeo-sans' => 'medeo-sans',
+        'medeo-serif' => 'medeo-serif',
     ];
 
     /** @param list<string> $slugs @return array{ok:bool,error:string} */

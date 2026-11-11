@@ -66,6 +66,8 @@ final class FrontendAssets
     private const BUNDLED_FONTS = [
         'Noto Serif' => '/assets/fonts/noto-serif/noto-serif-var-cyrillic.woff2',
         'Noto Sans' => '/assets/fonts/noto-sans/noto-sans-var-cyrillic.woff2',
+        'Medeo Serif' => '/assets/fonts/medeo-serif/medeo-serif-cyrillic.woff2',
+        'Medeo Sans' => '/assets/fonts/medeo-sans/medeo-sans-var-cyrillic.woff2',
     ];
 
     /**
