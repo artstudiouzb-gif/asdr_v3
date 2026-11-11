@@ -6,13 +6,13 @@ use App\Core\DesignSettings;
 use App\Core\LocalGoogleFonts;
 use App\Models\Setting;
 
-test('в поставке ровно два семейства, оба со всеми узбекскими подмножествами', function (): void {
+test('в поставке ровно четыре семейства, все со всеми узбекскими подмножествами', function (): void {
     $root = dirname(__DIR__, 2);
 
     // Поставка намеренно узкая: каждое семейство — около 90 КБ в репозитории,
     // и лишнее там лежит мёртвым грузом. Остальной каталог скачивается на
     // сервер по выбору в «Дизайне».
-    $bundled = ['noto-sans' => 'Noto Sans', 'noto-serif' => 'Noto Serif'];
+    $bundled = ['medeo-sans' => 'Medeo Sans', 'medeo-serif' => 'Medeo Serif', 'noto-sans' => 'Noto Sans', 'noto-serif' => 'Noto Serif'];
     $present = glob($root . '/public/assets/fonts/*', GLOB_ONLYDIR) ?: [];
     assert_same(
         array_keys($bundled),
@@ -24,7 +24,8 @@ test('в поставке ровно два семейства, оба со вс
         $css = (string) file_get_contents($root . '/public/assets/css/' . $slug . '.css');
         assert_not_contains('https://', $css);
         foreach (['cyrillic-ext', 'cyrillic', 'latin'] as $subset) {
-            foreach ([400, 600, 700] as $weight) {
+            // У Medeo Serif одно начертание — 400, жирного файла нет вовсе.
+            foreach ($slug === 'medeo-serif' ? [400] : [400, 600, 700] as $weight) {
                 $pattern = '/\/\*\s*' . preg_quote($subset, '/') . '\s*\*\/\s*'
                     . '@font-face\s*\{(?=[^}]*font-family:\s*\'' . preg_quote($family, '/') . '\';)'
                     // Файл переменный: лицо объявляет диапазон «400 700», а не

@@ -41,6 +41,12 @@ final class FontCatalog
         'raleway' => ['Raleway', "'Raleway', system-ui, sans-serif", 'Raleway:wght@400;600;700'],
         'exo2' => ['Exo 2', "'Exo 2', system-ui, sans-serif", 'Exo+2:wght@400;600;700'],
         'golos' => ['Golos Text', "'Golos Text', system-ui, sans-serif", 'Golos+Text:wght@400;600;700'],
+        // Medeo лежит в поставке (LocalGoogleFonts::BUNDLED): в Google Fonts
+        // его нет, третий элемент описывает только веса для проверки покрытия.
+        // У Medeo Serif одно начертание — 400; жирный заголовок им браузер
+        // дорисует синтетически.
+        'medeo-sans' => ['Medeo Sans', "'Medeo Sans', system-ui, sans-serif", 'Medeo+Sans:wght@400;500;600;700'],
+        'medeo-serif' => ['Medeo Serif (антиква, только 400)', "'Medeo Serif', Georgia, serif", 'Medeo+Serif:wght@400'],
     ];
 
     /**
