@@ -84,10 +84,13 @@ final class Analytics
 JS;
         }
         if ($ym !== '') {
+            // Адрес со своим id — как в коде из кабинета Метрики. Без id Яндекс
+            // отдаёт другую сборку tag.js, и она очередь ym не подхватывает:
+            // счётчик не создаётся, хитов нет, ошибки в консоли тоже нет.
             $y = (int) $ym;
             $wv = $webvisor ? 'webvisor:true,' : '';
             $parts[] = <<<JS
-(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');ym({$y},'init',{{$wv}clickmap:true,trackLinks:true,accurateTrackBounce:true});
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id='+{$y},'ym');ym({$y},'init',{{$wv}clickmap:true,trackLinks:true,accurateTrackBounce:true});
 JS;
         }
 
