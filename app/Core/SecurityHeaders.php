@@ -101,7 +101,7 @@ final class SecurityHeaders
      * — только по nonce; шрифты самохостятся, внешние хосты добавляются лишь
      * для фактически включённых счётчиков.
      *
-     * @param array{ga?: bool, ym?: bool, counter_scripts?: list<string>, extra_style?: list<string>, extra_script?: list<string>} $opts
+     * @param array{ga?: bool, ym?: bool, ym_webvisor?: bool, counter_scripts?: list<string>, extra_style?: list<string>, extra_script?: list<string>} $opts
      */
     public static function publicCsp(string $nonce, array $opts = []): string
     {
@@ -133,8 +133,16 @@ final class SecurityHeaders
             $connect[] = 'https://www.googletagmanager.com';
         }
         if (!empty($opts['ym'])) {
+            // mc.yandex.com — второй адрес приёма хитов из документации
+            // Метрики; без него часть отправок молча отклоняется.
             $script[] = 'https://mc.yandex.ru';
             $connect[] = 'https://mc.yandex.ru';
+            $connect[] = 'https://mc.yandex.com';
+            if (!empty($opts['ym_webvisor'])) {
+                // Вебвизор шлёт запись сессии по WebSocket.
+                $connect[] = 'wss://mc.yandex.ru';
+                $connect[] = 'wss://mc.yandex.com';
+            }
         }
         $allowedCounterScripts = [
             'https://mc.yandex.ru',
@@ -160,6 +168,7 @@ final class SecurityHeaders
         }
         $style = array_values(array_unique($style));
         $script = array_values(array_unique($script));
+        $connect = array_values(array_unique($connect));
 
         return "default-src 'self'; "
             // Блоки могут ссылаться на внешние картинки (URL проверяется UrlGuard);
@@ -266,7 +275,7 @@ final class SecurityHeaders
      * Опции публичной CSP из настроек. БД может быть недоступна (503 в
      * bootstrap) — тогда консервативный набор без внешних хостов.
      *
-     * @return array{ga: bool, ym: bool, counter_scripts: list<string>, speculation_hash: string}
+     * @return array{ga: bool, ym: bool, ym_webvisor: bool, counter_scripts: list<string>, speculation_hash: string}
      */
     private static function publicCspOptions(): array
     {
@@ -274,11 +283,12 @@ final class SecurityHeaders
             return [
                 'ga' => Analytics::gaId() !== '',
                 'ym' => Analytics::ymId() !== '',
+                'ym_webvisor' => Analytics::webvisor(),
                 'counter_scripts' => self::footerCounterScriptSources(),
                 'speculation_hash' => SpeculationRules::cspHash(),
             ];
         } catch (\Throwable) {
-            return ['ga' => false, 'ym' => false, 'counter_scripts' => [], 'speculation_hash' => ''];
+            return ['ga' => false, 'ym' => false, 'ym_webvisor' => false, 'counter_scripts' => [], 'speculation_hash' => ''];
         }
     }
 

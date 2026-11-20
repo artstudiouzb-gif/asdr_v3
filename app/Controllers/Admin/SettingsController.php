@@ -117,8 +117,27 @@ final class SettingsController
         Setting::set('logo_url', $logoUrl ?? '');
 
         // --- Веб-аналитика: строгие ID вместо сырого JS (задача 116) ---
-        Setting::set('analytics_ga_id', SettingsValidator::gaId((string) ($_POST['analytics_ga_id'] ?? '')));
-        Setting::set('analytics_ym_id', SettingsValidator::ymId((string) ($_POST['analytics_ym_id'] ?? '')));
+        // Значение не того формата не стирает прежнее молча: оно остаётся, а
+        // форма называет поле. Иначе опечатка в ID выключала счётчик, и узнать
+        // об этом можно было только по пустой статистике через неделю.
+        $rejected = [];
+        $checked = [
+            'analytics_ga_id' => ['Google Analytics ID (формат G-XXXXXXXXXX)', SettingsValidator::gaId(...)],
+            'analytics_ym_id' => ['номер счётчика Метрики (только цифры)', SettingsValidator::ymId(...)],
+            'verify_google' => ['код Google Search Console', SettingsValidator::verificationToken(...)],
+            'verify_yandex' => ['код Яндекс.Вебмастера', SettingsValidator::verificationToken(...)],
+            'verify_bing' => ['код Bing Webmaster', SettingsValidator::verificationToken(...)],
+        ];
+        foreach ($checked as $key => [$label, $normalize]) {
+            $raw = trim((string) ($_POST[$key] ?? ''));
+            $value = $normalize($raw);
+            if ($raw !== '' && $value === '') {
+                $rejected[] = $label;
+                continue;
+            }
+            Setting::set($key, $value);
+        }
+        Setting::set('analytics_ym_webvisor', !empty($_POST['analytics_ym_webvisor']) ? '1' : '0');
 
         // --- Приватность / GDPR ---
         Setting::set('cookie_consent_enabled', !empty($_POST['cookie_consent_enabled']) ? '1' : '0');
@@ -175,6 +194,9 @@ final class SettingsController
 
         Cache::forgetPrefix('page:');
         Flash::success('Настройки сохранены.');
+        if ($rejected !== []) {
+            Flash::warning('Не сохранено, неверный формат: ' . implode('; ', $rejected) . '. Оставлено прежнее значение.');
+        }
         header('Location: /admin/settings');
         exit;
     }

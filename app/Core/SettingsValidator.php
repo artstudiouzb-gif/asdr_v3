@@ -24,6 +24,21 @@ final class SettingsValidator
         return preg_match('/^\d{4,12}$/', $value) ? $value : '';
     }
 
+    /**
+     * Код подтверждения прав в Search Console / Вебмастере. Принимает и сам
+     * код, и целиком скопированный мета-тег — его отдают оба сервиса, и
+     * вставляют обычно именно его. Код уходит в атрибут разметки, поэтому
+     * набор символов закрытый: всё прочее — пустая строка.
+     */
+    public static function verificationToken(string $value): string
+    {
+        $value = trim($value);
+        if (preg_match('/content\s*=\s*["\']([^"\']*)["\']/i', $value, $m) === 1) {
+            $value = trim($m[1]);
+        }
+        return preg_match('/^[A-Za-z0-9_-]{6,100}$/', $value) === 1 ? $value : '';
+    }
+
     /** HEX-цвет #rrggbb. При невалидном — $default. */
     public static function hexColor(string $value, string $default = '#1a1a1a'): string
     {
