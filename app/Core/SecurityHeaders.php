@@ -144,6 +144,9 @@ final class SecurityHeaders
             // Из списка CSP в справке Метрики: часть модулей tag.js тянет с
             // yastatic.net, а свои фреймы и воркер создаёт из blob:.
             $script[] = 'https://yastatic.net';
+            // Часть модулей tag.js (отладочная сборка при ?_ym_debug=1 и др.)
+            // грузится с mc.yandex.com, а не с .ru.
+            $script[] = 'https://mc.yandex.com';
             $frame[] = 'blob:';
             $worker[] = 'blob:';
             // Карта кликов, скроллинга и просмотр Вебвизора показывают сайт
