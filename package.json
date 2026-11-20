@@ -29,6 +29,6 @@
   },
   "dependencies": {
     "tinymce": "8.10.1",
-    "tinymce-i18n": "26.10.26"
+    "tinymce-i18n": "26.11.2"
   }
 }
