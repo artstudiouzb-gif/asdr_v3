@@ -123,6 +123,9 @@ final class SecurityHeaders
             $script[] = $speculationHash;
         }
         $connect = ["'self'"];
+        $frame = ['https:'];
+        $worker = ["'self'"];
+        $ancestors = ["'self'"];
         $style = ["'self'", "'unsafe-inline'"];
         $font = ["'self'", 'data:'];
 
@@ -138,6 +141,16 @@ final class SecurityHeaders
             $script[] = 'https://mc.yandex.ru';
             $connect[] = 'https://mc.yandex.ru';
             $connect[] = 'https://mc.yandex.com';
+            // Из списка CSP в справке Метрики: часть модулей tag.js тянет с
+            // yastatic.net, а свои фреймы и воркер создаёт из blob:.
+            $script[] = 'https://yastatic.net';
+            $frame[] = 'blob:';
+            $worker[] = 'blob:';
+            // Карта кликов, скроллинга и просмотр Вебвизора показывают сайт
+            // во фрейме кабинета. frame-ancestors главнее X-Frame-Options во
+            // всех современных браузерах, поэтому заголовок остаётся защитой
+            // для старых, а кабинету Метрики встраивание разрешено.
+            $ancestors = [...$ancestors, ...self::METRIKA_FRAME_ANCESTORS];
             if (!empty($opts['ym_webvisor'])) {
                 // Вебвизор шлёт запись сессии по WebSocket.
                 $connect[] = 'wss://mc.yandex.ru';
@@ -181,14 +194,24 @@ final class SecurityHeaders
             // Видео-hero может указывать на внешний файл.
             . "media-src 'self' https:; "
             // YouTube-эмбеды новостей и карты блока map_point (URL задаёт админ).
-            . "frame-src https:; "
+            . 'frame-src ' . implode(' ', $frame) . '; '
             // Service worker webpush-уведомлений.
-            . "worker-src 'self'; "
+            . 'worker-src ' . implode(' ', $worker) . '; '
             . "object-src 'none'; "
             . "base-uri 'self'; "
             . "form-action 'self'; "
-            . "frame-ancestors 'self'";
+            . 'frame-ancestors ' . implode(' ', $ancestors);
     }
+
+    /** Кабинеты Метрики, которые встраивают сайт во фрейм (карты, Вебвизор). */
+    private const METRIKA_FRAME_ANCESTORS = [
+        'https://metrika.yandex.ru',
+        'https://metrika.yandex.by',
+        'https://metrica.yandex.com',
+        'https://metrica.yandex.com.tr',
+        'https://webvisor.com',
+        'https://*.webvisor.com',
+    ];
 
     /**
      * Оставляет только пригодные для CSP источники: схема + хост, без пути,

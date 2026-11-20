@@ -52,3 +52,36 @@ test('Analytics::verificationTags: имена мета-тегов и чистк�
     assert_true(!isset($tags['yandex-verification']), 'мусор не выводится');
     assert_same('0123456789ABCDEF0123456789ABCDEF', $tags['msvalidate.01'] ?? null);
 });
+
+test('publicCsp: Метрика получает yastatic, blob и встраивание в кабинет', function () {
+    $ym = SecurityHeaders::publicCsp('n', ['ym' => true]);
+    assert_contains('https://yastatic.net', $ym);
+    assert_contains('frame-src https: blob:;', $ym);
+    assert_contains("worker-src 'self' blob:;", $ym);
+    assert_contains("frame-ancestors 'self' https://metrika.yandex.ru", $ym);
+    $none = SecurityHeaders::publicCsp('n', []);
+    assert_not_contains('yastatic', $none);
+    assert_contains("frame-ancestors 'self'", $none);
+    assert_not_contains('metrika.yandex', $none, 'без счётчика встраивать некому');
+});
+
+test('httpsRedirectTarget: www-зеркало уводится на основной адрес и по HTTPS', function () {
+    $server = $_SERVER;
+    $appConfig = (array) \App\Core\Config::get('app', []);
+    \App\Core\Config::merge(['app' => ['url' => 'https://asdr.example'] + $appConfig]);
+    $_SERVER['HTTPS'] = 'on';
+    $_SERVER['REQUEST_URI'] = '/news?page=2';
+    try {
+        $_SERVER['HTTP_HOST'] = 'www.asdr.example';
+        assert_same('https://asdr.example/news?page=2', \App\Core\RequestUrl::httpsRedirectTarget());
+        $_SERVER['HTTP_HOST'] = 'WWW.asdr.example:443';
+        assert_same('https://asdr.example/news?page=2', \App\Core\RequestUrl::httpsRedirectTarget());
+        $_SERVER['HTTP_HOST'] = 'asdr.example';
+        assert_same(null, \App\Core\RequestUrl::httpsRedirectTarget(), 'основной адрес — без петли');
+        $_SERVER['HTTP_HOST'] = 'staging.asdr.example';
+        assert_same(null, \App\Core\RequestUrl::httpsRedirectTarget(), 'чужой хост не трогаем');
+    } finally {
+        $_SERVER = $server;
+        \App\Core\Config::merge(['app' => $appConfig]);
+    }
+});

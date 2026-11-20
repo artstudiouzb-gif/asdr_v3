@@ -62,10 +62,6 @@ final class RequestUrl
     {
         // Про CLI здесь не спрашиваем: обёртка в bootstrap уже вышла на нём
         // раньше, а без этой проверки метод остаётся чистым и проверяемым.
-        if (self::isHttps()) {
-            return null;
-        }
-
         // Схему берём из сырой настройки, а не из AppUrl::base(): тот
         // повышает http до https по текущему запросу, а нам нужно именно
         // объявленное значение.
@@ -75,6 +71,14 @@ final class RequestUrl
             || strtolower((string) ($parts['scheme'] ?? '')) !== 'https'
             || ($parts['host'] ?? '') === ''
         ) {
+            return null;
+        }
+
+        // По HTTPS уводить нужно только зеркало www.: тот же сайт по второму
+        // адресу отвечал 200 и делил с основным выдачу и статистику
+        // счётчиков. Остальные хосты не трогаем — разработка, IP и чужие
+        // алиасы хостинга сюда тоже приходят, а увести их значит закрыть.
+        if (self::isHttps() && !self::isWwwMirror((string) $parts['host'])) {
             return null;
         }
 
@@ -103,6 +107,19 @@ final class RequestUrl
         // Хост берём из настройки, а не из HTTP_HOST: заголовок подделывается,
         // и редирект стал бы открытым.
         return 'https://' . $authority . $uri;
+    }
+
+    /** Запрос пришёл на www-зеркало объявленного адреса (или наоборот). */
+    private static function isWwwMirror(string $configuredHost): bool
+    {
+        $request = strtolower(trim((string) ($_SERVER['HTTP_HOST'] ?? '')));
+        $request = (string) preg_replace('/:\d{1,5}$/', '', $request);
+        $configured = strtolower($configuredHost);
+        if ($request === '' || $request === $configured) {
+            return false;
+        }
+
+        return $request === 'www.' . $configured || 'www.' . $request === $configured;
     }
 
     public static function origin(): string
