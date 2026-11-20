@@ -56,6 +56,7 @@ test('Analytics::verificationTags: имена мета-тегов и чистк�
 test('publicCsp: Метрика получает yastatic, blob и встраивание в кабинет', function () {
     $ym = SecurityHeaders::publicCsp('n', ['ym' => true]);
     assert_contains('https://yastatic.net', $ym);
+    assert_contains('https://yastatic.net https://mc.yandex.com', $ym, 'скрипты Метрики грузятся и с mc.yandex.com');
     assert_contains('frame-src https: blob:;', $ym);
     assert_contains("worker-src 'self' blob:;", $ym);
     assert_contains("frame-ancestors 'self' https://metrika.yandex.ru", $ym);
