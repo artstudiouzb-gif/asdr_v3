@@ -268,6 +268,29 @@ require __DIR__ . '/../layout/header.php';
                 <div class="form-field col-6">
                     <label for="analytics_ym_id">Яндекс.Метрика ID (Номер счётчика)</label>
                     <input type="text" id="analytics_ym_id" name="analytics_ym_id" value="<?= htmlspecialchars($settings['analytics_ym_id'] ?? '', ENT_QUOTES) ?>" placeholder="12345678" inputmode="numeric">
+                    <span class="form-hint">Только номер, без кода счётчика.</span>
+                </div>
+
+                <div class="form-field form-field--checkbox col-12">
+                    <input type="checkbox" id="analytics_ym_webvisor" name="analytics_ym_webvisor" value="1" <?= ($settings['analytics_ym_webvisor'] ?? '0') === '1' ? 'checked' : '' ?>>
+                    <label for="analytics_ym_webvisor">Вебвизор Метрики (запись сессий посетителей)</label>
+                    <span class="form-hint">Включите и в настройках счётчика в Метрике. Вебвизор записывает действия посетителя на странице; поля ввода Метрика маскирует сама.</span>
+                </div>
+
+                <div class="form-field col-4">
+                    <label for="verify_google">Код Google Search Console</label>
+                    <input type="text" id="verify_google" name="verify_google" value="<?= htmlspecialchars($settings['verify_google'] ?? '', ENT_QUOTES) ?>" autocomplete="off">
+                </div>
+                <div class="form-field col-4">
+                    <label for="verify_yandex">Код Яндекс.Вебмастера</label>
+                    <input type="text" id="verify_yandex" name="verify_yandex" value="<?= htmlspecialchars($settings['verify_yandex'] ?? '', ENT_QUOTES) ?>" autocomplete="off">
+                </div>
+                <div class="form-field col-4">
+                    <label for="verify_bing">Код Bing Webmaster</label>
+                    <input type="text" id="verify_bing" name="verify_bing" value="<?= htmlspecialchars($settings['verify_bing'] ?? '', ENT_QUOTES) ?>" autocomplete="off">
+                </div>
+                <div class="form-field col-12">
+                    <span class="form-hint">Подтверждение прав способом «мета-тег»: вставьте код или весь тег целиком — сайт возьмёт из него код и выведет тег на всех страницах.</span>
                 </div>
             </div>
         </section>

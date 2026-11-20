@@ -696,6 +696,9 @@ if ($pageTitleText === '') {
 <?php if (!empty($metaDescription)): ?>
 <meta name="description" content="<?= htmlspecialchars($metaDescription, ENT_QUOTES) ?>">
 <?php endif; ?>
+<?php foreach (\App\Core\Analytics::verificationTags() as $verifyName => $verifyToken): ?>
+<meta name="<?= htmlspecialchars($verifyName, ENT_QUOTES) ?>" content="<?= htmlspecialchars($verifyToken, ENT_QUOTES) ?>">
+<?php endforeach; ?>
 <link rel="canonical" href="<?= htmlspecialchars($canonicalUrl, ENT_QUOTES) ?>">
 <?php // Соседние страницы списка: поисковику это подсказка, что страницы
       // связаны в ленту, а не дублируют друг друга. Значения ставит вью
