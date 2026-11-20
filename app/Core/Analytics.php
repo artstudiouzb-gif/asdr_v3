@@ -24,6 +24,37 @@ final class Analytics
         return SettingsValidator::ymId(Setting::get('analytics_ym_id', ''));
     }
 
+    /** Вебвизор Метрики: запись сессий, нужен отдельный флаг в init и wss в CSP. */
+    public static function webvisor(): bool
+    {
+        return self::ymId() !== '' && Setting::get('analytics_ym_webvisor', '0') === '1';
+    }
+
+    /**
+     * Мета-теги подтверждения прав для Search Console, Яндекс.Вебмастера и
+     * Bing Webmaster. Строятся из проверенных кодов, как и счётчики.
+     *
+     * @return array<string, string> имя мета-тега => код
+     */
+    public static function verificationTags(): array
+    {
+        $tags = [];
+        foreach (self::VERIFICATION_META as $setting => $name) {
+            $token = SettingsValidator::verificationToken(Setting::get($setting, ''));
+            if ($token !== '') {
+                $tags[$name] = $token;
+            }
+        }
+        return $tags;
+    }
+
+    /** Настройка => имя мета-тега, которого ждёт сервис. */
+    public const VERIFICATION_META = [
+        'verify_google' => 'google-site-verification',
+        'verify_yandex' => 'yandex-verification',
+        'verify_bing' => 'msvalidate.01',
+    ];
+
     /** Есть ли что подгружать. */
     public static function hasAny(): bool
     {
@@ -36,11 +67,11 @@ final class Analytics
      */
     public static function initScript(): string
     {
-        return self::buildScript(self::gaId(), self::ymId());
+        return self::buildScript(self::gaId(), self::ymId(), self::webvisor());
     }
 
     /** Чистая сборка JS из проверенных ID (для тестов без БД). */
-    public static function buildScript(string $ga, string $ym): string
+    public static function buildScript(string $ga, string $ym, bool $webvisor = false): string
     {
         $ga = SettingsValidator::gaId($ga);
         $ym = SettingsValidator::ymId($ym);
@@ -54,8 +85,9 @@ JS;
         }
         if ($ym !== '') {
             $y = (int) $ym;
+            $wv = $webvisor ? 'webvisor:true,' : '';
             $parts[] = <<<JS
-(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');ym({$y},'init',{clickmap:true,trackLinks:true,accurateTrackBounce:true});
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');ym({$y},'init',{{$wv}clickmap:true,trackLinks:true,accurateTrackBounce:true});
 JS;
         }
 
