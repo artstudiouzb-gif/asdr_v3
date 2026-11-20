@@ -26,6 +26,12 @@ test('Analytics: Вебвизор включается флагом в init Ме
     assert_same('', Analytics::buildScript('', 'x', true), 'без валидного номера Вебвизора нет');
 });
 
+test('Analytics: tag.js Метрики грузится со своим id', function () {
+    $s = Analytics::buildScript('', '114397823');
+    assert_contains("'https://mc.yandex.ru/metrika/tag.js?id='+114397823", $s);
+    assert_not_contains("tag.js','ym'", $s, 'адрес без id отдаёт сборку, не подхватывающую очередь');
+});
+
 test('publicCsp: Метрика получает mc.yandex.com, Вебвизор — WebSocket', function () {
     $plain = SecurityHeaders::publicCsp('n', ['ym' => true]);
     assert_contains('https://mc.yandex.com', $plain);
