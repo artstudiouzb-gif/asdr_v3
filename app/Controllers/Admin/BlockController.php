@@ -319,6 +319,70 @@ final class BlockController
     }
 
     /**
+     * Ручной список блока «Документы» — записями каталога, а блок — на каталог.
+     * Файлы не копируются: запись ссылается на тот же файл. Ручной список в
+     * данных блока остаётся — к нему возвращаются одним переключением.
+     *
+     * @param array<string, string> $params
+     */
+    public function toCatalog(array $params): void
+    {
+        Auth::requireLogin();
+        Csrf::verifyRequest();
+
+        $block = Block::findById((int) $params['id']);
+        if ($block === null || (string) $block['type'] !== 'docs_list') {
+            http_response_code(404);
+            View::render('errors/404');
+            return;
+        }
+        $editUrl = '/admin/blocks/' . (int) $block['id'] . '/edit';
+        $input = \App\Core\Input::post();
+        $typeId = $input->int('catalog_type', 0, 0);
+        $stored = json_decode((string) $block['data'], true);
+        $data = is_array($stored) ? $stored : [];
+        $items = is_array($data['items'] ?? null) ? $data['items'] : [];
+        if ($items === []) {
+            Flash::error('В ручном списке блока нет документов — переносить нечего.');
+            \App\Core\Redirect::to($editUrl);
+        }
+
+        try {
+            $result = \App\Core\DocumentsToCatalog::run($typeId, $items);
+        } catch (\InvalidArgumentException $e) {
+            Flash::error($e->getMessage());
+            \App\Core\Redirect::to($editUrl);
+        }
+
+        $data['content_type'] = $typeId;
+        try {
+            BlockVersioning::updateWithSnapshot(
+                $block,
+                $block['title'] !== null ? (string) $block['title'] : null,
+                $data,
+                (string) ($block['custom_css'] ?? ''),
+                Auth::id(),
+                $input->int('expected_lock_version', (int) ($block['lock_version'] ?? 1), 0)
+            );
+        } catch (ConcurrencyException) {
+            Flash::error('Документы перенесены в каталог, но блок изменился в другой вкладке — выберите каталог в поле «Откуда брать документы» сами.');
+            \App\Core\Redirect::to($editUrl);
+        }
+        // Записи каталога видны в блоках на любых страницах.
+        \App\Core\Cache::forgetPrefix('page:');
+
+        $message = 'Перенесено в каталог: ' . $result['created'] . '.';
+        if ($result['skipped'] > 0) {
+            $message .= ' Уже были в каталоге: ' . $result['skipped'] . '.';
+        }
+        Flash::success($message . ' Блок теперь выводит каталог; ручной список сохранён.');
+        if ($result['notes'] !== []) {
+            Flash::error('Не перенесено: ' . implode(', ', $result['notes']) . '.');
+        }
+        \App\Core\Redirect::to($editUrl);
+    }
+
+    /**
      * Смена типа собранного блока (BlockConversion). Прежняя версия уходит в
      * историю вместе с типом, поэтому откат возвращает блок целиком.
      *

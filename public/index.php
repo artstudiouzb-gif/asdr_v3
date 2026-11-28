@@ -270,6 +270,7 @@ $router->post('/admin/blocks/reorder', [AdminBlockController::class, 'reorder'])
 $router->get('/admin/blocks/{id}/revisions', [AdminBlockController::class, 'revisions']);
 $router->post('/admin/blocks/{id}/revisions/restore', [AdminBlockController::class, 'restoreRevision']);
 $router->post('/admin/blocks/{id}/convert', [AdminBlockController::class, 'convert']);
+$router->post('/admin/blocks/{id}/to-catalog', [AdminBlockController::class, 'toCatalog']);
 
 // --- Admin: помощник редактора (ИИ) ---
 // Все задачи POST'ом с CSRF: запрос к модели стоит квоты, и ссылкой его

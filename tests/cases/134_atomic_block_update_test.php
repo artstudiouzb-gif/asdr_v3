@@ -17,8 +17,9 @@ test('Версионное сохранение блока выполняетс�
     assert_contains('Database::transaction(static function', $service);
     assert_contains('BlockRevision::snapshot(', $service);
     assert_contains('Block::update(', $service);
-    // Сохранение формы, откат к версии и смена типа — все три через снимок.
-    assert_same(3, substr_count($controller, 'BlockVersioning::updateWithSnapshot('));
+    // Сохранение формы, откат к версии, смена типа и перенос документов в
+    // каталог — все четыре через снимок.
+    assert_same(4, substr_count($controller, 'BlockVersioning::updateWithSnapshot('));
     assert_contains('JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR', $blockModel);
     assert_contains('JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR', $revisionModel);
 });

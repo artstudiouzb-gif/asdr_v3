@@ -2272,4 +2272,31 @@ $convertTargets = \App\Core\BlockConversion::targets($type);
     </details>
 <?php endif; ?>
 
+<?php
+// Перенос ручного списка в каталог — отдельной формой по той же причине, что
+// и смена типа: вложенных форм не бывает, а действие разовое.
+$docsItems = $type === 'docs_list' && is_array($data['items'] ?? null) ? $data['items'] : [];
+$catalogTypes = $docsItems !== [] ? \App\Models\ContentType::all() : [];
+?>
+<?php if ($catalogTypes !== []): ?>
+    <details class="form-card">
+        <summary>Перенести документы в каталог</summary>
+        <form method="post" action="/admin/blocks/<?= (int) $block['id'] ?>/to-catalog"
+              data-confirm="Перенести документы блока в каталог? Блок начнёт выводить каталог, ручной список сохранится.">
+            <?= Csrf::field() ?>
+            <input type="hidden" name="expected_lock_version" value="<?= (int) ($block['lock_version'] ?? 1) ?>">
+            <p class="form-hint">Каждый документ списка (<?= count($docsItems) ?>) станет опубликованной записью каталога: название, описание, обложка, номер, дата, вид PDF и файлы по языкам. Файлы не копируются — запись ссылается на тот же файл. Документ, который уже есть в каталоге с тем же названием и файлом, повторно не заводится. Несохранённые правки формы выше не перенесутся — сначала сохраните блок.</p>
+            <div class="form-field">
+                <label for="catalog_type">Каталог</label>
+                <select id="catalog_type" name="catalog_type" required>
+                    <?php foreach ($catalogTypes as $catalogType): ?>
+                        <option value="<?= (int) $catalogType['id'] ?>"><?= htmlspecialchars((string) $catalogType['name'], ENT_QUOTES) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <button type="submit" class="btn"><?= \App\Core\AdminUi::icon('database-import') ?>Перенести в каталог</button>
+        </form>
+    </details>
+<?php endif; ?>
+
 <?php require __DIR__ . '/../layout/footer.php'; ?>
