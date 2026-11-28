@@ -59,6 +59,11 @@ final class ContentFields
                 if ($v !== '') {
                     $html .= '<div class="form-hint">Текущий: <a href="' . $v . '" target="_blank" rel="noopener">' . $v . '</a></div>';
                     $html .= '<input type="hidden" name="' . $name . '__keep" value="' . $v . '">';
+                    // Необязательный файл можно и убрать: иначе приложенный
+                    // однажды файл (например, перевода) остался бы навсегда.
+                    if ($required === '') {
+                        $html .= '<label class="form-check"><input type="checkbox" name="' . $name . '__remove" value="1"> Убрать файл</label>';
+                    }
                 }
                 $html .= '<input type="file" id="' . $id . '" name="' . $name . '"' . ($v === '' ? $required : '') . '>';
                 break;
@@ -149,6 +154,19 @@ final class ContentFields
     }
 
     /**
+     * Поля языковой версии: все необязательны. Пустое поле перевода уступает
+     * основному языку, поэтому требовать его нельзя — иначе форма не
+     * отправится, пока не переведено каждое обязательное поле.
+     *
+     * @param array<int,array<string,mixed>> $fields
+     * @return array<int,array<string,mixed>>
+     */
+    public static function forTranslation(array $fields): array
+    {
+        return array_map(static fn (array $f): array => array_merge($f, ['required' => 0]), $fields);
+    }
+
+    /**
      * Собирает значения полей из запроса. Валидирует required, парсит number/date,
      * файлы сохраняет через Uploader.
      *
@@ -180,6 +198,8 @@ final class ContentFields
                     } catch (\Throwable $e) {
                         $errors[$fname] = $e->getMessage();
                     }
+                } elseif ($keep !== '' && !$required && !empty($_POST[$input . '__remove'])) {
+                    continue;
                 } elseif ($keep !== '') {
                     $values[$fname] = $keep;
                 } elseif ($required) {

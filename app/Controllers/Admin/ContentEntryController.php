@@ -190,6 +190,11 @@ final class ContentEntryController
             $slug .= '-' . bin2hex(random_bytes(2));
         }
         $status = ($_POST['status'] ?? 'draft') === 'published' ? 'published' : 'draft';
+        // Вид PDF — у записи с файлом; пусто значит «как в настройке блока».
+        $openAs = \App\Core\Input::post()->oneOf('open_as', \App\Core\PdfViewer::VIEWS, '');
+        if ($openAs !== '' && in_array('file', array_column($fields, 'field_type'), true)) {
+            $values[\App\Core\CatalogDocuments::OPEN_AS] = $openAs;
+        }
 
         if ($entry === null) {
             $id = ContentEntry::create((int) $type['id'], $title, $slug, $status, $values);
@@ -206,7 +211,11 @@ final class ContentEntryController
                 if ($code === $defaultCode) {
                     continue;
                 }
-                [$trValues] = ContentFields::collect($fields, 't_' . $code . '_', Auth::id(), false);
+                // Файл у языковой версии свой, как у новости на другом языке.
+                [$trValues, $trErrors] = ContentFields::collect(ContentFields::forTranslation($fields), 't_' . $code . '_', Auth::id());
+                if ($trErrors !== []) {
+                    \App\Core\Flash::error(strtoupper($code) . ': ' . implode(' ', $trErrors));
+                }
                 $trTitle = trim((string) ($_POST['title_' . $code] ?? ''));
                 ContentEntry::upsertTranslation($id, $code, $trTitle !== '' ? $trTitle : null, $trValues);
             }
