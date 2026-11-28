@@ -250,3 +250,50 @@ test('Документ: новый встаёт первым, и сайт выв
     $old = strpos($html, 'Старый приказ');
     assert_true($fresh !== false && $old !== false && $fresh < $old, 'первая строка формы — первая на сайте');
 });
+
+test('Документы из каталога: у языковой версии свой файл, вид PDF выбирается у записи', function (): void {
+    $fields = [['name' => 'fayl', 'field_type' => 'file']];
+    $entries = [
+        ['id' => 21, 'title' => 'Отчёт', 'data' => ['fayl' => '/uploads/public/otchet-ru.pdf', '_open_as' => 'book']],
+        ['id' => 22, 'title' => 'Бланк', 'data' => ['fayl' => '/uploads/public/blank.pdf', '_open_as' => 'чужое']],
+    ];
+    // Перевод страницы несёт и свой файл — он не подменяет основной.
+    $translations = [21 => ['title' => 'Hisobot', 'data' => ['fayl' => '/uploads/public/hisobot-uz.pdf']]];
+    $files = [21 => ['uz' => '/uploads/public/hisobot-uz.pdf', 'en' => 'javascript:alert(1)']];
+
+    $items = \App\Core\CatalogDocuments::map($fields, $entries, $translations, $files, 'ru');
+
+    assert_same('', $items[0]['url'], 'при переведённых файлах общего файла нет');
+    assert_same(['ru' => '/uploads/public/otchet-ru.pdf', 'uz' => '/uploads/public/hisobot-uz.pdf'], $items[0]['files'], 'опасный адрес версии не выводится');
+    assert_same('book', $items[0]['open_as']);
+    assert_same('/uploads/public/blank.pdf', $items[1]['url'], 'без переводов файл остаётся общим');
+    assert_same([], $items[1]['files']);
+    assert_same('', $items[1]['open_as'], 'чужое значение — как в настройке блока');
+
+    // Карточка ведёт к файлу на языке страницы, остальное — подписями языков.
+    $languages = [['code' => 'ru', 'name' => 'Русский'], ['code' => 'uz', 'name' => 'Oʻzbekcha']];
+    $uz = DocumentPresenter::files($items[0], 'uz', $languages);
+    assert_same('/uploads/public/hisobot-uz.pdf', $uz[0]['url']);
+    assert_same('/uploads/public/otchet-ru.pdf', $uz[1]['url']);
+});
+
+test('Каталог: поле перевода не обязательно, необязательный файл можно убрать', function (): void {
+    $fields = [['name' => 'fayl', 'label' => 'Файл', 'field_type' => 'file', 'required' => 1]];
+    assert_same(0, \App\Core\ContentFields::forTranslation($fields)[0]['required']);
+
+    $optional = [['name' => 'fayl', 'label' => 'Файл', 'field_type' => 'file', 'required' => 0]];
+    assert_contains('t_uz_fayl__remove', \App\Core\ContentFields::renderInput($optional[0], '/uploads/public/a.pdf', 't_uz_'));
+    assert_not_contains('__remove', \App\Core\ContentFields::renderInput($fields[0], '/uploads/public/a.pdf', 'f_'), 'обязательный файл не убирается');
+
+    $post = $_POST;
+    $_POST = ['t_uz_fayl__keep' => '/uploads/public/a.pdf', 't_uz_fayl__remove' => '1'];
+    try {
+        [$values] = \App\Core\ContentFields::collect($optional, 't_uz_');
+        assert_same([], $values, 'отмеченный файл убирается');
+        unset($_POST['t_uz_fayl__remove']);
+        [$values] = \App\Core\ContentFields::collect($optional, 't_uz_');
+        assert_same(['fayl' => '/uploads/public/a.pdf'], $values, 'без отметки файл остаётся');
+    } finally {
+        $_POST = $post;
+    }
+});
