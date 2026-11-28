@@ -233,3 +233,20 @@ test('Документ: страницы листает браузер, и то�
     assert_contains('data-carousel', $slider);
     assert_not_contains('data-document-pager', $slider);
 });
+
+test('Документ: новый встаёт первым, и сайт выводит список в порядке формы', function (): void {
+    // Список в форме добавляет строку в начало — порядок формы и сайта один,
+    // поэтому сайт его не переворачивает (стрелки иначе работали бы наоборот).
+    assert_contains('data-repeater="items" data-repeater-prepend', block_editor_markup());
+
+    $html = (string) BlockRenderer::render([
+        'id' => 4396, 'type' => 'docs_list',
+        'data' => json_encode(['items' => [
+            ['title' => 'Свежий приказ', 'url' => '/uploads/public/new.pdf'],
+            ['title' => 'Старый приказ', 'url' => '/uploads/public/old.pdf'],
+        ]], JSON_UNESCAPED_UNICODE),
+    ])['html'];
+    $fresh = strpos($html, 'Свежий приказ');
+    $old = strpos($html, 'Старый приказ');
+    assert_true($fresh !== false && $old !== false && $fresh < $old, 'первая строка формы — первая на сайте');
+});

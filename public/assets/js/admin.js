@@ -800,7 +800,14 @@
             // узлах: чтение innerHTML с обратной записью — это повторный
             // разбор разметки, на котором данные становятся HTML.
             wrapper.appendChild(instantiateRepeaterTemplate(template, index));
-            container.appendChild(wrapper);
+            // data-repeater-prepend: новая строка встаёт первой (список, где
+            // свежее идёт сверху, — документы). Кнопка у такого списка стоит
+            // над ним, поэтому строка появляется прямо под ней.
+            if (container.hasAttribute('data-repeater-prepend')) {
+                container.insertBefore(wrapper, container.firstChild);
+            } else {
+                container.appendChild(wrapper);
+            }
             arrangeBlockRepeaterRow(wrapper);
             if (window.__enhanceIconFields) { window.__enhanceIconFields(wrapper); }
             if (window.__enhanceColorFields) { window.__enhanceColorFields(wrapper); }
