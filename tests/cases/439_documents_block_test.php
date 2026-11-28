@@ -297,3 +297,40 @@ test('Каталог: поле перевода не обязательно, н�
         $_POST = $post;
     }
 });
+
+test('Перенос в каталог: документы блока становятся записями, недостающее называется', function (): void {
+    $fields = [
+        ['name' => 'fayl', 'field_type' => 'file'],
+        ['name' => 'oblozhka', 'field_type' => 'image'],
+        ['name' => 'nomer', 'field_type' => 'text'],
+        ['name' => 'sana', 'field_type' => 'date'],
+    ];
+    $items = [
+        ['title' => 'Отчёт', 'url' => '', 'files' => ['ru' => '/uploads/public/r.pdf', 'uz' => '/uploads/public/u.pdf'],
+            'cover' => '/uploads/public/c.jpg', 'description' => '<p>Итоги</p>', 'number' => 'ПП-1',
+            'date' => '12.03.2026', 'open_as' => 'book', 'link_label' => 'Скачать отчёт'],
+        ['title' => 'Бланк', 'url' => 'javascript:alert(1)', 'date' => 'весной'],
+        ['title' => '', 'url' => '/uploads/public/x.pdf'],
+    ];
+
+    $plan = \App\Core\DocumentsToCatalog::entries($items, $fields, 'ru', true);
+
+    assert_same(2, count($plan['entries']), 'документ без названия не переносится');
+    $first = $plan['entries'][0];
+    assert_same('Отчёт', $first['title'], 'порядок блока сохраняется');
+    assert_same([
+        'fayl' => '/uploads/public/r.pdf', 'oblozhka' => '/uploads/public/c.jpg', 'nomer' => 'ПП-1',
+        'sana' => '2026-03-12', '_open_as' => 'book',
+    ], $first['data']);
+    assert_same(['uz' => ['fayl' => '/uploads/public/u.pdf']], $first['translations'], 'файл другого языка — в языковую версию');
+    assert_same([], $plan['entries'][1]['data'], 'опасная ссылка не переносится');
+    foreach (['описания', 'даты не в виде', 'названия кнопок'] as $note) {
+        assert_true(str_contains(implode(' | ', $plan['notes']), $note), 'названо: ' . $note);
+    }
+
+    // Каталог без языковых версий: файл перевода не теряется молча.
+    $mono = \App\Core\DocumentsToCatalog::entries([$items[0]], $fields, 'ru', false);
+    assert_same([], $mono['entries'][0]['translations']);
+    assert_true(str_contains(implode(' | ', $mono['notes']), 'языковые версии'));
+    assert_same('', \App\Core\DocumentsToCatalog::isoDate('31.02.2026'), 'несуществующая дата не переносится');
+});
