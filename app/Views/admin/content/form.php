@@ -73,8 +73,10 @@ $hasTr = (int) $type['has_translations'] === 1;
                                 <input type="text" name="title_<?= $code ?>" value="<?= htmlspecialchars((string) ($tr['title'] ?? ''), ENT_QUOTES) ?>" placeholder="Перевод заголовка на <?= htmlspecialchars((string) $lang['name'], ENT_QUOTES) ?>">
                             </div>
 
-                            <?php foreach ($fields as $field): ?>
-                                <?php if ($field['field_type'] === 'file') { continue; /* файлы не переводим */ } ?>
+                            <?php foreach (ContentFields::forTranslation($fields) as $field): ?>
+                                <?php if ($field['field_type'] === 'file'): ?>
+                                    <p class="form-hint">Файл этой языковой версии. Пусто — посетитель получит файл основного языка.</p>
+                                <?php endif; ?>
                                 <div class="u-inline-a82d7062cc">
                                     <?= ContentFields::renderInput($field, $tr['data'][$field['name']] ?? '', 't_' . $code . '_') ?>
                                 </div>
@@ -97,6 +99,19 @@ $hasTr = (int) $type['has_translations'] === 1;
                             <option value="published" <?= ($entry['status'] ?? '') === 'published' ? 'selected' : '' ?>>Опубликовано</option>
                         </select>
                     </div>
+
+                    <?php if ($hasFile): ?>
+                        <?php $openAs = (string) ($data[\App\Core\CatalogDocuments::OPEN_AS] ?? ''); ?>
+                        <div class="form-field">
+                            <label class="u-inline-0b87e9e0af" for="open_as">Открывать PDF</label>
+                            <select id="open_as" name="open_as">
+                                <option value="">Как в настройке блока</option>
+                                <option value="document" <?= $openAs === 'document' ? 'selected' : '' ?>>Документом</option>
+                                <option value="book" <?= $openAs === 'book' ? 'selected' : '' ?>>Книгой с листанием</option>
+                            </select>
+                            <span class="form-hint">Для блока «Документы». Книга подходит брошюрам и отчётам; постановления и бланки оставьте документом — в книге текст не выделить и не найти.</span>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="form-field">
                         <label class="u-inline-0b87e9e0af" for="slug">Адрес (slug)</label>

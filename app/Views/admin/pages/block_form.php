@@ -1763,15 +1763,21 @@ $backLabel = $ownerIsProject ? 'Назад к проекту' : 'Назад к �
                     дата — дата акта, первое однострочное поле — номер акта. Список ниже при этом не выводится, но сохраняется.
                 </span>
             </div>
+            <?php
+            // Новый документ встаёт первым — и в форме, и на сайте: порядок
+            // списка один, сайт его не переворачивает. Иначе стрелки
+            // «выше/ниже» двигали бы документ в обратную сторону от сайта.
+            ?>
             <div>
                 <label>Документы</label>
-                <div data-repeater="items">
+                <span class="form-hint">Новый документ добавляется в начало списка и на сайте выводится первым. Порядок меняется стрелками.</span>
+                <div class="repeater-actions"><button type="button" class="btn btn--small" data-repeater-add="items"><?= \App\Core\AdminUi::icon('plus') ?>Добавить документ</button></div>
+                <div data-repeater="items" data-repeater-prepend>
                     <?php foreach (($data['items'] ?? []) as $i => $item): ?>
                         <div class="repeater-row"><?= $docRow((string) $i, is_array($item) ? $item : []) ?></div>
                     <?php endforeach; ?>
                 </div>
                 <template data-repeater-template="items"><?= $docRow('__INDEX__', []) ?></template>
-                <div class="repeater-actions"><button type="button" class="btn btn--small" data-repeater-add="items"><?= \App\Core\AdminUi::icon('plus') ?>Добавить документ</button></div>
             </div>
         <?php endif; ?>
 
