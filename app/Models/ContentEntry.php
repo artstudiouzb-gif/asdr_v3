@@ -21,7 +21,7 @@ final class ContentEntry
             $sql .= ' AND status = :s';
             $params[':s'] = $status;
         }
-        $sql .= ' ORDER BY sort_order ASC, created_at DESC';
+        $sql .= ' ORDER BY sort_order ASC, created_at DESC, id DESC';
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);
 
